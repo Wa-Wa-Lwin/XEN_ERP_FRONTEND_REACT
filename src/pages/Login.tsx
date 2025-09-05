@@ -1,258 +1,105 @@
-import { useState } from 'react';
-import { Button, Input, Card, CardBody, CardHeader } from '@heroui/react';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+"use client";
 
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isVisible, setIsVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+import React from "react";
+import {Button, Input, Checkbox, Link, Divider, Form} from "@heroui/react";
+import {Icon} from "@iconify/react";
+import { useNavigate } from "react-router-dom";
+
+// import {AcmeIcon} from "./acme";
+
+export default function Component() {
+  const navigate = useNavigate()
+  const [isVisible, setIsVisible] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log('Login attempt:', { username, password });
-    }, 1000);
-  };
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("handleSubmit");
 
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f5f5f5 0%, #e5e5e5 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    },
-    wrapper: {
-      width: '100%',
-      maxWidth: '28rem'
-    },
-    logoSection: {
-      textAlign: 'center' as const,
-      marginBottom: '2rem'
-    },
-    logoContainer: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '5rem',
-      height: '5rem',
-      backgroundColor: 'white',
-      borderRadius: '50%',
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-      marginBottom: '1rem'
-    },
-    logoIcon: {
-      width: '3rem',
-      height: '3rem',
-      background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-      borderRadius: '0.5rem',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    logoText: {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: '1.25rem'
-    },
-    title: {
-      fontSize: '1.875rem',
-      fontWeight: 'bold',
-      color: '#1f2937',
-      marginBottom: '0.5rem'
-    },
-    subtitle: {
-      color: '#6b7280'
-    },
-    card: {
-      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-      border: 'none'
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1.5rem'
-    },
-    fieldGroup: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem'
-    },
-    label: {
-      fontSize: '0.875rem',
-      fontWeight: '500',
-      color: '#374151'
-    },
-    checkboxContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'
-    },
-    checkbox: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem'
-    },
-    checkboxInput: {
-      width: '1rem',
-      height: '1rem',
-      accentColor: '#2563eb'
-    },
-    checkboxLabel: {
-      fontSize: '0.875rem',
-      color: '#6b7280'
-    },
-    forgotLink: {
-      fontSize: '0.875rem',
-      color: '#2563eb',
-      textDecoration: 'none'
-    },
-    footer: {
-      marginTop: '1.5rem',
-      textAlign: 'center' as const
-    },
-    footerText: {
-      fontSize: '0.875rem',
-      color: '#6b7280'
-    },
-    footerLink: {
-      color: '#2563eb',
-      textDecoration: 'none',
-      fontWeight: '500'
-    },
-    copyright: {
-      textAlign: 'center' as const,
-      marginTop: '2rem'
-    },
-    copyrightText: {
-      fontSize: '0.75rem',
-      color: '#9ca3af'
-    }
+
+    navigate("/overview")
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.wrapper}>
-        {/* Logo Section */}
-        <div style={styles.logoSection}>
-          <div style={styles.logoContainer}>
-            <div style={styles.logoIcon}>
-              <span style={styles.logoText}>X</span>
-            </div>
-          </div>
-          <h1 style={styles.title}>XenoOptics</h1>
-          <p style={styles.subtitle}>Shipment Management System</p>
-        </div>
-
-        {/* Login Card */}
-        <Card style={styles.card}>
-          <CardHeader style={{ paddingBottom: '0.5rem' }}>
-            <div style={{ textAlign: 'center', width: '100%' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937' }}>Welcome Back</h2>
-              <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>Sign in to your account</p>
-            </div>
-          </CardHeader>
-          <CardBody style={{ paddingTop: '0.5rem' }}>
-            <form onSubmit={handleLogin} style={styles.form}>
-              {/* Username Field */}
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Username</label>
-                <Input
-                  type="text"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Password Field */}
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Password</label>
-                <Input
-                  type={isVisible ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  endContent={
-                    <button
-                      type="button"
-                      onClick={toggleVisibility}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                    >
-                      {isVisible ? (
-                        <EyeSlashIcon style={{ width: '1.25rem', height: '1.25rem', color: '#9ca3af' }} />
-                      ) : (
-                        <EyeIcon style={{ width: '1.25rem', height: '1.25rem', color: '#9ca3af' }} />
-                      )}
-                    </button>
-                  }
-                />
-              </div>
-
-              {/* Remember Me & Forgot Password */}
-              <div style={styles.checkboxContainer}>
-                <label style={styles.checkbox}>
-                  <input
-                    type="checkbox"
-                    style={styles.checkboxInput}
+    <div className="min-h-screen flex h-full w-full flex-col items-center justify-center">
+      <div className="flex flex-col items-center pb-6">
+        {/* <AcmeIcon size={60} /> */}
+        <p className="text-xl font-medium">Welcome Back</p>
+        <p className="text-small text-default-500">Log in to your account to continue</p>
+      </div>
+      <div className="rounded-large bg-content1 shadow-small mt-2 flex w-full max-w-sm flex-col gap-4 px-8 py-6">
+        <Form className="flex flex-col gap-3" validationBehavior="native" onSubmit={handleSubmit}>
+          <Input
+            isRequired
+            label="Email Address"
+            name="email"
+            placeholder="Enter your email"
+            type="text"
+            // type="email"
+            variant="bordered"
+          />
+          <Input
+            isRequired
+            endContent={
+              <button type="button" onClick={toggleVisibility}>
+                {isVisible ? (
+                  <Icon
+                    className="text-default-400 pointer-events-none text-2xl"
+                    icon="solar:eye-closed-linear"
                   />
-                  <span style={styles.checkboxLabel}>Remember me</span>
-                </label>
-                <a href="#" style={styles.forgotLink}>
-                  Forgot password?
-                </a>
-              </div>
-
-              {/* Login Button */}
-              <Button
-                type="submit"
-                color="primary"
-                size="lg"
-                style={{
-                  width: '100%',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  fontWeight: '500'
-                }}
-                isLoading={isLoading}
-                disabled={!username || !password}
-              >
-                {isLoading ? 'Signing in...' : 'Sign In'}
-              </Button>
-            </form>
-
-            {/* Footer */}
-            <div style={styles.footer}>
-              <p style={styles.footerText}>
-                Don't have an account?{' '}
-                <a href="#" style={styles.footerLink}>
-                  Contact administrator
-                </a>
-              </p>
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Copyright */}
-        <div style={styles.copyright}>
-          <p style={styles.copyrightText}>
-            © 2024 XenoOptics. All rights reserved.
-          </p>
+                ) : (
+                  <Icon
+                    className="text-default-400 pointer-events-none text-2xl"
+                    icon="solar:eye-bold"
+                  />
+                )}
+              </button>
+            }
+            label="Password"
+            name="password"
+            placeholder="Enter your password"
+            type={isVisible ? "text" : "password"}
+            variant="bordered"
+          />
+          <div className="flex w-full items-center justify-between px-1 py-2">
+            <Checkbox name="remember" size="sm">
+              Remember me
+            </Checkbox>
+            <Link className="text-default-500" href="#" size="sm">
+              Forgot password?
+            </Link>
+          </div>
+          <Button className="w-full" color="primary" type="submit">
+            Log In
+          </Button>
+        </Form>
+        <div className="flex items-center gap-4">
+          <Divider className="flex-1" />
+          <p className="text-tiny text-default-500 shrink-0">OR</p>
+          <Divider className="flex-1" />
         </div>
+        <div className="flex flex-col gap-2">
+          <Button
+            startContent={<Icon icon="flat-color-icons:google" width={24} />}
+            variant="bordered"
+          >
+            Continue with Google
+          </Button>
+          <Button
+            startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
+            variant="bordered"
+          >
+            Continue with Github
+          </Button>
+        </div>
+        <p className="text-small text-center">
+          Need to create an account?&nbsp;
+          <Link href="#" size="sm">
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );
-};
-
-export default Login;
+}
