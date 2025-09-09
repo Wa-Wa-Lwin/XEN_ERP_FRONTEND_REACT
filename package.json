@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/msal-browser": "^4.22.0",
     "@heroicons/react": "^2.2.0",
     "@heroui/button": "^2.2.10",
     "@heroui/listbox": "^2.3.10",
@@ -21,7 +22,7 @@
     "@heroui/tooltip": "^2.2.8",
     "@reduxjs/toolkit": "^2.4.0",
     "@tailwindcss/cli": "^4.1.13",
-    "axios": "^1.7.8",
+    "axios": "^1.11.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.12",
     "i18next": "^25.4.1",

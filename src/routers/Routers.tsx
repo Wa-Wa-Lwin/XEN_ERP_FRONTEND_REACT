@@ -1,25 +1,14 @@
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { Suspense, lazy } from "react";
-// const Home = lazy(() => import('@pages/home/Home'));
-// const LoginPage = lazy(() => import('@pages/Login'));
-// const Shipment = lazy(() => import('@features/shipment/Shipment'));
-// const ShipmentDetails = lazy(() => import('@features/shipment/components/ShipmentDetails'));
-// const ShipmentForm = lazy(() => import('@features/shipment/components/ShipmentForm'));
-// const Overview = lazy(() => import('@features/overview/Overview'));
-// const Logistics = lazy(() => import('@features/logistics/Logistics'));
-
+// import { Suspense, lazy } from "react";
 
 import Home from "@pages/home/Home"
-import LoginPage from "@pages/Login"
+import LoginPage from "@pages/login/Login"
 import Shipment from "@features/shipment/Shipment"
 import ShipmentDetails from "@features/shipment/components/ShipmentDetails"
 import ShipmentForm from "@features/shipment/components/ShipmentForm"
 import Overview from "@features/overview/Overview"
 import Logistics from "@features/logistics/Logistics";
-
-
-
 
 
 export const routes = [
