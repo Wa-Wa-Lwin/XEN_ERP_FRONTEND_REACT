@@ -3,11 +3,12 @@ import { Button } from "@heroui/react";
 import { PublicClientApplication } from '@azure/msal-browser';
 import { useNavigate } from 'react-router-dom';
 import { msalConfig } from '../../../config/msalConfig';
+import { useAuth } from '@context/AuthContext';
 
 const pca = new PublicClientApplication(msalConfig);
 
 export default function MicrosoftLogin() {
-//   const { loginWithMicrosoft, isLoading, error, clearError } = useAuth();
+  const { login } = useAuth();
   const [isMicrosoftLoading, setIsMicrosoftLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -86,8 +87,18 @@ export default function MicrosoftLogin() {
             const userData = await response.json();
             console.log('Login successful:', userData);
             
-            // Store user session data if needed
-            sessionStorage.setItem('user', JSON.stringify(userData));
+            // Use the API response data directly (contains correct id and access_token)
+            const processedUserData = {
+              id: userData.id,
+              name: userData.name,
+              email: userData.email,
+              accessToken: userData.access_token
+            };
+            
+            console.log('Processed user data:', processedUserData);
+            
+            // Store user session data using auth context
+            login(processedUserData);
             
             // Navigate to dashboard/overview
             navigate('/overview');
@@ -107,7 +118,7 @@ export default function MicrosoftLogin() {
           };
           
           console.log('Login successful (client-side):', userData);
-          sessionStorage.setItem('user', JSON.stringify(userData));
+          login(userData);
           navigate('/overview');
         }
       }

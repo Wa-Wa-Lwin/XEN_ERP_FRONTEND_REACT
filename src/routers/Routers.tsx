@@ -8,7 +8,8 @@ import Shipment from "@features/shipment/Shipment"
 import ShipmentDetails from "@features/shipment/components/ShipmentDetails"
 import ShipmentForm from "@features/shipment/components/ShipmentForm"
 import Overview from "@features/overview/Overview"
-import Logistics from "@features/logistics/Logistics";
+import Logistics from "@features/logistics/Logistics"
+import ProtectedRoute from "@components/common/ProtectedRoute";
 
 
 export const routes = [
@@ -16,7 +17,7 @@ export const routes = [
     path: "login", element: <LoginPage />, handle: { breadcrumb: "Login" },
   },
   {
-    element: <Home />,
+    element: <ProtectedRoute><Home /></ProtectedRoute>,
     children: [
       { path: "overview", element: <Overview />, handle: { breadcrumb: "Overview" } },
       { path: "logistics/:category?", element: <Logistics />, handle: { breadcrumb: "Logistics" } },
