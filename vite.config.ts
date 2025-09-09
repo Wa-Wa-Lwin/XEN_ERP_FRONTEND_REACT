@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       "@api": "/src/api",
       "@assets": "/src/assets",
+      "@config": "/src/config", 
       "@components": "/src/components",
       "@constants": "/src/constants",
       "@context": "/src/context",

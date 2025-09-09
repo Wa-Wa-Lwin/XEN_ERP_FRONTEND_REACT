@@ -5,6 +5,7 @@
 // import MainLayout from '@components/layout/MainLayout';
 import { Outlet,  Navigate, useNavigate } from 'react-router-dom';
 import Breadcrumb from "./components/Breadcrumb";
+import { useAuth } from '@context/AuthContext';
 
 
 
@@ -66,10 +67,9 @@ import {sectionItemsWithTeams} from "./components/sidebar-items";
 export default function Component() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
-
+  const { logout, user } = useAuth();
   
   const isCompact = isCollapsed || isMobile;
-
 
   const navigate = useNavigate();
 
@@ -95,7 +95,10 @@ export default function Component() {
 
     return () => window.removeEventListener("resize", updateHeight);
   }, []);
-  const handleLogout = () => navigate("login")
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  }
 
   console.log(mainHeight)
 
@@ -138,8 +141,8 @@ export default function Component() {
             src="https://i.pravatar.cc/150?u=a04258114e29026708c"
           />
           <div className={cn("flex max-w-full flex-col", {hidden: isCompact})}>
-            <p className="text-small text-default-600 truncate font-medium">John Doe</p>
-            <p className="text-tiny text-default-400 truncate">Product Designer</p>
+            <p className="text-small text-default-600 truncate font-medium">{user?.name || 'User'}</p>
+            <p className="text-tiny text-default-400 truncate">{user?.email || 'user@example.com'}</p>
           </div>
         </div>
         <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
