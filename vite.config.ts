@@ -34,6 +34,13 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: false,
+    proxy: {
+      '/api': {
+        target: 'https://192.168.60.31', // NOTE: ensure this matches the backend server URL
+        changeOrigin: true,
+        secure: false, // ignore self-signed cert
+      },
+    },
   },
   build: {
     target: "esnext",

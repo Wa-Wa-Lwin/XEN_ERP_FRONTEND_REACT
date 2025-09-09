@@ -43,7 +43,6 @@ import {cn} from "@heroui/react";
 
 import Sidebar from "./components/Sidebar";
 
-import {AcmeIcon} from "./components/acme";
 import {sectionItemsWithTeams} from "./components/sidebar-items";
 
 /**
@@ -121,15 +120,15 @@ export default function Component() {
             },
           )}
         >
-          <div className="bg-foreground flex h-8 w-8 items-center justify-center rounded-full">
-            <AcmeIcon className="text-background" />
-          </div>
+          {/* <div className="bg-foreground flex h-8 w-8 items-center justify-center rounded-full">
+            <img src="./xenoptics_only_logo.png" alt="Xen Logistic Logo"/>
+          </div> */}
           <span
             className={cn("text-small font-bold uppercase opacity-100", {
               "w-0 opacity-0": isCompact,
             })}
           >
-            Acme
+            Logistics 
           </span>
         </div>
         <Spacer y={8} />
@@ -138,7 +137,7 @@ export default function Component() {
             isBordered
             className="flex-none"
             size="sm"
-            src="https://i.pravatar.cc/150?u=a04258114e29026708c"
+            // src="https://i.pravatar.cc/150?u=a04258114e29026708c"
           />
           <div className={cn("flex max-w-full flex-col", {hidden: isCompact})}>
             <p className="text-small text-default-600 truncate font-medium">{user?.name || 'User'}</p>

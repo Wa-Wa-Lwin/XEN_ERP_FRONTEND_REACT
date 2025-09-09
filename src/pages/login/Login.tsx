@@ -27,18 +27,23 @@ export default function Component() {
     }
     setLoading(true);
     try {
-      const response = await axios.post(import.meta.env.VITE_APP_LOGIN_API_URL, {
+      const response = await axios.post(import.meta.env.VITE_APP_EMAIL_LOGIN_API_URL, {
         email,
         password,
       });
 
-      // Create user object and update auth context
+      console.log('Email login response:', response.data);
+
+      // Create user object and update auth context - handle the API response data
+      const responseData = response.data;
       const userData = {
-        email: email,
-        name: response.data.user?.name || email.split('@')[0],
-        id: response.data.user?.id || 'temp-id',
-        accessToken: response.data.token
+        email: responseData.email,
+        name: responseData.name || email.split('@')[0],
+        id: responseData.id || 'temp-id',
+        accessToken: responseData.access_token 
       };
+
+      console.log('Processed email login user data:', userData);
       
       // Update auth context
       login(userData);
