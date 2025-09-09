@@ -1,6 +1,6 @@
 import { Provider } from "react-redux";
 import { store } from "@redux/store";
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Router } from "@routers/Routers";
 import { AuthProvider } from "@context/AuthContext";
@@ -9,9 +9,9 @@ function App() {
 	return (
 		<Provider store={store}>
 			<AuthProvider>
-				{/* <Suspense fallback={<Loading />}> */}
+				<Suspense fallback={<Loading />}>
 					<RouterProvider router={Router} />
-				{/* </Suspense> */}
+				</Suspense>
 			</AuthProvider>
 		</Provider>
 	);
