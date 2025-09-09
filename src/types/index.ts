@@ -66,7 +66,97 @@ export interface ApiResponse<T = any> {
 //   unit: 'cm' | 'in';
 // }
 
-// Shipment Request Types
+// Shipment Request Supporting Types
+export interface ShipmentRequestHistory {
+  shipmentRequestHistoryID: number;
+  shipment_request_created_date_time: string;
+  user_id: string;
+  user_name: string;
+  user_role: string;
+  status: string;
+  remark: string | null;
+  history_count: string;
+  shipment_request_id: string;
+  history_record_date_time: string;
+}
+
+export interface ParcelItem {
+  parcelItemID: number;
+  parcel_id: string;
+  description: string;
+  quantity: string;
+  price_currency: string;
+  price_amount: string;
+  item_id: string;
+  origin_country: string;
+  weight_unit: string;
+  weight_value: string;
+  sku: string;
+  hs_code: string;
+  return_reason: string;
+}
+
+export interface Parcel {
+  parcelID: number;
+  shipment_request_id: string;
+  box_type: string;
+  width: string;
+  height: string;
+  depth: string;
+  dimension_unit: string;
+  weight_value: string;
+  weight_unit: string;
+  description: string;
+  box_type_name: string;
+  net_weight_value: string;
+  items: ParcelItem[];
+}
+
+export interface ShippingAddress {
+  shippingToAddressID?: number;
+  shippingFromAddressID?: number;
+  shipment_request_id: string;
+  country: string;
+  contact_name: string;
+  phone: string;
+  fax: string | null;
+  email: string;
+  company_name: string;
+  company_url: string | null;
+  street1: string;
+  street2: string;
+  street3: string | null;
+  city: string;
+  state: string;
+  postal_code: string;
+  tax_id: string | null;
+  created_at: string | null;
+  created_by_user_name: string | null;
+}
+
+export interface ShippingRate {
+  rateID: number;
+  shipment_request_id: string;
+  shipper_account_id: string;
+  shipper_account_slug: string;
+  shipper_account_description: string;
+  service_type: string;
+  service_name: string;
+  pickup_deadline: string | null;
+  booking_cut_off: string | null;
+  delivery_date: string;
+  transit_time: string;
+  error_message: string | null;
+  info_message: string | null;
+  charge_weight_value: string;
+  charge_weight_unit: string;
+  total_charge_amount: string;
+  total_charge_currency: string;
+  chosen: string;
+  detailed_charges: string;
+}
+
+// Main Shipment Request Type
 export interface ShipmentRequest {
   shipmentRequestID: number;
   service_options: string | null;
@@ -101,7 +191,7 @@ export interface ShipmentRequest {
   label_status: string | null;
   tracking_numbers: string | null;
   error_msg: string | null;
-  insurance_enabled: boolean | null;
+  insurance_enabled: string | null;
   insurance_insured_value_amount: number | null;
   insurance_insured_value_currency: string | null;
   files_label_url: string | null;
@@ -125,9 +215,17 @@ export interface ShipmentRequest {
   po_date: string | null;
   shipment_scope_type: string | null;
   shipment_scope_edited: string;
+  // Nested objects (optional for backward compatibility)
+  shipment_request_histories?: ShipmentRequestHistory[];
+  parcels?: Parcel[];
+  ship_to?: ShippingAddress;
+  ship_from?: ShippingAddress;
+  rates?: ShippingRate[];
+  invoice_datas?: any[];
 }
 
 export interface ShipmentRequestsResponse {
   shipment_requests_count: number;
   shipment_requests: ShipmentRequest[];
+  shipment_requests_desc: ShipmentRequest[];
 }
