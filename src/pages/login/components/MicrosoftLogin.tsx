@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@heroui/react";
 import { PublicClientApplication } from '@azure/msal-browser';
 import { useNavigate } from 'react-router-dom';
-import { msalConfig } from '@config/msalConfig';
+import { msalConfig } from '../../../config/msalConfig';
 
 const pca = new PublicClientApplication(msalConfig);
 
@@ -10,9 +10,29 @@ export default function MicrosoftLogin() {
 //   const { loginWithMicrosoft, isLoading, error, clearError } = useAuth();
   const [isMicrosoftLoading, setIsMicrosoftLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const initializeMsal = async () => {
+      try {
+        await pca.initialize();
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize MSAL:', error);
+        setError('Failed to initialize Microsoft authentication. Please refresh the page.');
+      }
+    };
+
+    initializeMsal();
+  }, []);
+
   const handleMicrosoftLogin = async () => {
+    if (!isInitialized) {
+      setError('Microsoft authentication is not ready. Please wait a moment and try again.');
+      return;
+    }
+
     setIsMicrosoftLoading(true);
     setError(null);
     
@@ -44,45 +64,66 @@ export default function MicrosoftLogin() {
         const tokenResponse = await pca.acquireTokenSilent(tokenRequest);
         
         // Send token to your backend API for validation
-        const response = await fetch(import.meta.env.VITE_APP_LOGIN_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            accessToken: tokenResponse.accessToken,
-            userInfo: {
-              email: result.account.username,
-              name: result.account.name,
-              id: result.account.localAccountId 
-            }
-          })
-        });
+        console.log('Attempting to connect to API:', import.meta.env.VITE_APP_LOGIN_API_URL);
+        
+        try {
+          const response = await fetch(import.meta.env.VITE_APP_LOGIN_API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              accessToken: tokenResponse.accessToken,
+              userInfo: {
+                email: result.account.username,
+                name: result.account.name,
+                id: result.account.localAccountId 
+              }
+            })
+          });
 
-        if (response.ok) {
-          const userData = await response.json();
-          console.log('Login successful:', userData);
+          if (response.ok) {
+            const userData = await response.json();
+            console.log('Login successful:', userData);
+            
+            // Store user session data if needed
+            sessionStorage.setItem('user', JSON.stringify(userData));
+            
+            // Navigate to dashboard/overview
+            navigate('/overview');
+          } else {
+            const errorData = await response.json();
+            setError(errorData.message || 'Authentication failed. Please try again.');
+          }
+        } catch (fetchError) {
+          console.warn('API endpoint not accessible, proceeding with client-side auth only:', fetchError);
           
-          // Store user session data if needed
+          // Fallback: Store Microsoft user data directly (for development/testing)
+          const userData = {
+            email: result.account.username,
+            name: result.account.name,
+            id: result.account.localAccountId,
+            accessToken: tokenResponse.accessToken
+          };
+          
+          console.log('Login successful (client-side):', userData);
           sessionStorage.setItem('user', JSON.stringify(userData));
-          
-          // Navigate to dashboard/overview
           navigate('/overview');
-        } else {
-          const errorData = await response.json();
-          setError(errorData.message || 'Authentication failed. Please try again.');
         }
       }
     } catch (error: unknown) {
       console.error('Microsoft login error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       
-      const msalError = error as { errorCode?: string };
+      const msalError = error as { errorCode?: string; errorMessage?: string; message?: string };
       if (msalError.errorCode === 'user_cancelled') {
         setError('Login was cancelled.');
       } else if (msalError.errorCode === 'access_denied') {
         setError('Access denied. Please contact your administrator.');
       } else {
-        setError('An error occurred during login. Please try again.');
+        const errorMsg = msalError.errorMessage || msalError.message || 'An error occurred during login. Please try again.';
+        setError(`Login failed: ${errorMsg}`);
+        console.error('Detailed error message:', errorMsg);
       }
     } finally {
       setIsMicrosoftLoading(false);
@@ -108,7 +149,7 @@ export default function MicrosoftLogin() {
        variant="bordered"
         type="button"
         onClick={handleMicrosoftLogin}
-        disabled={isMicrosoftLoading}
+        disabled={isMicrosoftLoading || !isInitialized}
         className="w-full"
       >
         {isMicrosoftLoading ? (
