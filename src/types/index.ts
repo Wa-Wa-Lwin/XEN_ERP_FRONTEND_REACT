@@ -22,21 +22,35 @@ export interface ApiResponse<T = any> {
 // }
 
 // User Types
-// export interface User {
-//   id: string;
-//   email: string;
-//   name: string;
-//   // role: UserRole;
-//   avatar?: string;
-//   createdAt: string;
-//   updatedAt: string;
-// }
+export interface DatabaseUser {
+  userID: string;
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  phone: string;
+  email: string;
+  departmentID: string;
+  section_index: string;
+  postitionID: string;
+  active: string;
+  role: string;
+  user_code: string;
+  supervisorID: string;
+  level: string;
+}
 
-// export enum UserRole {
-//   ADMIN = 'admin',
-//   MANAGER = 'manager',
-//   USER = 'user',
-// }
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role?: string;
+  avatar?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  accessToken?: string;
+}
 
 // // Shipment Types
 // export interface Shipment {
@@ -199,7 +213,7 @@ export interface ShipmentRequest {
   files_packing_slip: string | null;
   logistic_rejected_date_time: string | null;
   approver_user_id: string | null;
-  approver_user_name: string | null;
+  approver_user_name: string;
   approver_user_mail: string | null;
   approver_approved_date_time: string | null;
   approver_rejected_date_time: string | null;

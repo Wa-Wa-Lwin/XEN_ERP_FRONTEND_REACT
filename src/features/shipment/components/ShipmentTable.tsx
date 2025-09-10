@@ -32,9 +32,10 @@ const ShipmentTable = () => {
   // Status options for filtering
   const statusOptions = [
     { value: 'all', label: 'All Status' },
-    { value: 'requestor_requested', label: 'Waiting Approver' },
-    { value: 'send_to_logistic', label: 'Waiting Logistics' },
-    { value: 'logistic_updated', label: 'Waiting Approver' },
+    { value: 'waiting', label: 'In Progress' },
+    // { value: 'requestor_requested', label: 'Waiting Approver' },
+    // { value: 'send_to_logistic', label: 'Waiting Logistics' },
+    // { value: 'logistic_updated', label: 'Waiting Approver' },
     { value: 'approver_approved', label: 'Approved' },
     { value: 'approver_rejected', label: 'Rejected' }
   ]
@@ -80,10 +81,16 @@ const ShipmentTable = () => {
 
     // Filter by status
     if (statusFilter !== 'all') {
+    if (statusFilter === 'waiting') {
+      filtered = filtered.filter(request =>
+        ['requestor_requested', 'send_to_logistic', 'logistic_updated'].includes(request.request_status)
+      )
+    } else {
       filtered = filtered.filter(request =>
         request.request_status === statusFilter
       )
     }
+  }
 
     return filtered
   }, [shipmentRequests, filterType, user?.email, statusFilter])
@@ -120,7 +127,7 @@ const ShipmentTable = () => {
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
+        year: '2-digit', // 'numeric',
         month: 'short',
         day: 'numeric'
       })
@@ -235,9 +242,9 @@ const ShipmentTable = () => {
                     Clear Filter
                   </Button>
                 )}
-              </div>             
+              </div>
             </div>
-            <div  className="flex gap-1">
+            <div className="flex gap-1">
               <Button
                 size="sm"
                 variant={filterType === 'all' ? 'solid' : 'bordered'}
@@ -262,50 +269,61 @@ const ShipmentTable = () => {
 
       </div>
 
-      <div className="overflow-auto max-h-[600px] border border-gray-200 rounded-lg">
+      <div className="overflow-x-auto max-h-[600px] border border-gray-200 rounded-lg">
 
         <Table
           aria-label="Shipment requests table"
-          className="min-w-full"
+          className="min-w-full text-xs md:text-[8px] md:text-sm"
           removeWrapper
         >
-          <TableHeader className="sticky top-0 z-20 bg-white shadow-sm">
-            <TableColumn>ID</TableColumn>
-            <TableColumn>Scope</TableColumn>
-            <TableColumn>Topic (PO Number)</TableColumn>
-            <TableColumn>FROM</TableColumn>
-            <TableColumn>TO</TableColumn>
-            <TableColumn>Status</TableColumn>
-            <TableColumn>Requestor</TableColumn>
-            <TableColumn>Request Date</TableColumn>
-            <TableColumn>Due Date</TableColumn>
-            <TableColumn>Approver</TableColumn>
-            <TableColumn>Actions</TableColumn>
+          <TableHeader className="sticky top-0 z-20 bg-white shadow-sm text-xs sm:text-[10px]">
+            <TableColumn className="w-6">ID</TableColumn>
+            <TableColumn className="w-8">Scope</TableColumn>
+            <TableColumn className="w-36
+            ">Topic (PO)</TableColumn>
+            <TableColumn className="w-36">FROM</TableColumn>
+            <TableColumn className="w-36">TO</TableColumn>
+            <TableColumn className="w-16">Status</TableColumn>
+            <TableColumn className="w-16">Requestor</TableColumn>
+            <TableColumn className="w-16">Approver</TableColumn>
+            <TableColumn className="w-16">Request Date</TableColumn>
+            <TableColumn className="w-16">Due Date</TableColumn>
+            {/* <TableColumn className="w-24">Actions</TableColumn> */}
           </TableHeader>
           <TableBody>
             {paginatedData.map((request) => (
               <TableRow key={request.shipmentRequestID} className="border-b border-gray-200">
-                <TableCell>
+                <TableCell className="text-xs">
                   <Link
                     to={`/shipment/${request.shipmentRequestID}`}
                     className="text-primary hover:text-primary-600 font-medium"
                   >
                     {request.shipmentRequestID}
                   </Link>
-                </TableCell>
-                <TableCell>
+                </TableCell>               
+                <TableCell className="text-xs">
                   {request.shipment_scope_type?.toUpperCase()}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-xs">
                   {request.topic} ({request.po_number})
                   {/* DONT_DELETE_YET */}
                   {/* {request.topic === 'Others' && request.other_topic ? <p className="text-xs text-gray-500">
                   {request.other_topic}
                 </p> : ''} */}
                 </TableCell>
-                <TableCell>{request.ship_from?.company_name}</TableCell>
-                <TableCell>{request.ship_to?.company_name}</TableCell>
-                <TableCell>
+                <TableCell className="text-xs">
+                  {request.ship_from?.company_name
+                    .split(' ')
+                    .slice(0, 3)
+                    .join(' ')}
+                </TableCell>
+                <TableCell className="text-xs">
+                  {request.ship_to?.company_name
+                    .split(' ')
+                    .slice(0, 3)
+                    .join(' ')}
+                </TableCell>
+                <TableCell className="text-xs">
                   <Chip
                     color={getStatusColor(request.request_status)}
                     variant="flat"
@@ -315,18 +333,34 @@ const ShipmentTable = () => {
 
                   </Chip>
                 </TableCell>
-                <TableCell>
-                  <div>
-                    <p className="font-medium">{request.created_user_name}</p>
-                    {/* <p className="text-xs text-gray-500">{request.created_user_mail}</p> */}
-                  </div>
+                <TableCell className="text-xs">
+                  <p className="font-medium">
+                    {(() => {
+                      const words = request.created_user_name.split(' ');
+                      if (words[0].length <= 5 && words.length > 1) {
+                        // First word ≤ 5 characters → show first two words
+                        return words.slice(0, 2).join(' ');
+                      } else {
+                        // Otherwise → show first word only
+                        return words[0];
+                      }
+                    })()}
+                  </p>
+                  {/* <p className="text-xs text-gray-500">{request.created_user_mail}</p> */}
                 </TableCell>
-                <TableCell>{formatDate(request.created_date_time)}</TableCell>
-                <TableCell>{formatDate(request.due_date)}</TableCell>
-                <TableCell>
-                  {
-                    request.approver_user_name
-                  }
+                <TableCell className="text-xs">
+                  <p className="font-medium">
+                    {(() => {
+                      const words = request.approver_user_name.split(' ');
+                      if (words[0].length <= 5 && words.length > 1) {
+                        // First word ≤ 5 characters → show first two words
+                        return words.slice(0, 2).join(' ');
+                      } else {
+                        // Otherwise → show first word only
+                        return words[0];
+                      }
+                    })()}
+                  </p>
                   {/* {request.approver_user_name ? (
                     <div>
                       <p className="font-medium">{request.approver_user_name}</p>
@@ -342,14 +376,16 @@ const ShipmentTable = () => {
                     <span className="text-gray-400">-</span>
                   )} */}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-xs">{formatDate(request.created_date_time)}</TableCell>
+                <TableCell className="text-xs">{formatDate(request.due_date)}</TableCell>
+                {/* <TableCell className="text-xs">
                   <Link
                     to={`/shipment/${request.shipmentRequestID}`}
                     className="text-primary hover:text-primary-600 text-sm"
                   >
                     View Details
                   </Link>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>

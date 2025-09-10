@@ -36,7 +36,7 @@ export default function MicrosoftLogin() {
 
     setIsMicrosoftLoading(true);
     setError(null);
-    
+
     try {
       const loginRequest = {
         scopes: ['User.Read'],
@@ -45,10 +45,10 @@ export default function MicrosoftLogin() {
       };
 
       const result = await pca.loginPopup(loginRequest);
-      
+
       if (result.account) {
         const userEmail = result.account.username;
-        
+
         // Check if user is from xenoptics.com domain
         if (!userEmail.endsWith('@xenoptics.com')) {
           setError('Access denied. Only @xenoptics.com email addresses are allowed.');
@@ -63,69 +63,23 @@ export default function MicrosoftLogin() {
         };
 
         const tokenResponse = await pca.acquireTokenSilent(tokenRequest);
-        
-        // Send token to your backend API for validation
-        console.log('Attempting to connect to API:', import.meta.env.VITE_APP_LOGIN_API_URL);
-        
-        try {
-          const response = await fetch(import.meta.env.VITE_APP_LOGIN_API_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              accessToken: tokenResponse.accessToken,
-              userInfo: {
-                email: result.account.username,
-                name: result.account.name,
-                id: result.account.localAccountId 
-              }
-            })
-          });
 
-          if (response.ok) {
-            const userData = await response.json();
-            console.log('Login successful:', userData);
-            
-            // Use the API response data directly (contains correct id and access_token)
-            const processedUserData = {
-              id: userData.id,
-              name: userData.name,
-              email: userData.email,
-              accessToken: userData.access_token
-            };
-            
-            console.log('Processed user data:', processedUserData);
-            
-            // Store user session data using auth context
-            login(processedUserData);
-            
-            // Navigate to dashboard/overview
-            navigate('/overview');
-          } else {
-            const errorData = await response.json();
-            setError(errorData.message || 'Authentication failed. Please try again.');
-          }
-        } catch (fetchError) {
-          console.warn('API endpoint not accessible, proceeding with client-side auth only:', fetchError);
-          
-          // Fallback: Store Microsoft user data directly (for development/testing)
-          const userData = {
-            email: result.account.username,
-            name: result.account.name,
-            id: result.account.localAccountId,
-            accessToken: tokenResponse.accessToken
-          };
-          
-          console.log('Login successful (client-side):', userData);
-          login(userData);
-          navigate('/overview');
-        }
+        const userData = {
+          email: result.account.username,
+          name: result.account.name ?? "",
+          id: result.account.localAccountId,
+          accessToken: tokenResponse.accessToken
+        };
+
+        console.log('Login successful (client-side):', userData);
+        login(userData);
+        navigate('/overview');
+
       }
     } catch (error: unknown) {
       console.error('Microsoft login error:', error);
       console.error('Error details:', JSON.stringify(error, null, 2));
-      
+
       const msalError = error as { errorCode?: string; errorMessage?: string; message?: string };
       if (msalError.errorCode === 'user_cancelled') {
         setError('Login was cancelled.');
@@ -157,7 +111,7 @@ export default function MicrosoftLogin() {
 
       {/* Microsoft Login Button */}
       <Button
-       variant="bordered"
+        variant="bordered"
         type="button"
         onClick={handleMicrosoftLogin}
         disabled={isMicrosoftLoading || !isInitialized}
@@ -175,14 +129,14 @@ export default function MicrosoftLogin() {
           <div className="flex items-center">
             {/* Microsoft Logo SVG */}
             <svg className="w-5 h-5 mr-3" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-              <rect x="12" y="1" width="9" height="9" fill="#7FBA00"/>
-              <rect x="1" y="12" width="9" height="9" fill="#00A4EF"/>
-              <rect x="12" y="12" width="9" height="9" fill="#FFB900"/>
+              <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+              <rect x="12" y="1" width="9" height="9" fill="#7FBA00" />
+              <rect x="1" y="12" width="9" height="9" fill="#00A4EF" />
+              <rect x="12" y="12" width="9" height="9" fill="#FFB900" />
             </svg>
             Sign in with Microsoft
           </div>
-          
+
         )}
       </Button>
 

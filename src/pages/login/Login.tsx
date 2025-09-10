@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MicrosoftLogin from "./components/MicrosoftLogin";
 import { useAuth } from "@context/AuthContext";
+import userService from "@api/userService";
+import type { DatabaseUser } from '../../types'
 
 export default function Component() {
   const navigate = useNavigate();
@@ -36,17 +38,43 @@ export default function Component() {
 
       // Create user object and update auth context - handle the API response data
       const responseData = response.data;
-      const userData = {
-        email: responseData.email,
-        name: responseData.name || email.split('@')[0],
-        id: responseData.id || 'temp-id',
-        accessToken: responseData.access_token 
-      };
-
-      console.log('Processed email login user data:', userData);
       
-      // Update auth context
-      login(userData);
+      // Fetch user data from database by email
+      try {
+        const dbUserData = await userService.getUserByEmail(email);
+        console.log('Database user data:', dbUserData);
+        
+        // Store user data by email in state
+        setUserDataByEmail(dbUserData);
+        
+        // Store full database user data in localStorage for access across components
+        localStorage.setItem('user_data_by_email', JSON.stringify(dbUserData));
+        
+        // Create combined user data for auth context
+        const userData = {
+          email: dbUserData.email,
+          name: `${dbUserData.firstName} ${dbUserData.lastName}`,
+          id: dbUserData.userID,
+          role: dbUserData.role,
+          accessToken: responseData.access_token 
+        };
+
+        console.log('Processed email login user data:', userData);
+        
+        // Update auth context with combined data
+        login(userData);
+        
+      } catch (dbError) {
+        console.error('Failed to fetch user data from database:', dbError);
+        // Fallback to basic user data if database fetch fails
+        const userData = {
+          email: responseData.email || email,
+          name: responseData.name,
+          id: responseData.id || 'temp-id',
+          accessToken: responseData.access_token 
+        };
+        login(userData);
+      }
       
       // Also store token for API calls
       localStorage.setItem("token", response.data.token);
@@ -64,6 +92,7 @@ export default function Component() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [user_data_by_email, setUserDataByEmail] = useState<DatabaseUser | null>(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 flex items-center justify-center p-4">
