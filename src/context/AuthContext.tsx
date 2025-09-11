@@ -2,6 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import axios from 'axios';
 
+type MSLoginUser = {
+  id: string;
+  email: string;
+  name: string;
+  accessToken: string;
+};
+
 interface User {
   userID: number;
   username: string;
@@ -45,7 +52,7 @@ interface AuthContextType {
   approver: Approver | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (userData: User) => void;
+  login: (userData: MSLoginUser) => void;
   logout: () => void;
   fetchUserData: (email: string) => Promise<void>;
 }

@@ -22,35 +22,35 @@ export interface ApiResponse<T = any> {
 // }
 
 // User Types
-export interface DatabaseUser {
-  userID: string;
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  phone: string;
-  email: string;
-  departmentID: string;
-  section_index: string;
-  postitionID: string;
-  active: string;
-  role: string;
-  user_code: string;
-  supervisorID: string;
-  level: string;
-}
+// export interface DatabaseUser {
+//   userID: string;
+//   username: string;
+//   password: string;
+//   firstName: string;
+//   lastName: string;
+//   gender: string;
+//   phone: string;
+//   email: string;
+//   departmentID: string;
+//   section_index: string;
+//   postitionID: string;
+//   active: string;
+//   role: string;
+//   user_code: string;
+//   supervisorID: string;
+//   level: string;
+// }
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role?: string;
-  avatar?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  accessToken?: string;
-}
+// export interface User {
+//   id: string;
+//   email: string;
+//   name: string;
+//   role?: string;
+//   avatar?: string;
+//   createdAt?: string;
+//   updatedAt?: string;
+//   accessToken?: string;
+// }
 
 // // Shipment Types
 // export interface Shipment {
