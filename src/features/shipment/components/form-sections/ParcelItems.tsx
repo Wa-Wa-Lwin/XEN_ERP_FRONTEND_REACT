@@ -1,0 +1,169 @@
+import { useFieldArray } from 'react-hook-form'
+import { Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem } from '@heroui/react'
+import { Icon } from '@iconify/react'
+import { DEFAULT_PARCEL_ITEM, CURRENCIES, WEIGHT_UNITS } from '../../constants/form-defaults'
+import type { ParcelItemsProps } from '../../types/shipment-form.types'
+
+const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProps) => {
+  const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
+    control,
+    name: `parcels.${parcelIndex}.parcel_items`
+  })
+
+  return (
+    <div className="border-t pt-4">
+      <div className="flex justify-between items-center mb-4">
+        <h4 className="text-md font-medium">Parcel Items</h4>
+        <Button
+          type="button"
+          color="secondary"
+          size="sm"
+          variant="bordered"
+          startContent={<Icon icon="solar:add-circle-bold" />}
+          onPress={() => appendItem(DEFAULT_PARCEL_ITEM)}
+        >
+          Add Item
+        </Button>
+      </div>
+
+      <div className="space-y-4">
+        {itemFields.map((item, itemIndex) => (
+          <Card key={item.id} className="border-dashed">
+            <CardHeader>
+              <div className="flex justify-between items-center w-full">
+                <h5 className="text-sm font-medium">Item {itemIndex + 1}</h5>
+                {itemFields.length > 1 && (
+                  <Button
+                    type="button"
+                    color="danger"
+                    size="sm"
+                    variant="light"
+                    isIconOnly
+                    onPress={() => removeItem(itemIndex)}
+                  >
+                    <Icon icon="solar:trash-bin-minimalistic-bold" />
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Textarea
+                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, { required: 'Item description is required' })}
+                  label="Item Description"
+                  placeholder="Enter item description"
+                  rows={2}
+                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description?.message}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description}
+                />
+                
+                <Input
+                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.quantity`, { required: 'Quantity is required', min: 1 })}
+                  type="number"
+                  label="Quantity"
+                  placeholder="Enter quantity"
+                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity?.message}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity}
+                />
+                
+                <div className="flex gap-2">
+                  <Input
+                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`, { required: 'Price is required', min: 0 })}
+                    type="number"
+                    step="0.01"
+                    label="Price Amount"
+                    placeholder="0.00"
+                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
+                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount}
+                  />
+                  <Select
+                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`, { required: 'Currency is required' })}
+                    label="Currency"
+                    defaultSelectedKeys={['USD']}
+                    className="w-24"
+                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
+                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}
+                  >
+                    {CURRENCIES.map((currency) => (
+                      <SelectItem key={currency.key} value={currency.value}>
+                        {currency.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+                
+                <Input
+                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.item_id`, { required: 'Item ID is required' })}
+                  label="Item ID"
+                  placeholder="Enter item ID"
+                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.item_id?.message}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.item_id}
+                />
+                
+                <Input
+                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`, { required: 'Origin country is required' })}
+                  label="Origin Country"
+                  placeholder="Enter origin country"
+                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country?.message}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country}
+                />
+                
+                <div className="flex gap-2">
+                  <Input
+                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`, { required: 'Weight is required', min: 0 })}
+                    type="number"
+                    step="0.01"
+                    label="Weight Value"
+                    placeholder="0.00"
+                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value?.message}
+                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value}
+                  />
+                  <Select
+                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_unit`, { required: 'Weight unit is required' })}
+                    label="Unit"
+                    defaultSelectedKeys={['kg']}
+                    className="w-20"
+                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_unit?.message}
+                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_unit}
+                  >
+                    {WEIGHT_UNITS.map((unit) => (
+                      <SelectItem key={unit.key} value={unit.value}>
+                        {unit.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+                
+                <Input
+                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`, { required: 'SKU is required' })}
+                  label="SKU"
+                  placeholder="Enter SKU"
+                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.sku?.message}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.sku}
+                />
+                
+                <Input
+                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, { required: 'HS Code is required' })}
+                  label="HS Code"
+                  placeholder="Enter HS code"
+                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code?.message}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code}
+                />
+                
+                <Input
+                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.return_reason`, { required: 'Return reason is required' })}
+                  label="Return Reason"
+                  placeholder="Enter return reason"
+                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.return_reason?.message}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.return_reason}
+                />
+              </div>
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default ParcelItems

@@ -29,8 +29,8 @@ const ShipmentTable = () => {
   const [totalCount, setTotalCount] = useState(0)
 
   // Filter states
-  const [filterType, setFilterType] = useState<'all' | 'mine'>('all')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [filterType, setFilterType] = useState<'all' | 'mine'>('mine')
+  const [statusFilter, setStatusFilter] = useState<string>('waiting')
 
   // Status options for filtering
   const statusOptions = [
@@ -45,8 +45,8 @@ const ShipmentTable = () => {
 
   // Pagination states
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const pageSizeOptions = [10, 20, 100]
+  const [pageSize, setPageSize] = useState(25)
+  const pageSizeOptions = [10, 15, 20, 25, 100]
 
   const fetchShipmentRequests = useCallback(async () => {
     try {
@@ -357,8 +357,7 @@ const ShipmentTable = () => {
 
       </div>
 
-      <div className="overflow-x-auto max-h-[550px] border border-gray-200 rounded-lg">
-
+      <div className="overflow-x-auto border border-gray-200 rounded-lg max-h-[500px] sm:max-h-[550px] lg:max-h-[680px]">
         <Table
           aria-label="Shipment requests table"
           className="min-w-full text-xs md:text-[8px] md:text-sm overflow-x-auto"

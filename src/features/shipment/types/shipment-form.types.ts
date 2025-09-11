@@ -1,0 +1,127 @@
+export interface ParcelItem {
+  description: string
+  quantity: number
+  price_currency: string
+  price_amount: number
+  item_id: string
+  origin_country: string
+  weight_unit: string
+  weight_value: number
+  sku: string
+  hs_code: string
+  return_reason: string
+}
+
+export interface Parcel {
+  box_type: string
+  box_type_name: string
+  width: number
+  height: number
+  depth: number
+  dimension_unit: string
+  weight_value: number
+  net_weight_value: number
+  weight_unit: string
+  description: string
+  parcel_items: ParcelItem[]
+}
+
+export interface Rate {
+  shipper_account_id: string
+  shipper_account_slug: string
+  shipper_account_description: string
+  service_type: string
+  service_name: string
+  pickup_deadline: string
+  booking_cut_off: string
+  delivery_date: string
+  transit_time: string
+  error_message: string
+  info_message: string
+  charge_weight_value: number
+  charge_weight_unit: string
+  total_charge_amount: number
+  total_charge_currency: string
+  chosen: boolean
+  detailed_charges: string
+}
+
+export interface ShipmentFormData {
+  // Basic shipment info
+  service_options: string
+  urgent_reason: string
+  request_status: string
+  remark: string
+  topic: string
+  po_number: string
+  other_topic: string
+  due_date: string
+  sales_person: string
+  po_date: string
+  
+  // Ship to
+  ship_to_country: string
+  ship_to_contact_name: string
+  ship_to_phone: string
+  ship_to_fax: string
+  ship_to_email: string
+  ship_to_company_name: string
+  ship_to_company_url: string
+  ship_to_street1: string
+  ship_to_street2: string
+  ship_to_street3: string
+  ship_to_city: string
+  ship_to_state: string
+  ship_to_postal_code: string
+  ship_to_tax_id: string
+  
+  // Ship from
+  ship_from_country: string
+  ship_from_contact_name: string
+  ship_from_phone: string
+  ship_from_fax: string
+  ship_from_email: string
+  ship_from_company_name: string
+  ship_from_company_url: string
+  ship_from_street1: string
+  ship_from_street2: string
+  ship_from_street3: string
+  ship_from_city: string
+  ship_from_state: string
+  ship_from_postal_code: string
+  ship_from_tax_id: string
+  
+  // Dynamic arrays
+  parcels: Parcel[]
+  rates: Rate[]
+  
+  // Pickup info
+  pick_up_status: boolean
+  pick_up_date: string
+  pick_up_start_time: string
+  pick_up_end_time: string
+  pick_up_instructions: string
+  
+  // Insurance
+  insurance_enabled: boolean
+  insurance_insured_value_amount: number
+  insurance_insured_value_currency: string
+  
+  // Customs
+  customs_purpose: string
+  customs_terms_of_trade: string
+}
+
+export interface FormSectionProps {
+  register: any
+  errors: any
+  control?: any
+  watch?: any
+}
+
+export interface ParcelItemsProps {
+  parcelIndex: number
+  control: any
+  register: any
+  errors: any
+}
