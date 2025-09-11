@@ -107,7 +107,7 @@ export default function Component() {
       <div className="flex h-screen w-full">
         <div
           className={cn(
-            "border-r-small! border-divider transition-width relative flex h-full w-72 flex-col p-6",
+            "border-r-small! border-divider transition-width relative flex h-full w-72 flex-col p-1",
             {
               "w-16 items-center px-2 py-6": isCompact,
             },

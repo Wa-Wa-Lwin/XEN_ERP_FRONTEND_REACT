@@ -31,7 +31,7 @@ const Breadcrumb = () => {
               {isLast ? (
                 label === "Shipment" ? (                  
                   <div className="flex gap-3 justify-between items-center">
-                    <Link to={m.pathname}>{label}</Link>
+                    {/* <Link to={m.pathname}>{label}</Link> */}
                     {ACTIVE_BUTTONS.map((btn) => (
                       <>                      
                       <Button
@@ -41,7 +41,7 @@ const Breadcrumb = () => {
                           activeButton && activeButton !== btn
                             ? "opacity-40"
                             : "opacity-100"
-                        }`}
+                        } h-12 w-36 text-md`}
                         variant={activeButton === btn ? "solid" : "ghost"}
                         color={activeButton === btn ? "primary" : "default"}
                       >
