@@ -224,7 +224,7 @@ const ShipmentTable = () => {
 
         {activeButton === "Approval" && (
           <>
-            <Button
+            {/* <Button
               size="sm"
               variant="solid"
               className="bg-green-500 hover:bg-green-800 text-white px-1 text-sm flex items-center gap-1"
@@ -245,7 +245,21 @@ const ShipmentTable = () => {
                 icon="solar:close-circle-bold"
               />
               <span className="text-white text-[10px]">Reject</span>
-            </Button>
+            </Button> */}
+            <div className="bg-green-500 hover:bg-green-800 text-white px-3 py-0.4 text-xs flex items-center gap-1 rounded-lg cursor-pointer">
+              <Icon
+                className="w-3.5 h-3.5 text-white"
+                icon="solar:check-circle-bold"
+              />
+              <span className="text-white text-xs">Approve</span>
+            </div>
+            <div className="bg-red-500 hover:bg-red-800 text-white px-3 py-0.4 text-xs flex items-center gap-1 rounded-lg cursor-pointer">
+              <Icon
+                className="w-3.5 h-3.5 text-white"
+                icon="solar:close-circle-bold"
+              />
+              <span className="text-white text-xs">Reject</span>
+            </div>            
           </>
         )}
       </div>

@@ -130,7 +130,7 @@ export default function Component() {
               "w-0 opacity-0": isCompact,
             })}
           >
-            Logistics 
+            LOGISTIC SYSTEM
           </span>
         </div>
         <Spacer y={8} />
@@ -142,7 +142,7 @@ export default function Component() {
             // src="https://i.pravatar.cc/150?u=a04258114e29026708c"
           />
           <div className={cn("flex max-w-full flex-col", {hidden: isCompact})}>
-            <p className="text-small text-default-600 truncate font-medium">{user?.name || 'User'}</p>
+            <p className="text-small text-default-600 truncate font-medium">{user?.firstName || 'User'}</p>
             <p className="text-tiny text-default-400 truncate">{user?.email || 'user@example.com'}</p>
           </div>
         </div>
