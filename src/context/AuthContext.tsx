@@ -116,9 +116,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const login = (userData: MSLoginUser) => {
+    localStorage.setItem('msLoginUser', JSON.stringify(userData));
+    fetchUserData(userData.email).catch(err => {
+      console.error('Error fetching user data after login:', err);
+      logout();
+    });
   };
 
   const logout = () => {
@@ -127,6 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
     localStorage.removeItem('approver');
     localStorage.removeItem('token');
+    localStorage.removeItem('msLoginUser');
   };
 
   const value: AuthContextType = {
