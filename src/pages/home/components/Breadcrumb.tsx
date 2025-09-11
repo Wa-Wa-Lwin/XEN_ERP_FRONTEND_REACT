@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { useMatches, type UIMatch } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
 import { Button } from "@heroui/react";
+import { ACTIVE_BUTTONS, useBreadcrumb } from "@context/BreadcrumbContext";
 
 type BreadcrumbHandle = {
   breadcrumb?: string | ((match: UIMatch<unknown, unknown>) => string);
@@ -13,7 +13,7 @@ const Breadcrumb = () => {
     handle: BreadcrumbHandle;
   })[];
 
-  const [activeButton, setActiveButton] = useState<string | null>(null);
+  const { activeButton, setActiveButton } = useBreadcrumb();
 
   return (
     <Breadcrumbs size="lg">
@@ -32,7 +32,7 @@ const Breadcrumb = () => {
                 label === "Shipment" ? (                  
                   <div className="flex gap-3 justify-between items-center">
                     <Link to={m.pathname}>{label}</Link>
-                    {["Request", "Logistic", "Approval"].map((btn) => (
+                    {ACTIVE_BUTTONS.map((btn) => (
                       <>                      
                       <Button
                         key={btn}

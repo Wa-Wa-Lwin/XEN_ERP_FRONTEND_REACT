@@ -14,12 +14,15 @@ import {
   SelectItem,
   Button
 } from '@heroui/react'
+import { Icon } from "@iconify/react";
 import axios from 'axios'
 import type { ShipmentRequest, ShipmentRequestsResponse } from '../../../types'
 import { useAuth } from '../../../context/AuthContext'
+import { useBreadcrumb } from '../../../context/BreadcrumbContext'
 
 const ShipmentTable = () => {
   const { user } = useAuth()
+  const { activeButton } = useBreadcrumb()
   const [shipmentRequests, setShipmentRequests] = useState<ShipmentRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -81,16 +84,16 @@ const ShipmentTable = () => {
 
     // Filter by status
     if (statusFilter !== 'all') {
-    if (statusFilter === 'waiting') {
-      filtered = filtered.filter(request =>
-        ['requestor_requested', 'send_to_logistic', 'logistic_updated'].includes(request.request_status)
-      )
-    } else {
-      filtered = filtered.filter(request =>
-        request.request_status === statusFilter
-      )
+      if (statusFilter === 'waiting') {
+        filtered = filtered.filter(request =>
+          ['requestor_requested', 'send_to_logistic', 'logistic_updated'].includes(request.request_status)
+        )
+      } else {
+        filtered = filtered.filter(request =>
+          request.request_status === statusFilter
+        )
+      }
     }
-  }
 
     return filtered
   }, [shipmentRequests, filterType, user?.email, statusFilter])
@@ -170,6 +173,64 @@ const ShipmentTable = () => {
     }
   };
 
+  // const renderActionButtons = (request: ShipmentRequest) => {
+  const renderActionButtons = () => {
+    return (
+      <div className="flex flex-row items-center gap-1">
+        {/* View Details button - always shown */}
+        {/* <Link to={`/shipment/${request.shipmentRequestID}`}>
+          <Icon
+            className="w-5 h-5 text-gray-500 hover:text-gray-700"
+            icon="solar:eye-bold"
+          />
+        </Link> */}
+
+        {/* Conditional buttons based on activeButton */}
+        {activeButton === "Logistic" && (
+          <Button
+            size="sm"
+            variant="solid"
+            className="bg-yellow-500 hover:bg-yellow-800 text-white px-1 text-sm flex items-center gap-1"
+          >
+            <Icon
+              className="w-4 h-4 text-white"
+              icon="solar:pen-bold"
+            />
+            <span className="text-white text-xs">Edit</span>
+          </Button>
+        )}
+
+        {activeButton === "Approval" && (
+          <>
+            <Button
+              size="sm"
+              variant="solid"
+              className="bg-green-500 hover:bg-green-800 text-white px-1 text-sm flex items-center gap-1"
+            >
+              <Icon
+                className="w-4 h-4 text-white"
+                icon="solar:check-circle-bold"
+              />
+              <span className="text-white text-xs">Approve</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="solid"
+              className="bg-red-500 hover:bg-red-800 text-white px-1 text-sm flex items-center gap-1"
+            >
+              <Icon
+                className="w-4 h-4 text-white"
+                icon="solar:close-circle-bold"
+              />
+              <span className="text-white text-[10px]">Reject</span>
+            </Button>
+          </>
+        )}
+      </div>
+    );
+  };
+
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -197,8 +258,8 @@ const ShipmentTable = () => {
       <div className="mb-4 space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-semibold">Shipment Requests</h2>
-            <p className="text-gray-600 text-sm">
+            <h2 className="text-l font-semibold">Shipment Requests</h2>
+            <p className="text-gray-600 text-xs">
               Showing: {filteredRequests.length} of {totalCount} requests
               {filterType === 'mine' && user?.email && (
                 <span className="text-primary"> (My Requests)</span>
@@ -273,57 +334,59 @@ const ShipmentTable = () => {
 
         <Table
           aria-label="Shipment requests table"
-          className="min-w-full text-xs md:text-[8px] md:text-sm"
+          className="min-w-full text-xs md:text-[8px] md:text-sm overflow-x-auto"
           removeWrapper
         >
           <TableHeader className="sticky top-0 z-20 bg-white shadow-sm text-xs sm:text-[10px]">
-            <TableColumn className="w-6">ID</TableColumn>
-            <TableColumn className="w-8">Scope</TableColumn>
-            <TableColumn className="w-36
-            ">Topic (PO)</TableColumn>
-            <TableColumn className="w-36">FROM</TableColumn>
-            <TableColumn className="w-36">TO</TableColumn>
-            <TableColumn className="w-16">Status</TableColumn>
-            <TableColumn className="w-16">Requestor</TableColumn>
-            <TableColumn className="w-16">Approver</TableColumn>
-            <TableColumn className="w-16">Request Date</TableColumn>
-            <TableColumn className="w-16">Due Date</TableColumn>
-            {/* <TableColumn className="w-24">Actions</TableColumn> */}
+            <TableColumn>ID</TableColumn>
+            <TableColumn>Scope</TableColumn>
+            <TableColumn>Topic (PO)</TableColumn>
+            <TableColumn>FROM</TableColumn>
+            <TableColumn>TO</TableColumn>
+            <TableColumn>Status</TableColumn>
+            <TableColumn>Requestor</TableColumn>
+            <TableColumn>Approver</TableColumn>
+            <TableColumn>Request Date</TableColumn>
+            <TableColumn>Due Date</TableColumn>
+            <TableColumn className="text-center">
+              {activeButton !== "Request" ? "Actions" : "\u00A0" /* non-breaking space */}               
+            </TableColumn>
+
           </TableHeader>
           <TableBody>
             {paginatedData.map((request) => (
               <TableRow key={request.shipmentRequestID} className="border-b border-gray-200">
-                <TableCell className="text-xs">
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
                   <Link
                     to={`/shipment/${request.shipmentRequestID}`}
                     className="text-primary hover:text-primary-600 font-medium"
                   >
                     {request.shipmentRequestID}
                   </Link>
-                </TableCell>               
-                <TableCell className="text-xs">
+                </TableCell>
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
                   {request.shipment_scope_type?.toUpperCase()}
                 </TableCell>
-                <TableCell className="text-xs">
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
                   {request.topic} ({request.po_number})
                   {/* DONT_DELETE_YET */}
                   {/* {request.topic === 'Others' && request.other_topic ? <p className="text-xs text-gray-500">
                   {request.other_topic}
                 </p> : ''} */}
                 </TableCell>
-                <TableCell className="text-xs">
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
                   {request.ship_from?.company_name
                     .split(' ')
                     .slice(0, 3)
                     .join(' ')}
                 </TableCell>
-                <TableCell className="text-xs">
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
                   {request.ship_to?.company_name
                     .split(' ')
                     .slice(0, 3)
                     .join(' ')}
                 </TableCell>
-                <TableCell className="text-xs">
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
                   <Chip
                     color={getStatusColor(request.request_status)}
                     variant="flat"
@@ -333,7 +396,7 @@ const ShipmentTable = () => {
 
                   </Chip>
                 </TableCell>
-                <TableCell className="text-xs">
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
                   <p className="font-medium">
                     {(() => {
                       const words = request.created_user_name.split(' ');
@@ -348,7 +411,7 @@ const ShipmentTable = () => {
                   </p>
                   {/* <p className="text-xs text-gray-500">{request.created_user_mail}</p> */}
                 </TableCell>
-                <TableCell className="text-xs">
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
                   <p className="font-medium">
                     {(() => {
                       const words = request.approver_user_name.split(' ');
@@ -361,31 +424,16 @@ const ShipmentTable = () => {
                       }
                     })()}
                   </p>
-                  {/* {request.approver_user_name ? (
-                    <div>
-                      <p className="font-medium">{request.approver_user_name}</p>
-                      {request.logistic_approved_date_time ? (
-                        <p className="text-xs text-gray-500">
-                          Approved: {request.approver_approved_date_time ? formatDate(request.approver_approved_date_time) : 'N/A'}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-yellow-600">Waiting</p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )} */}
                 </TableCell>
-                <TableCell className="text-xs">{formatDate(request.created_date_time)}</TableCell>
-                <TableCell className="text-xs">{formatDate(request.due_date)}</TableCell>
-                {/* <TableCell className="text-xs">
-                  <Link
-                    to={`/shipment/${request.shipmentRequestID}`}
-                    className="text-primary hover:text-primary-600 text-sm"
-                  >
-                    View Details
-                  </Link>
-                </TableCell> */}
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words"> {formatDate(request.created_date_time)}</TableCell>
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words"> {formatDate(request.due_date)}</TableCell>
+
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words">
+                  {activeButton !== "Request" ? renderActionButtons() : null}
+                </TableCell>
+
+
+               
               </TableRow>
             ))}
           </TableBody>

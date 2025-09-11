@@ -12,7 +12,6 @@ export const API_ENDPOINTS = {
   // User management
   USERS: '/users',
   USER_PROFILE: '/users/profile',
-  USER_BY_EMAIL: (email: string) => `/users/by-email/${encodeURIComponent(email)}`,
 } as const;
 
 export const HTTP_STATUS = {

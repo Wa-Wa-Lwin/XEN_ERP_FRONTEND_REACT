@@ -6,6 +6,7 @@
 import { Outlet,  Navigate, useNavigate } from 'react-router-dom';
 import Breadcrumb from "./components/Breadcrumb";
 import { useAuth } from '@context/AuthContext';
+import { BreadcrumbProvider } from '@context/BreadcrumbContext';
 
 
 
@@ -102,15 +103,16 @@ export default function Component() {
   console.log(mainHeight)
 
   return (
-    <div className="flex h-screen w-full">
-      <div
-        className={cn(
-          "border-r-small! border-divider transition-width relative flex h-full w-72 flex-col p-6",
-          {
-            "w-16 items-center px-2 py-6": isCompact,
-          },
-        )}
-      >
+    <BreadcrumbProvider>
+      <div className="flex h-screen w-full">
+        <div
+          className={cn(
+            "border-r-small! border-divider transition-width relative flex h-full w-72 flex-col p-6",
+            {
+              "w-16 items-center px-2 py-6": isCompact,
+            },
+          )}
+        >
         <div
           className={cn(
             "flex items-center gap-3 px-3",
@@ -240,5 +242,6 @@ export default function Component() {
         </main>
       </div>
     </div>
+    </BreadcrumbProvider>
   );
 }
