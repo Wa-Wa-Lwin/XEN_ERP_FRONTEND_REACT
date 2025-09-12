@@ -36,7 +36,8 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
               errorMessage={errors.pick_up_date?.message}
               isInvalid={!!errors.pick_up_date}
             />
-            <Input
+            <div className="flex gap-2">
+              <Input
               {...register('pick_up_start_time', {
                 required: pickupRequired ? 'Start time is required' : false,
               })}
@@ -54,7 +55,10 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
               errorMessage={errors.pick_up_end_time?.message}
               isInvalid={!!errors.pick_up_end_time}
             />
-            <Textarea
+
+            </div>
+            <div className="col-span-2">
+               <Textarea
               {...register('pick_up_instructions', {
                 required: pickupRequired ? 'Instructions are required' : false,
               })}
@@ -63,6 +67,10 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
               errorMessage={errors.pick_up_instructions?.message}
               isInvalid={!!errors.pick_up_instructions}
             />
+
+            </div>
+            
+           
           </>
         )}
       </CardBody>

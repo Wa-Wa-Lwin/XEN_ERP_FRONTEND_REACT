@@ -155,7 +155,7 @@ export default function Component() {
             "items-center": isCompact,
           })}
         >
-          <Tooltip content="Help & Feedback" isDisabled={!isCompact} placement="right">
+          {/* <Tooltip content="Help & Feedback" isDisabled={!isCompact} placement="right">
             <Button
               fullWidth
               className={cn(
@@ -186,7 +186,7 @@ export default function Component() {
                 "Help & Information"
               )}
             </Button>
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip content="Log Out" isDisabled={!isCompact} placement="right">
             <Button
               className={cn("text-default-500 data-[hover=true]:text-foreground justify-start", {

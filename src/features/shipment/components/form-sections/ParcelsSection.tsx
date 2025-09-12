@@ -3,9 +3,9 @@ import { Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem
 import { Icon } from '@iconify/react'
 import { DEFAULT_PARCEL } from '../../constants/form-defaults'
 import { DIMENSION_UNITS, WEIGHT_UNITS } from '../../constants/form-defaults'
-import { PARCEL_BOX_TYPES } from '@/constants/parcel_box_types'
 import ParcelItems from './ParcelItems'
 import type { FormSectionProps } from '../../types/shipment-form.types'
+import { PARCEL_BOX_TYPES } from '@constants/parcel_box_types'
 
 const ParcelsSection = ({ register, errors, control, setValue }: FormSectionProps) => {
   const { fields: parcelFields, append: appendParcel, remove: removeParcel } = useFieldArray({
