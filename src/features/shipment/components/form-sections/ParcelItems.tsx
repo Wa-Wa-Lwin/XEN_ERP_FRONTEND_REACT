@@ -3,8 +3,8 @@ import { Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem
 import { Icon } from '@iconify/react'
 import { DEFAULT_PARCEL_ITEM, WEIGHT_UNITS } from '../../constants/form-defaults'
 import type { ParcelItemsProps } from '../../types/shipment-form.types'
-import { CURRENCIES } from '@constants/currencies'
-import { COUNTRIES } from '@constants/countries'
+import { CURRENCIES } from '@features/shipment/constants/currencies'
+import { COUNTRIES } from '@features/shipment/constants/countries'
 
 const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProps) => {
   const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({

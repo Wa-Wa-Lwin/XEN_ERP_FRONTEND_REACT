@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { Card, CardBody, Button } from '@heroui/react'
+import { Icon } from '@iconify/react'
 import { useShipmentForm } from '../hooks/useShipmentForm'
 import {
   BasicInformation,
@@ -7,15 +9,32 @@ import {
   // InsuranceInformation,
   ParcelsSection
 } from './form-sections'
+import ShipmentPreviewModal from './ShipmentPreviewModal'
+import type { ShipmentFormData } from '../types/shipment-form.types'
 
 const ShipmentForm = () => {
-  const { register, control, handleSubmit, watch, setValue, errors, onSubmit, isSubmitting, today } = useShipmentForm()
+  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues } = useShipmentForm()
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
+
+  const handlePreview = () => {
+    const formData = getValues()
+    setPreviewData(formData)
+    setIsPreviewOpen(true)
+  }
+
+  const handleConfirmSubmit = () => {
+    if (previewData) {
+      setIsPreviewOpen(false)
+      onSubmit(previewData)
+    }
+  }
 
   return (
     <div className="mx-auto w-full">
       <Card className="w-full">
         <CardBody>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={handleSubmit(handlePreview)} className="space-y-8">
             <BasicInformation register={register} errors={errors} today={today} />
 
             {/* <Divider /> */}
@@ -38,15 +57,25 @@ const ShipmentForm = () => {
               <Button 
                 color="primary" 
                 type="submit"
-                isLoading={isSubmitting}
-                disabled={isSubmitting}
+                startContent={<Icon icon="solar:eye-bold" />}
               >
-                {isSubmitting ? 'Creating...' : 'Create Shipment Request'}
+                Preview & Submit
               </Button>
             </div>
           </form>
         </CardBody>
-      </Card>
+      </Card>      
+      {/* Preview Modal */}
+      {previewData && (
+        <ShipmentPreviewModal
+          isOpen={isPreviewOpen}
+          // isOpen={true}
+          onClose={() => setIsPreviewOpen(false)}
+          onConfirm={handleConfirmSubmit}
+          formData={previewData}
+          isSubmitting={isSubmitting}
+        />
+      )}
     </div>
   )
 }
