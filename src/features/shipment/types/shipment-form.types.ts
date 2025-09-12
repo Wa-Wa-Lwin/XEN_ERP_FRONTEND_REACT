@@ -21,6 +21,7 @@ export interface Parcel {
   dimension_unit: string
   weight_value: number
   net_weight_value: number
+  parcel_weight_value: number
   weight_unit: string
   description: string
   parcel_items: ParcelItem[]
@@ -116,7 +117,7 @@ export interface FormSectionProps {
   register: any
   errors: any
   control?: any
-  watch?: any
+  setValue?: any
 }
 
 export interface ParcelItemsProps {

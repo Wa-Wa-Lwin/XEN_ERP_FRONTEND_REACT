@@ -115,16 +115,16 @@ export default function Component() {
         >
         <div
           className={cn(
-            "flex items-center gap-3 px-3",
+            "flex items-center gap-3 p-3",
 
             {
               "justify-center gap-0": isCompact,
             },
           )}
         >
-          {/* <div className="bg-foreground flex h-8 w-8 items-center justify-center rounded-full">
+          <div className="bg-foreground flex h-8 w-8 items-center justify-center rounded-full">
             <img src="./xenoptics_only_logo.png" alt="Xen Logistic Logo"/>
-          </div> */}
+          </div>
           <span
             className={cn("text-small font-bold uppercase opacity-100", {
               "w-0 opacity-0": isCompact,

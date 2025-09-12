@@ -3,14 +3,13 @@ import { useShipmentForm } from '../hooks/useShipmentForm'
 import {
   BasicInformation,
   AddressSection,
-  CustomsInformation,
   PickupInformation,
-  InsuranceInformation,
+  // InsuranceInformation,
   ParcelsSection
 } from './form-sections'
 
 const ShipmentForm = () => {
-  const { register, control, handleSubmit, watch, errors, onSubmit, isSubmitting, today } = useShipmentForm()
+  const { register, control, handleSubmit, watch, setValue, errors, onSubmit, isSubmitting, today } = useShipmentForm()
 
   return (
     <div className="mx-auto w-full">
@@ -21,17 +20,16 @@ const ShipmentForm = () => {
 
             {/* <Divider /> */}
 
-            <AddressSection register={register} errors={errors} title="Ship From Address" prefix="ship_from" />
+            <AddressSection register={register} errors={errors} control={control} title="Ship From Address" prefix="ship_from" />
             
-            <AddressSection register={register} errors={errors} title="Ship To Address" prefix="ship_to" />
+            <AddressSection register={register} errors={errors} control={control} title="Ship To Address" prefix="ship_to" />
+            
+            {/* <PickupInformation register={register} errors={errors} watch={watch} /> */}
+            <PickupInformation register={register} errors={errors} />
 
-            <CustomsInformation register={register} errors={errors} />
+            {/* <InsuranceInformation register={register} errors={errors} /> */}
 
-            <PickupInformation register={register} errors={errors} watch={watch} />
-
-            <InsuranceInformation register={register} errors={errors} watch={watch} />
-
-            <ParcelsSection register={register} errors={errors} control={control} />
+            <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} />
 
             <div className="flex justify-end gap-4">
               <Button variant="bordered" type="button">

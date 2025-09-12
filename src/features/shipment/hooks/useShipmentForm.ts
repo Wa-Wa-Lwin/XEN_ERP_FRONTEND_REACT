@@ -13,7 +13,7 @@ export const useShipmentForm = () => {
     defaultValues: DEFAULT_FORM_VALUES
   })
 
-  const { register, control, handleSubmit, watch, formState: { errors } } = formMethods
+  const { register, control, handleSubmit, watch, setValue, formState: { errors } } = formMethods
 
   const onSubmit = async (data: ShipmentFormData) => {
     if (!user || !approver) {
@@ -58,6 +58,7 @@ export const useShipmentForm = () => {
     control,
     handleSubmit,
     watch,
+    setValue,
     errors,
     onSubmit,
     isSubmitting,

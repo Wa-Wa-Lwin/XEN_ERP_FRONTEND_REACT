@@ -57,6 +57,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     dimension_unit: 'cm',
     weight_value: 0,
     net_weight_value: 0,
+    parcel_weight_value: 0,
     weight_unit: 'kg',
     description: '',
     parcel_items: [{
@@ -111,6 +112,7 @@ export const DEFAULT_PARCEL = {
   dimension_unit: 'cm',
   weight_value: 0,
   net_weight_value: 0,
+  parcel_weight_value: 0,
   weight_unit: 'kg',
   description: '',
   parcel_items: [{
@@ -152,6 +154,11 @@ export const TOPIC_OPTIONS = [
   { key: 'others', value: 'others', label: 'Others' }
 ]
 
+export const SERVICE_OPTIONS = [
+  { key: 'Normal', value: 'Normal', label: 'Normal' },
+  { key: 'Urgent', value: 'Urgent', label: 'Urgent' },
+]
+
 export const SALES_PERSON_OPTIONS = [
   { key: 'personA', value: 'Person A', label: 'Person A' },
   { key: 'personB', value: 'Person B', label: 'Person B' },
@@ -170,8 +177,26 @@ export const WEIGHT_UNITS = [
   { key: 'g', value: 'g', label: 'g' }
 ]
 
-export const CURRENCIES = [
-  { key: 'USD', value: 'USD', label: 'USD' },
-  { key: 'EUR', value: 'EUR', label: 'EUR' },
-  { key: 'THB', value: 'THB', label: 'THB' }
-]
+export const CUSTOM_PURPOSES = [
+  { key: 'MERCHANDISE', value: 'merchandise', label: 'Merchandise' },
+  { key: 'GIFT', value: 'gift', label: 'Gift' },
+  { key: 'SAMPLE', value: 'sample', label: 'Sample' },
+  { key: 'RETURN', value: 'return', label: 'Return' },
+  { key: 'REPAIR', value: 'repair', label: 'Repair' },
+  { key: 'PERSONAL', value: 'personal', label: 'Personal' }
+];
+
+export const INCOTERMS = [
+  { key: "DAT", value: "DAT (Delivered at Terminal)" },
+  { key: "DDU", value: "DDU (Delivered Duty Unpaid)" },
+  { key: "DDP", value: "DDP (Delivered Duty Paid)" },
+  { key: "DAP", value: "DAP (Delivered at Place)" },
+  { key: "EXW", value: "EXW (Ex Works)" },
+  { key: "FCA", value: "FCA (Free Carrier)" },
+  { key: "FOB", value: "FOB (Free on Board)" },
+  { key: "CIP", value: "CIP (Carriage and Insurance Paid to)" },
+  { key: "CIF", value: "CIF (Cost, Insurance and Freight)" },
+  { key: "CPT", value: "CPT (Carriage Paid To)" },
+  { key: "CFR", value: "CFR (Cost and Freight)" },
+  { key: "DPU", value: "DPU (Delivered at Place Unloaded)" }
+];

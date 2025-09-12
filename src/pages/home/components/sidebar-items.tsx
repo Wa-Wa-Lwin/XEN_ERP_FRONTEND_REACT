@@ -1,7 +1,7 @@
 import {Chip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 
-import {type SidebarItem, SidebarItemType} from "./sidebar";
+import { SidebarItemType, type SidebarItem } from "./Sidebar";
 import TeamAvatar from "./team-avatar";
 
 /**
@@ -96,54 +96,25 @@ export const sectionItems: SidebarItem[] = [
       },
     ]
   },
-  {
-    key: "logistics",
-    to: "/logistics",
-    title: "Logistics",
-    items: [
-      {
-        key: "packaging",
-        to: "/logistics/packaging",
-        icon: "solar:home-2-linear",
-        title: "Packaging",
-      },
-      {
-        key: "hs-code-and-duty",
-        to: "/logistics/hs-code-and-duty",
-        icon: "solar:widget-2-outline",
-        title: "HS Code & Duty",
-        // endContent: (
-        //   <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-        // ),
-      },
-      // {
-      //   key: "tasks",
-      //   href: "#",
-      //   icon: "solar:checklist-minimalistic-outline",
-      //   title: "Tasks",
-      //   endContent: (
-      //     <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-      //   ),
-      // },
-      // {
-      //   key: "team",
-      //   href: "#",
-      //   icon: "solar:users-group-two-rounded-outline",
-      //   title: "Team",
-      // },
-      // {
-      //   key: "tracker",
-      //   href: "#",
-      //   icon: "solar:sort-by-time-linear",
-      //   title: "Tracker",
-      //   endContent: (
-      //     <Chip size="sm" variant="flat">
-      //       New
-      //     </Chip>
-      //   ),
-      // },
-    ],
-  },
+  // {
+  //   key: "logistics",
+  //   to: "/logistics",
+  //   title: "Logistics",
+  //   items: [
+  //     {
+  //       key: "packaging",
+  //       to: "/logistics/packaging",
+  //       icon: "solar:home-2-linear",
+  //       title: "Packaging",
+  //     },
+  //     {
+  //       key: "hs-code-and-duty",
+  //       to: "/logistics/hs-code-and-duty",
+  //       icon: "solar:widget-2-outline",
+  //       title: "HS Code & Duty",       
+  //     },
+  //   ],
+  // },
   {
     key: "shipment",
     title: "Shipment",

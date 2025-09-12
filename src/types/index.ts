@@ -123,6 +123,7 @@ export interface Parcel {
   description: string;
   box_type_name: string;
   net_weight_value: string;
+  parcel_weight_value: string;
   items: ParcelItem[];
 }
 

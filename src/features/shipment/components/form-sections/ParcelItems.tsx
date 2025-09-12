@@ -1,8 +1,9 @@
 import { useFieldArray } from 'react-hook-form'
 import { Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { DEFAULT_PARCEL_ITEM, CURRENCIES, WEIGHT_UNITS } from '../../constants/form-defaults'
+import { DEFAULT_PARCEL_ITEM, WEIGHT_UNITS } from '../../constants/form-defaults'
 import type { ParcelItemsProps } from '../../types/shipment-form.types'
+import { CURRENCIES } from '@constants/currencies'
 
 const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProps) => {
   const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
@@ -47,7 +48,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProp
               </div>
             </CardHeader>
             <CardBody>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <Textarea
                   {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, { required: 'Item description is required' })}
                   label="Item Description"

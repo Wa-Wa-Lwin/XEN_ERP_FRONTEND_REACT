@@ -46,7 +46,7 @@ const ShipmentTable = () => {
   // Pagination states
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
-  const pageSizeOptions = [10, 15, 20, 25, 100]
+  const pageSizeOptions = [10, 25, 100]
 
   const fetchShipmentRequests = useCallback(async () => {
     try {
@@ -176,7 +176,7 @@ const ShipmentTable = () => {
   // const renderActionButtons = (request: ShipmentRequest) => {
   const renderActionButtons = () => {
     return (
-      <div className="flex flex-row items-center gap-1">
+      <div className="flex flex-row items-center justify-center gap-1">
         {/* View Details button - always shown */}
         {/* <Link to={`/shipment/${request.shipmentRequestID}`}>
           <Icon
@@ -391,7 +391,10 @@ const ShipmentTable = () => {
                   </Link>
                 </TableCell>
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  {request.shipment_scope_type?.toUpperCase()}
+                  {
+                  // request.shipment_scope_type?.toUpperCase() ? request.shipment_scope_type?.toUpperCase() : request.shipment_scope?.toUpperCase()
+                  request.shipment_scope?.toUpperCase()
+                  }
                 </TableCell>
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {request.topic} ({request.po_number})
@@ -463,7 +466,7 @@ const ShipmentTable = () => {
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.created_date_time)}</TableCell>
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.due_date)}</TableCell>
 
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700 w-auto">
                   {activeButton !== "Request" ? renderActionButtons() : null}
                 </TableCell>
 
