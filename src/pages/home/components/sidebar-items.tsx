@@ -129,7 +129,7 @@ export const sectionItems: SidebarItem[] = [
       {
         key: "request-form",
         to: "/shipment/request-form",
-        icon: "solar:gift-linear",
+        icon: "codicon:request-changes",
         title: "Request Form",
         endContent: (
           // <Chip size="sm" variant="flat">
@@ -138,18 +138,6 @@ export const sectionItems: SidebarItem[] = [
           <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
         ),
       },
-      // {
-      //   key: "expenses",
-      //   href: "#",
-      //   icon: "solar:bill-list-outline",
-      //   title: "Expenses",
-      // },
-      // {
-      //   key: "settings",
-      //   href: "/settings",
-      //   icon: "solar:settings-outline",
-      //   title: "Settings",
-      // },
     ],
   },
   {
@@ -160,7 +148,7 @@ export const sectionItems: SidebarItem[] = [
       {
         key: "items",
         to: "/items",
-        icon: "solar:chart-outline",
+        icon: "lets-icons:materials",
         title: "Items",
       },      
     ],
@@ -173,11 +161,24 @@ export const sectionItems: SidebarItem[] = [
       {
         key: "addresses",
         to: "/addresses",
-        icon: "solar:chart-outline",
+        icon: "tabler:address-book",
         title: "Addresses",
       },      
     ],
   },
+  // {
+  //   key: "rate-calculator",
+  //   title: "Rate Calculator",
+  //   to: "/rate-calculator",
+  //   items: [
+  //     {
+  //       key: "rate-calculator",
+  //       to: "/rate-calculator",
+  //       icon: "majesticons:calculator",
+  //       title: "Rate Calculator",
+  //     },      
+  //   ],
+  // },
 ];
 
 export const sectionItemsWithTeams: SidebarItem[] = [

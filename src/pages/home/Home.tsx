@@ -3,39 +3,10 @@
 
 // import React from 'react'
 // import MainLayout from '@components/layout/MainLayout';
-import { Outlet,  Navigate, useNavigate } from 'react-router-dom';
+import { Outlet,  useNavigate } from 'react-router-dom';
 import Breadcrumb from "./components/Breadcrumb";
 import { useAuth } from '@context/AuthContext';
 import { BreadcrumbProvider } from '@context/BreadcrumbContext';
-
-
-
-// const Home = () => {
-//   const isAuthenticated = true
-//   // const isAuthenticated = Boolean(localStorage.getItem("token")); // example auth check
-
-//   if (!isAuthenticated) {
-//     return <Navigate to="/login" replace />;
-//   }
-
-//   return (
-//     <div>
-// 			<p>Header</p>
-// 			<p>Navbar</p>
-// 			<div className="flex flex-col flex-wrap gap-4">
-// 				<Breadcrumb />
-// 			</div>
-// 			<Outlet />
-// 			<p>footer</p>
-// 		</div>
-    
-//   );
-// }
-
-// export default Home
-
-
-
 import React, { useEffect, useRef, useState } from "react";
 import {Avatar, Button, ScrollShadow, Spacer, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
@@ -43,28 +14,10 @@ import {useMediaQuery} from "usehooks-ts";
 import {cn} from "@heroui/react";
 
 import Sidebar from "./components/Sidebar";
-import { useParcelItemsCache } from "@/hooks/useParcelItemsCache";
 
 import {sectionItemsWithTeams} from "./components/sidebar-items";
+import { useParcelItemsCache } from '@hooks/useParcelItemsCache';
 
-/**
- *  This example requires installing the `usehooks-ts` package:
- * `npm install usehooks-ts`
- *
- * import {useMediaQuery} from "usehooks-ts";
- *
- * 💡 TIP: You can use the usePathname hook from Next.js App Router to get the current pathname
- * and use it as the active key for the Sidebar component.
- *
- * ```tsx
- * import {usePathname} from "next/navigation";
- *
- * const pathname = usePathname();
- * const currentPath = pathname.split("/")?.[1]
- *
- * <Sidebar defaultSelectedKey="home" selectedKeys={[currentPath]} />
- * ```
- */
 export default function Component() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -79,8 +32,6 @@ export default function Component() {
     setIsCollapsed((prev) => !prev);
   }, []);
 
-   const [height, setHeight] = useState(window.innerHeight);
-
   const headerRef = useRef<HTMLDivElement>(null);
   const [mainHeight, setMainHeight] = useState(window.innerHeight);
 
@@ -88,7 +39,6 @@ export default function Component() {
     const updateHeight = () => {
       const headerHeight = headerRef.current?.offsetHeight || 0;
 
-      console.log("headerHeight",headerHeight)
       setMainHeight(window.innerHeight - headerHeight - 16 - 40); // -16 for your mt-4
     };
 
@@ -102,19 +52,26 @@ export default function Component() {
     navigate("/login");
   }
 
-  const handleSidebarSelect = async (key: string) => {
-    // Pre-fetch parcel items when request form is accessed
+  // const handleSidebarSelect = async (key: string) => {
+  //   // Pre-fetch parcel items when request form is accessed
+  //   if (key === 'request-form') {
+  //     try {
+  //       await fetchParcelItems();
+  //       console.log('Parcel items cached successfully');
+  //     } catch (error) {
+  //       console.error('Failed to cache parcel items:', error);
+  //     }
+  //   }
+  // }
+  const handleSidebarSelect = (key: string) => {
     if (key === 'request-form') {
-      try {
-        await fetchParcelItems();
-        console.log('Parcel items cached successfully');
-      } catch (error) {
-        console.error('Failed to cache parcel items:', error);
-      }
+      fetchParcelItems().catch(() => {
+        // Silently handle error - user will see loading state if needed
+      });
     }
-  }
+  };
 
-  console.log(mainHeight)
+
 
   return (
     <BreadcrumbProvider>
@@ -174,38 +131,6 @@ export default function Component() {
             "items-center": isCompact,
           })}
         >
-          {/* <Tooltip content="Help & Feedback" isDisabled={!isCompact} placement="right">
-            <Button
-              fullWidth
-              className={cn(
-                "text-default-500 data-[hover=true]:text-foreground justify-start truncate",
-                {
-                  "justify-center": isCompact,
-                },
-              )}
-              isIconOnly={isCompact}
-              startContent={
-                isCompact ? null : (
-                  <Icon
-                    className="text-default-500 flex-none"
-                    icon="solar:info-circle-line-duotone"
-                    width={24}
-                  />
-                )
-              }
-              variant="light"
-            >
-              {isCompact ? (
-                <Icon
-                  className="text-default-500"
-                  icon="solar:info-circle-line-duotone"
-                  width={24}
-                />
-              ) : (
-                "Help & Information"
-              )}
-            </Button>
-          </Tooltip> */}
           <Tooltip content="Log Out" isDisabled={!isCompact} placement="right">
             <Button
               className={cn("text-default-500 data-[hover=true]:text-foreground justify-start", {

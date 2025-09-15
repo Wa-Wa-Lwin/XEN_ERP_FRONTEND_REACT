@@ -1,5 +1,6 @@
 export { default as BasicInformation } from './BasicInformation'
 export { default as AddressSection } from './AddressSection'
+export { default as AddressSelector } from './AddressSelector'
 export { default as PickupInformation } from './PickupInformation'
 export { default as InsuranceInformation } from './InsuranceInformation'
 export { default as ParcelsSection } from './ParcelsSection'

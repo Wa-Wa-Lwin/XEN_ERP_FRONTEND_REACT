@@ -4,7 +4,7 @@ import { Icon } from '@iconify/react'
 import { useShipmentForm } from '../hooks/useShipmentForm'
 import {
   BasicInformation,
-  AddressSection,
+  AddressSelector,
   PickupInformation,
   // InsuranceInformation,
   ParcelsSection
@@ -45,9 +45,9 @@ const ShipmentForm = () => {
 
             {/* <Divider /> */}
 
-            <AddressSection register={register} errors={errors} control={control} title="Ship From Address" prefix="ship_from" />
-            
-            <AddressSection register={register} errors={errors} control={control} title="Ship To Address" prefix="ship_to" />
+            <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" />
+
+            <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" />
             
             {/* <PickupInformation register={register} errors={errors} watch={watch} /> */}
             <PickupInformation register={register} errors={errors} />

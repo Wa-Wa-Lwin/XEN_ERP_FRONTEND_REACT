@@ -7,7 +7,7 @@ interface AddressSectionProps extends FormSectionProps {
   prefix: 'ship_from' | 'ship_to'
 }
 
-const AddressSection = ({ register, errors, control, title, prefix }: AddressSectionProps) => {
+const AddressSection = ({ register, errors, title, prefix }: AddressSectionProps) => {
   return (
     <Card>
       <CardHeader>

@@ -30,7 +30,7 @@ export type SidebarItem = {
   className?: string;
 };
 
-export type SidebarProps = Omit<ListboxProps<SidebarItem>, "children"> & {
+export type SidebarProps = Omit<ListboxProps<SidebarItem>, "children" | "onSelect"> & {
   items: SidebarItem[];
   isCompact?: boolean;
   hideEndContent?: boolean;
@@ -204,7 +204,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           return renderNestItem(item);
         }
 
-        console.log(item)
         return (
           <ListboxItem
             {...item}
