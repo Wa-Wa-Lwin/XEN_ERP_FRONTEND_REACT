@@ -28,6 +28,8 @@ import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import type { AddressData } from '@pages/addresses/types'
 import { COUNTRIES } from '@pages/shipment/constants/countries'
+import { ISO2_TO_ISO3 } from '@pages/shipment/constants/change-iso-country-codes'
+
 
 interface AddressSelectorProps extends FormSectionProps {
   title: string
@@ -40,7 +42,6 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
   const [filteredAddresses, setFilteredAddresses] = useState<AddressData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [isManualInput, setIsManualInput] = useState(true)
   const [formKey, setFormKey] = useState(0)
   const [selectedAddressInfo, setSelectedAddressInfo] = useState<string | null>(null)
 
@@ -98,13 +99,18 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
       // Use setValue with shouldDirty and shouldTouch options to trigger form updates
       const setValueOptions = { shouldDirty: true, shouldTouch: true, shouldValidate: true }
 
+      // Convert 2-letter to 3-letter (fallback to original if not found)
+      const rawCountry = address.Country || address.MailCountr || "";
+      const countryISO3 = ISO2_TO_ISO3[rawCountry] || rawCountry;
+
       // Map address data with fallbacks
       const fieldMappings = [
         { field: `${prefix}_company_name`, value: address.CardName || '' },
         { field: `${prefix}_contact_name`, value: address.CntctPrsn || '' },
         { field: `${prefix}_phone`, value: address.Phone1 || '' },
         { field: `${prefix}_email`, value: address.E_Mail || '' },
-        { field: `${prefix}_country`, value: address.Country || address.MailCountr || '' },
+        // { field: `${prefix}_country`, value: address.Country || address.MailCountr || '' },
+        { field: `${prefix}_country`, value: countryISO3 },   // use ISO3
         { field: `${prefix}_city`, value: address.City || address.MailCity || '' },
         { field: `${prefix}_state`, value: address.County || address.MailCounty || '' },
         { field: `${prefix}_postal_code`, value: address.ZipCode || address.MailZipCod || '' },
@@ -129,7 +135,6 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
     }
 
     setIsModalOpen(false)
-    setIsManualInput(true) // Switch to manual input mode to show filled data
   }
 
   const getCardTypeInfo = (type: string) => {
@@ -170,15 +175,6 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
             >
               Select from Addresses
             </Button>
-            <Button
-              size="sm"
-              variant={isManualInput ? "solid" : "flat"}
-              color="secondary"
-              startContent={<Icon icon="solar:pen-bold" />}
-              onPress={() => setIsManualInput(true)}
-            >
-              Manual Input
-            </Button>
           </div>
         </CardHeader>
         {selectedAddressInfo && (
@@ -188,7 +184,6 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
               variant="flat"
               title="Address Selected"
               description={selectedAddressInfo}
-              startContent={<Icon icon="solar:check-circle-bold" />}
             />
           </div>
         )}
@@ -295,8 +290,12 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
       <Modal
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
-        size="5xl"
+        // size="5xl"
         scrollBehavior="inside"
+        classNames={{
+          base: "max-w-full w-full h-[90vh]", // full width, nearly full height
+          wrapper: "w-full m-0 p-0",          // remove margins
+        }}
       >
         <ModalContent>
           {(onClose) => (
@@ -338,6 +337,7 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
                       <TableColumn>TYPE</TableColumn>
                       <TableColumn>COMPANY NAME</TableColumn>
                       <TableColumn>ADDRESS</TableColumn>
+                      <TableColumn>COUNTRY</TableColumn>
                       <TableColumn>CONTACT</TableColumn>
                       <TableColumn>ACTIONS</TableColumn>
                     </TableHeader>
@@ -365,26 +365,26 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
                               <div className="flex flex-col max-w-[200px]">
                                 <span className="text-sm font-medium text-foreground truncate">
                                   {address.CardName}
-                                </span>
-                                {address.CntctPrsn && (
-                                  <span className="text-tiny text-default-500 truncate">
-                                    Contact: {address.CntctPrsn}
-                                  </span>
-                                )}
+                                </span>                                
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col max-w-[250px]">
                                 <span className="text-sm text-default-600 truncate">
                                   {formatAddress(address)}
-                                </span>
-                                <span className="text-tiny text-default-500">
-                                  {address.Country || address.MailCountr || 'N/A'}
-                                </span>
+                                </span>                                
                               </div>
+                            </TableCell>
+                             <TableCell>
+                              {address.Country || address.MailCountr || 'N/A'}
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col">
+                                {address.CntctPrsn && (
+                                  <span className="text-tiny text-default-500 truncate">
+                                    Contact: {address.CntctPrsn}
+                                  </span>
+                                )}
                                 {address.E_Mail && (
                                   <span className="text-tiny text-default-600 truncate max-w-[150px]">
                                     {address.E_Mail}
