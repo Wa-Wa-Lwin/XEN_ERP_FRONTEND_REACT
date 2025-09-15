@@ -4,12 +4,13 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import Home from "@pages/home/Home"
 import LoginPage from "@pages/login/Login"
-import Shipment from "@features/shipment/Shipment"
-import ShipmentDetails from "@features/shipment/components/ShipmentDetails"
-import ShipmentForm from "@features/shipment/components/ShipmentForm"
+import Shipment from "@pages/shipment/Shipment"
+import ShipmentDetails from "@pages/shipment/components/ShipmentDetails"
+import ShipmentForm from "@pages/shipment/components/ShipmentForm"
 import Overview from "@features/overview/Overview"
 import Logistics from "@features/logistics/Logistics"
 import ProtectedRoute from "@components/common/ProtectedRoute";
+import Items from "@pages/items/Items";
 
 
 export const routes = [
@@ -37,6 +38,15 @@ export const routes = [
             element: <ShipmentDetails />, 
             handle: { breadcrumb: (match: any) => match.params.shipmentId }
           },
+        ]
+      },
+      { path: "items", 
+        handle: { breadcrumb: "Items" },
+        children:[
+          {
+            path: "",
+            element: <Items />,
+          },          
         ]
       },
     ],

@@ -120,29 +120,6 @@ export const sectionItems: SidebarItem[] = [
     title: "Shipment",
     to: "/shipment",
     items: [
-      // {
-      //   key: "cap_table",
-      //   href: "#",
-      //   title: "Cap Table",
-      //   icon: "solar:pie-chart-2-outline",
-      //   items: [
-      //     {
-      //       key: "request",
-      //       href: "#",
-      //       title: "Requests",
-      //     },
-      //     {
-      //       key: "request-form",
-      //       href: "#",
-      //       title: "Request Form",
-      //     },
-      //     {
-      //       key: "transactions_log",
-      //       href: "#",
-      //       title: "Transactions Log",
-      //     },
-      //   ],
-      // },
       {
         key: "shipment",
         to: "/shipment",
@@ -173,6 +150,19 @@ export const sectionItems: SidebarItem[] = [
       //   icon: "solar:settings-outline",
       //   title: "Settings",
       // },
+    ],
+  },
+  {
+    key: "items",
+    title: "Items",
+    to: "/items",
+    items: [
+      {
+        key: "items",
+        to: "/items",
+        icon: "solar:chart-outline",
+        title: "Items",
+      },      
     ],
   },
 ];

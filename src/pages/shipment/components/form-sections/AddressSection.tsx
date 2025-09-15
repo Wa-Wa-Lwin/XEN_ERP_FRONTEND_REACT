@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardBody, Input, Select, SelectItem, Textarea } from '@heroui/react'
 import type { FormSectionProps } from '../../types/shipment-form.types'
-import { COUNTRIES } from '@features/shipment/constants/countries'
+import { COUNTRIES } from '@pages/shipment/constants/countries'
 
 interface AddressSectionProps extends FormSectionProps {
   title: string

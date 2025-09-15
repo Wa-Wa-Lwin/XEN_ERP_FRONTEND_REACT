@@ -1,16 +1,93 @@
+import { useState, useEffect } from 'react'
 import { useFieldArray } from 'react-hook-form'
-import { Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
+import { 
+  Button, Input, Select, SelectItem, 
+  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, 
+  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter 
+} from '@heroui/react'
 import { Icon } from '@iconify/react'
+import axios from 'axios'
 import { DEFAULT_PARCEL_ITEM, WEIGHT_UNITS } from '../../constants/form-defaults'
 import type { ParcelItemsProps } from '../../types/shipment-form.types'
-import { CURRENCIES } from '@features/shipment/constants/currencies'
-import { COUNTRIES } from '@features/shipment/constants/countries'
+import { CURRENCIES } from '@pages/shipment/constants/currencies'
+import { COUNTRIES } from '@pages/shipment/constants/countries'
 
-const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProps) => {
+interface MaterialData {
+  material_code: string;
+  description: string;
+  type_name: string;
+  part_revision: string;
+  supplier_name: string;
+  sku: string;
+  part_no: string;
+}
+
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: ParcelItemsProps & { setValue: any }) => {
   const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
     control,
     name: `parcels.${parcelIndex}.parcel_items`
   })
+
+  const [materials, setMaterials] = useState<MaterialData[]>([])
+  const [filteredMaterials, setFilteredMaterials] = useState<MaterialData[]>([])
+  const [isLoadingMaterials, setIsLoadingMaterials] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentItemIndex, setCurrentItemIndex] = useState<number | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      setIsLoadingMaterials(true)
+      try {
+        const response = await axios.get(import.meta.env.VITE_APP_GET_PARCEL_ITEMS)
+        if (response.data?.ret === 0 && response.data?.data) {
+          setMaterials(response.data.data)
+          setFilteredMaterials(response.data.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch materials:', error)
+      } finally {
+        setIsLoadingMaterials(false)
+      }
+    }
+
+    fetchMaterials()
+  }, [])
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredMaterials(materials)
+    } else {
+      const filtered = materials.filter(material =>
+        material.material_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        material.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        material.type_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        material.supplier_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        material.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        material.part_no.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      setFilteredMaterials(filtered)
+    }
+  }, [searchQuery, materials])
+
+  const openMaterialModal = (itemIndex: number) => {
+    console.log("Clicked material list select", itemIndex)
+    setIsModalOpen(true)
+    setCurrentItemIndex(itemIndex)
+    setSearchQuery('')
+  }
+
+  const handleMaterialSelect = (selectedMaterial: MaterialData) => {
+    if (currentItemIndex !== null) {
+      const basePath = `parcels.${parcelIndex}.parcel_items.${currentItemIndex}`
+
+      // Update form fields using react-hook-form
+      setValue(`${basePath}.description`, selectedMaterial.description, { shouldValidate: true, shouldDirty: true })
+      setValue(`${basePath}.sku`, selectedMaterial.sku, { shouldValidate: true, shouldDirty: true })
+    }
+    setIsModalOpen(false)
+    setCurrentItemIndex(null)
+  }
 
   return (
     <div className="border-t pt-4">
@@ -59,6 +136,16 @@ const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProp
                   </span>
                 </TableCell>
                 <TableCell>
+                  <Button
+                    type="button"
+                    color="primary"
+                    size="sm"
+                    variant="light"
+                    isIconOnly
+                    onPress={() => openMaterialModal(itemIndex)}
+                  >
+                    <Icon icon="material-symbols:search" width={24} />
+                  </Button>
                   <Input
                     {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, { required: 'Item description is required' })}
                     placeholder="Enter item description"
@@ -115,7 +202,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProp
                   >
                     {COUNTRIES.map((option) => (
                       <SelectItem key={option.key} value={option.value}>
-                        {/* {option.value} */}
                         {option.key}
                       </SelectItem>
                     ))}
@@ -224,6 +310,89 @@ const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProp
           ))}
         </Select>
       ))}
+
+      {/* Material Lookup Modal */}
+      <Modal 
+        isOpen={isModalOpen} 
+        onOpenChange={setIsModalOpen}
+        size="5xl"
+        scrollBehavior="inside"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <h3>Material Lookup</h3>
+                <Input
+                  placeholder="Search materials by any field..."
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                  startContent={<Icon icon="solar:magnifer-bold" />}
+                  variant="flat"
+                  className="mt-2"
+                />
+              </ModalHeader>
+              <ModalBody>
+                <div className="overflow-x-auto">
+                  <Table 
+                    aria-label="Materials table"
+                    classNames={{
+                      wrapper: "min-h-[400px]",
+                    }}
+                  >
+                    <TableHeader>
+                      <TableColumn>MATERIAL CODE</TableColumn>
+                      <TableColumn>DESCRIPTION</TableColumn>
+                      <TableColumn>TYPE</TableColumn>
+                      <TableColumn>SKU</TableColumn>
+                      <TableColumn>PART NO</TableColumn>
+                      <TableColumn>SUPPLIER</TableColumn>
+                      <TableColumn>REVISION</TableColumn>
+                      <TableColumn>ACTION</TableColumn>
+                    </TableHeader>
+                    <TableBody 
+                      emptyContent="No materials found"
+                      isLoading={isLoadingMaterials}
+                      loadingContent="Loading materials..."
+                    >
+                      {filteredMaterials.map((material) => (
+                        <TableRow key={material.material_code}>
+                          <TableCell>
+                            <span className="font-medium text-primary">
+                              {material.material_code}
+                            </span>
+                          </TableCell>
+                          <TableCell><span className="text-sm">{material.description}</span></TableCell>
+                          <TableCell><span className="text-sm">{material.type_name}</span></TableCell>
+                          <TableCell><span className="text-sm">{material.sku}</span></TableCell>
+                          <TableCell><span className="text-sm">{material.part_no}</span></TableCell>
+                          <TableCell><span className="text-sm">{material.supplier_name}</span></TableCell>
+                          <TableCell><span className="text-sm">{material.part_revision}</span></TableCell>
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              color="primary"
+                              variant="flat"
+                              onPress={() => handleMaterialSelect(material)}
+                            >
+                              Select
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   )
 }
