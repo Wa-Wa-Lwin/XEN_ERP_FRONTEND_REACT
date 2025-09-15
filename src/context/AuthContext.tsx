@@ -53,6 +53,7 @@ interface AuthContextType {
   msLoginUser : MSLoginUser | null; 
   isAuthenticated: boolean;
   isLoading: boolean;
+  hasDbData: boolean;
   login: (userData: MSLoginUser) => void;
   logout: () => void;
   fetchUserData: (email: string) => Promise<void>;
@@ -69,6 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [msLoginUser, setMSLoginUser] = useState<MSLoginUser | null>(null);
   const [approver, setApprover] = useState<Approver | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasDbData, setHasDbData] = useState(true);
 
   useEffect(() => {
     const initializeAuth = () => {
@@ -108,29 +110,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         setUser(userData);
         setApprover(approverData);
+        setHasDbData(true);
         
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('approver', JSON.stringify(approverData));
+      } else {
+        // No user data found in database
+        setHasDbData(false);
       }
     } catch (error) {
       console.error('Failed to fetch user data:', error);
-      throw error;
+      // If user has @xenoptics.com email, allow login without DB data
+      if (email.endsWith('@xenoptics.com')) {
+        setHasDbData(false);
+      } else {
+        throw error;
+      }
     }
   };
 
   const login = (userData: MSLoginUser) => {
     localStorage.setItem('msLoginUser', JSON.stringify(userData));
     setMSLoginUser(userData);
-    fetchUserData(userData.email).catch(err => {
-      console.error('Error fetching user data after login:', err);
-      logout();
-    });
+    
+    // Allow @xenoptics.com users to login even without DB data
+    if (userData.email.endsWith('@xenoptics.com')) {
+      fetchUserData(userData.email).catch(err => {
+        console.error('Error fetching user data after login:', err);
+        // Don't logout @xenoptics.com users if DB fetch fails
+        setHasDbData(false);
+      });
+    } else {
+      fetchUserData(userData.email).catch(err => {
+        console.error('Error fetching user data after login:', err);
+        logout();
+      });
+    }
   };
 
   const logout = () => {
     setUser(null);
     setApprover(null);
-    setMSLoginUser(null); 
+    setMSLoginUser(null);
+    setHasDbData(false);
     localStorage.removeItem('user');
     localStorage.removeItem('approver');
     localStorage.removeItem('token');
@@ -143,6 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     msLoginUser, 
     isAuthenticated: !!msLoginUser,
     isLoading,
+    hasDbData,
     login,
     logout,
     fetchUserData

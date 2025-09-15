@@ -67,7 +67,7 @@ import {sectionItemsWithTeams} from "./components/sidebar-items";
 export default function Component() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const { logout, user } = useAuth();
+  const { logout, user, hasDbData, msLoginUser } = useAuth();
   
   const isCompact = isCollapsed || isMobile;
 
@@ -232,6 +232,26 @@ export default function Component() {
 						<Breadcrumb />
 					</h2>
         </header>
+        
+        {/* Database Status Notification */}
+        {msLoginUser && !hasDbData && (
+          <div className="mt-4 p-4 bg-warning-50 border border-warning-200 rounded-medium">
+            <div className="flex items-center gap-2">
+              <Icon 
+                icon="solar:info-circle-bold" 
+                className="text-warning-600" 
+                width={20} 
+              />
+              <p className="text-warning-800 text-sm font-medium">
+                Don't have your data in database
+              </p>
+            </div>
+            <p className="text-warning-700 text-xs mt-1 ml-6">
+              Your @xenoptics.com account is authenticated, but we couldn't find your profile data in our database. Please contact your administrator.
+            </p>
+          </div>
+        )}
+        
         <main 
           className="mt-4 w-full rounded-medium border-small border-divider  overflow-auto"
           style={{ height: mainHeight }}
