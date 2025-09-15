@@ -20,7 +20,8 @@ import {
   TableRow,
   TableCell,
   Chip,
-  Spinner
+  Spinner,
+  Alert
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
@@ -40,6 +41,8 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isManualInput, setIsManualInput] = useState(true)
+  const [formKey, setFormKey] = useState(0)
+  const [selectedAddressInfo, setSelectedAddressInfo] = useState<string | null>(null)
 
   const fetchAddresses = async () => {
     setIsLoading(true)
@@ -92,17 +95,39 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
   const handleAddressSelect = (address: AddressData) => {
     // Fill form fields with selected address data
     if (setValue) {
-      setValue(`${prefix}_company_name`, address.CardName || '')
-      setValue(`${prefix}_contact_name`, address.CntctPrsn || '')
-      setValue(`${prefix}_phone`, address.Phone1 || '')
-      setValue(`${prefix}_email`, address.E_Mail || '')
-      setValue(`${prefix}_country`, address.Country || address.MailCountr || '')
-      setValue(`${prefix}_city`, address.City || address.MailCity || '')
-      setValue(`${prefix}_state`, address.County || address.MailCounty || '')
-      setValue(`${prefix}_postal_code`, address.ZipCode || address.MailZipCod || '')
-      setValue(`${prefix}_street1`, address.Address || address.MailAddres || '')
-      setValue(`${prefix}_street2`, address.Building || address.MailBuildi || '')
+      // Use setValue with shouldDirty and shouldTouch options to trigger form updates
+      const setValueOptions = { shouldDirty: true, shouldTouch: true, shouldValidate: true }
+
+      // Map address data with fallbacks
+      const fieldMappings = [
+        { field: `${prefix}_company_name`, value: address.CardName || '' },
+        { field: `${prefix}_contact_name`, value: address.CntctPrsn || '' },
+        { field: `${prefix}_phone`, value: address.Phone1 || '' },
+        { field: `${prefix}_email`, value: address.E_Mail || '' },
+        { field: `${prefix}_country`, value: address.Country || address.MailCountr || '' },
+        { field: `${prefix}_city`, value: address.City || address.MailCity || '' },
+        { field: `${prefix}_state`, value: address.County || address.MailCounty || '' },
+        { field: `${prefix}_postal_code`, value: address.ZipCode || address.MailZipCod || '' },
+        { field: `${prefix}_street1`, value: address.Address || address.MailAddres || '' },
+        { field: `${prefix}_street2`, value: address.Building || address.MailBuildi || '' }
+      ]
+
+      // Set values using setValue
+      fieldMappings.forEach(({ field, value }) => {
+        setValue(field, value, setValueOptions)
+      })
+
+      // Show success message and force form re-render
+      setSelectedAddressInfo(`Address "${address.CardName}" selected and auto-filled`)
+      setTimeout(() => {
+        setFormKey(prev => prev + 1)
+        // Clear success message after a delay
+        setTimeout(() => setSelectedAddressInfo(null), 5000)
+      }, 100)
+    } else {
+      console.error('setValue function is not available')
     }
+
     setIsModalOpen(false)
     setIsManualInput(true) // Switch to manual input mode to show filled data
   }
@@ -156,13 +181,25 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
             </Button>
           </div>
         </CardHeader>
-        <CardBody className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {selectedAddressInfo && (
+          <div className="px-6 pb-2">
+            <Alert
+              color="success"
+              variant="flat"
+              title="Address Selected"
+              description={selectedAddressInfo}
+              startContent={<Icon icon="solar:check-circle-bold" />}
+            />
+          </div>
+        )}
+        <CardBody key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
             {...register(`${prefix}_company_name`, { required: 'Company name is required' })}
             label="Company Name"
             placeholder="Enter company name"
             errorMessage={errors[`${prefix}_company_name`]?.message}
             isInvalid={!!errors[`${prefix}_company_name`]}
+            key={`${formKey}_${prefix}_company_name`}
           />
           <Input
             {...register(`${prefix}_contact_name`, { required: 'Contact name is required' })}
@@ -170,6 +207,7 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
             placeholder="Enter contact name"
             errorMessage={errors[`${prefix}_contact_name`]?.message}
             isInvalid={!!errors[`${prefix}_contact_name`]}
+            key={`${formKey}_${prefix}_contact_name`}
           />
 
           <Input
@@ -178,6 +216,7 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
             placeholder="Enter phone"
             errorMessage={errors[`${prefix}_phone`]?.message}
             isInvalid={!!errors[`${prefix}_phone`]}
+            key={`${formKey}_${prefix}_phone`}
           />
 
           <Input
@@ -187,6 +226,7 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
             placeholder="Enter email"
             errorMessage={errors[`${prefix}_email`]?.message}
             isInvalid={!!errors[`${prefix}_email`]}
+            key={`${formKey}_${prefix}_email`}
           />
           <Select
             {...register(`${prefix}_country`, { required: 'Country is required' })}
@@ -207,6 +247,7 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
             placeholder="Enter city"
             errorMessage={errors[`${prefix}_city`]?.message}
             isInvalid={!!errors[`${prefix}_city`]}
+            key={`${formKey}_${prefix}_city`}
           />
 
           <Input
