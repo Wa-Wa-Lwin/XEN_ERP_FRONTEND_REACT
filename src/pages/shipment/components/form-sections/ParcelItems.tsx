@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { useFieldArray } from 'react-hook-form'
 import { 
   Button, Input, Select, SelectItem, 
-  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, 
-  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter 
+  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
+  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import axios from 'axios'
+import { useParcelItemsCache } from '@hooks/useParcelItemsCache'
 import { DEFAULT_PARCEL_ITEM, WEIGHT_UNITS } from '../../constants/form-defaults'
 import type { ParcelItemsProps } from '../../types/shipment-form.types'
 import { CURRENCIES } from '@pages/shipment/constants/currencies'
@@ -28,31 +28,16 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
     name: `parcels.${parcelIndex}.parcel_items`
   })
 
-  const [materials, setMaterials] = useState<MaterialData[]>([])
+  const { materials, isLoading: isLoadingMaterials, fetchParcelItems } = useParcelItemsCache()
   const [filteredMaterials, setFilteredMaterials] = useState<MaterialData[]>([])
-  const [isLoadingMaterials, setIsLoadingMaterials] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentItemIndex, setCurrentItemIndex] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
+  // Initialize filtered materials when materials change
   useEffect(() => {
-    const fetchMaterials = async () => {
-      setIsLoadingMaterials(true)
-      try {
-        const response = await axios.get(import.meta.env.VITE_APP_GET_PARCEL_ITEMS)
-        if (response.data?.ret === 0 && response.data?.data) {
-          setMaterials(response.data.data)
-          setFilteredMaterials(response.data.data)
-        }
-      } catch (error) {
-        console.error('Failed to fetch materials:', error)
-      } finally {
-        setIsLoadingMaterials(false)
-      }
-    }
-
-    fetchMaterials()
-  }, [])
+    setFilteredMaterials(materials)
+  }, [materials])
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
@@ -72,9 +57,16 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
 
   const openMaterialModal = (itemIndex: number) => {
     console.log("Clicked material list select", itemIndex)
-    setIsModalOpen(true)
     setCurrentItemIndex(itemIndex)
     setSearchQuery('')
+    setIsModalOpen(true)
+    
+    // If materials are not loaded, fetch them asynchronously after opening modal
+    if (materials.length === 0) {
+      fetchParcelItems().catch(error => {
+        console.error('Failed to load materials:', error)
+      })
+    }
   }
 
   const handleMaterialSelect = (selectedMaterial: MaterialData) => {
@@ -136,28 +128,36 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                   </span>
                 </TableCell>
                 <TableCell>
-                  <Button
-                    type="button"
-                    color="primary"
-                    size="sm"
-                    variant="light"
-                    isIconOnly
-                    onPress={() => openMaterialModal(itemIndex)}
-                  >
-                    <Icon icon="material-symbols:search" width={24} />
-                  </Button>
-                  <Input
-                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, { required: 'Item description is required' })}
-                    placeholder="Enter item description"
-                    variant="flat"
-                    size="sm"
-                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description?.message}
-                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description}
-                    classNames={{
-                      input: "text-sm",
-                      inputWrapper: "min-h-unit-8 h-unit-8"
-                    }}
-                  />
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      color={materials.length > 0 ? "success" : "primary"}
+                      size="sm"
+                      variant="light"
+                      isIconOnly
+                      onPress={() => openMaterialModal(itemIndex)}
+                      isLoading={isLoadingMaterials}
+                    >
+                      {!isLoadingMaterials && (
+                        <Icon 
+                          icon={materials.length > 0 ? "solar:database-bold" : "material-symbols:search"} 
+                          width={16} 
+                        />
+                      )}
+                    </Button>
+                    <Input
+                      {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, { required: 'Item description is required' })}
+                      placeholder="Enter item description"
+                      variant="flat"
+                      size="sm"
+                      errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description?.message}
+                      isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description}
+                      classNames={{
+                        input: "text-sm",
+                        inputWrapper: "min-h-unit-8 h-unit-8"
+                      }}
+                    />
+                  </div>
                 </TableCell>
                 <TableCell>
                   <Input
@@ -322,7 +322,14 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <h3>Material Lookup</h3>
+                <div className="flex items-center justify-between">
+                  <h3>Material Lookup</h3>
+                  {materials.length > 0 && (
+                    <span className="text-sm text-default-500">
+                      {materials.length} materials available
+                    </span>
+                  )}
+                </div>
                 <Input
                   placeholder="Search materials by any field..."
                   value={searchQuery}
@@ -330,6 +337,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                   startContent={<Icon icon="solar:magnifer-bold" />}
                   variant="flat"
                   className="mt-2"
+                  isDisabled={isLoadingMaterials}
                 />
               </ModalHeader>
               <ModalBody>
@@ -351,9 +359,15 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                       <TableColumn>ACTION</TableColumn>
                     </TableHeader>
                     <TableBody 
-                      emptyContent="No materials found"
-                      isLoading={isLoadingMaterials}
-                      loadingContent="Loading materials..."
+                      emptyContent={
+                        isLoadingMaterials 
+                          ? "Loading materials from cache..." 
+                          : materials.length === 0
+                            ? "No materials available. Please wait while we load the data."
+                            : "No materials found matching your search."
+                      }
+                      isLoading={isLoadingMaterials && materials.length === 0}
+                      loadingContent="Loading materials from server..."
                     >
                       {filteredMaterials.map((material) => (
                         <TableRow key={material.material_code}>

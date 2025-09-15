@@ -59,23 +59,36 @@ const Addresses = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null)
   const itemsPerPage = 15
+  const STORAGE_KEY = 'addresses_data'
+
+  const fetchAddresses = async (forceRefresh = false) => {
+    setIsLoading(true)
+    try {
+      if (!forceRefresh) {
+        const cachedData = localStorage.getItem(STORAGE_KEY)
+        if (cachedData) {
+          const parsedData = JSON.parse(cachedData)
+          setAddresses(parsedData)
+          setFilteredAddresses(parsedData)
+          setIsLoading(false)
+          return
+        }
+      }
+
+      const response = await axios.get(import.meta.env.VITE_APP_GET_ADDRESSES)
+      if (response.data?.ret === 0 && response.data?.data) {
+        setAddresses(response.data.data)
+        setFilteredAddresses(response.data.data)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data.data))
+      }
+    } catch (error) {
+      console.error('Failed to fetch addresses:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchAddresses = async () => {
-      setIsLoading(true)
-      try {
-        const response = await axios.get(import.meta.env.VITE_APP_GET_ADDRESSES)
-        if (response.data?.ret === 0 && response.data?.data) {
-          setAddresses(response.data.data)
-          setFilteredAddresses(response.data.data)
-        }
-      } catch (error) {
-        console.error('Failed to fetch addresses:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     fetchAddresses()
   }, [])
 
@@ -94,7 +107,7 @@ const Addresses = () => {
       )
       setFilteredAddresses(filtered)
     }
-    setCurrentPage(1) // Reset to first page when searching
+    setCurrentPage(1)
   }, [searchQuery, addresses])
 
   // Pagination calculations
@@ -112,23 +125,6 @@ const Addresses = () => {
       default:
         return { label: 'Other', color: 'default' as const, icon: 'solar:buildings-bold' }
     }
-  }
-
-  const getCountryFlag = (countryCode?: string) => {
-    if (!countryCode) return '<'
-    
-    const flags: { [key: string]: string } = {
-      'TH': '<�<�',
-      'GB': '<�<�',
-      'PL': '<�<�',
-      'FR': '<�<�',
-      'US': '<�<�',
-      'DE': '<�<�',
-      'JP': '<�<�',
-      'CN': '<�<�'
-    }
-    
-    return flags[countryCode.toUpperCase()] || '<'
   }
 
   const formatAddress = (address: AddressData) => {
@@ -154,7 +150,19 @@ const Addresses = () => {
         <CardHeader className="flex flex-col gap-4 pb-4">
           <div className="flex justify-between items-center w-full">
             <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-bold">Addresses & Contacts</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold">Addresses & Contacts</h1>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  color="primary"
+                  onPress={() => fetchAddresses(true)}
+                  isLoading={isLoading}
+                  startContent={!isLoading && <Icon icon="solar:refresh-bold" />}
+                >
+                  {isLoading ? 'Refreshing...' : 'Refresh'}
+                </Button>
+              </div>
               <p className="text-small text-default-600">
                 {filteredAddresses.length} addresses found
               </p>
@@ -574,7 +582,7 @@ const Addresses = () => {
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onPress={onClose}>
+                <Button color="danger" onPress={onClose}>
                   Close
                 </Button>
               </ModalFooter>

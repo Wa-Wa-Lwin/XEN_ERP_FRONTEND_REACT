@@ -43,6 +43,7 @@ import {useMediaQuery} from "usehooks-ts";
 import {cn} from "@heroui/react";
 
 import Sidebar from "./components/Sidebar";
+import { useParcelItemsCache } from "@/hooks/useParcelItemsCache";
 
 import {sectionItemsWithTeams} from "./components/sidebar-items";
 
@@ -68,6 +69,7 @@ export default function Component() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const { logout, user, hasDbData, msLoginUser } = useAuth();
+  const { fetchParcelItems } = useParcelItemsCache();
   
   const isCompact = isCollapsed || isMobile;
 
@@ -98,6 +100,18 @@ export default function Component() {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  }
+
+  const handleSidebarSelect = async (key: string) => {
+    // Pre-fetch parcel items when request form is accessed
+    if (key === 'request-form') {
+      try {
+        await fetchParcelItems();
+        console.log('Parcel items cached successfully');
+      } catch (error) {
+        console.error('Failed to cache parcel items:', error);
+      }
+    }
   }
 
   console.log(mainHeight)
@@ -147,7 +161,12 @@ export default function Component() {
           </div>
         </div>
         <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
-          <Sidebar defaultSelectedKey="home" isCompact={isCompact} items={sectionItemsWithTeams} />
+          <Sidebar 
+            defaultSelectedKey="home" 
+            isCompact={isCompact} 
+            items={sectionItemsWithTeams}
+            onSelect={handleSidebarSelect}
+          />
         </ScrollShadow>
         <Spacer y={2} />
         <div
