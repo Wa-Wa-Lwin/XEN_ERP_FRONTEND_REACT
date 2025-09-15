@@ -1,5 +1,5 @@
 import { useFieldArray } from 'react-hook-form'
-import { Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { DEFAULT_PARCEL_ITEM, WEIGHT_UNITS } from '../../constants/form-defaults'
 import type { ParcelItemsProps } from '../../types/shipment-form.types'
@@ -28,65 +28,128 @@ const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProp
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {itemFields.map((item, itemIndex) => (
-          <Card key={item.id} className="border-dashed">
-            <CardBody>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div className="flex items-center justify-center gap-2">
-                  <h5 className="text-md font-medium">{itemIndex + 1}</h5>
+      <div className="overflow-x-auto">
+        <Table 
+          aria-label="Parcel items table"
+          classNames={{
+            wrapper: "min-h-[200px]",
+            table: "min-w-[1200px]",
+            td: "px-1 py-1",
+            th: "px-1 py-2",
+          }}
+        >
+          <TableHeader>
+            <TableColumn className="w-12">#</TableColumn>
+            <TableColumn className="w-48 min-w-[80px]">DESCRIPTION</TableColumn>
+            <TableColumn className="w-36">SKU</TableColumn>
+            <TableColumn className="w-24">HS CODE</TableColumn>
+            <TableColumn className="w-28">ORIGIN</TableColumn>
+            <TableColumn className="w-20">PRICE</TableColumn>
+            <TableColumn className="w-28">CURRENCY</TableColumn>
+            <TableColumn className="w-20">WEIGHT(kg)</TableColumn>
+            <TableColumn className="w-16">QTY</TableColumn>
+            <TableColumn className="w-16">ACTION</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent="No items added yet">
+            {itemFields.map((item, itemIndex) => (
+              <TableRow key={item.id}>
+                <TableCell>
+                  <span className="text-sm font-medium text-default-600">
+                    {itemIndex + 1}
+                  </span>
+                </TableCell>
+                <TableCell>
                   <Input
                     {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, { required: 'Item description is required' })}
-                    label="Item Description"
                     placeholder="Enter item description"
-                    rows={2}
+                    variant="flat"
+                    size="sm"
                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description?.message}
                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description}
+                    classNames={{
+                      input: "text-sm",
+                      inputWrapper: "min-h-unit-8 h-unit-8"
+                    }}
                   />
-                </div>
-                <Input
-                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`, { required: 'SKU is required' })}
-                  label="SKU"
-                  placeholder="Enter SKU"
-                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.sku?.message}
-                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.sku}
-                />
-                <Input
-                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, { required: 'HS Code is required' })}
-                  label="HS Code"
-                  placeholder="Enter HS code"
-                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code?.message}
-                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code}
-                />
-                <Select
-                  {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`, { required: 'Origin country is required' })}
-                  label="Origin Country"
-                  placeholder="Select origin country"
-                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country?.message}
-                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country}
-                >
-                  {COUNTRIES.map((option) => (
-                    <SelectItem key={option.key} value={option.value}>
-                      {option.value}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <div className="flex gap-2">
+                </TableCell>
+                <TableCell>
+                  <Input
+                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`, { required: 'SKU is required' })}
+                    placeholder="SKU"
+                    variant="flat"
+                    size="sm"
+                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.sku?.message}
+                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.sku}
+                    classNames={{
+                      input: "text-sm",
+                      inputWrapper: "min-h-unit-8 h-unit-8"
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, { required: 'HS Code is required' })}
+                    placeholder="HS Code"
+                    variant="flat"
+                    size="sm"
+                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code?.message}
+                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code}
+                    classNames={{
+                      input: "text-sm",
+                      inputWrapper: "min-h-unit-8 h-unit-8"
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Select
+                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`, { required: 'Origin country is required' })}
+                    placeholder="Country"
+                    variant="flat"
+                    size="sm"
+                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country?.message}
+                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country}
+                    classNames={{
+                      trigger: "min-h-unit-8 h-unit-8",
+                      value: "text-sm"
+                    }}
+                  >
+                    {COUNTRIES.map((option) => (
+                      <SelectItem key={option.key} value={option.value}>
+                        {/* {option.value} */}
+                        {option.key}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </TableCell>
+                <TableCell>
                   <Input
                     {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`, { required: 'Price is required', min: 0 })}
                     type="number"
                     step="0.01"
-                    label="Price Amount"
                     placeholder="0.00"
+                    variant="flat"
+                    size="sm"
                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount}
+                    classNames={{
+                      input: "text-sm",
+                      inputWrapper: "min-h-unit-8 h-unit-8"
+                    }}
                   />
+                </TableCell>
+                <TableCell>
                   <Select
                     {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`, { required: 'Currency is required' })}
-                    label="Currency"
-                    defaultSelectedKeys={['USD']}
+                    placeholder="THB"
+                    variant="flat"
+                    size="sm"
+                    defaultSelectedKeys={['THB']}
                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}
+                    classNames={{
+                      trigger: "min-h-unit-8 h-unit-8",
+                      value: "text-sm"
+                    }}
                   >
                     {CURRENCIES.map((currency) => (
                       <SelectItem key={currency.key} value={currency.value}>
@@ -94,57 +157,73 @@ const ParcelItems = ({ parcelIndex, control, register, errors }: ParcelItemsProp
                       </SelectItem>
                     ))}
                   </Select>
-                </div>
-                <div className="flex gap-2">
+                </TableCell>
+                <TableCell>
                   <Input
                     {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`, { required: 'Weight is required', min: 0 })}
                     type="number"
                     step="0.01"
-                    label="Weight(kg)"
                     placeholder="0.00"
+                    variant="flat"
+                    size="sm"
                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value?.message}
                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value}
+                    classNames={{
+                      input: "text-sm",
+                      inputWrapper: "min-h-unit-8 h-unit-8"
+                    }}
                   />
+                </TableCell>
+                <TableCell>
                   <Input
                     {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.quantity`, { required: 'Quantity is required', min: 1 })}
                     type="number"
-                    label="Quantity"
-                    placeholder="Enter quantity"
+                    placeholder="1"
+                    variant="flat"
+                    size="sm"
                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity?.message}
                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity}
+                    classNames={{
+                      input: "text-sm",
+                      inputWrapper: "min-h-unit-8 h-unit-8"
+                    }}
                   />
-                  <Select
-                    {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_unit`, { required: 'Weight unit is required' })}
-                    label="Unit"
-                    defaultSelectedKeys={['kg']}
-                    className="hidden"
-                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_unit?.message}
-                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_unit}
-                  >
-                    {WEIGHT_UNITS.map((unit) => (
-                      <SelectItem key={unit.key} value={unit.value}>
-                        {unit.label}
-                      </SelectItem>
-                    ))}
-                  </Select>
+                </TableCell>
+                <TableCell>
                   {itemFields.length > 1 && (
-                  <Button
-                    type="button"
-                    color="danger"
-                    size="md"
-                    variant="light"
-                    isIconOnly
-                    onPress={() => removeItem(itemIndex)}
-                  >
-                    <Icon icon="solar:trash-bin-minimalistic-bold" />
-                  </Button>
-                )}
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        ))}
+                    <Button
+                      type="button"
+                      color="danger"
+                      size="sm"
+                      variant="light"
+                      isIconOnly
+                      onPress={() => removeItem(itemIndex)}
+                    >
+                      <Icon icon="solar:trash-bin-minimalistic-bold" width={16} />
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
+
+      {/* Hidden weight unit field */}
+      {itemFields.map((item, itemIndex) => (
+        <Select
+          key={`weight-unit-${item.id}`}
+          {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_unit`, { required: 'Weight unit is required' })}
+          defaultSelectedKeys={['kg']}
+          className="hidden"
+        >
+          {WEIGHT_UNITS.map((unit) => (
+            <SelectItem key={unit.key} value={unit.value}>
+              {unit.label}
+            </SelectItem>
+          ))}
+        </Select>
+      ))}
     </div>
   )
 }

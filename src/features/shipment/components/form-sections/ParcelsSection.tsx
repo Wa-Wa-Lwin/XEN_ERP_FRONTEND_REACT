@@ -67,16 +67,6 @@ const ParcelsSection = ({ register, errors, control, setValue }: FormSectionProp
             <CardBody>
               {/* Parcel Information */}
               <div className="space-y-4 mb-6">
-                {/* Hidden box type input */}
-                <Input
-                  {...register(`parcels.${parcelIndex}.box_type`, { required: 'Box type is required' })}
-                  label="Box Type"
-                  placeholder="Enter box type"
-                  errorMessage={errors.parcels?.[parcelIndex]?.box_type?.message}
-                  isInvalid={!!errors.parcels?.[parcelIndex]?.box_type}
-                  defaultValue="custom"
-                  className="hidden"
-                />
                 
                 {/* Box Type and Description Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

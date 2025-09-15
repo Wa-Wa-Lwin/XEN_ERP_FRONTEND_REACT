@@ -37,11 +37,7 @@ const ShipmentForm = () => {
       <Card className="w-full">
         <CardBody>        
           <form 
-            onSubmit={(e) => {
-              e.preventDefault(); // stops page reload
-              handlePreview();
-              // handleSubmit(handlePreview); 
-            }} 
+            onSubmit={handleSubmit(handlePreview)}
             className="space-y-8"
           >
 
