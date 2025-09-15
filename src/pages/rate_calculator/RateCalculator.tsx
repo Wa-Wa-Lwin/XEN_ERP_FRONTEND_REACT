@@ -67,12 +67,6 @@ const RateCalculator = () => {
                 This rate calculator uses the AfterShip Postmen API to fetch real-time shipping rates from multiple carriers.
                 The API endpoint used is: <code className="text-tiny bg-default-100 px-1 rounded">https://api.aftership.com/postmen/v3/rates</code>
               </p>
-              <div className="text-tiny text-default-500 space-y-1">
-                <p>" Supports major carriers including UPS, FedEx, DHL, and USPS</p>
-                <p>" Real-time rate calculations with delivery estimates</p>
-                <p>" Detailed charge breakdowns and service options</p>
-                <p>" Note: API authentication may be required for production use</p>
-              </div>
             </div>
           </div>
         </CardBody>

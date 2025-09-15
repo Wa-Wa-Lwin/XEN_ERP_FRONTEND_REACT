@@ -60,15 +60,15 @@ export const routes = [
           },          
         ]
       },
-      // { path: "rate-calculator",
-      //   handle: { breadcrumb: "Rate Calculator" },
-      //   children:[
-      //     {
-      //       path: "",
-      //       element: <RateCalculator />,
-      //     },
-      //   ]
-      // },
+      { path: "rate-calculator",
+        handle: { breadcrumb: "Rate Calculator" },
+        children:[
+          {
+            path: "",
+            element: <RateCalculator />,
+          },
+        ]
+      },
     ],
   },
   {

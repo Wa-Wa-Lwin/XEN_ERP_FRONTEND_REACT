@@ -105,13 +105,15 @@ export const useRateCalculator = () => {
       const requestData = transformFormDataToRequest(formData)
 
       const response = await axios.post<RateCalculationResponse>(
-        'https://api.aftership.com/postmen/v3/rates',
+        import.meta.env.VITE_APP_AFTERSHIP_RATE_CALCULATE_API,
         requestData,
         {
           headers: {
+            'Host': import.meta.env.VITE_APP_AFTERSHIP_HOST,
+            'as-api-key': import.meta.env.VITE_APP_AFTERSHIP_API_VALUE, 
             'Content-Type': 'application/json',
-            // Note: In a real application, you would need to add proper API key authentication
-            // 'postmen-api-key': 'your-api-key-here'
+            'Accept': 'application/json',
+            'Accept-Encoding': 'gzip, deflate',
           }
         }
       )

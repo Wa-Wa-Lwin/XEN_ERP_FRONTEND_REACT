@@ -15,7 +15,8 @@ import {
 import { Icon } from '@iconify/react'
 import { useForm } from 'react-hook-form'
 import type { RateCalculatorFormData } from '../types'
-import { COUNTRIES, BOX_TYPES } from '../types'
+import { COUNTRIES } from '@pages/shipment/constants/countries'
+import { PARCEL_BOX_TYPES } from '@pages/shipment/constants/parcel_box_types'
 
 interface RateCalculatorFormProps {
   onSubmit: (data: RateCalculatorFormData) => void
@@ -93,9 +94,9 @@ const RateCalculatorForm = ({ onSubmit, isLoading }: RateCalculatorFormProps) =>
                   errorMessage={errors.ship_from_country?.message}
                   isInvalid={!!errors.ship_from_country}
                 >
-                  {COUNTRIES.map((country) => (
-                    <SelectItem key={country} value={country}>
-                      {country}
+                  {COUNTRIES.map((option) => (
+                    <SelectItem key={option.key} value={option.value}>
+                      {option.value}
                     </SelectItem>
                   ))}
                 </Select>
@@ -173,9 +174,9 @@ const RateCalculatorForm = ({ onSubmit, isLoading }: RateCalculatorFormProps) =>
                   errorMessage={errors.ship_to_country?.message}
                   isInvalid={!!errors.ship_to_country}
                 >
-                  {COUNTRIES.map((country) => (
-                    <SelectItem key={country} value={country}>
-                      {country}
+                  {COUNTRIES.map((option) => (
+                    <SelectItem key={option.key} value={option.value}>
+                      {option.value}
                     </SelectItem>
                   ))}
                 </Select>
@@ -239,9 +240,9 @@ const RateCalculatorForm = ({ onSubmit, isLoading }: RateCalculatorFormProps) =>
                 errorMessage={errors.box_type?.message}
                 isInvalid={!!errors.box_type}
               >
-                {BOX_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type.replace('_', ' ').toUpperCase()}
+                {PARCEL_BOX_TYPES.map((boxType) => (
+                  <SelectItem key={boxType.id} value={boxType.id.toString()}>
+                    {boxType.box_type_name}
                   </SelectItem>
                 ))}
               </Select>
@@ -405,9 +406,9 @@ const RateCalculatorForm = ({ onSubmit, isLoading }: RateCalculatorFormProps) =>
               errorMessage={errors.item_origin_country?.message}
               isInvalid={!!errors.item_origin_country}
             >
-              {COUNTRIES.map((country) => (
-                <SelectItem key={country} value={country}>
-                  {country}
+              {COUNTRIES.map((option) => (
+                <SelectItem key={option.key} value={option.value}>
+                  {option.value}
                 </SelectItem>
               ))}
             </Select>
@@ -490,9 +491,9 @@ const RateCalculatorForm = ({ onSubmit, isLoading }: RateCalculatorFormProps) =>
                 label="Country"
                 placeholder="Select country"
               >
-                {COUNTRIES.map((country) => (
-                  <SelectItem key={country} value={country}>
-                    {country}
+                {COUNTRIES.map((option) => (
+                  <SelectItem key={option.key} value={option.value}>
+                    {option.value}
                   </SelectItem>
                 ))}
               </Select>

@@ -1,66 +1,19 @@
+import type { AddressData } from "@pages/addresses/types"
+import type { Parcel } from "@pages/shipment/types/shipment-form.types"
+
 export interface ShipperAccount {
   id: string
   slug?: string
   description?: string
 }
 
-export interface Address {
-  contact_name: string
-  company_name: string
-  street1: string
-  street2?: string
-  city: string
-  state: string
-  postal_code: string
-  country: string
-  phone: string
-  email: string
-  type?: 'residential' | 'commercial'
-}
-
-export interface Dimension {
-  width: number
-  height: number
-  depth: number
-  unit: 'cm' | 'in'
-}
-
-export interface Weight {
-  value: number
-  unit: 'kg' | 'lb'
-}
-
-export interface Price {
-  amount: number
-  currency: string
-}
-
-export interface ParcelItem {
-  description: string
-  quantity: number
-  price: Price
-  item_id: string
-  origin_country: string
-  weight: Weight
-  sku?: string
-  hs_code?: string
-}
-
-export interface Parcel {
-  box_type: string
-  dimension: Dimension
-  items: ParcelItem[]
-  description: string
-  weight: Weight
-}
-
 export interface RateCalculationRequest {
   shipper_accounts: ShipperAccount[]
   shipment: {
-    ship_from: Address
-    ship_to: Address
+    ship_from: AddressData
+    ship_to: AddressData
     parcels: Parcel[]
-    return_to?: Address
+    return_to?: AddressData
     delivery_instructions?: string
   }
 }
@@ -175,19 +128,4 @@ export const DEFAULT_SHIPPER_ACCOUNTS: ShipperAccount[] = [
   { id: "f2d341a82daa43079e6e4daa849f8b5e" },
   { id: "f535473ba8f3493aa07aad9339f0a439" },
   { id: "fb842bff60154a2f8c84584a74d0cf69" }
-]
-
-export const COUNTRIES = [
-  'USA', 'CAN', 'GBR', 'CHN', 'JPN', 'DEU', 'FRA', 'ITA', 'ESP', 'AUS'
-]
-
-export const BOX_TYPES = [
-  'custom',
-  'small_box',
-  'medium_box',
-  'large_box',
-  'extra_large_box',
-  'envelope',
-  'pak',
-  'tube'
 ]
