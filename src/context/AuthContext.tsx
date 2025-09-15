@@ -50,6 +50,7 @@ interface Approver {
 interface AuthContextType {
   user: User | null;
   approver: Approver | null;
+  msLoginUser : MSLoginUser | null; 
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (userData: MSLoginUser) => void;
@@ -65,6 +66,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [msLoginUser, setMSLoginUser] = useState<MSLoginUser | null>(null);
   const [approver, setApprover] = useState<Approver | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -118,6 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (userData: MSLoginUser) => {
     localStorage.setItem('msLoginUser', JSON.stringify(userData));
+    setMSLoginUser(userData);
     fetchUserData(userData.email).catch(err => {
       console.error('Error fetching user data after login:', err);
       logout();
@@ -127,6 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setApprover(null);
+    setMSLoginUser(null); 
     localStorage.removeItem('user');
     localStorage.removeItem('approver');
     localStorage.removeItem('token');
@@ -136,7 +140,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     approver,
-    isAuthenticated: !!user,
+    msLoginUser, 
+    isAuthenticated: !!msLoginUser,
     isLoading,
     login,
     logout,
