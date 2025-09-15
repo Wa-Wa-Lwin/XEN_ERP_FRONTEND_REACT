@@ -11,6 +11,7 @@ import Overview from "@features/overview/Overview"
 import Logistics from "@features/logistics/Logistics"
 import ProtectedRoute from "@components/common/ProtectedRoute";
 import Items from "@pages/items/Items";
+import Addresses from "@pages/addresses/Addresses";
 
 
 export const routes = [
@@ -46,6 +47,15 @@ export const routes = [
           {
             path: "",
             element: <Items />,
+          },          
+        ]
+      },
+      { path: "addresses", 
+        handle: { breadcrumb: "Addresses" },
+        children:[
+          {
+            path: "",
+            element: <Addresses />,
           },          
         ]
       },

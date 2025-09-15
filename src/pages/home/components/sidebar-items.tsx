@@ -165,6 +165,19 @@ export const sectionItems: SidebarItem[] = [
       },      
     ],
   },
+  {
+    key: "addresses",
+    title: "Addresses",
+    to: "/addresses",
+    items: [
+      {
+        key: "addresses",
+        to: "/addresses",
+        icon: "solar:chart-outline",
+        title: "Addresses",
+      },      
+    ],
+  },
 ];
 
 export const sectionItemsWithTeams: SidebarItem[] = [
