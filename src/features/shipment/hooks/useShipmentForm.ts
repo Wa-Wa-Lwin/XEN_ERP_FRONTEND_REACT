@@ -6,7 +6,7 @@ import { DEFAULT_FORM_VALUES } from '../constants/form-defaults'
 import type { ShipmentFormData } from '../types/shipment-form.types'
 
 export const useShipmentForm = () => {
-  const { user, approver } = useAuth()
+  const { user, approver, msLoginUser } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const formMethods = useForm<ShipmentFormData>({
@@ -16,7 +16,7 @@ export const useShipmentForm = () => {
   const { register, control, handleSubmit, watch, setValue, getValues, formState: { errors } } = formMethods
 
   const onSubmit = async (data: ShipmentFormData) => {
-    if (!user || !approver) {
+    if (!msLoginUser) {
       alert('User authentication required')
       return
     }
@@ -25,13 +25,13 @@ export const useShipmentForm = () => {
     try {
       const formData = {
         ...data,
-        // Auto-bind from auth context
-        created_user_id: user.userID,
-        created_user_name: user.firstName + ' ' + user.lastName,
-        created_user_mail: user.email,
-        approver_user_id: approver.userID,
-        approver_user_name: approver.firstName + ' ' + approver.lastName,
-        approver_user_mail: approver.email
+        // Auto-bind from auth context - use msLoginUser if no DB data
+        created_user_id: user?.userID || 0,
+        created_user_name: user ? (user.firstName + ' ' + user.lastName) : msLoginUser.name,
+        created_user_mail: user?.email || msLoginUser.email,
+        approver_user_id: approver?.userID || 0,
+        approver_user_name: approver ? (approver.firstName + ' ' + approver.lastName) : msLoginUser.name,
+        approver_user_mail: approver?.email || msLoginUser.email
       }
 
       const response = await axios.post(

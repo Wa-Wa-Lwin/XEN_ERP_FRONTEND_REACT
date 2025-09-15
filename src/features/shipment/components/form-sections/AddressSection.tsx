@@ -98,7 +98,7 @@ const AddressSection = ({ register, errors, control, title, prefix }: AddressSec
           isInvalid={!!errors[`${prefix}_street2`]}
         />
         <Input
-          {...register(`${prefix}_tax_id`, { required: 'Tax ID is required' })}
+          {...register(`${prefix}_tax_id`)}
           label="Tax ID"
           placeholder="Enter tax ID"
           errorMessage={errors[`${prefix}_tax_id`]?.message}

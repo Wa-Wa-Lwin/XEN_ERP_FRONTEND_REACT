@@ -18,6 +18,8 @@ const ShipmentForm = () => {
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
 
   const handlePreview = () => {
+    // alert("clicked preview and submit."); 
+    // console.log("clicked preview and submit."); 
     const formData = getValues()
     setPreviewData(formData)
     setIsPreviewOpen(true)
@@ -33,8 +35,16 @@ const ShipmentForm = () => {
   return (
     <div className="mx-auto w-full">
       <Card className="w-full">
-        <CardBody>
-          <form onSubmit={handleSubmit(handlePreview)} className="space-y-8">
+        <CardBody>        
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault(); // stops page reload
+              handlePreview();
+              // handleSubmit(handlePreview); 
+            }} 
+            className="space-y-8"
+          >
+
             <BasicInformation register={register} errors={errors} today={today} />
 
             {/* <Divider /> */}
