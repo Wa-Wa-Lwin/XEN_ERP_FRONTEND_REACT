@@ -75,6 +75,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = () => {
       try {
+        const storedMSLoginUser = localStorage.getItem('msLoginUser');
+        if (storedMSLoginUser) {
+          const msLoginUserData = JSON.parse(storedMSLoginUser);
+          setMSLoginUser(msLoginUserData);
+        }
+
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
           const userData = JSON.parse(storedUser);
@@ -86,10 +92,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const approverData = JSON.parse(storedApprover);
           setApprover(approverData);
         }
+
+        // If we have msLoginUser but no user/approver data, set hasDbData to false
+        if (storedMSLoginUser && (!storedUser || !storedApprover)) {
+          setHasDbData(false);
+        }
       } catch (error) {
         console.error('Failed to parse stored user data:', error);
         localStorage.removeItem('user');
         localStorage.removeItem('approver');
+        localStorage.removeItem('msLoginUser');
       } finally {
         setIsLoading(false);
       }

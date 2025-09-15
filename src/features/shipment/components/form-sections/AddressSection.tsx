@@ -91,7 +91,7 @@ const AddressSection = ({ register, errors, control, title, prefix }: AddressSec
         />
 
         <Textarea
-          {...register(`${prefix}_street2`, { required: 'Street 2 is required' })}
+          {...register(`${prefix}_street2`)}
           label="Street 2"
           placeholder="Enter street line 2"
           errorMessage={errors[`${prefix}_street2`]?.message}
