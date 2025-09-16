@@ -27,55 +27,55 @@ const ShipmentForm = () => {
       // Transform form data to match the backend API format
       const shipment = {
         ship_from: {
-          contact_name: formData.ship_from_contact_name || "AfterShip Shipping",
-          company_name: formData.ship_from_company_name || "AfterShip Shipping",
-          street1: formData.ship_from_street1 || "230 W 200 S LBBY",
-          city: formData.ship_from_city || "Salt Lake City",
-          state: formData.ship_from_state || "UT",
-          postal_code: formData.ship_from_postal_code || "84101",
-          country: formData.ship_from_country || "USA",
-          phone: formData.ship_from_phone || "123456789",
-          email: formData.ship_from_email || "test@test.com"
+          contact_name: formData.ship_from_contact_name ,
+          company_name: formData.ship_from_company_name ,
+          street1: formData.ship_from_street1 ,
+          city: formData.ship_from_city ,
+          state: formData.ship_from_state ,
+          postal_code: formData.ship_from_postal_code ,
+          country: formData.ship_from_country ,
+          phone: formData.ship_from_phone ,
+          email: formData.ship_from_email 
         },
         ship_to: {
-          contact_name: formData.ship_to_contact_name || "AfterShip Shipping",
-          company_name: formData.ship_to_company_name || "AfterShip Shipping",
-          street1: formData.ship_to_street1 || "230 W 200 S LBBY",
-          city: formData.ship_to_city || "Salt Lake City",
-          state: formData.ship_to_state || "UT",
-          postal_code: formData.ship_to_postal_code || "84101",
-          country: formData.ship_to_country || "USA",
-          phone: formData.ship_to_phone || "123456789",
-          email: formData.ship_to_email || "test@test.com"
+          contact_name: formData.ship_to_contact_name ,
+          company_name: formData.ship_to_company_name ,
+          street1: formData.ship_to_street1 ,
+          city: formData.ship_to_city ,
+          state: formData.ship_to_state ,
+          postal_code: formData.ship_to_postal_code ,
+          country: formData.ship_to_country ,
+          phone: formData.ship_to_phone ,
+          email: formData.ship_to_email 
         },
         parcels: formData.parcels?.map(parcel => ({
           box_type: "custom",
           dimension: {
-            width: parcel.width || 10,
-            height: parcel.height || 10,
-            depth: parcel.depth || 10,
-            unit: parcel.dimension_unit || "cm"
+            width: parcel.width ,
+            height: parcel.height ,
+            depth: parcel.depth ,
+            unit: parcel.dimension_unit 
           },
           items: parcel.parcel_items?.map(item => ({
-            description: item.description || "Item",
-            quantity: item.quantity || 1,
+            description: item.description ,
+            quantity: item.quantity ,
             price: {
-              currency: item.price_currency || "USD",
-              amount: item.price_amount || 100
+              currency: item.price_currency ,
+              amount: item.price_amount ,
             },
-            item_id: item.item_id || "1234567",
-            origin_country: item.origin_country || "CHN",
+            item_id: item.item_id ,
+            origin_country: item.origin_country ,
             weight: {
-              unit: item.weight_unit || "kg",
-              value: item.weight_value || 1
+              unit: item.weight_unit ,
+              value: item.weight_value ,
             },
-            sku: item.sku || "default-sku",
-            hs_code: item.hs_code || "1006.30"
+            sku: item.sku ,
+            hs_code: item.hs_code 
           })),
-          description: parcel.description || "Package",
+          description: parcel.description ,
           weight: {
-            unit: parcel.weight_unit || "kg",
-            value: parcel.weight_value || 1
+            unit: parcel.weight_unit ,
+            value: parcel.weight_value 
           }
         })),
         delivery_instructions: "handle with care"

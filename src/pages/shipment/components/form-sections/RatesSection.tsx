@@ -1,6 +1,14 @@
 import { Card, CardHeader, CardBody, Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
+
+// Interface for exchange rate API response
+interface ExchangeRateResponse {
+  conversion_rates: Record<string, number>
+  time_last_update_unix: number
+}
 
 // Interface for the API response
 interface RateResponse {
@@ -29,17 +37,54 @@ interface RatesSectionProps extends FormSectionProps {
 }
 
 const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionProps) => {
-  // Exchange rates to THB (approximate rates - in production, fetch from a real API)
-  const exchangeRates: Record<string, number> = {
-    USD: 35.0,
-    EUR: 38.5,
-    GBP: 43.2,
-    JPY: 0.24,
-    CNY: 4.9,
-    SGD: 26.1,
-    MYR: 7.8,
-    THB: 1.0
-  };
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
+    THB: 1.0 // Default fallback
+  })
+  const [isLoadingRates, setIsLoadingRates] = useState(false)
+  const [ratesError, setRatesError] = useState<string | null>(null)
+
+  // Fetch exchange rates from API
+  const fetchExchangeRates = async () => {
+    setIsLoadingRates(true)
+    setRatesError(null)
+
+    try {
+      // Using exchangerate-api.com free tier (1500 requests/month)
+      const response = await axios.get<ExchangeRateResponse>(
+        'https://api.exchangerate-api.com/v4/latest/THB'
+      )
+
+      // Convert from THB-based rates to rates TO THB
+      const thbRates: Record<string, number> = {}
+      Object.entries(response.data.conversion_rates).forEach(([currency, rate]) => {
+        thbRates[currency] = 1 / rate // Invert to get rate TO THB
+      })
+      thbRates.THB = 1.0 // THB to THB is always 1
+
+      setExchangeRates(thbRates)
+    } catch (error) {
+      console.error('Failed to fetch exchange rates:', error)
+      setRatesError('Failed to fetch current exchange rates')
+      // Fallback to approximate rates
+      setExchangeRates({
+        USD: 35.0,
+        EUR: 38.5,
+        GBP: 43.2,
+        JPY: 0.24,
+        CNY: 4.9,
+        SGD: 26.1,
+        MYR: 7.8,
+        THB: 1.0
+      })
+    } finally {
+      setIsLoadingRates(false)
+    }
+  }
+
+  // Fetch rates on component mount
+  useEffect(() => {
+    fetchExchangeRates()
+  }, [])
 
   const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
     if (amount == null || !currency) return 'N/A'; // covers null and undefined
@@ -48,7 +93,12 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
 
   const convertToTHB = (amount: number | undefined | null, currency: string | null) => {
     if (amount == null || !currency) return 'N/A';
-    const rate = exchangeRates[currency.toUpperCase()] || 1;
+
+    const rate = exchangeRates[currency.toUpperCase()];
+    if (!rate) {
+      return `${amount.toLocaleString()} ${currency} (Rate N/A)`;
+    }
+
     const thbAmount = amount * rate;
     return `${thbAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} THB`;
   };
@@ -108,18 +158,40 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center w-full">
-          <h2 className="text-xl font-semibold">Shipping Rates</h2>
-          <Button
-            type="button"
-            color="secondary"
-            size="sm"
-            startContent={<Icon icon="solar:calculator-bold" />}
-            onPress={onCalculateRates}
-            isLoading={isCalculating}
-            disabled={isCalculating}
-          >
-            {isCalculating ? 'Calculating...' : 'Calculate Rates'}
-          </Button>
+          <div className="flex flex-col">
+            <h2 className="text-xl font-semibold">Shipping Rates</h2>
+            {ratesError && (
+              <p className="text-red-500 text-sm mt-1">
+                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+                {ratesError} - Using fallback rates
+              </p>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="light"
+              size="sm"
+              startContent={<Icon icon="solar:refresh-bold" />}
+              onPress={fetchExchangeRates}
+              isLoading={isLoadingRates}
+              disabled={isLoadingRates}
+              title="Refresh exchange rates"
+            >
+              {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
+            </Button>
+            <Button
+              type="button"
+              color="secondary"
+              size="sm"
+              startContent={<Icon icon="solar:calculator-bold" />}
+              onPress={onCalculateRates}
+              isLoading={isCalculating}
+              disabled={isCalculating}
+            >
+              {isCalculating ? 'Calculating...' : 'Calculate Rates'}
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
