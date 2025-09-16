@@ -13,6 +13,7 @@ import {
 import ShipmentPreviewModal from './ShipmentPreviewModal'
 import ErrorModal from './ErrorModal'
 import type { ShipmentFormData } from '../types/shipment-form.types'
+import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentForm = () => {
   const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues } = useShipmentForm()
@@ -203,7 +204,7 @@ const ShipmentForm = () => {
 
         if (parcelWeight < totalItemWeight) {
           errors.push({
-            path: `parcels.${parcelIndex}.weight_value`,
+            path: `Parcel ${parcelIndex + 1} – Weight`, // `parcels.${parcelIndex}.weight_value`,
             info: `Parcel weight (${parcelWeight}kg) must be greater than or equal to the sum of item weights (${totalItemWeight.toFixed(2)}kg). Please increase the parcel weight or reduce item weights.`
           })
         }
@@ -213,7 +214,7 @@ const ShipmentForm = () => {
       const parcelWeight = parseFloat(String(parcel.weight_value)) || 0
       if (parcelWeight <= 0) {
         errors.push({
-          path: `parcels.${parcelIndex}.weight_value`,
+          path: `Parcel ${parcelIndex + 1} – Weight`, // `parcels.${parcelIndex}.weight_value`,
           info: `Parcel weight must be greater than 0kg`
         })
       }
@@ -223,7 +224,7 @@ const ShipmentForm = () => {
         const itemWeight = parseFloat(String(item.weight_value)) || 0
         if (itemWeight <= 0) {
           errors.push({
-            path: `parcels.${parcelIndex}.items.${itemIndex}.weight_value`,
+            path:  `Parcel ${parcelIndex + 1} – Item ${itemIndex + 1} Weight`, // `parcels.${parcelIndex}.items.${itemIndex}.weight_value`,
             info: `Item weight must be greater than 0kg`
           })
         }
@@ -233,8 +234,8 @@ const ShipmentForm = () => {
     return { isValid: errors.length === 0, errors }
   }
 
-  const handlePreview = async () => {
-    console.log("handlePreview called")
+  const handlePreview = async (data: ShipmentFormData) => {
+    console.log("handlePreview called", data)
     const formData = getValues()
 
     // Validate weights first
@@ -357,7 +358,7 @@ const ShipmentForm = () => {
               <Button
                 color="primary"
                 type="submit"             
-                startContent= '<Icon icon="solar:eye-bold" />'
+                startContent={<Icon icon="solar:eye-bold" />}
               >
                 Preview & Submit
               </Button>

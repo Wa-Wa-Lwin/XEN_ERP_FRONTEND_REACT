@@ -68,7 +68,7 @@ const ErrorModal = ({ isOpen, onClose, title, message, details }: ErrorModalProp
                 <h4 className="font-medium text-blue-800 mb-1">Common Solutions:</h4>
                 <ul className="text-blue-700 space-y-1 text-sm">
                   <li>• Check that all required fields are filled out</li>
-                  <li>• Verify weight values are greater than the sum of item weights</li>
+                  <li>• Verify Parcel weight values are greater than the sum of item weights</li>
                   <li>• Ensure dimensions and weights are positive numbers</li>
                   <li>• Make sure all addresses have complete information</li>
                 </ul>
