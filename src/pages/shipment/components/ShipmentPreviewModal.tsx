@@ -123,6 +123,44 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
               </div>
             )) || <span>No parcels added</span>}
           </p>
+
+          {/* Shipping Rates */}
+          {formData.rates && formData.rates.length > 0 && (
+            <p>
+              <h3 className="text-lg font-medium">
+                Available Shipping Rates ({formData.rates.length})
+              </h3>
+              {formData.rates.map((rate, index) => (
+                <div key={index} className="ml-4 mt-2 p-3 border rounded-lg">
+                  <b>{rate.service_name}</b> <br />
+                  <b>Shipper - </b> {rate.shipper_account_description} <br />
+                  <b>Service Type - </b> {rate.service_type} <br />
+                  <b>Total Charge - </b> {rate.total_charge_amount} {rate.total_charge_currency} <br />
+                  <b>Transit Time - </b> {rate.transit_time} <br />
+                  {rate.delivery_date && (
+                    <>
+                      <b>Delivery Date - </b> {rate.delivery_date} <br />
+                    </>
+                  )}
+                  {rate.charge_weight_value && (
+                    <>
+                      <b>Charge Weight - </b> {rate.charge_weight_value} {rate.charge_weight_unit} <br />
+                    </>
+                  )}
+                  {rate.error_message && (
+                    <div className="text-red-600">
+                      <b>Error - </b> {rate.error_message}
+                    </div>
+                  )}
+                  {rate.info_message && (
+                    <div className="text-blue-600">
+                      <b>Info - </b> {rate.info_message}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </p>
+          )}
         </ModalBody>
 
 
