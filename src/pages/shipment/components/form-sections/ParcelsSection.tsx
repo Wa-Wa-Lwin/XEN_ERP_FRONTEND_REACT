@@ -71,7 +71,8 @@ const ParcelsSection = ({ register, errors, control, setValue }: FormSectionProp
                 {/* Box Type and Description Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Select
-                    {...register(`parcels.${parcelIndex}.box_type_name`, { required: 'Box type is required' })}
+                    {...register(`parcels.${parcelIndex}.box_type_name`)}
+                    // {...register(`parcels.${parcelIndex}.box_type_name`, { required: 'Box type is required' })}
                     label="Box Type"
                     placeholder="Select box type"
                     errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
@@ -90,6 +91,8 @@ const ParcelsSection = ({ register, errors, control, setValue }: FormSectionProp
                     placeholder="Enter parcel description"
                     errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
                     isInvalid={!!errors.parcels?.[parcelIndex]?.description}
+                    // className="h-12" 
+                    minRows={1} 
                   />
                 </div>
 

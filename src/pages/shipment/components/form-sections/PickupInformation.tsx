@@ -53,6 +53,7 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
               isInvalid={!!errors.pick_up_instructions}
               rows={1}
               className="resize-none"
+              minRows={1}
             />
           </div>
         </>

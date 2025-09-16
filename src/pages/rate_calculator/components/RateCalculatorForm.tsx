@@ -253,6 +253,7 @@ const RateCalculatorForm = ({ onSubmit, isLoading }: RateCalculatorFormProps) =>
                 errorMessage={errors.parcel_description?.message}
                 isInvalid={!!errors.parcel_description}
                 className="md:col-span-3"
+                minRows={1}
               />
             </div>
           </div>
@@ -446,105 +447,6 @@ const RateCalculatorForm = ({ onSubmit, isLoading }: RateCalculatorFormProps) =>
         </CardBody>
       </Card>
 
-      {/* Return Address (Optional) */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Icon icon="solar:undo-left-square-bold" className="text-success" width={24} />
-              <h2 className="text-xl font-semibold">Return Address (Optional)</h2>
-            </div>
-            <Switch
-              {...register('include_return_address')}
-              color="success"
-            >
-              Include Return Address
-            </Switch>
-          </div>
-        </CardHeader>
-        {includeReturnAddress && (
-          <CardBody>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Input
-                {...register('return_to_contact_name')}
-                label="Contact Name"
-                placeholder="Enter contact name"
-              />
-              <Input
-                {...register('return_to_company_name')}
-                label="Company Name"
-                placeholder="Enter company name"
-              />
-              <Input
-                {...register('return_to_phone')}
-                label="Phone"
-                placeholder="Enter phone number"
-              />
-              <Input
-                {...register('return_to_email')}
-                type="email"
-                label="Email"
-                placeholder="Enter email address"
-              />
-              <Select
-                {...register('return_to_country')}
-                label="Country"
-                placeholder="Select country"
-              >
-                {COUNTRIES.map((option) => (
-                  <SelectItem key={option.key} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </Select>
-              <Input
-                {...register('return_to_state')}
-                label="State/Province"
-                placeholder="Enter state or province"
-              />
-              <Input
-                {...register('return_to_city')}
-                label="City"
-                placeholder="Enter city"
-              />
-              <Input
-                {...register('return_to_postal_code')}
-                label="Postal Code"
-                placeholder="Enter postal code"
-              />
-              <Textarea
-                {...register('return_to_street1')}
-                label="Street Address 1"
-                placeholder="Enter street address"
-                className="md:col-span-2"
-              />
-              <Textarea
-                {...register('return_to_street2')}
-                label="Street Address 2 (Optional)"
-                placeholder="Enter additional address info"
-              />
-            </div>
-          </CardBody>
-        )}
-      </Card>
-
-      {/* Additional Options */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <Icon icon="solar:settings-bold" className="text-default-600" width={24} />
-            <h2 className="text-xl font-semibold">Additional Options</h2>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <Textarea
-            {...register('delivery_instructions')}
-            label="Delivery Instructions (Optional)"
-            placeholder="Enter any special delivery instructions"
-            rows={3}
-          />
-        </CardBody>
-      </Card>
 
       {/* Submit Button */}
       <div className="flex justify-end">
@@ -564,3 +466,5 @@ const RateCalculatorForm = ({ onSubmit, isLoading }: RateCalculatorFormProps) =>
 }
 
 export default RateCalculatorForm
+
+{/* {...register('delivery_instructions')} */}
