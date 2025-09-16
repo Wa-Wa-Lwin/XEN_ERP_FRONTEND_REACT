@@ -1,7 +1,7 @@
 import {Chip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 
-import { SidebarItemType, type SidebarItem } from "./Sidebar";
+import type { SidebarItem } from "./Sidebar";
 import TeamAvatar from "./team-avatar";
 
 /**
@@ -442,7 +442,7 @@ export const sectionNestedItems: SidebarItem[] = [
     key: "cap_table",
     title: "Cap Table",
     icon: "solar:pie-chart-2-outline",
-    type: SidebarItemType.Nest,
+    type: "nest",
     items: [
       {
         key: "shareholders",

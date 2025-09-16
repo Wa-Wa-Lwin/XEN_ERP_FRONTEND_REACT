@@ -29,10 +29,62 @@ interface RatesSectionProps extends FormSectionProps {
 }
 
 const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionProps) => {
+  // Exchange rates to THB (approximate rates - in production, fetch from a real API)
+  const exchangeRates: Record<string, number> = {
+    USD: 35.0,
+    EUR: 38.5,
+    GBP: 43.2,
+    JPY: 0.24,
+    CNY: 4.9,
+    SGD: 26.1,
+    MYR: 7.8,
+    THB: 1.0
+  };
+
   const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
     if (amount == null || !currency) return 'N/A'; // covers null and undefined
     return `${amount.toLocaleString()} ${currency}`;
   };
+
+  const convertToTHB = (amount: number | undefined | null, currency: string | null) => {
+    if (amount == null || !currency) return 'N/A';
+    const rate = exchangeRates[currency.toUpperCase()] || 1;
+    const thbAmount = amount * rate;
+    return `${thbAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} THB`;
+  };
+
+  const convertWeightToKg = (weight: { value: number; unit: string } | null) => {
+    if (!weight) return '-';
+
+    let kgValue = weight.value;
+    switch (weight.unit.toLowerCase()) {
+      case 'lb':
+      case 'lbs':
+        kgValue = weight.value * 0.453592;
+        break;
+      case 'g':
+      case 'gram':
+      case 'grams':
+        kgValue = weight.value / 1000;
+        break;
+      case 'oz':
+      case 'ounce':
+      case 'ounces':
+        kgValue = weight.value * 0.0283495;
+        break;
+      case 'kg':
+      case 'kilogram':
+      case 'kilograms':
+        // Already in kg
+        break;
+      default:
+        // Assume kg if unknown unit
+        break;
+    }
+
+    return `${kgValue.toFixed(2)} kg`;
+  };
+
   const formatDateTime = (dateTime: string | null) => {
     if (!dateTime) return 'N/A'
     return new Date(dateTime).toLocaleString()
@@ -84,6 +136,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
               <TableColumn>Service</TableColumn>
               <TableColumn>Status</TableColumn>
               <TableColumn>Total Charge</TableColumn>
+              <TableColumn>Estimated THB</TableColumn>
               <TableColumn>Charge Weight</TableColumn>
               <TableColumn>Transit Time</TableColumn>
               <TableColumn>Delivery Date</TableColumn>
@@ -106,9 +159,14 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
                       rate.total_charge?.currency ?? null
                     )}
                   </TableCell>
-
                   <TableCell>
-                    {rate.charge_weight ? `${rate.charge_weight.value} ${rate.charge_weight.unit}` : '-'}
+                    {convertToTHB(
+                      rate.total_charge?.amount ?? null,
+                      rate.total_charge?.currency ?? null
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {convertWeightToKg(rate.charge_weight)}
                   </TableCell>
                   <TableCell>{rate.transit_time ? `${rate.transit_time} day(s)` : '-'}</TableCell>
                   <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
