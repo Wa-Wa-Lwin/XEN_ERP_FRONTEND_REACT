@@ -3,12 +3,14 @@ import { useParams, Link } from "react-router-dom";
 import { Card, CardBody, Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
+import { useAuth } from "@context/AuthContext";
 
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
   const [shipment, setShipment] = useState<any | null>(null); // using any for now until types are aligned
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { msLoginUser } = useAuth();
 
   useEffect(() => {
     const fetchShipment = async () => {
@@ -75,15 +77,34 @@ const ShipmentDetails = () => {
     <div className="mx-auto w-full p-4">
 
       {/* General Info */}
-      <Card className="mb-2">       
+      <Card className="mb-2">
         <CardBody>
-          <h2 className="text-lg font-semibold">General Information</h2>
-          <p><strong>ID:</strong> {shipment.shipmentRequestID}</p>
-          <p><strong>Topic:</strong> {shipment.topic} ({shipment.po_number})</p>
-          <p><strong>Status:</strong> {shipment.request_status}</p>
-          <p><strong>Requestor:</strong> {shipment.created_user_name} ({shipment.created_user_mail})</p>
-          <p><strong>Approver:</strong> {shipment.approver_user_name} ({shipment.approver_user_mail})</p>
-          <p><strong>Remark:</strong> {shipment.remark}</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-lg font-semibold">General Information</h2>
+              <p><strong>ID:</strong> {shipment.shipmentRequestID}</p>
+              <p><strong>Topic:</strong> {shipment.topic} ({shipment.po_number})</p>
+              <p><strong>Status:</strong> {shipment.request_status}</p>
+              <p><strong>Requestor:</strong> {shipment.created_user_name} ({shipment.created_user_mail})</p>
+              <p><strong>Approver:</strong> {shipment.approver_user_name} ({shipment.approver_user_mail})</p>
+              <p><strong>Remark:</strong> {shipment.remark}</p>
+            </div>
+
+            {/* Approve / Reject buttons */}
+            {["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
+              shipment.approver_user_mail == msLoginUser?.email && (
+                <div className="flex flex-row gap-2 ml-4">
+                  {/* <Button color="success" size="sm" onPress={() => handleApprove(shipment.shipmentRequestID)}> */}
+                  <Button color="success" size="md">
+                    Approve
+                  </Button>
+                  {/* <Button color="danger" size="sm" onPress={() => handleReject(shipment.shipmentRequestID)}> */}
+                  <Button color="danger" size="md">
+                    Reject
+                  </Button>
+                </div>
+              )}
+          </div>
         </CardBody>
       </Card>
 
@@ -100,7 +121,7 @@ const ShipmentDetails = () => {
           </CardBody>
         </Card>
 
-        <Card>          
+        <Card>
           <CardBody>
             <h2 className="text-lg font-semibold">Ship To</h2>
             <p><strong>Company:</strong> {shipment.ship_to?.company_name}</p>
@@ -113,7 +134,7 @@ const ShipmentDetails = () => {
 
       {/* Rates */}
       {shipment.rates && shipment.rates.length > 0 && (
-        <Card className="mt-2">          
+        <Card className="mt-2">
           <CardBody className="m-0">
             <h2 className="text-lg font-semibold">Rates</h2>
             <Table
@@ -136,7 +157,7 @@ const ShipmentDetails = () => {
                     key={idx}
                     className={rate.chosen == true ? "bg-green-50" : ""}
                   >
-                    <TableCell>{idx+1}</TableCell>
+                    <TableCell>{idx + 1}</TableCell>
                     <TableCell>{rate.shipper_account_description}</TableCell>
                     <TableCell>{rate.service_name}</TableCell>
                     <TableCell>{rate.transit_time} days</TableCell>
@@ -158,7 +179,7 @@ const ShipmentDetails = () => {
 
       {/* Parcels */}
       {shipment.parcels && shipment.parcels.length > 0 && (
-        <Card className="mt-2">       
+        <Card className="mt-2">
           <CardBody className="m-0">
             <h2 className="text-lg font-semibold">Parcels ({shipment.parcels.length})</h2>
             <Table
@@ -207,7 +228,7 @@ const ShipmentDetails = () => {
             </Table>
           </CardBody>
         </Card>
-      )}     
+      )}
 
     </div>
   );

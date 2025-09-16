@@ -298,17 +298,33 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </TableHeader>
             <TableBody items={rates} emptyContent="No rates found.">
               {(rate) => (
-                <TableRow key={rate.shipper_account.id}>
+                <TableRow
+                  key={rate.shipper_account.id}
+                  className={selectedRateId === rate.shipper_account.id ? 'bg-green-50 border-green-200' : ''}
+                >
                   <TableCell>
-                    <input
-                      type="radio"
-                      name="selectedRate"
-                      value={rate.shipper_account.id}
-                      checked={selectedRateId === rate.shipper_account.id}
-                      onChange={() => onSelectRate(rate.shipper_account.id)}
-                      disabled={!!rate.error_message || !rate.total_charge?.amount}
-                      className="w-4 h-4 text-primary"
-                    />
+                    {selectedRateId === rate.shipper_account.id ? (
+                      <Button
+                        size="sm"
+                        color="success"
+                        variant="solid"
+                        disabled
+                        startContent={<Icon icon="solar:check-circle-bold" />}
+                      >
+                        Selected
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        color="primary"
+                        variant="flat"
+                        onPress={() => onSelectRate(rate.shipper_account.id)}
+                        disabled={!!rate.error_message || !rate.total_charge?.amount}
+                        startContent={<Icon icon="solar:check-circle-line-duotone" />}
+                      >
+                        Select
+                      </Button>
+                    )}
                   </TableCell>
                   <TableCell>{rate.shipper_account.description}</TableCell>
                   <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>

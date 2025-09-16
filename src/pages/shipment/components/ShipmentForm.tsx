@@ -22,6 +22,11 @@ const ShipmentForm = () => {
   const [isCalculatingRate, setIsCalculatingRate] = useState(false)
   const [calculatedRates, setCalculatedRates] = useState<any[]>([])
   const [selectedRateId, setSelectedRateId] = useState<string>('')
+
+  const handleRateSelection = (rateId: string) => {
+    console.log('Rate selected:', rateId)
+    setSelectedRateId(rateId)
+  }
   const [errorModal, setErrorModal] = useState<{
     isOpen: boolean
     title: string
@@ -235,8 +240,10 @@ const ShipmentForm = () => {
   }
 
   const handlePreview = async (data: ShipmentFormData) => {
-    console.log("handlePreview called", data)
-    const formData = getValues()
+    console.log("Preview & Submit clicked - validating form...")
+
+    // Use the data from form submission instead of getValues()
+    const formData = data
 
     // Validate weights first
     const weightValidation = validateWeights(formData)
@@ -340,7 +347,7 @@ const ShipmentForm = () => {
               onCalculateRates={handleCalculateRate}
               isCalculating={isCalculatingRate}
               selectedRateId={selectedRateId}
-              onSelectRate={setSelectedRateId}
+              onSelectRate={handleRateSelection}
               register={register}
               errors={errors}
             />
