@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from '@heroui/react';
 
 interface LayoutProps {

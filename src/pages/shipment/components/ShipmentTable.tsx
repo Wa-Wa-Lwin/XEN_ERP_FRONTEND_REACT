@@ -7,7 +7,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Chip,
   Spinner,
   Pagination,
   Select,
@@ -26,7 +25,6 @@ const ShipmentTable = () => {
   const [shipmentRequests, setShipmentRequests] = useState<ShipmentRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [totalCount, setTotalCount] = useState(0)
 
   // Filter states
   const [filterType, setFilterType] = useState<'all' | 'mine'>('mine')
@@ -62,7 +60,6 @@ const ShipmentTable = () => {
 
       // setShipmentRequests(response.data.shipment_requests)
       setShipmentRequests(response.data.shipment_requests_desc)
-      setTotalCount(response.data.shipment_requests_count)
     } catch (err) {
       console.error('Error fetching shipment requests:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch shipment requests')

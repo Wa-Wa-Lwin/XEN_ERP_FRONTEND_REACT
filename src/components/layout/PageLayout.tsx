@@ -1,5 +1,4 @@
 import { cn } from "@heroui/react";
-import React from 'react'
 
 const PageLayout = ({ className, children }:any) => {
   return (

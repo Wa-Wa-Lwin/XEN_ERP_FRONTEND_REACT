@@ -179,31 +179,6 @@ export const sectionItems: SidebarItem[] = [
   //     },      
   //   ],
   // },
-  // {
-  //   key: "aftership",
-  //   title: "Aftership",
-  //   to: "/aftership",
-  //   items: [
-  //     {
-  //       key: "aftership",
-  //       to: "/aftership",
-  //       icon: "solar:chart-outline",
-  //       title: "Aftership Data",
-  //     },
-  //     {
-  //       key: "shipper-accounts",
-  //       to: "/aftership/shipper-accounts",
-  //       icon: "codicon:request-changes",
-  //       title: "Shipper Accounts",
-  //       endContent: (
-  //         // <Chip size="sm" variant="flat">
-  //         //   3
-  //         // </Chip>
-  //         <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-  //       ),
-  //     },
-  //   ],
-  // },
 ];
 
 export const sectionItemsWithTeams: SidebarItem[] = [

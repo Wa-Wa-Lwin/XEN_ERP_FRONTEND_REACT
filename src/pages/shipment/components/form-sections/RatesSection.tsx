@@ -1,7 +1,8 @@
-import { Card, CardHeader, CardBody, Button, Chip } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import type { FormSectionProps } from '../../types/shipment-form.types'
-// Interface for the new API response structure
+
+// Interface for the API response
 interface RateResponse {
   shipper_account: {
     id: string
@@ -16,21 +17,9 @@ interface RateResponse {
   transit_time: number | null
   error_message: string | null
   info_message: string | null
-  charge_weight: {
-    value: number
-    unit: string
-  } | null
-  total_charge: {
-    amount: number
-    currency: string
-  } | null
-  detailed_charges: Array<{
-    type: string
-    charge: {
-      amount: number
-      currency: string
-    }
-  }>
+  charge_weight: { value: number; unit: string } | null
+  total_charge: { amount: number; currency: string } | null
+  detailed_charges: Array<{ type: string; charge: { amount: number; currency: string } }>
 }
 
 interface RatesSectionProps extends FormSectionProps {
@@ -40,11 +29,10 @@ interface RatesSectionProps extends FormSectionProps {
 }
 
 const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionProps) => {
-  const formatCurrency = (amount: number | null, currency: string | null) => {
-    if (!amount || !currency) return 'N/A'
-    return `${amount.toLocaleString()} ${currency}`
-  }
-
+  const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
+    if (amount == null || !currency) return 'N/A'; // covers null and undefined
+    return `${amount.toLocaleString()} ${currency}`;
+  };
   const formatDateTime = (dateTime: string | null) => {
     if (!dateTime) return 'N/A'
     return new Date(dateTime).toLocaleString()
@@ -82,128 +70,69 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
           </Button>
         </div>
       </CardHeader>
-      <CardBody className="space-y-4">
+
+      <CardBody>
         {rates.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Icon icon="solar:calculator-bold" className="text-4xl mb-2 mx-auto" />
             <p>No rates calculated yet. Click "Calculate Rates" to get shipping quotes.</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              Found {rates.length} rate option(s) from carriers
-            </p>
-            {rates.map((rate, index) => (
-              <Card key={index} className="border">
-                <CardBody className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h3 className="text-lg font-medium">
-                        {rate.service_name || rate.shipper_account.description || 'Unknown Service'}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {rate.shipper_account.description} ({rate.shipper_account.slug?.toUpperCase()})
-                      </p>
-                    </div>
+          <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
+            <TableHeader>
+              <TableColumn>Carrier</TableColumn>
+              <TableColumn>Service</TableColumn>
+              <TableColumn>Status</TableColumn>
+              <TableColumn>Total Charge</TableColumn>
+              <TableColumn>Charge Weight</TableColumn>
+              <TableColumn>Transit Time</TableColumn>
+              <TableColumn>Delivery Date</TableColumn>
+              <TableColumn>Messages</TableColumn>
+            </TableHeader>
+            <TableBody items={rates} emptyContent="No rates found.">
+              {(rate) => (
+                <TableRow key={rate.shipper_account.id}>
+                  <TableCell>{rate.shipper_account.description}</TableCell>
+                  <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
+                  <TableCell>
                     <Chip color={getStatusColor(rate)} size="sm">
                       {getStatusText(rate)}
                     </Chip>
-                  </div>
+                  </TableCell>
+                  {/* <TableCell>{formatCurrency(rate.total_charge?.amount, rate.total_charge?.currency)}</TableCell> */}
+                  <TableCell>
+                    {formatCurrency(
+                      rate.total_charge?.amount ?? null,
+                      rate.total_charge?.currency ?? null
+                    )}
+                  </TableCell>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Pricing Information */}
-                    <div>
-                      <h4 className="font-medium text-sm mb-2">Pricing</h4>
-                      <p className="text-sm">
-                        <span className="font-medium">Total: </span>
-                        {formatCurrency(rate.total_charge?.amount, rate.total_charge?.currency)}
-                      </p>
-                      {rate.charge_weight && (
-                        <p className="text-sm">
-                          <span className="font-medium">Charge Weight: </span>
-                          {rate.charge_weight.value} {rate.charge_weight.unit}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Timing Information */}
-                    <div>
-                      <h4 className="font-medium text-sm mb-2">Timing</h4>
-                      {rate.transit_time && (
-                        <p className="text-sm">
-                          <span className="font-medium">Transit: </span>
-                          {rate.transit_time} day(s)
-                        </p>
-                      )}
-                      {rate.delivery_date && (
-                        <p className="text-sm">
-                          <span className="font-medium">Delivery: </span>
-                          {formatDateTime(rate.delivery_date)}
-                        </p>
-                      )}
-                      {rate.pickup_deadline && (
-                        <p className="text-sm">
-                          <span className="font-medium">Pickup Deadline: </span>
-                          {formatDateTime(rate.pickup_deadline)}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Service Details */}
-                    <div>
-                      <h4 className="font-medium text-sm mb-2">Service</h4>
-                      {rate.service_type && (
-                        <p className="text-sm">
-                          <span className="font-medium">Type: </span>
-                          {rate.service_type}
-                        </p>
-                      )}
-                      {rate.booking_cut_off && (
-                        <p className="text-sm">
-                          <span className="font-medium">Booking Cutoff: </span>
-                          {formatDateTime(rate.booking_cut_off)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Detailed Charges */}
-                  {rate.detailed_charges && rate.detailed_charges.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-sm mb-2">Detailed Charges</h4>
-                      <div className="space-y-1">
-                        {rate.detailed_charges.map((charge, chargeIndex) => (
-                          <div key={chargeIndex} className="flex justify-between text-sm">
-                            <span className="capitalize">{charge.type.replace('_', ' ')}:</span>
-                            <span>{formatCurrency(charge.charge?.amount, charge.charge?.currency)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Messages */}
-                  {rate.error_message && (
-                    <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded">
-                      <p className="text-sm text-red-600">
+                  <TableCell>
+                    {rate.charge_weight ? `${rate.charge_weight.value} ${rate.charge_weight.unit}` : '-'}
+                  </TableCell>
+                  <TableCell>{rate.transit_time ? `${rate.transit_time} day(s)` : '-'}</TableCell>
+                  <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
+                  <TableCell className="space-y-1">
+                    {rate.error_message && (
+                      <p className="text-red-600 text-sm flex items-center">
                         <Icon icon="solar:close-circle-bold" className="inline mr-1" />
                         {rate.error_message}
                       </p>
-                    </div>
-                  )}
-
-                  {rate.info_message && (
-                    <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
-                      <p className="text-sm text-blue-600">
+                    )}
+                    {rate.info_message && (
+                      <p className="text-blue-600 text-sm flex items-center">
                         <Icon icon="solar:info-circle-bold" className="inline mr-1" />
                         {rate.info_message}
                       </p>
-                    </div>
-                  )}
-                </CardBody>
-              </Card>
-            ))}
-          </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+
+
+
+          </Table>
         )}
       </CardBody>
     </Card>

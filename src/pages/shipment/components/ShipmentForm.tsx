@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Card, CardBody, Button } from '@heroui/react'
-import { Icon } from '@iconify/react'
 import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
 import {
@@ -209,12 +208,10 @@ const ShipmentForm = () => {
               </Button>
               <Button
                 color="primary"
-                type="submit"
-                isLoading={isCalculatingRate}
-                disabled={isCalculatingRate}
-                startContent={!isCalculatingRate && <Icon icon="solar:eye-bold" />}
+                type="submit"             
+                startContent= '<Icon icon="solar:eye-bold" />'
               >
-                {isCalculatingRate ? 'Calculating Rates...' : 'Preview & Submit'}
+                Preview & Submit
               </Button>
             </div>
           </form>
