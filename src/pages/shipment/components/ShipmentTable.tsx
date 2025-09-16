@@ -15,14 +15,14 @@ import {
 } from '@heroui/react'
 import { Icon } from "@iconify/react";
 import axios from 'axios'
-import type { ShipmentRequest, ShipmentRequestsResponse } from '../../../types'
 import { useAuth } from '../../../context/AuthContext'
 import { useBreadcrumb } from '../../../context/BreadcrumbContext'
+import type { ShipmentFormData, ShipmentRequestsResponse } from '../types/shipment-form.types';
 
 const ShipmentTable = () => {
   const { user } = useAuth()
   const { activeButton } = useBreadcrumb()
-  const [shipmentRequests, setShipmentRequests] = useState<ShipmentRequest[]>([])
+  const [shipmentRequests, setShipmentRequests] = useState<ShipmentFormData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -401,14 +401,14 @@ const ShipmentTable = () => {
                 </p> : ''} */}
                 </TableCell>
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  {request.ship_from?.company_name
-                    .split(' ')
+                  {request.ship_from_company_name
+                    ?.split(' ')
                     .slice(0, 3)
                     .join(' ')}
                 </TableCell>
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  {request.ship_to?.company_name
-                    .split(' ')
+                  {request.ship_to_company_name
+                    ?.split(' ')
                     .slice(0, 3)
                     .join(' ')}
                 </TableCell>

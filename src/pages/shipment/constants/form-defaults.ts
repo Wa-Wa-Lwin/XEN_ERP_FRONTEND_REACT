@@ -1,6 +1,9 @@
 import type { ShipmentFormData } from '../types/shipment-form.types'
 
 export const DEFAULT_FORM_VALUES: ShipmentFormData = {
+  shipmentRequestID: 0,
+  shipment_scope: '',
+  shipment_scope_type: '',
   request_status: 'draft',
   service_options: '',
   urgent_reason: '',
@@ -100,7 +103,18 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   pick_up_instructions: '',
   insurance_enabled: false,
   insurance_insured_value_amount: 0,
-  insurance_insured_value_currency: 'USD'
+  insurance_insured_value_currency: 'USD',
+
+  created_user_id: '',
+  created_user_name: '',
+  created_user_mail: '',
+  created_date_time: '',
+
+  approver_user_id: null,
+  approver_user_name: '',
+  approver_user_mail: null,
+  approver_approved_date_time: null,
+  approver_rejected_date_time: null
 }
 
 export const DEFAULT_PARCEL = {

@@ -48,6 +48,10 @@ export interface Rate {
 }
 
 export interface ShipmentFormData {
+  shipmentRequestID: number
+  shipment_scope: string
+  shipment_scope_type: string
+
   // Basic shipment info
   service_options: string
   urgent_reason: string
@@ -111,6 +115,17 @@ export interface ShipmentFormData {
   // Customs
   customs_purpose: string
   customs_terms_of_trade: string
+
+  created_user_id: string;
+  created_user_name: string;
+  created_user_mail: string;
+  created_date_time: string;
+
+  approver_user_id: string | null;
+  approver_user_name: string;
+  approver_user_mail: string | null;
+  approver_approved_date_time: string | null;
+  approver_rejected_date_time: string | null;
 }
 
 export interface FormSectionProps {
@@ -125,4 +140,10 @@ export interface ParcelItemsProps {
   control: any
   register: any
   errors: any
+}
+
+export interface ShipmentRequestsResponse {
+  shipment_requests_count: number;
+  shipment_requests: ShipmentFormData[];
+  shipment_requests_desc: ShipmentFormData[];
 }

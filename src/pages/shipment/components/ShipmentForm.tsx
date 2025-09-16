@@ -51,23 +51,23 @@ const ShipmentForm = () => {
         parcels: formData.parcels?.map(parcel => ({
           box_type: "custom",
           dimension: {
-            width: parcel.width ,
-            height: parcel.height ,
-            depth: parcel.depth ,
-            unit: parcel.dimension_unit 
+            width: parseFloat(String(parcel.width)) || 0 ,
+            height: parseFloat(String(parcel.height)) || 0 ,
+            depth: parseFloat(String(parcel.depth)) || 0 ,
+            unit: parcel.dimension_unit
           },
           items: parcel.parcel_items?.map(item => ({
             description: item.description ,
-            quantity: item.quantity ,
+            quantity: parseInt(String(item.quantity)) || 1 ,
             price: {
               currency: item.price_currency ,
-              amount: item.price_amount ,
+              amount: parseFloat(String(item.price_amount)) || 0 ,
             },
             item_id: item.item_id ,
             origin_country: item.origin_country ,
             weight: {
               unit: item.weight_unit ,
-              value: item.weight_value ,
+              value: parseFloat(String(item.weight_value)) || 0 ,
             },
             sku: item.sku ,
             hs_code: item.hs_code 
@@ -75,7 +75,7 @@ const ShipmentForm = () => {
           description: parcel.description ,
           weight: {
             unit: parcel.weight_unit ,
-            value: parcel.weight_value 
+            value: parseFloat(String(parcel.weight_value)) || 0
           }
         })),
         delivery_instructions: "handle with care"

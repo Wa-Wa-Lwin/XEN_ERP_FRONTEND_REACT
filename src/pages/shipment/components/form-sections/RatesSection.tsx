@@ -42,11 +42,63 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
   })
   const [isLoadingRates, setIsLoadingRates] = useState(false)
   const [ratesError, setRatesError] = useState<string | null>(null)
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
 
-  // Fetch exchange rates from API
-  const fetchExchangeRates = async () => {
+  // Cache keys
+  const CACHE_KEY = 'exchange_rates_thb'
+  const CACHE_TIMESTAMP_KEY = 'exchange_rates_timestamp'
+  const CACHE_DURATION = 60 * 60 * 1000 // 1 hour in milliseconds
+
+  // Load cached rates from localStorage
+  const loadCachedRates = (): { rates: Record<string, number> | null; timestamp: number | null } => {
+    try {
+      const cachedRates = localStorage.getItem(CACHE_KEY)
+      const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY)
+
+      if (cachedRates && cachedTimestamp) {
+        return {
+          rates: JSON.parse(cachedRates),
+          timestamp: parseInt(cachedTimestamp)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load cached rates:', error)
+    }
+    return { rates: null, timestamp: null }
+  }
+
+  // Save rates to localStorage
+  const saveCachedRates = (rates: Record<string, number>, timestamp: number) => {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(rates))
+      localStorage.setItem(CACHE_TIMESTAMP_KEY, timestamp.toString())
+    } catch (error) {
+      console.error('Failed to save cached rates:', error)
+    }
+  }
+
+  // Check if cached rates are still valid (less than 1 hour old)
+  const isCacheValid = (timestamp: number): boolean => {
+    const now = Date.now()
+    return (now - timestamp) < CACHE_DURATION
+  }
+
+  // Fetch exchange rates from API or cache
+  const fetchExchangeRates = async (forceRefresh = false) => {
     setIsLoadingRates(true)
     setRatesError(null)
+
+    // Check cache first unless force refresh
+    if (!forceRefresh) {
+      const { rates: cachedRates, timestamp: cachedTimestamp } = loadCachedRates()
+
+      if (cachedRates && cachedTimestamp && isCacheValid(cachedTimestamp)) {
+        setExchangeRates(cachedRates)
+        setLastUpdated(new Date(cachedTimestamp).toLocaleString())
+        setIsLoadingRates(false)
+        return
+      }
+    }
 
     try {
       // Using exchangerate-api.com free tier (1500 requests/month)
@@ -61,29 +113,50 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
       })
       thbRates.THB = 1.0 // THB to THB is always 1
 
+      const timestamp = Date.now()
+
+      // Save to cache and state
+      saveCachedRates(thbRates, timestamp)
       setExchangeRates(thbRates)
+      setLastUpdated(new Date(timestamp).toLocaleString())
+      setRatesError(null)
     } catch (error) {
       console.error('Failed to fetch exchange rates:', error)
       setRatesError('Failed to fetch current exchange rates')
-      // Fallback to approximate rates
-      setExchangeRates({
-        USD: 35.0,
-        EUR: 38.5,
-        GBP: 43.2,
-        JPY: 0.24,
-        CNY: 4.9,
-        SGD: 26.1,
-        MYR: 7.8,
-        THB: 1.0
-      })
+
+      // Try to use cached rates even if expired as fallback
+      const { rates: cachedRates } = loadCachedRates()
+      if (cachedRates) {
+        setExchangeRates(cachedRates)
+      } else {
+        // Ultimate fallback to hardcoded rates
+        setExchangeRates({
+          USD: 35.0,
+          EUR: 38.5,
+          GBP: 43.2,
+          JPY: 0.24,
+          CNY: 4.9,
+          SGD: 26.1,
+          MYR: 7.8,
+          THB: 1.0
+        })
+      }
     } finally {
       setIsLoadingRates(false)
     }
   }
 
-  // Fetch rates on component mount
+  // Auto-refresh rates every hour
   useEffect(() => {
+    // Initial load
     fetchExchangeRates()
+
+    // Set up hourly refresh interval
+    const interval = setInterval(() => {
+      fetchExchangeRates()
+    }, CACHE_DURATION)
+
+    return () => clearInterval(interval)
   }, [])
 
   const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
@@ -166,6 +239,12 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
                 {ratesError} - Using fallback rates
               </p>
             )}
+            {lastUpdated && !ratesError && (
+              <p className="text-gray-500 text-xs mt-1">
+                <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
+                Exchange rates updated: {lastUpdated}
+              </p>
+            )}
           </div>
           <div className="flex gap-2">
             <Button
@@ -173,10 +252,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
               variant="light"
               size="sm"
               startContent={<Icon icon="solar:refresh-bold" />}
-              onPress={fetchExchangeRates}
+              onPress={() => fetchExchangeRates(true)}
               isLoading={isLoadingRates}
               disabled={isLoadingRates}
-              title="Refresh exchange rates"
+              title="Force refresh exchange rates"
             >
               {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
             </Button>
