@@ -8,9 +8,12 @@ interface ShipmentPreviewModalProps {
   onConfirm: () => void
   formData: ShipmentFormData
   isSubmitting: boolean
+  selectedRateId?: string
 }
 
-const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitting }: ShipmentPreviewModalProps) => {
+const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitting, selectedRateId }: ShipmentPreviewModalProps) => {
+  // Find the selected rate from formData.rates
+  const selectedRate = formData.rates?.find(rate => rate.shipper_account_id === selectedRateId)
   return (
     <Modal
       isOpen={isOpen}
@@ -124,14 +127,47 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             )) || <span>No parcels added</span>}
           </p>
 
-          {/* Shipping Rates */}
+          {/* Selected Shipping Rate */}
+          {selectedRate && (
+            <p>
+              <h3 className="text-lg font-medium text-green-600">
+                <Icon icon="solar:check-circle-bold" className="inline mr-2" />
+                Selected Shipping Rate
+              </h3>
+              <div className="ml-4 mt-2 p-4 border-2 border-green-300 bg-green-50 rounded-lg">
+                <b>{selectedRate.service_name}</b> <br />
+                <b>Shipper - </b> {selectedRate.shipper_account_description} <br />
+                <b>Service Type - </b> {selectedRate.service_type} <br />
+                <b>Total Charge - </b> {selectedRate.total_charge_amount} {selectedRate.total_charge_currency} <br />
+                <b>Transit Time - </b> {selectedRate.transit_time} <br />
+                {selectedRate.delivery_date && (
+                  <>
+                    <b>Delivery Date - </b> {selectedRate.delivery_date} <br />
+                  </>
+                )}
+                {selectedRate.charge_weight_value && (
+                  <>
+                    <b>Charge Weight - </b> {selectedRate.charge_weight_value} {selectedRate.charge_weight_unit} <br />
+                  </>
+                )}
+              </div>
+            </p>
+          )}
+
+          {/* All Available Rates */}
           {formData.rates && formData.rates.length > 0 && (
             <p>
               <h3 className="text-lg font-medium">
                 Available Shipping Rates ({formData.rates.length})
               </h3>
               {formData.rates.map((rate, index) => (
-                <div key={index} className="ml-4 mt-2 p-3 border rounded-lg">
+                <div key={index} className={`ml-4 mt-2 p-3 border rounded-lg ${rate.shipper_account_id === selectedRateId ? 'border-green-400 bg-green-50' : ''}`}>
+                  {rate.shipper_account_id === selectedRateId && (
+                    <div className="text-green-600 text-sm font-medium mb-2">
+                      <Icon icon="solar:check-circle-bold" className="inline mr-1" />
+                      SELECTED
+                    </div>
+                  )}
                   <b>{rate.service_name}</b> <br />
                   <b>Shipper - </b> {rate.shipper_account_description} <br />
                   <b>Service Type - </b> {rate.service_type} <br />

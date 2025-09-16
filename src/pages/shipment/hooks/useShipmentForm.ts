@@ -45,7 +45,25 @@ export const useShipmentForm = () => {
       }
     } catch (error) {
       console.error('Error submitting form:', error)
-      alert('Error submitting shipment request')
+
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const errorData = error.response.data
+
+        // Handle API validation errors
+        if (errorData.meta?.details && Array.isArray(errorData.meta.details)) {
+          const errorMessages = errorData.meta.details.map((detail: any) =>
+            `${detail.path}: ${detail.info}`
+          ).join('\n')
+
+          alert(`Submission failed with validation errors:\n\n${errorMessages}`)
+        } else if (errorData.meta?.message) {
+          alert(`Submission failed: ${errorData.meta.message}`)
+        } else {
+          alert('Error submitting shipment request. Please check your form data and try again.')
+        }
+      } else {
+        alert('Error submitting shipment request. Please check your internet connection and try again.')
+      }
     } finally {
       setIsSubmitting(false)
     }

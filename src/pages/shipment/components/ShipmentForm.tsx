@@ -11,6 +11,7 @@ import {
   RatesSection
 } from './form-sections'
 import ShipmentPreviewModal from './ShipmentPreviewModal'
+import ErrorModal from './ErrorModal'
 import type { ShipmentFormData } from '../types/shipment-form.types'
 
 const ShipmentForm = () => {
@@ -19,6 +20,18 @@ const ShipmentForm = () => {
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
   const [isCalculatingRate, setIsCalculatingRate] = useState(false)
   const [calculatedRates, setCalculatedRates] = useState<any[]>([])
+  const [selectedRateId, setSelectedRateId] = useState<string>('')
+  const [errorModal, setErrorModal] = useState<{
+    isOpen: boolean
+    title: string
+    message?: string
+    details?: Array<{ path: string; info: string }>
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    details: []
+  })
 
   const calculateRates = async (formData: ShipmentFormData) => {
     try {
@@ -104,30 +117,69 @@ const ShipmentForm = () => {
       )
 
       // Extract rates from the API response
-      const rates = response.data?.data?.rates || []
+      const apiRates = response.data?.data?.rates || []
+
+      // Transform API rates to match our interface
+      const transformedRates = apiRates.map((rate: any) => ({
+        shipper_account_id: rate.shipper_account.id,
+        shipper_account_slug: rate.shipper_account.slug,
+        shipper_account_description: rate.shipper_account.description,
+        service_type: rate.service_type,
+        service_name: rate.service_name,
+        pickup_deadline: rate.pickup_deadline,
+        booking_cut_off: rate.booking_cut_off,
+        delivery_date: rate.delivery_date,
+        transit_time: rate.transit_time?.toString() || '',
+        error_message: rate.error_message || '',
+        info_message: rate.info_message || '',
+        charge_weight_value: rate.charge_weight?.value || 0,
+        charge_weight_unit: rate.charge_weight?.unit || '',
+        total_charge_amount: rate.total_charge?.amount || 0,
+        total_charge_currency: rate.total_charge?.currency || '',
+        chosen: false,
+        detailed_charges: JSON.stringify(rate.detailed_charges) || ''
+      }))
 
       // Store rates in component state
-      setCalculatedRates(rates)
+      setCalculatedRates(apiRates) // Keep original for display
 
       // Store the rates in the form data
       const updatedFormData = {
         ...formData,
-        rates: rates
+        rates: transformedRates
       }
 
       return updatedFormData
     } catch (error) {
-      
-      // console.error('Error calculating rates:', error)
-      // alert('Error calculating shipping rates. Please try again.')
-      // return formData
+      console.error('Error calculating rates:', error)
 
-      if (axios.isAxiosError(error)) {
-        console.error("API Error:", error.response?.data || error.message)
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const errorData = error.response.data
+
+        // Handle API validation errors
+        if (errorData.meta?.details && Array.isArray(errorData.meta.details)) {
+          setErrorModal({
+            isOpen: true,
+            title: 'Rate Calculation Failed',
+            message: errorData.meta?.message || 'The following validation errors need to be fixed:',
+            details: errorData.meta.details.map((detail: any) => ({
+              path: detail.path,
+              info: detail.info
+            }))
+          })
+        } else if (errorData.meta?.message) {
+          setErrorModal({
+            isOpen: true,
+            title: 'Rate Calculation Failed',
+            message: errorData.meta.message,
+            details: []
+          })
+        } else {
+          alert('Error calculating shipping rates. Please check your form data and try again.')
+        }
       } else {
-        console.error("Unexpected Error:", error)
+        alert('Error calculating shipping rates. Please check your internet connection and try again.')
       }
-      alert('Error calculating shipping rates. Please try again.')
       return formData
 
     } finally {
@@ -135,8 +187,78 @@ const ShipmentForm = () => {
     }
   }
 
+  const validateWeights = (formData: ShipmentFormData): { isValid: boolean; errors: Array<{ path: string; info: string }> } => {
+    const errors: Array<{ path: string; info: string }> = []
+
+    formData.parcels?.forEach((parcel, parcelIndex) => {
+      if (parcel.parcel_items && parcel.parcel_items.length > 0) {
+        // Calculate total item weight
+        const totalItemWeight = parcel.parcel_items.reduce((sum, item) => {
+          const itemWeight = parseFloat(String(item.weight_value)) || 0
+          const quantity = parseInt(String(item.quantity)) || 1
+          return sum + (itemWeight * quantity)
+        }, 0)
+
+        const parcelWeight = parseFloat(String(parcel.weight_value)) || 0
+
+        if (parcelWeight < totalItemWeight) {
+          errors.push({
+            path: `parcels.${parcelIndex}.weight_value`,
+            info: `Parcel weight (${parcelWeight}kg) must be greater than or equal to the sum of item weights (${totalItemWeight.toFixed(2)}kg). Please increase the parcel weight or reduce item weights.`
+          })
+        }
+      }
+
+      // Check for invalid weights
+      const parcelWeight = parseFloat(String(parcel.weight_value)) || 0
+      if (parcelWeight <= 0) {
+        errors.push({
+          path: `parcels.${parcelIndex}.weight_value`,
+          info: `Parcel weight must be greater than 0kg`
+        })
+      }
+
+      // Check item weights
+      parcel.parcel_items?.forEach((item, itemIndex) => {
+        const itemWeight = parseFloat(String(item.weight_value)) || 0
+        if (itemWeight <= 0) {
+          errors.push({
+            path: `parcels.${parcelIndex}.items.${itemIndex}.weight_value`,
+            info: `Item weight must be greater than 0kg`
+          })
+        }
+      })
+    })
+
+    return { isValid: errors.length === 0, errors }
+  }
+
   const handlePreview = async () => {
+    console.log("handlePreview called")
     const formData = getValues()
+
+    // Validate weights first
+    const weightValidation = validateWeights(formData)
+    if (!weightValidation.isValid) {
+      setErrorModal({
+        isOpen: true,
+        title: 'Weight Validation Failed',
+        message: 'Please fix the weight issues below before proceeding.',
+        details: weightValidation.errors
+      })
+      return
+    }
+
+    // Validate that a rate is selected if rates are available
+    if (calculatedRates.length > 0 && !selectedRateId) {
+      setErrorModal({
+        isOpen: true,
+        title: 'Selection Required',
+        message: 'Please select a shipping rate before proceeding to preview.',
+        details: []
+      })
+      return
+    }
 
     // Calculate rates before showing preview
     const formDataWithRates = await calculateRates(formData)
@@ -147,13 +269,37 @@ const ShipmentForm = () => {
 
   const handleConfirmSubmit = () => {
     if (previewData) {
+      // Mark selected rate as chosen
+      const updatedRates = previewData.rates?.map(rate => ({
+        ...rate,
+        chosen: rate.shipper_account_id === selectedRateId
+      })) || []
+
+      const finalData = {
+        ...previewData,
+        rates: updatedRates
+      }
+
       setIsPreviewOpen(false)
-      onSubmit(previewData)
+      onSubmit(finalData)
     }
   }
 
   const handleCalculateRate = async () => {
     const formData = getValues()
+
+    // Validate weights before calculating rates
+    const weightValidation = validateWeights(formData)
+    if (!weightValidation.isValid) {
+      setErrorModal({
+        isOpen: true,
+        title: 'Weight Validation Failed',
+        message: 'Please fix the weight issues below before calculating rates.',
+        details: weightValidation.errors
+      })
+      return
+    }
+
     const updatedFormData = await calculateRates(formData)
 
     if (updatedFormData.rates && updatedFormData.rates.length > 0) {
@@ -192,6 +338,8 @@ const ShipmentForm = () => {
               rates={calculatedRates}
               onCalculateRates={handleCalculateRate}
               isCalculating={isCalculatingRate}
+              selectedRateId={selectedRateId}
+              onSelectRate={setSelectedRateId}
               register={register}
               errors={errors}
             />
@@ -226,8 +374,18 @@ const ShipmentForm = () => {
           onConfirm={handleConfirmSubmit}
           formData={previewData}
           isSubmitting={isSubmitting}
+          selectedRateId={selectedRateId}
         />
       )}
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ ...errorModal, isOpen: false })}
+        title={errorModal.title}
+        message={errorModal.message}
+        details={errorModal.details}
+      />
     </div>
   )
 }

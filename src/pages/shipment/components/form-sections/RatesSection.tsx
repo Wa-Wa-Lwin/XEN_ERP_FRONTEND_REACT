@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, RadioGroup, Radio } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
@@ -34,9 +34,11 @@ interface RatesSectionProps extends FormSectionProps {
   rates: RateResponse[]
   onCalculateRates: () => void
   isCalculating: boolean
+  selectedRateId?: string
+  onSelectRate: (rateId: string) => void
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
@@ -283,6 +285,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
         ) : (
           <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
             <TableHeader>
+              <TableColumn>Select</TableColumn>
               <TableColumn>Carrier</TableColumn>
               <TableColumn>Service</TableColumn>
               <TableColumn>Status</TableColumn>
@@ -296,6 +299,17 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating }: RatesSectionPr
             <TableBody items={rates} emptyContent="No rates found.">
               {(rate) => (
                 <TableRow key={rate.shipper_account.id}>
+                  <TableCell>
+                    <input
+                      type="radio"
+                      name="selectedRate"
+                      value={rate.shipper_account.id}
+                      checked={selectedRateId === rate.shipper_account.id}
+                      onChange={() => onSelectRate(rate.shipper_account.id)}
+                      disabled={!!rate.error_message || !rate.total_charge?.amount}
+                      className="w-4 h-4 text-primary"
+                    />
+                  </TableCell>
                   <TableCell>{rate.shipper_account.description}</TableCell>
                   <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
                   <TableCell>
