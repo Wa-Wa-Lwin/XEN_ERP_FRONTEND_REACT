@@ -229,6 +229,19 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return 'Unknown'
   }
 
+  // Filter unique rates based on shipper_account.id
+  const getUniqueRates = (rates: RateResponse[]) => {
+    const seen = new Set<string>()
+    return rates.filter(rate => {
+      const id = rate.shipper_account.id
+      if (seen.has(id)) {
+        return false
+      }
+      seen.add(id)
+      return true
+    })
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -297,7 +310,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Messages</TableColumn>
             </TableHeader>
             <TableBody emptyContent="No rates found.">
-              {rates.map((rate) => {
+              {getUniqueRates(rates).map((rate) => {
                 const isSelected = selectedRateId === rate.shipper_account.id
                 return (
                 <TableRow
