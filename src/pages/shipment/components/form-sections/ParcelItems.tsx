@@ -127,7 +127,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                 <Table
                     aria-label="Parcel items table"
                     classNames={{
-                        wrapper: "min-h-[200px]",
+                        wrapper: "min-h-[200px] p-0",
                         table: "min-w-[1200px]",
                         td: "px-1 py-1",
                         th: "px-1 py-2",
