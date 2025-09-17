@@ -402,6 +402,11 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                                   className="text-gray-400"/>
                                                         )
                                                     }
+                                                    onChange={(e) => {
+                                                        field.onChange(e)
+                                                        // Trigger weight recalculation when parcel weight changes
+                                                        setTimeout(() => updateWeights(parcelIndex), 100)
+                                                    }}
                                                 />
                                             )}
                                         />
