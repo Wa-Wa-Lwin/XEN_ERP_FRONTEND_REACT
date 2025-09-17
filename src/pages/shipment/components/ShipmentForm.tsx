@@ -16,7 +16,7 @@ import type { ShipmentFormData } from '../types/shipment-form.types'
 import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentForm = () => {
-  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues, trigger } = useShipmentForm()
+  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues, trigger, watch } = useShipmentForm()
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
   const [isCalculatingRate, setIsCalculatingRate] = useState(false)
@@ -338,7 +338,7 @@ const ShipmentForm = () => {
 
             {/* <InsuranceInformation register={register} errors={errors} /> */}
 
-            <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} />
+            <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} watch={watch} />
 
             <RatesSection
               rates={calculatedRates}

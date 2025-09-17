@@ -26,7 +26,7 @@ interface MaterialData {
 
 const DEBOUNCE_MS = 200
 
-const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: ParcelItemsProps & { setValue: any }) => {
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange }: ParcelItemsProps) => {
     const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
         control,
         name: `parcels.${parcelIndex}.parcel_items`
@@ -117,7 +117,12 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                     size="sm"
                     variant="bordered"
                     startContent={<Icon icon="solar:add-circle-bold" />}
-                    onPress={() => appendItem(DEFAULT_PARCEL_ITEM)}
+                    onPress={() => {
+                        appendItem(DEFAULT_PARCEL_ITEM)
+                        if (onWeightChange) {
+                            setTimeout(onWeightChange, 100)
+                        }
+                    }}
                 >
                     Add Item
                 </Button>
@@ -361,34 +366,60 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Input
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`, { required: 'Weight is required', min: 0 })}
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        variant="flat"
-                                        size="sm"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value}
-                                        classNames={{
-                                            input: "text-sm",
-                                            inputWrapper: "min-h-unit-8 h-unit-8"
-                                        }}
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`}
+                                        control={control}
+                                        rules={{ required: 'Weight is required', min: 0 }}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                type="number"
+                                                step="0.01"
+                                                placeholder="0.00"
+                                                variant="flat"
+                                                size="sm"
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value}
+                                                classNames={{
+                                                    input: "text-sm",
+                                                    inputWrapper: "min-h-unit-8 h-unit-8"
+                                                }}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    if (onWeightChange) {
+                                                        setTimeout(onWeightChange, 100)
+                                                    }
+                                                }}
+                                            />
+                                        )}
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Input
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.quantity`, { required: 'Quantity is required', min: 1 })}
-                                        type="number"
-                                        placeholder="1"
-                                        variant="flat"
-                                        size="sm"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity}
-                                        classNames={{
-                                            input: "text-sm",
-                                            inputWrapper: "min-h-unit-8 h-unit-8"
-                                        }}
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.quantity`}
+                                        control={control}
+                                        rules={{ required: 'Quantity is required', min: 1 }}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                type="number"
+                                                placeholder="1"
+                                                variant="flat"
+                                                size="sm"
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity}
+                                                classNames={{
+                                                    input: "text-sm",
+                                                    inputWrapper: "min-h-unit-8 h-unit-8"
+                                                }}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    if (onWeightChange) {
+                                                        setTimeout(onWeightChange, 100)
+                                                    }
+                                                }}
+                                            />
+                                        )}
                                     />
                                 </TableCell>
                                 <TableCell>
@@ -399,7 +430,12 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                                             size="sm"
                                             variant="light"
                                             isIconOnly
-                                            onPress={() => removeItem(itemIndex)}
+                                            onPress={() => {
+                                                removeItem(itemIndex)
+                                                if (onWeightChange) {
+                                                    setTimeout(onWeightChange, 100)
+                                                }
+                                            }}
                                         >
                                             <Icon icon="solar:trash-bin-minimalistic-bold" width={16} />
                                         </Button>

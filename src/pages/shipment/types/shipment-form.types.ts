@@ -129,6 +129,9 @@ export interface ParcelItemsProps {
   control: any
   register: any
   errors: any
+  setValue?: any
+  watch?: any
+  onWeightChange?: () => void
 }
 
 export interface ShipmentRequestsResponse {

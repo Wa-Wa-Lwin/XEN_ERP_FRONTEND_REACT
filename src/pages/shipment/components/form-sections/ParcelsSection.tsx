@@ -1,5 +1,5 @@
 import {useFieldArray, Controller} from 'react-hook-form'
-import {useState} from 'react'
+import {useState, useEffect, useCallback} from 'react'
 import {Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem} from '@heroui/react'
 import {Icon} from '@iconify/react'
 import {DEFAULT_PARCEL} from '../../constants/form-defaults'
@@ -8,7 +8,7 @@ import ParcelItems from './ParcelItems'
 import type {FormSectionProps} from '../../types/shipment-form.types'
 import {PARCEL_BOX_TYPES} from '@pages/shipment/constants/parcel_box_types'
 
-const ParcelsSection = ({register, errors, control, setValue}: FormSectionProps) => {
+const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectionProps & { watch: any }) => {
     const {fields: parcelFields, append: appendParcel, remove: removeParcel} = useFieldArray({
         control,
         name: 'parcels'
@@ -16,6 +16,57 @@ const ParcelsSection = ({register, errors, control, setValue}: FormSectionProps)
 
     const [autoFilledParcels, setAutoFilledParcels] = useState<Set<number>>(new Set())
     const [manualEditParcels, setManualEditParcels] = useState<Set<number>>(new Set())
+
+    // Watch all parcel data for weight calculations
+    const watchedParcels = watch('parcels')
+
+    // Calculate net weight from all items in a parcel
+    const calculateNetWeight = useCallback((parcelIndex: number): number => {
+        const parcel = watchedParcels?.[parcelIndex]
+        if (!parcel?.parcel_items) {
+            return 0
+        }
+
+        return parcel.parcel_items.reduce((total: number, item: any) => {
+            const weight = parseFloat(item.weight_value) || 0
+            const quantity = parseInt(item.quantity) || 0
+            return total + (weight * quantity)
+        }, 0)
+    }, [watchedParcels])
+
+    // Calculate gross weight (parcel weight + net weight)
+    const calculateGrossWeight = useCallback((parcelIndex: number): number => {
+        const parcelWeight = parseFloat(watchedParcels?.[parcelIndex]?.parcel_weight_value) || 0
+        const netWeight = calculateNetWeight(parcelIndex)
+        return parcelWeight + netWeight
+    }, [watchedParcels, calculateNetWeight])
+
+    // Update weights automatically
+    const updateWeights = useCallback((parcelIndex: number) => {
+        const netWeight = calculateNetWeight(parcelIndex)
+        const grossWeight = calculateGrossWeight(parcelIndex)
+
+        setValue(`parcels.${parcelIndex}.net_weight_value`, netWeight.toFixed(2), {
+            shouldValidate: true,
+            shouldDirty: true
+        })
+        setValue(`parcels.${parcelIndex}.weight_value`, grossWeight.toFixed(2), {
+            shouldValidate: true,
+            shouldDirty: true
+        })
+    }, [calculateNetWeight, calculateGrossWeight, setValue])
+
+    // Watch for changes in item weights and quantities
+    useEffect(() => {
+        if (watchedParcels && Array.isArray(watchedParcels)) {
+            watchedParcels.forEach((parcel: any, parcelIndex: number) => {
+                // Only update if the parcel has items
+                if (parcel && parcel.parcel_items && Array.isArray(parcel.parcel_items) && parcel.parcel_items.length > 0) {
+                    updateWeights(parcelIndex)
+                }
+            })
+        }
+    }, [watchedParcels, updateWeights])
 
     const handleBoxTypeChange = (parcelIndex: number, selectedBoxTypeId: string) => {
         const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.id.toString() === selectedBoxTypeId)
@@ -56,6 +107,9 @@ const ParcelsSection = ({register, errors, control, setValue}: FormSectionProps)
                 updated.delete(parcelIndex)
                 return updated
             })
+
+            // Trigger weight recalculation after parcel weight is set
+            setTimeout(() => updateWeights(parcelIndex), 100)
         } else {
             console.log('No box type found for ID:', selectedBoxTypeId)
         }
@@ -72,6 +126,7 @@ const ParcelsSection = ({register, errors, control, setValue}: FormSectionProps)
             return updated
         })
     }
+
 
     const isAutoFilled = (parcelIndex: number) => {
         return autoFilledParcels.has(parcelIndex) && !manualEditParcels.has(parcelIndex)
@@ -351,30 +406,52 @@ const ParcelsSection = ({register, errors, control, setValue}: FormSectionProps)
                                             )}
                                         />
                                     </div>
-                                    <Input
-                                        {...register(`parcels.${parcelIndex}.net_weight_value`, {
-                                            required: 'Net weight is required',
-                                            min: 0
-                                        })}
-                                        type="number"
-                                        step="0.01"
-                                        label="Net Weight (kg)"
-                                        placeholder="Enter net weight"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}
-                                    />
-                                    <Input
-                                        {...register(`parcels.${parcelIndex}.weight_value`, {
-                                            required: 'Weight is required',
-                                            min: 0
-                                        })}
-                                        type="number"
-                                        step="0.01"
-                                        label="Gross Weight (kg)"
-                                        placeholder="Enter weight"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
-                                    />
+                                    <div className="relative">
+                                        <Controller
+                                            name={`parcels.${parcelIndex}.net_weight_value`}
+                                            control={control}
+                                            rules={{ required: 'Net weight is required', min: 0 }}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="number"
+                                                    step="0.01"
+                                                    label="Net Weight (kg)"
+                                                    placeholder="Auto-calculated"
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}
+                                                    isReadOnly={true}
+                                                    className="bg-gray-50"
+                                                    endContent={
+                                                        <Icon icon="solar:calculator-bold" className="text-gray-400"/>
+                                                    }
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <Controller
+                                            name={`parcels.${parcelIndex}.weight_value`}
+                                            control={control}
+                                            rules={{ required: 'Weight is required', min: 0 }}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="number"
+                                                    step="0.01"
+                                                    label="Gross Weight (kg)"
+                                                    placeholder="Auto-calculated"
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
+                                                    isReadOnly={true}
+                                                    className="bg-gray-50"
+                                                    endContent={
+                                                        <Icon icon="solar:calculator-bold" className="text-gray-400"/>
+                                                    }
+                                                />
+                                            )}
+                                        />
+                                    </div>
                                     <Controller
                                         name={`parcels.${parcelIndex}.weight_unit`}
                                         control={control}
@@ -407,7 +484,7 @@ const ParcelsSection = ({register, errors, control, setValue}: FormSectionProps)
                             </div>
                             {/* Parcel Items */}
                             <ParcelItems parcelIndex={parcelIndex} control={control} register={register} errors={errors}
-                                         setValue={setValue}/>
+                                         setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)}/>
                         </CardBody>
                     </Card>
                 ))}
