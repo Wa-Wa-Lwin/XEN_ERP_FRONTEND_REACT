@@ -207,14 +207,16 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         />
 
 
-        <Textarea
-          {...register('remark', { required: 'Remark is required' })}
-          label="Remark"
-          placeholder="Enter remark"
-          errorMessage={errors.remark?.message}
-          isInvalid={!!errors.remark}
-          className="hidden" 
-        />
+        <div className="md:col-span-4">
+          <Textarea
+            {...register('remark', { required: 'Remark is required' })}
+            label="Remark"
+            placeholder="Enter remark"
+            errorMessage={errors.remark?.message}
+            isInvalid={!!errors.remark}
+            minRows={2}
+          />
+        </div>
       </CardBody>
     </Card>
   )
