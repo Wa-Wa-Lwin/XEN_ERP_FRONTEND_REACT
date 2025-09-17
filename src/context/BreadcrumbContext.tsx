@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
-export type ActiveButtonType = 'Request' | 'Logistic' | 'Approval' | null;
+export type ActiveButtonType = 'Request' | 'Review' | 'Approval' | null;
 
 export const ACTIVE_BUTTONS: ActiveButtonType[] = [
   "Request",
-  "Logistic",
+  "Review",
   "Approval",
 ];
 

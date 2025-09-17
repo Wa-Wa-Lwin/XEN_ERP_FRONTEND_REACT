@@ -67,4 +67,6 @@ export const routes = [
 ];
 
 
-export const Router = createBrowserRouter(routes);
+export const Router = createBrowserRouter(routes, {
+  basename: "/xeno-shipment"
+});
