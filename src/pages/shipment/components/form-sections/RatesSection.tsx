@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, RadioGroup, Radio } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
@@ -296,11 +296,13 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Delivery Date</TableColumn>
               <TableColumn>Messages</TableColumn>
             </TableHeader>
-            <TableBody items={rates} emptyContent="No rates found.">
-              {(rate) => (
+            <TableBody emptyContent="No rates found.">
+              {rates.map((rate) => {
+                const isSelected = selectedRateId === rate.shipper_account.id
+                return (
                 <TableRow
                   key={rate.shipper_account.id}
-                  className={selectedRateId === rate.shipper_account.id ? 'bg-green-50 border-green-200' : ''}
+                  className={isSelected ? 'bg-green-50 border-green-200' : ''}
                 >
                   <TableCell>
                     {selectedRateId === rate.shipper_account.id ? (
@@ -318,7 +320,9 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                         size="sm"
                         color="primary"
                         variant="flat"
-                        onPress={() => onSelectRate(rate.shipper_account.id)}
+                        onPress={() => {
+                          onSelectRate(rate.shipper_account.id)
+                        }}
                         disabled={!!rate.error_message || !rate.total_charge?.amount}
                         startContent={<Icon icon="solar:check-circle-line-duotone" />}
                       >
@@ -366,7 +370,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                     )}
                   </TableCell>
                 </TableRow>
-              )}
+                )
+              })}
             </TableBody>
 
 
