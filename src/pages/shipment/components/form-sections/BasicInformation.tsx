@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem } from '@heroui/react'
+import { Controller } from 'react-hook-form'
 import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS, INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { useState } from 'react'
@@ -7,7 +8,7 @@ interface BasicInformationProps extends FormSectionProps {
   today: string
 }
 
-const BasicInformation = ({ register, errors, today }: BasicInformationProps) => {
+const BasicInformation = ({ register, errors, control, today }: BasicInformationProps) => {
 
   const [selectedTopic, setSelectedTopic] = useState<Set<string>>(new Set());
   const [selectedServiceOptions, setSelectedServiceOptions] = useState<Set<string>>(new Set());
@@ -19,20 +20,33 @@ const BasicInformation = ({ register, errors, today }: BasicInformationProps) =>
       </CardHeader>
       <CardBody className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-        <Select
-          {...register('topic', { required: 'Topic is required' })}
-          label="Topic"
-          placeholder="Select topic"
-          errorMessage={errors.topic?.message}
-          isInvalid={!!errors.topic}
-          onSelectionChange={setSelectedTopic}
-        >
-          {TOPIC_OPTIONS.map((option) => (
-            <SelectItem key={option.key} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </Select>
+        <Controller
+          name="topic"
+          control={control}
+          rules={{ required: 'Topic is required' }}
+          render={({ field }) => (
+            <Select
+              {...field}
+              label="Topic"
+              placeholder="Select topic"
+              errorMessage={errors.topic?.message}
+              isInvalid={!!errors.topic}
+              onSelectionChange={(keys) => {
+                const selectedKey = Array.from(keys)[0] as string
+                if (selectedKey) {
+                  field.onChange(selectedKey)
+                  setSelectedTopic(new Set([selectedKey]))
+                }
+              }}
+            >
+              {TOPIC_OPTIONS.map((option) => (
+                <SelectItem key={option.key} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </Select>
+          )}
+        />
         {selectedTopic.has('others') && (
           <Input
             {...register('other_topic', {
@@ -46,19 +60,32 @@ const BasicInformation = ({ register, errors, today }: BasicInformationProps) =>
           />
         )}
         {selectedTopic.has('for_sales') && (
-          <Select
-            {...register('sales_person', { required: 'Sales person is required' })}
-            label="Sales Person"
-            placeholder="Select sales person"
-            errorMessage={errors.sales_person?.message}
-            isInvalid={!!errors.sales_person}
-          >
-            {SALES_PERSON_OPTIONS.map((option) => (
-              <SelectItem key={option.key} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </Select>
+          <Controller
+            name="sales_person"
+            control={control}
+            rules={{ required: 'Sales person is required' }}
+            render={({ field }) => (
+              <Select
+                {...field}
+                label="Sales Person"
+                placeholder="Select sales person"
+                errorMessage={errors.sales_person?.message}
+                isInvalid={!!errors.sales_person}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                  }
+                }}
+              >
+                {SALES_PERSON_OPTIONS.map((option) => (
+                  <SelectItem key={option.key} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            )}
+          />
         )}
         <Input
           {...register('po_number', { required: 'PO Number is required' })}
@@ -74,20 +101,33 @@ const BasicInformation = ({ register, errors, today }: BasicInformationProps) =>
           errorMessage={errors.po_date?.message}
           isInvalid={!!errors.po_date}
         />
-        <Select
-          {...register('service_options', { required: 'Service options is required' })}
-          label="Service Options"
-          placeholder="Select service options"
-          errorMessage={errors.service_options?.message}
-          isInvalid={!!errors.service_options}
-          onSelectionChange={setSelectedServiceOptions}
-        >
-          {SERVICE_OPTIONS.map((option) => (
-            <SelectItem key={option.key} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </Select>
+        <Controller
+          name="service_options"
+          control={control}
+          rules={{ required: 'Service options is required' }}
+          render={({ field }) => (
+            <Select
+              {...field}
+              label="Service Options"
+              placeholder="Select service options"
+              errorMessage={errors.service_options?.message}
+              isInvalid={!!errors.service_options}
+              onSelectionChange={(keys) => {
+                const selectedKey = Array.from(keys)[0] as string
+                if (selectedKey) {
+                  field.onChange(selectedKey)
+                  setSelectedServiceOptions(new Set([selectedKey]))
+                }
+              }}
+            >
+              {SERVICE_OPTIONS.map((option) => (
+                <SelectItem key={option.key} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </Select>
+          )}
+        />
         {selectedServiceOptions.has('Urgent') && (
           <Input
             {...register('urgent_reason', { required: 'Urgent reason is required' })}
@@ -113,32 +153,58 @@ const BasicInformation = ({ register, errors, today }: BasicInformationProps) =>
           isInvalid={!!errors.due_date}
         />
 
-        <Select
-          {...register('customs_purpose', { required: 'Customs purpose is required' })}
-          label="Customs Purpose"
-          placeholder="Select customs purpose"
-          errorMessage={errors.customs_purpose?.message}
-          isInvalid={!!errors.customs_purpose}
-        >
-          {CUSTOM_PURPOSES.map((option) => (
-            <SelectItem key={option.key} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </Select>
-        <Select
-          {...register('customs_terms_of_trade', { required: 'Terms of trade is required' })}
-          label="Incoterms"
-          placeholder="Select Incoterms"
-          errorMessage={errors.customs_terms_of_trade?.message}
-          isInvalid={!!errors.customs_terms_of_trade}
-        >
-          {INCOTERMS.map((option) => (
-            <SelectItem key={option.key} value={option.value}>
-              {option.value}
-            </SelectItem>
-          ))}
-        </Select>
+        <Controller
+          name="customs_purpose"
+          control={control}
+          rules={{ required: 'Customs purpose is required' }}
+          render={({ field }) => (
+            <Select
+              {...field}
+              label="Customs Purpose"
+              placeholder="Select customs purpose"
+              errorMessage={errors.customs_purpose?.message}
+              isInvalid={!!errors.customs_purpose}
+              onSelectionChange={(keys) => {
+                const selectedKey = Array.from(keys)[0] as string
+                if (selectedKey) {
+                  field.onChange(selectedKey)
+                }
+              }}
+            >
+              {CUSTOM_PURPOSES.map((option) => (
+                <SelectItem key={option.key} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </Select>
+          )}
+        />
+        <Controller
+          name="customs_terms_of_trade"
+          control={control}
+          rules={{ required: 'Terms of trade is required' }}
+          render={({ field }) => (
+            <Select
+              {...field}
+              label="Incoterms"
+              placeholder="Select Incoterms"
+              errorMessage={errors.customs_terms_of_trade?.message}
+              isInvalid={!!errors.customs_terms_of_trade}
+              onSelectionChange={(keys) => {
+                const selectedKey = Array.from(keys)[0] as string
+                if (selectedKey) {
+                  field.onChange(selectedKey)
+                }
+              }}
+            >
+              {INCOTERMS.map((option) => (
+                <SelectItem key={option.key} value={option.value}>
+                  {option.value}
+                </SelectItem>
+              ))}
+            </Select>
+          )}
+        />
 
 
         <Textarea

@@ -327,7 +327,7 @@ const ShipmentForm = () => {
             className="space-y-8"
           >
 
-            <BasicInformation register={register} errors={errors} today={today} />
+            <BasicInformation register={register} errors={errors} control={control} today={today} />
 
             {/* <Divider /> */}
 

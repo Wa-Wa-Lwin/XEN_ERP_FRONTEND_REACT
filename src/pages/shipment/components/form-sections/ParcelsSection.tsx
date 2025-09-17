@@ -297,20 +297,34 @@ const ParcelsSection = ({register, errors, control, setValue}: FormSectionProps)
                                             )}
                                         />
                                     </div>
-                                    <Select
-                                        {...register(`parcels.${parcelIndex}.dimension_unit`, {required: 'Dimension unit is required'})}
-                                        label="Dimension Unit"
-                                        defaultSelectedKeys={['cm']}
-                                        errorMessage={errors.parcels?.[parcelIndex]?.dimension_unit?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.dimension_unit}
-                                        className="hidden"
-                                    >
-                                        {DIMENSION_UNITS.map((unit) => (
-                                            <SelectItem key={unit.key} value={unit.value}>
-                                                {unit.label}
-                                            </SelectItem>
-                                        ))}
-                                    </Select>
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.dimension_unit`}
+                                        control={control}
+                                        rules={{ required: 'Dimension unit is required' }}
+                                        defaultValue="cm"
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                label="Dimension Unit"
+                                                defaultSelectedKeys={['cm']}
+                                                errorMessage={errors.parcels?.[parcelIndex]?.dimension_unit?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.dimension_unit}
+                                                className="hidden"
+                                                onSelectionChange={(keys) => {
+                                                    const selectedKey = Array.from(keys)[0] as string
+                                                    if (selectedKey) {
+                                                        field.onChange(selectedKey)
+                                                    }
+                                                }}
+                                            >
+                                                {DIMENSION_UNITS.map((unit) => (
+                                                    <SelectItem key={unit.key} value={unit.value}>
+                                                        {unit.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </Select>
+                                        )}
+                                    />
                                     <div className="relative">
                                         <Controller
                                             name={`parcels.${parcelIndex}.parcel_weight_value`}
@@ -361,20 +375,34 @@ const ParcelsSection = ({register, errors, control, setValue}: FormSectionProps)
                                         errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
                                         isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
                                     />
-                                    <Select
-                                        {...register(`parcels.${parcelIndex}.weight_unit`, {required: 'Weight unit is required'})}
-                                        label="Weight Unit"
-                                        defaultSelectedKeys={['kg']}
-                                        errorMessage={errors.parcels?.[parcelIndex]?.weight_unit?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.weight_unit}
-                                        className="hidden"
-                                    >
-                                        {WEIGHT_UNITS.map((unit) => (
-                                            <SelectItem key={unit.key} value={unit.value}>
-                                                {unit.label}
-                                            </SelectItem>
-                                        ))}
-                                    </Select>
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.weight_unit`}
+                                        control={control}
+                                        rules={{ required: 'Weight unit is required' }}
+                                        defaultValue="kg"
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                label="Weight Unit"
+                                                defaultSelectedKeys={['kg']}
+                                                errorMessage={errors.parcels?.[parcelIndex]?.weight_unit?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.weight_unit}
+                                                className="hidden"
+                                                onSelectionChange={(keys) => {
+                                                    const selectedKey = Array.from(keys)[0] as string
+                                                    if (selectedKey) {
+                                                        field.onChange(selectedKey)
+                                                    }
+                                                }}
+                                            >
+                                                {WEIGHT_UNITS.map((unit) => (
+                                                    <SelectItem key={unit.key} value={unit.value}>
+                                                        {unit.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </Select>
+                                        )}
+                                    />
                                 </div>
                             </div>
                             {/* Parcel Items */}
