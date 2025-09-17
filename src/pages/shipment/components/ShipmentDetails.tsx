@@ -35,7 +35,6 @@ const ShipmentDetails = () => {
         const apiUrl = `${baseUrl}${shipmentId}`;
         const response = await axios.get(apiUrl);
 
-        // ✅ unwrap shipment_request
         setShipment(response.data.shipment_request);
       } catch (err) {
         console.error("Error fetching shipment details:", err);

@@ -401,16 +401,16 @@ const ShipmentTable = () => {
                 </p> : ''} */}
                 </TableCell>
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  {request.ship_from_company_name
+                  {request.ship_from?.company_name
                     ?.split(' ')
                     .slice(0, 3)
-                    .join(' ')}
+                    .join(' ') || request.ship_from?.company_name}
                 </TableCell>
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  {request.ship_to_company_name
+                  {request.ship_to?.company_name
                     ?.split(' ')
                     .slice(0, 3)
-                    .join(' ')}
+                    .join(' ') || request.ship_to?.company_name}
                 </TableCell>
                 <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
 

@@ -94,7 +94,7 @@ export default function Component() {
           )}
         >
           <div className="bg-foreground flex h-8 w-8 items-center justify-center rounded-full">
-            <img src="/xenoptics_only_logo.png" alt="Xen Logistic Logo"/>
+            <img src="/xeno-shipment/xenoptics_only_logo.png" alt="Xen Logistic Logo"/>
           </div>
           <span
             className={cn("text-small font-bold uppercase opacity-100", {
