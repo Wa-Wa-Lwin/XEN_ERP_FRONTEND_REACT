@@ -183,7 +183,7 @@ const ShipmentTable = () => {
         </Link> */}
 
         {/* Conditional buttons based on activeButton */}
-        {activeButton === "Logistic" && (
+        {activeButton === "Review" && (
           <>
             {/* <Button
               size="sm"
@@ -201,7 +201,7 @@ const ShipmentTable = () => {
                 className="w-3.5 h-3.5 text-white"
                 icon="solar:pen-bold"
               />
-              <span className="text-white text-xs">Edit</span>
+              <span className="text-white text-xs">Update</span>
             </div>
           </>
 
@@ -360,7 +360,7 @@ const ShipmentTable = () => {
           className="min-w-full text-xs md:text-[8px] md:text-sm overflow-x-auto"
           removeWrapper
         >
-          <TableHeader className="sticky top-0 z-20 bg-white shadow-sm text-xs sm:text-[10px]">
+          <TableHeader className="sticky top-0 z-20 bg-white shadow-sm text-sm">
             <TableColumn>ID</TableColumn>
             <TableColumn>Scope</TableColumn>
             <TableColumn>Topic (PO)</TableColumn>

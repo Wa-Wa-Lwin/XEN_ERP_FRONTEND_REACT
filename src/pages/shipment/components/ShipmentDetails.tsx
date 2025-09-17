@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Card, CardBody, Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
+import { Card, CardBody, Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Textarea, Divider, Chip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
@@ -10,7 +10,10 @@ const ShipmentDetails = () => {
   const [shipment, setShipment] = useState<any | null>(null); // using any for now until types are aligned
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { msLoginUser } = useAuth();
+  const [remark, setRemark] = useState("");
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const { user, msLoginUser } = useAuth();
 
   useEffect(() => {
     const fetchShipment = async () => {
@@ -43,6 +46,85 @@ const ShipmentDetails = () => {
     fetchShipment();
   }, [shipmentId]);
 
+  const handleApprovalAction = async (action: 'approver_approved' | 'approver_rejected') => {
+    if (!msLoginUser || !shipmentId) {
+      alert('Missing user information or shipment ID');
+      return;
+    }
+
+    const isApprove = action === 'approver_approved';
+    const setLoadingState = isApprove ? setIsApproving : setIsRejecting;
+
+    try {
+      setLoadingState(true);
+
+      const approvalUrl = import.meta.env.VITE_APP_APPROVAL_SHIPMENT_REQUEST;
+      if (!approvalUrl) {
+        throw new Error("Approval API URL not configured");
+      }
+
+      const apiUrl = `${approvalUrl}${shipmentId}`;
+
+      const payload = {
+        login_user_id: user?.userID || 0,
+        login_user_name: msLoginUser.name,
+        login_user_mail: msLoginUser.email,
+        remark: remark.trim() || (isApprove ? "Approved" : "Rejected"),
+        send_status: action
+      };
+
+      console.log('Sending approval request to:', apiUrl);
+      console.log('Payload:', payload);
+
+      const response = await axios.put(apiUrl, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.status === 200) {
+        const actionText = isApprove ? 'approved' : 'rejected';
+        alert(`Shipment ${actionText} successfully!`);
+
+        // Refresh shipment data
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error during approval action:', error);
+
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.meta?.message) {
+          alert(`Action failed: ${errorData.meta.message}`);
+        } else {
+          alert('Failed to process approval action. Please try again.');
+        }
+      } else {
+        alert('Failed to process approval action. Please check your connection and try again.');
+      }
+    } finally {
+      setLoadingState(false);
+    }
+  };
+
+  interface DetailRowProps {
+    label: string
+    value: React.ReactNode | null | undefined
+  }
+
+  const DetailRow = ({ label, value }: DetailRowProps) => (
+    <div className="flex justify-start py-1 text-sm">
+      <span className="text-gray-600 font-bold">{label}:</span>
+      <span className={`ml-2 ${value == null ? "text-red-500 italic" : "text-gray-800"}`}>
+        {value == null ? "N/A" : value}
+      </span>
+    </div>
+  )
+
+
+  const handleApprove = () => handleApprovalAction('approver_approved');
+  const handleReject = () => handleApprovalAction('approver_rejected');
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -74,163 +156,207 @@ const ShipmentDetails = () => {
   }
 
   return (
-    <div className="mx-auto w-full p-4">
+    <div className="mx-auto w-full p-4 space-y-8">
 
       {/* General Info */}
-      <Card className="mb-2">
-        <CardBody>
-          <div className="flex justify-between items-start">
-            <div>
-              <h2 className="text-lg font-semibold">General Information</h2>
-              <p><strong>ID:</strong> {shipment.shipmentRequestID}</p>
-              <p><strong>Topic:</strong> {shipment.topic} ({shipment.po_number})</p>
-              <p><strong>Status:</strong> {shipment.request_status}</p>
-              <p><strong>Requestor:</strong> {shipment.created_user_name} ({shipment.created_user_mail})</p>
-              <p><strong>Approver:</strong> {shipment.approver_user_name} ({shipment.approver_user_mail})</p>
-              <p><strong>Remark:</strong> {shipment.remark}</p>
-            </div>
+      <section className="space-y-3">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">General Information</h2>
+        </div>
 
-            {/* Approve / Reject buttons */}
-            {["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
-              shipment.approver_user_mail == msLoginUser?.email && (
-                <div className="flex flex-row gap-2 ml-4">
-                  {/* <Button color="success" size="sm" onPress={() => handleApprove(shipment.shipmentRequestID)}> */}
-                  <Button color="success" size="md">
-                    Approve
-                  </Button>
-                  {/* <Button color="danger" size="sm" onPress={() => handleReject(shipment.shipmentRequestID)}> */}
-                  <Button color="danger" size="md">
-                    Reject
-                  </Button>
-                </div>
-              )}
+        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1 text-sm">
+          <div>
+            <DetailRow label="ID" value={shipment.shipmentRequestID} />
+            <Chip
+              size="sm"
+              color={
+                shipment.request_status.includes("approved") ? "success" :
+                  shipment.request_status.includes("rejected") ? "danger" :
+                    "warning"
+              }
+              variant="flat"
+            >
+              {shipment.request_status}
+            </Chip>
+            <DetailRow label="Topic" value={`${shipment.topic} (${shipment.po_number})`} />
+            <DetailRow label="Requestor" value={`${shipment.created_user_name} (${shipment.created_user_mail})`} />
+            <DetailRow label="Approver" value={`${shipment.approver_user_name} (${shipment.approver_user_mail})`} />
+            <DetailRow label="Remark" value={shipment.remark} />
+
+             <section className="bg-gray-50 rounded-xl border p-4 space-y-3">
+              <h2 className="text-base font-semibold">Approval Actions</h2>
+              <Textarea
+                placeholder="Enter remark (optional)"
+                value={remark}
+                onValueChange={setRemark}
+                size="sm"
+                variant="bordered"
+              />
+              <div className="flex gap-2">
+                <Button
+                  color="success"
+                  onPress={() => handleApprovalAction("approver_approved")}
+                  isLoading={isApproving}
+                  disabled={isApproving || isRejecting}
+                  size="sm"
+                  startContent={<Icon icon="solar:check-circle-bold" />}
+                >
+                  {isApproving ? "Approving..." : "Approve"}
+                </Button>
+                <Button
+                  color="danger"
+                  onPress={() => handleApprovalAction("approver_rejected")}
+                  isLoading={isRejecting}
+                  disabled={isApproving || isRejecting}
+                  size="sm"
+                  startContent={<Icon icon="solar:close-circle-bold" />}
+                >
+                  {isRejecting ? "Rejecting..." : "Reject"}
+                </Button>
+              </div>
+            </section>
+            
           </div>
-        </CardBody>
-      </Card>
+          {["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
+            msLoginUser?.email === shipment.approver_user_mail ? (
+            <section className="bg-gray-50 rounded-xl border p-4 space-y-3">
+              <h2 className="text-base font-semibold">Approval Actions</h2>
+              <Textarea
+                placeholder="Enter remark (optional)"
+                value={remark}
+                onValueChange={setRemark}
+                size="sm"
+                variant="bordered"
+              />
+              <div className="flex gap-2">
+                <Button
+                  color="success"
+                  onPress={() => handleApprovalAction("approver_approved")}
+                  isLoading={isApproving}
+                  disabled={isApproving || isRejecting}
+                  size="sm"
+                  startContent={<Icon icon="solar:check-circle-bold" />}
+                >
+                  {isApproving ? "Approving..." : "Approve"}
+                </Button>
+                <Button
+                  color="danger"
+                  onPress={() => handleApprovalAction("approver_rejected")}
+                  isLoading={isRejecting}
+                  disabled={isApproving || isRejecting}
+                  size="sm"
+                  startContent={<Icon icon="solar:close-circle-bold" />}
+                >
+                  {isRejecting ? "Rejecting..." : "Reject"}
+                </Button>
+              </div>
+            </section>
+          ) : (
+            <div>
+              <DetailRow label="Label" value={shipment.files_label_url} />
+              <DetailRow label="Invoice No" value={shipment.invoice_no} />
+              <DetailRow label="Invoice Date" value={shipment.invoice_date} />
+              <DetailRow label="Invoice Due Date" value={shipment.invoice_due_date} />
+              <DetailRow label="Invoice" value={shipment.files_invoice_url} />
+              <DetailRow label="Packing Slip" value={shipment.files_packing_slip} />
+            </div>
+          )}
 
+
+        </div>
+      </section>
       {/* Ship From / Ship To */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardBody>
-            <h2 className="text-lg font-semibold">Ship From</h2>
-            <p><strong>Company:</strong> {shipment.ship_from?.company_name}</p>
-            <p><strong>Address:</strong> {shipment.ship_from?.street1}, {shipment.ship_from?.city}, {shipment.ship_from?.country}</p>
-            <p><strong>Contact:</strong> {shipment.ship_from?.contact_name} ({shipment.ship_from?.phone})</p>
-            <p>{shipment.ship_from?.email}</p>
+      <section className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <h2 className="text-base font-semibold">Ship From</h2>
+          <DetailRow label="Company" value={shipment.ship_from?.company_name} />
+          <DetailRow label="Address" value={`${shipment.ship_from?.street1}, ${shipment.ship_from?.city}, ${shipment.ship_from?.country}`} />
+          <DetailRow label="Contact" value={`${shipment.ship_from?.contact_name} (${shipment.ship_from?.phone})`} />
+          <DetailRow label="Email" value={shipment.ship_from?.email} />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-base font-semibold">Ship To</h2>
+          <DetailRow label="Company" value={shipment.ship_to?.company_name} />
+          <DetailRow label="Address" value={`${shipment.ship_to?.street1}, ${shipment.ship_to?.city}, ${shipment.ship_to?.country}`} />
+          <DetailRow label="Contact" value={`${shipment.ship_to?.contact_name} (${shipment.ship_to?.phone})`} />
+          <DetailRow label="Email" value={shipment.ship_to?.email} />
+        </div>
+      </section>
 
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody>
-            <h2 className="text-lg font-semibold">Ship To</h2>
-            <p><strong>Company:</strong> {shipment.ship_to?.company_name}</p>
-            <p><strong>Address:</strong> {shipment.ship_to?.street1}, {shipment.ship_to?.city}, {shipment.ship_to?.country}</p>
-            <p><strong>Contact:</strong> {shipment.ship_to?.contact_name} ({shipment.ship_to?.phone})</p>
-            <p>{shipment.ship_to?.email}</p>
-          </CardBody>
-        </Card>
-      </div>
+      <Divider />
 
       {/* Rates */}
-      {shipment.rates && shipment.rates.length > 0 && (
-        <Card className="mt-2">
-          <CardBody className="m-0">
-            <h2 className="text-lg font-semibold">Rates</h2>
-            <Table
-              aria-label="Rates Table"
-              shadow="none"
-              className="min-w-full m-0 p-0"
-            >
-              <TableHeader>
-                <TableColumn>No.</TableColumn>
-                <TableColumn>Carrier</TableColumn>
-                <TableColumn>Service</TableColumn>
-                <TableColumn>Transit Time</TableColumn>
-                <TableColumn>Cost</TableColumn>
-                <TableColumn>Chosen</TableColumn>
-              </TableHeader>
-
-              <TableBody emptyContent="No rates available">
-                {shipment.rates.map((rate: any, idx: number) => (
-                  <TableRow
-                    key={idx}
-                    className={rate.chosen == true ? "bg-green-50" : ""}
-                  >
-                    <TableCell>{idx + 1}</TableCell>
-                    <TableCell>{rate.shipper_account_description}</TableCell>
-                    <TableCell>{rate.service_name}</TableCell>
-                    <TableCell>{rate.transit_time} days</TableCell>
-                    <TableCell>
-                      {rate.total_charge_amount} {rate.total_charge_currency}
-                    </TableCell>
-                    <TableCell>
-                      {rate.chosen == 1 && (
-                        <Icon icon="mdi:check-circle" className="text-green-600 w-5 h-5" />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardBody>
-        </Card>
+      {shipment.rates?.length > 0 && (
+        <section>
+          <h2 className="text-base font-semibold mb-3">Rates</h2>
+          <Table shadow="none" aria-label="Rates Table">
+            <TableHeader>
+              <TableColumn>No.</TableColumn>
+              <TableColumn>Carrier</TableColumn>
+              <TableColumn>Service</TableColumn>
+              <TableColumn>Transit Time</TableColumn>
+              <TableColumn>Cost</TableColumn>
+              <TableColumn>Chosen</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {shipment.rates.map((rate: any, idx: number) => (
+                <TableRow key={idx} className={rate.chosen ? "bg-green-50" : ""}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell>{rate.shipper_account_description}</TableCell>
+                  <TableCell>{rate.service_name}</TableCell>
+                  <TableCell>{rate.transit_time} days</TableCell>
+                  <TableCell>{rate.total_charge_amount} {rate.total_charge_currency}</TableCell>
+                  <TableCell>
+                    {rate.chosen ? <Icon icon="mdi:check-circle" className="text-green-600 w-5 h-5" /> : null}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </section>
       )}
 
-      {/* Parcels */}
-      {shipment.parcels && shipment.parcels.length > 0 && (
-        <Card className="mt-2">
-          <CardBody className="m-0">
-            <h2 className="text-lg font-semibold">Parcels ({shipment.parcels.length})</h2>
-            <Table
-              aria-label="Parcels Table"
-              shadow="none"
-              className="min-w-full"
-            >
-              <TableHeader>
-                <TableColumn>No.</TableColumn>
-                <TableColumn>Description</TableColumn>
-                <TableColumn>
-                  Dimensions ({shipment.parcels[0].dimension_unit})
-                </TableColumn>
-                <TableColumn>
-                  Weight ({shipment.parcels[0].weight_unit})
-                </TableColumn>
-                <TableColumn>Items</TableColumn>
-              </TableHeader>
+      <Divider />
 
-              <TableBody emptyContent="No parcels available">
-                {shipment.parcels.map((parcel: any, idx: number) => (
-                  <TableRow key={idx} className="border-b border-gray-300">
-                    <TableCell>{idx + 1}</TableCell>
-                    <TableCell>{parcel.description}</TableCell>
-                    <TableCell>
-                      {parcel.width} × {parcel.height} × {parcel.depth}
-                    </TableCell>
-                    <TableCell>{parcel.weight_value}</TableCell>
-                    <TableCell>
-                      {parcel.items && parcel.items.length > 0 ? (
-                        <ol className="list-decimal list-inside space-y-1">
-                          {parcel.items.map((item: any, i: number) => (
-                            <li key={i}>
-                              {item.description} – {item.quantity} pcs,{" "}
-                              {item.weight_value} {item.weight_unit}
-                            </li>
-                          ))}
-                        </ol>
-                      ) : (
-                        <span className="text-gray-400">No items</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardBody>
-        </Card>
+      {/* Parcels */}
+      {shipment.parcels?.length > 0 && (
+        <section>
+          <h2 className="text-base font-semibold mb-3">
+            Parcels ({shipment.parcels.length})
+          </h2>
+          <Table shadow="none" aria-label="Parcels Table">
+            <TableHeader>
+              <TableColumn>No.</TableColumn>
+              <TableColumn>Description</TableColumn>
+              <TableColumn>Dimensions ({shipment.parcels[0].dimension_unit})</TableColumn>
+              <TableColumn>Weight ({shipment.parcels[0].weight_unit})</TableColumn>
+              <TableColumn>Items</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {shipment.parcels.map((parcel: any, idx: number) => (
+                <TableRow key={idx}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell>{parcel.description}</TableCell>
+                  <TableCell>{parcel.width} × {parcel.height} × {parcel.depth}</TableCell>
+                  <TableCell>{parcel.weight_value}</TableCell>
+                  <TableCell>
+                    {parcel.items?.length > 0 ? (
+                      <ul className="list-disc list-inside text-sm space-y-1">
+                        {parcel.items.map((item: any, i: number) => (
+                          <li key={i}>{item.description} – {item.quantity} pcs, {item.weight_value} {item.weight_unit}</li>
+                        ))}
+                      </ul>
+                    ) : <span className="text-gray-400">No items</span>}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </section>
       )}
 
     </div>
+
   );
 };
 

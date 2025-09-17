@@ -289,8 +289,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Carrier</TableColumn>
               <TableColumn>Service</TableColumn>
               <TableColumn>Status</TableColumn>
-              <TableColumn>Total Charge</TableColumn>
               <TableColumn>Estimated THB</TableColumn>
+              <TableColumn>Total Charge</TableColumn>              
               <TableColumn>Charge Weight</TableColumn>
               <TableColumn>Transit Time</TableColumn>
               <TableColumn>Delivery Date</TableColumn>
@@ -335,17 +335,17 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   </TableCell>
                   {/* <TableCell>{formatCurrency(rate.total_charge?.amount, rate.total_charge?.currency)}</TableCell> */}
                   <TableCell>
-                    {formatCurrency(
-                      rate.total_charge?.amount ?? null,
-                      rate.total_charge?.currency ?? null
-                    )}
-                  </TableCell>
-                  <TableCell>
                     {convertToTHB(
                       rate.total_charge?.amount ?? null,
                       rate.total_charge?.currency ?? null
                     )}
                   </TableCell>
+                  <TableCell>
+                    {formatCurrency(
+                      rate.total_charge?.amount ?? null,
+                      rate.total_charge?.currency ?? null
+                    )}
+                  </TableCell>                  
                   <TableCell>
                     {convertWeightToKg(rate.charge_weight)}
                   </TableCell>
