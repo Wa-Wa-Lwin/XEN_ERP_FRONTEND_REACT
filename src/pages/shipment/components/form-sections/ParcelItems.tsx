@@ -127,7 +127,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                 <Table
                     aria-label="Parcel items table"
                     classNames={{
-                        wrapper: "min-h-[200px]",
+                        wrapper: "min-h-[200px] p-0 border-0 rounded-none",
                         table: "min-w-[1200px]",
                         td: "px-1 py-1",
                         th: "px-1 py-2",
@@ -277,24 +277,37 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Select
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`, { required: 'Origin country is required' })}
-                                        placeholder="Country"
-                                        variant="flat"
-                                        size="sm"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country}
-                                        classNames={{
-                                            trigger: "min-h-unit-8 h-unit-8",
-                                            value: "text-sm"
-                                        }}
-                                    >
-                                        {COUNTRIES.map((option) => (
-                                            <SelectItem key={option.key} value={option.value}>
-                                                {option.key}
-                                            </SelectItem>
-                                        ))}
-                                    </Select>
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`}
+                                        control={control}
+                                        rules={{ required: 'Origin country is required' }}
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                placeholder="Country"
+                                                variant="flat"
+                                                size="sm"
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country}
+                                                classNames={{
+                                                    trigger: "min-h-unit-8 h-unit-8",
+                                                    value: "text-sm"
+                                                }}
+                                                onSelectionChange={(keys) => {
+                                                    const selectedKey = Array.from(keys)[0] as string
+                                                    if (selectedKey) {
+                                                        field.onChange(selectedKey)
+                                                    }
+                                                }}
+                                            >
+                                                {COUNTRIES.map((option) => (
+                                                    <SelectItem key={option.key} value={option.value}>
+                                                        {option.key}
+                                                    </SelectItem>
+                                                ))}
+                                            </Select>
+                                        )}
+                                    />
                                 </TableCell>
                                 <TableCell>
                                     <Input
@@ -313,25 +326,39 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Select
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`, { required: 'Currency is required' })}
-                                        placeholder="THB"
-                                        variant="flat"
-                                        size="sm"
-                                        defaultSelectedKeys={['THB']}
-                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}
-                                        classNames={{
-                                            trigger: "min-h-unit-8 h-unit-8",
-                                            value: "text-sm"
-                                        }}
-                                    >
-                                        {CURRENCIES.map((currency) => (
-                                            <SelectItem key={currency.key} value={currency.value}>
-                                                {currency.key}
-                                            </SelectItem>
-                                        ))}
-                                    </Select>
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
+                                        control={control}
+                                        rules={{ required: 'Currency is required' }}
+                                        defaultValue="THB"
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                placeholder="THB"
+                                                variant="flat"
+                                                size="sm"
+                                                defaultSelectedKeys={['THB']}
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}
+                                                classNames={{
+                                                    trigger: "min-h-unit-8 h-unit-8",
+                                                    value: "text-sm"
+                                                }}
+                                                onSelectionChange={(keys) => {
+                                                    const selectedKey = Array.from(keys)[0] as string
+                                                    if (selectedKey) {
+                                                        field.onChange(selectedKey)
+                                                    }
+                                                }}
+                                            >
+                                                {CURRENCIES.map((currency) => (
+                                                    <SelectItem key={currency.key} value={currency.value}>
+                                                        {currency.key}
+                                                    </SelectItem>
+                                                ))}
+                                            </Select>
+                                        )}
+                                    />
                                 </TableCell>
                                 <TableCell>
                                     <Input
@@ -385,19 +412,33 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue }: Parce
             </div>
 
             {/* Hidden weight unit field */}
-            {itemFields.map((item) => (
-                <Select
+            {itemFields.map((item, itemIndex) => (
+                <Controller
                     key={`weight-unit-${item.id}`}
-                    {...register(`parcels.${parcelIndex}.parcel_items.${item.id}.weight_unit`, { required: 'Weight unit is required' })}
-                    defaultSelectedKeys={['kg']}
-                    className="hidden"
-                >
-                    {WEIGHT_UNITS.map((unit) => (
-                        <SelectItem key={unit.key} value={unit.value}>
-                            {unit.label}
-                        </SelectItem>
-                    ))}
-                </Select>
+                    name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_unit`}
+                    control={control}
+                    rules={{ required: 'Weight unit is required' }}
+                    defaultValue="kg"
+                    render={({ field }) => (
+                        <Select
+                            {...field}
+                            defaultSelectedKeys={['kg']}
+                            className="hidden"
+                            onSelectionChange={(keys) => {
+                                const selectedKey = Array.from(keys)[0] as string
+                                if (selectedKey) {
+                                    field.onChange(selectedKey)
+                                }
+                            }}
+                        >
+                            {WEIGHT_UNITS.map((unit) => (
+                                <SelectItem key={unit.key} value={unit.value}>
+                                    {unit.label}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    )}
+                />
             ))}
 
             {/* Material Lookup Modal */}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Controller } from 'react-hook-form'
 import {
   Card,
   CardHeader,
@@ -36,7 +37,7 @@ interface AddressSelectorProps extends FormSectionProps {
   prefix: 'ship_from' | 'ship_to'
 }
 
-const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressSelectorProps) => {
+const AddressSelector = ({ register, errors, control, title, prefix, setValue }: AddressSelectorProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [addresses, setAddresses] = useState<AddressData[]>([])
   const [filteredAddresses, setFilteredAddresses] = useState<AddressData[]>([])
@@ -223,19 +224,32 @@ const AddressSelector = ({ register, errors, title, prefix, setValue }: AddressS
             isInvalid={!!errors[`${prefix}_email`]}
             key={`${formKey}_${prefix}_email`}
           />
-          <Select
-            {...register(`${prefix}_country`, { required: 'Country is required' })}
-            label="Country"
-            placeholder="Select Country"
-            errorMessage={errors[`${prefix}_country`]?.message}
-            isInvalid={!!errors[`${prefix}_country`]}
-          >
-            {COUNTRIES.map((option) => (
-              <SelectItem key={option.key} value={option.value}>
-                {option.value}
-              </SelectItem>
-            ))}
-          </Select>
+          <Controller
+            name={`${prefix}_country`}
+            control={control}
+            rules={{ required: 'Country is required' }}
+            render={({ field }) => (
+              <Select
+                {...field}
+                label="Country"
+                placeholder="Select Country"
+                errorMessage={errors[`${prefix}_country`]?.message}
+                isInvalid={!!errors[`${prefix}_country`]}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                  }
+                }}
+              >
+                {COUNTRIES.map((option) => (
+                  <SelectItem key={option.key} value={option.value}>
+                    {option.value}
+                  </SelectItem>
+                ))}
+              </Select>
+            )}
+          />
           <Input
             {...register(`${prefix}_city`, { required: 'City is required' })}
             label="City"

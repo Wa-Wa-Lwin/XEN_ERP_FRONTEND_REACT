@@ -13,7 +13,7 @@ export const useShipmentForm = () => {
     defaultValues: DEFAULT_FORM_VALUES
   })
 
-  const { register, control, handleSubmit, watch, setValue, getValues, formState: { errors } } = formMethods
+  const { register, control, handleSubmit, watch, setValue, getValues, trigger, formState: { errors } } = formMethods
 
   const onSubmit = async (data: ShipmentFormData) => {
     if (!msLoginUser) {
@@ -78,6 +78,7 @@ export const useShipmentForm = () => {
     watch,
     setValue,
     getValues,
+    trigger,
     errors,
     onSubmit,
     isSubmitting,

@@ -16,7 +16,7 @@ import type { ShipmentFormData } from '../types/shipment-form.types'
 import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentForm = () => {
-  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues } = useShipmentForm()
+  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues, trigger } = useShipmentForm()
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
   const [isCalculatingRate, setIsCalculatingRate] = useState(false)
@@ -24,7 +24,6 @@ const ShipmentForm = () => {
   const [selectedRateId, setSelectedRateId] = useState<string>('')
 
   const handleRateSelection = (rateId: string) => {
-    console.log('Rate selected:', rateId)
     setSelectedRateId(rateId)
   }
   const [errorModal, setErrorModal] = useState<{
@@ -240,8 +239,6 @@ const ShipmentForm = () => {
   }
 
   const handlePreview = async (data: ShipmentFormData) => {
-    console.log("Preview & Submit clicked - validating form...")
-
     // Use the data from form submission instead of getValues()
     const formData = data
 
@@ -311,23 +308,24 @@ const ShipmentForm = () => {
     const updatedFormData = await calculateRates(formData)
 
     if (updatedFormData.rates && updatedFormData.rates.length > 0) {
-      const validRates = updatedFormData.rates.filter((rate: any) => rate.total_charge?.amount > 0)
-      console.log(`Rates calculated successfully! Found ${updatedFormData.rates.length} rate option(s), ${validRates.length} with valid pricing.`)
+
     } else {
       console.log("Rates calculated but no rates were returned.")
     }
   }
 
   return (
-    <div className="mx-auto w-full">
-      <Card className="w-full">
+    <>
+      <Card className="w-full rounded bg-transparent">
         <CardBody>
           <form
-            onSubmit={handleSubmit(handlePreview)}
+            onSubmit={handleSubmit(handlePreview, (errors) => {
+
+            })}
             className="space-y-8"
           >
 
-            <BasicInformation register={register} errors={errors} today={today} />
+            <BasicInformation register={register} errors={errors} control={control} today={today} />
 
             {/* <Divider /> */}
 
@@ -364,8 +362,22 @@ const ShipmentForm = () => {
               </Button>
               <Button
                 color="primary"
-                type="submit"             
+                type="submit"
                 startContent={<Icon icon="solar:eye-bold" />}
+                onPress={() => {
+                  console.log("Preview & Submit button clicked")
+                  // Also log current form state for debugging
+                  const currentValues = getValues()
+                  console.log("Current form values:", currentValues)
+                  
+                  // Manually trigger validation to see errors
+                  trigger().then(isValid => {
+                    console.log("Manual validation result:", isValid)
+                    if (!isValid) {
+                      console.log("Current form errors:", errors)
+                    }
+                  })
+                }}
               >
                 Preview & Submit
               </Button>
@@ -394,7 +406,7 @@ const ShipmentForm = () => {
         message={errorModal.message}
         details={errorModal.details}
       />
-    </div>
+    </>
   )
 }
 
