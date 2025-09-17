@@ -319,8 +319,8 @@ const ShipmentForm = () => {
   }
 
   return (
-    <div className="mx-auto w-full">
-      <Card className="w-full">
+    <>
+      <Card className="w-full rounded bg-transparent">
         <CardBody>
           <form
             onSubmit={handleSubmit(handlePreview)}
@@ -394,7 +394,7 @@ const ShipmentForm = () => {
         message={errorModal.message}
         details={errorModal.details}
       />
-    </div>
+    </>
   )
 }
 
