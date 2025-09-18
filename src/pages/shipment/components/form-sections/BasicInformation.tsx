@@ -19,7 +19,34 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         <h2 className="text-xl font-semibold">Basic Information</h2>
       </CardHeader>
       <CardBody className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
+        <Controller
+          name="send_to"
+          control={control}
+          rules={{ required: 'Send To is required' }}
+          render={({ field }) => (
+            <Select
+              {...field}
+              label={<span>Send To <span className="text-red-500">*</span></span>}
+              placeholder="Select recipient"
+              errorMessage={errors.send_to?.message}
+              isInvalid={!!errors.send_to}
+              onSelectionChange={(keys) => {
+                const selectedKey = Array.from(keys)[0] as string
+                if (selectedKey) {
+                  field.onChange(selectedKey)
+                }
+              }}
+            >
+              <SelectItem key="Approver" value="Approver">
+                Approver
+              </SelectItem>
+              <SelectItem key="Logistic" value="Logistic">
+                Logistic
+              </SelectItem>
+            </Select>
+          )}
+        />
+        
         <Controller
           name="topic"
           control={control}
