@@ -329,9 +329,9 @@ const ShipmentForm = () => {
 
             {/* <Divider /> */}
 
-            <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" sendTo={watch('send_to')} />
+            <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" />
 
-            <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" sendTo={watch('send_to')} />
+            <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" />
 
             {/* <PickupInformation register={register} errors={errors} watch={watch} /> */}
             <PickupInformation register={register} errors={errors} />

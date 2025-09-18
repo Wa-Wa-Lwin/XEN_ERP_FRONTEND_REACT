@@ -310,6 +310,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                                 className="text-gray-400" />
                                                         )
                                                     }
+                                                    min={1}
                                                 />
                                             )}
                                         />
@@ -336,6 +337,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                                 className="text-gray-400" />
                                                         )
                                                     }
+                                                    min={1}
                                                 />
                                             )}
                                         />
@@ -362,6 +364,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                                 className="text-gray-400" />
                                                         )
                                                     }
+                                                    min={1}
                                                 />
                                             )}
                                         />
@@ -421,6 +424,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                         // Trigger weight recalculation when parcel weight changes
                                                         setTimeout(() => updateWeights(parcelIndex), 100)
                                                     }}
+                                                    min={0}
                                                 />
                                             )}
                                         />
@@ -463,7 +467,10 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     isReadOnly={true}
                                                     className="bg-gray-50"
                                                     endContent={
-                                                        <Icon icon="solar:calculator-bold" className="text-gray-400" />
+                                                        <>
+                                                            <Icon icon="solar:calculator-bold" className="text-gray-400" /> 
+                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
+                                                        </>                                                        
                                                     }
                                                 />
                                             )}
@@ -486,7 +493,10 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     isReadOnly={true}
                                                     className="bg-gray-50"
                                                     endContent={
-                                                        <Icon icon="solar:calculator-bold" className="text-gray-400" />
+                                                        <>
+                                                            <Icon icon="solar:calculator-bold" className="text-gray-400" /> 
+                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
+                                                        </>  
                                                     }
                                                 />
                                             )}

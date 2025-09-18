@@ -296,6 +296,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             input: "text-sm",
                                             inputWrapper: "min-h-unit-8 h-unit-8"
                                         }}
+                                        min={0}
                                     />
                                 </TableCell>
                                 <TableCell>
@@ -358,6 +359,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                         setTimeout(onWeightChange, 100)
                                                     }
                                                 }}
+                                                min={0}
                                             />
                                         )}
                                     />

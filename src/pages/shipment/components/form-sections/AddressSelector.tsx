@@ -35,18 +35,12 @@ import { ISO2_TO_ISO3 } from '@pages/shipment/constants/change-iso-country-codes
 interface AddressSelectorProps extends FormSectionProps {
   title: string
   prefix: 'ship_from' | 'ship_to'
-  sendTo?: string
 }
 
-const AddressSelector = ({ register, errors, control, title, prefix, setValue, sendTo }: AddressSelectorProps) => {
+const AddressSelector = ({ register, errors, control, title, prefix, setValue }: AddressSelectorProps) => {
   // Helper function to determine if a field should be required based on send_to value
-  const isFieldRequired = (fieldName: string) => {
-    if (sendTo === 'Logistic') {
-      // For logistics, only company name and country are required
-      const logisticRequiredFields = ['company_name', 'country'];
-      return logisticRequiredFields.includes(fieldName);
-    }
-    // For Approver or default, all fields are required as before
+  const isFieldRequired = (_fieldName: string) => {
+    // All address fields are required regardless of send_to value
     return true;
   };
   const [isModalOpen, setIsModalOpen] = useState(false)

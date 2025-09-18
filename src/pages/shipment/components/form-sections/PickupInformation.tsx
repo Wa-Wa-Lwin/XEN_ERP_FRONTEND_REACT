@@ -44,10 +44,8 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
           </div>
           <div className="col-span-2">
             <Textarea
-              {...register('pick_up_instructions', {
-                required: 'Instructions are required',
-              })}
-              label={<span>Pickup Instructions <span className="text-red-500">*</span></span>}
+              {...register('pick_up_instructions')}
+              label={<span>Pickup Instructions</span>}
               placeholder="Enter pickup instructions"
               errorMessage={errors.pick_up_instructions?.message}
               isInvalid={!!errors.pick_up_instructions}
