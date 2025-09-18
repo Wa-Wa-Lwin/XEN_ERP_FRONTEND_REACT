@@ -124,12 +124,15 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       setRatesError(null)
     } catch (error) {
       console.error('Failed to fetch exchange rates:', error)
-      setRatesError('Failed to fetch current exchange rates')
 
       // Try to use cached rates even if expired as fallback
       const { rates: cachedRates } = loadCachedRates()
       if (cachedRates) {
         setExchangeRates(cachedRates)
+        // Only show error if we're forcing a refresh, not on initial load
+        if (forceRefresh) {
+          setRatesError('Failed to fetch current exchange rates')
+        }
       } else {
         // Ultimate fallback to hardcoded rates
         setExchangeRates({
@@ -142,6 +145,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
           MYR: 7.8,
           THB: 1.0
         })
+        // Only show error if we're forcing a refresh, not on initial load
+        if (forceRefresh) {
+          setRatesError('Failed to fetch current exchange rates')
+        }
       }
     } finally {
       setIsLoadingRates(false)
@@ -150,8 +157,17 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   // Auto-refresh rates every hour
   useEffect(() => {
-    // Initial load
-    fetchExchangeRates()
+    // Initial load - only if no cached rates exist or cache is expired
+    const { rates: cachedRates, timestamp: cachedTimestamp } = loadCachedRates()
+
+    if (!cachedRates || !cachedTimestamp || !isCacheValid(cachedTimestamp)) {
+      // Only fetch if we don't have valid cached data
+      fetchExchangeRates()
+    } else {
+      // Use cached data and don't show error
+      setExchangeRates(cachedRates)
+      setLastUpdated(new Date(cachedTimestamp).toLocaleString())
+    }
 
     // Set up hourly refresh interval
     const interval = setInterval(() => {
