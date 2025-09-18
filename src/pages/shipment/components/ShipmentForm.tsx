@@ -16,7 +16,7 @@ import type { ShipmentFormData } from '../types/shipment-form.types'
 import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentForm = () => {
-  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues, trigger, watch } = useShipmentForm()
+  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues, trigger, watch, reset } = useShipmentForm()
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
   const [isCalculatingRate, setIsCalculatingRate] = useState(false)
@@ -396,6 +396,29 @@ const ShipmentForm = () => {
     }
   }
 
+  const handleClearForm = () => {
+    // Clear calculated rates and selected rate first
+    setCalculatedRates([])
+    setSelectedRateId('')
+    // Close any open modals
+    setIsPreviewOpen(false)
+    setErrorModal({
+      isOpen: false,
+      title: '',
+      message: '',
+      details: []
+    })
+
+    // Simply reset the form to default values - the defaults should already include the required values
+    reset()
+
+    // Log the form values after reset to debug
+    setTimeout(() => {
+      const values = getValues()
+      console.log('Form values after reset:', values)
+    }, 100)
+  }
+
   const handleCalculateRate = async () => {
     const formData = getValues()
 
@@ -456,7 +479,7 @@ const ShipmentForm = () => {
             </div>
             <div className="py-1 px-4">
 
-              <PickupInformation register={register} errors={errors} today={today} setValue={setValue} />
+              <PickupInformation register={register} errors={errors} today={today} setValue={setValue} watch={watch} />
             </div>
 
             <div className="py-1 px-4">
@@ -481,11 +504,9 @@ const ShipmentForm = () => {
               <Button
                 variant="bordered"
                 type="button"
-                onPress={() => {
-                  console.log("❌ Cancel button clicked")
-                }}
+                onPress={handleClearForm}
               >
-                Cancel
+                Clear
               </Button>
               <Button
                 color="primary"

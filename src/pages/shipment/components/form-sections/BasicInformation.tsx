@@ -168,6 +168,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
             label={<span>PO Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
             errorMessage={errors.po_date?.message}
             isInvalid={!!errors.po_date}
+            defaultValue={new Date().toISOString().split('T')[0]}
           />
           <div className="grid grid-cols-1 gap-2">
 

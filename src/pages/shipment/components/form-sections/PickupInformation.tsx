@@ -1,12 +1,27 @@
 import { Card, CardHeader, CardBody, Input, Textarea } from '@heroui/react'
 import type { FormSectionProps } from '../../types/shipment-form.types'
+import { getDefaultPickupValues } from '../../constants/form-defaults'
+import { useEffect } from 'react'
 
 interface PickupInformationProps extends FormSectionProps {
   today: string
   setValue?: any
+  watch?: any
 }
 
-const PickupInformation = ({ register, errors, today, setValue }: PickupInformationProps) => {
+const PickupInformation = ({ register, errors, today, setValue, watch }: PickupInformationProps) => {
+
+  // Get default pickup values based on current time
+  const { pickupDate: defaultPickupDate, startTime: defaultStartTime, endTime: defaultEndTime, minDate } = getDefaultPickupValues()
+
+  // Watch pickup date to adjust start time
+  const pickupDate = watch ? watch('pick_up_date') : defaultPickupDate
+  const todayDate = new Date().toISOString().split('T')[0]
+
+  // Determine start time based on pickup date
+  const getStartTimeForDate = (selectedDate: string) => {
+    return selectedDate === todayDate ? '12:00' : '09:00'
+  }
 
   // Handler to sync both date fields when one is changed
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,8 +29,20 @@ const PickupInformation = ({ register, errors, today, setValue }: PickupInformat
     if (setValue) {
       setValue('pick_up_date', dateValue, { shouldValidate: true, shouldDirty: true })
       setValue('due_date', dateValue, { shouldValidate: true, shouldDirty: true })
+
+      // Update start time based on selected date
+      const newStartTime = getStartTimeForDate(dateValue)
+      setValue('pick_up_start_time', newStartTime, { shouldValidate: true, shouldDirty: true })
     }
   }
+
+  // Effect to set initial start time when component mounts or pickup date changes
+  useEffect(() => {
+    if (setValue && pickupDate) {
+      const startTime = getStartTimeForDate(pickupDate)
+      setValue('pick_up_start_time', startTime, { shouldValidate: false, shouldDirty: false })
+    }
+  }, [pickupDate, setValue])
 
   return (
     <Card shadow="none">
@@ -37,7 +64,8 @@ const PickupInformation = ({ register, errors, today, setValue }: PickupInformat
             placeholder="Select pickup and due date"
             errorMessage={errors.pick_up_date?.message || errors.due_date?.message}
             isInvalid={!!errors.pick_up_date || !!errors.due_date}
-            min={today}
+            min={minDate}
+            defaultValue={defaultPickupDate}
             onChange={handleDateChange}
           />
 
@@ -45,6 +73,7 @@ const PickupInformation = ({ register, errors, today, setValue }: PickupInformat
           <input
             {...register('due_date')}
             type="hidden"
+            defaultValue={defaultPickupDate}
           />
           <div className="flex gap-2">
             <Input
@@ -55,6 +84,7 @@ const PickupInformation = ({ register, errors, today, setValue }: PickupInformat
               label={<span>Start Time <span className="text-red-500">*</span></span>}
               errorMessage={errors.pick_up_start_time?.message}
               isInvalid={!!errors.pick_up_start_time}
+              defaultValue={getStartTimeForDate(defaultPickupDate)}
             />
             <Input
               {...register('pick_up_end_time', {
@@ -64,6 +94,7 @@ const PickupInformation = ({ register, errors, today, setValue }: PickupInformat
               label={<span>End Time <span className="text-red-500">*</span></span>}
               errorMessage={errors.pick_up_end_time?.message}
               isInvalid={!!errors.pick_up_end_time}
+              defaultValue={defaultEndTime}
             />
           </div>
           <div className="col-span-2">

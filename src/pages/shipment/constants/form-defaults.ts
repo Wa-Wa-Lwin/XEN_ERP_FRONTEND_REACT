@@ -1,5 +1,29 @@
 import type { ShipmentFormData } from '../types/shipment-form.types'
 
+// Calculate default pickup date based on current time
+export const getDefaultPickupValues = () => {
+  const now = new Date()
+  const currentHour = now.getHours()
+  const isBeforeCutoff = currentHour < 10 // Before 10 AM
+  const todayDate = new Date().toISOString().split('T')[0]
+
+  const defaultPickupDate = isBeforeCutoff
+    ? todayDate // Today if before 10 AM
+    : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Tomorrow if after 10 AM
+
+  // Start time depends on pickup date: 12 PM for today, 9 AM for tomorrow+
+  const defaultStartTime = defaultPickupDate === todayDate ? '12:00' : '09:00'
+
+  return {
+    pickupDate: defaultPickupDate,
+    startTime: defaultStartTime,
+    endTime: '17:00',   // 5 PM
+    minDate: defaultPickupDate // Minimum selectable date
+  }
+}
+
+const defaultPickupValues = getDefaultPickupValues()
+
 export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   shipmentRequestID: 0,
   shipment_scope: '',
@@ -11,7 +35,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   topic: '',
   po_number: '',
   other_topic: '',
-  due_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // tomorrow
+  due_date: defaultPickupValues.pickupDate, // Same as pickup date
   sales_person: '',
   po_date: new Date().toISOString().split('T')[0], // today
   send_to: 'Approver',
@@ -126,9 +150,9 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     detailed_charges: ''
   }],
   pick_up_status: false,
-  pick_up_date: new Date().toISOString().split('T')[0],
-  pick_up_start_time: '09:00',
-  pick_up_end_time: '17:00',
+  pick_up_date: defaultPickupValues.pickupDate,
+  pick_up_start_time: defaultPickupValues.startTime,
+  pick_up_end_time: defaultPickupValues.endTime,
   pick_up_instructions: '',
   insurance_enabled: false,
   insurance_insured_value_amount: 0,
