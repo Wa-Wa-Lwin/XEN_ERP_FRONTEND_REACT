@@ -12,6 +12,7 @@ import Logistics from "@features/logistics/Logistics"
 import ProtectedRoute from "@components/common/ProtectedRoute";
 import Items from "@pages/items/Items";
 import Addresses from "@pages/addresses/Addresses";
+import { LogisticReviewPage } from "@pages/logistic_review";
 
 
 export const routes = [
@@ -35,9 +36,13 @@ export const routes = [
             element: <ShipmentForm />,
             handle: { breadcrumb: "Request Form" },
           },
-          { path: ":shipmentId", 
-            element: <ShipmentDetails />, 
+          { path: ":shipmentId",
+            element: <ShipmentDetails />,
             handle: { breadcrumb: (match: any) => match.params.shipmentId }
+          },
+          { path: "logistic-review/:id",
+            element: <LogisticReviewPage />,
+            handle: { breadcrumb: "Logistic Review" }
           },
         ]
       },
