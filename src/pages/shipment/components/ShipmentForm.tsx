@@ -192,6 +192,83 @@ const ShipmentForm = () => {
     }
   }
 
+  const validateCalculateRatesData = (formData: ShipmentFormData): { isValid: boolean; errors: Array<{ path: string; info: string }> } => {
+    const errors: Array<{ path: string; info: string }> = []
+
+    // Validate address fields
+    if (!formData.ship_from_company_name?.trim()) {
+      errors.push({ path: 'data.shipment.ship_from.company_name', info: 'Ship from company name is required' })
+    }
+    if (!formData.ship_to_company_name?.trim()) {
+      errors.push({ path: 'data.shipment.ship_to.company_name', info: 'Ship to company name is required' })
+    }
+
+    // Validate parcels
+    if (!formData.parcels || formData.parcels.length === 0) {
+      errors.push({ path: 'data.shipment.parcels', info: 'At least one parcel is required' })
+    } else {
+      formData.parcels.forEach((parcel, parcelIndex) => {
+        // Validate parcel dimensions
+        if (!parcel.width || parseFloat(String(parcel.width)) <= 0) {
+          errors.push({
+            path: `data.shipment.parcels.${parcelIndex}.dimension.width`,
+            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.width should be > 0'
+          })
+        }
+        if (!parcel.height || parseFloat(String(parcel.height)) <= 0) {
+          errors.push({
+            path: `data.shipment.parcels.${parcelIndex}.dimension.height`,
+            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.height should be > 0'
+          })
+        }
+        if (!parcel.depth || parseFloat(String(parcel.depth)) <= 0) {
+          errors.push({
+            path: `data.shipment.parcels.${parcelIndex}.dimension.depth`,
+            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.depth should be > 0'
+          })
+        }
+
+        // Validate parcel has items
+        if (!parcel.parcel_items || parcel.parcel_items.length === 0) {
+          errors.push({
+            path: `data.shipment.parcels.${parcelIndex}.items`,
+            info: 'Each parcel must have at least one item'
+          })
+        } else {
+          // Validate items
+          parcel.parcel_items.forEach((item, itemIndex) => {
+            if (!item.description?.trim()) {
+              errors.push({
+                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.description`,
+                info: 'data.shipment.parcels.' + parcelIndex + '.items.' + itemIndex + '.description is a required property'
+              })
+            }
+            if (!item.quantity || parseInt(String(item.quantity)) < 1) {
+              errors.push({
+                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.quantity`,
+                info: 'Item quantity must be at least 1'
+              })
+            }
+            if (!item.weight_value || parseFloat(String(item.weight_value)) <= 0) {
+              errors.push({
+                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.weight.value`,
+                info: 'Item weight must be greater than 0'
+              })
+            }
+            if (!item.price_amount || parseFloat(String(item.price_amount)) <= 0) {
+              errors.push({
+                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.price.amount`,
+                info: 'Item price must be greater than 0'
+              })
+            }
+          })
+        }
+      })
+    }
+
+    return { isValid: errors.length === 0, errors }
+  }
+
   const validateWeights = (formData: ShipmentFormData): { isValid: boolean; errors: Array<{ path: string; info: string }> } => {
     const errors: Array<{ path: string; info: string }> = []
 
@@ -292,6 +369,18 @@ const ShipmentForm = () => {
 
   const handleCalculateRate = async () => {
     const formData = getValues()
+
+    // Validate form data before calculating rates
+    const formValidation = validateCalculateRatesData(formData)
+    if (!formValidation.isValid) {
+      setErrorModal({
+        isOpen: true,
+        title: 'Rate Calculation Failed - Validation Errors',
+        message: 'Please fix the following issues before calculating rates:',
+        details: formValidation.errors
+      })
+      return
+    }
 
     // Validate weights before calculating rates
     const weightValidation = validateWeights(formData)
