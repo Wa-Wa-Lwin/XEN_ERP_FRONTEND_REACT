@@ -342,8 +342,37 @@ const ShipmentForm = () => {
       return
     }
 
-    // Calculate rates before showing preview
-    const formDataWithRates = await calculateRates(formData)
+    // Only calculate rates if they haven't been calculated yet
+    let formDataWithRates = formData
+    if (calculatedRates.length === 0) {
+      formDataWithRates = await calculateRates(formData)
+    } else {
+      // Use existing rates data
+      const transformedRates = calculatedRates.map((rate: any) => ({
+        shipper_account_id: rate.shipper_account?.id || rate.shipper_account_id,
+        shipper_account_slug: rate.shipper_account?.slug || rate.shipper_account_slug,
+        shipper_account_description: rate.shipper_account?.description || rate.shipper_account_description,
+        service_type: rate.service_type,
+        service_name: rate.service_name,
+        pickup_deadline: rate.pickup_deadline,
+        booking_cut_off: rate.booking_cut_off,
+        delivery_date: rate.delivery_date,
+        transit_time: rate.transit_time?.toString() || '',
+        error_message: rate.error_message || '',
+        info_message: rate.info_message || '',
+        charge_weight_value: rate.charge_weight?.value || rate.charge_weight_value || 0,
+        charge_weight_unit: rate.charge_weight?.unit || rate.charge_weight_unit || '',
+        total_charge_amount: rate.total_charge?.amount || rate.total_charge_amount || 0,
+        total_charge_currency: rate.total_charge?.currency || rate.total_charge_currency || '',
+        chosen: false,
+        detailed_charges: typeof rate.detailed_charges === 'string' ? rate.detailed_charges : JSON.stringify(rate.detailed_charges) || ''
+      }))
+
+      formDataWithRates = {
+        ...formData,
+        rates: transformedRates
+      }
+    }
 
     setPreviewData(formDataWithRates)
     setIsPreviewOpen(true)
