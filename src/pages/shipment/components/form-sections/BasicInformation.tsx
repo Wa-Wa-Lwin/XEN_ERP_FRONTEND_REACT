@@ -18,10 +18,15 @@ const BasicInformation = ({ register, errors, control, today, watch }: BasicInfo
   const sendTo = watch('send_to');
 
   // Helper function to determine if a field should be required based on send_to value
-  const isFieldRequired = () => {
+  const isFieldRequired = (fieldName?: string) => {
     if (sendTo === 'Logistic') {
-      // For logistics, no basic information fields are required
-      return false;
+      // For logistics, only customs purpose and incoterms are not required
+      const logisticNotRequiredFields = ['customs_purpose', 'customs_terms_of_trade'];
+      if (fieldName && logisticNotRequiredFields.includes(fieldName)) {
+        return false;
+      }
+      // All other fields are still required for logistics
+      return true;
     }
     // For Approver or default, all fields are required as before
     return true;
@@ -189,7 +194,7 @@ const BasicInformation = ({ register, errors, control, today, watch }: BasicInfo
             }
           })}
           type="date"
-          label={<span>Expected Ship Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+          label={<span>Request Ship Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
           min={today}
           errorMessage={errors.due_date?.message}
           isInvalid={!!errors.due_date}
@@ -198,11 +203,11 @@ const BasicInformation = ({ register, errors, control, today, watch }: BasicInfo
         <Controller
           name="customs_purpose"
           control={control}
-          rules={{ required: isFieldRequired() ? 'Customs purpose is required' : false }}
+          rules={{ required: isFieldRequired('customs_purpose') ? 'Customs purpose is required' : false }}
           render={({ field }) => (
             <Select
               {...field}
-              label={<span>Customs Purpose {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+              label={<span>Customs Purpose {isFieldRequired('customs_purpose') && <span className="text-red-500">*</span>}</span>}
               placeholder="Select customs purpose"
               errorMessage={errors.customs_purpose?.message}
               isInvalid={!!errors.customs_purpose}
@@ -224,11 +229,11 @@ const BasicInformation = ({ register, errors, control, today, watch }: BasicInfo
         <Controller
           name="customs_terms_of_trade"
           control={control}
-          rules={{ required: isFieldRequired() ? 'Terms of trade is required' : false }}
+          rules={{ required: isFieldRequired('customs_terms_of_trade') ? 'Terms of trade is required' : false }}
           render={({ field }) => (
             <Select
               {...field}
-              label={<span>Incoterms {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+              label={<span>Incoterms {isFieldRequired('customs_terms_of_trade') && <span className="text-red-500">*</span>}</span>}
               placeholder="Select Incoterms"
               errorMessage={errors.customs_terms_of_trade?.message}
               isInvalid={!!errors.customs_terms_of_trade}

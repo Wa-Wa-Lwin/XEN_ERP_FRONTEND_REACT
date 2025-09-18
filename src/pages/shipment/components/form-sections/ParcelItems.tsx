@@ -30,9 +30,13 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
     // Helper function to determine if item fields should be required based on send_to value
     const isItemFieldRequired = (fieldName: string) => {
         if (sendTo === 'Logistic') {
-            // For logistics, only specific item fields are required
-            const logisticRequiredFields = ['description', 'quantity'];
-            return logisticRequiredFields.includes(fieldName);
+            // For logistics, HS code and origin country are not required
+            const logisticNotRequiredFields = ['hs_code', 'origin_country'];
+            if (logisticNotRequiredFields.includes(fieldName)) {
+                return false;
+            }
+            // All other fields are still required for logistics
+            return true;
         }
         // For Approver or default, all fields are required as before
         return true;
