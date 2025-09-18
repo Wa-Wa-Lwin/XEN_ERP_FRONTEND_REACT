@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Table,
   TableHeader,
@@ -22,6 +22,7 @@ import type { ShipmentFormData, ShipmentRequestsResponse } from '../types/shipme
 const ShipmentTable = () => {
   const { msLoginUser } = useAuth()
   const { activeButton } = useBreadcrumb()
+  const navigate = useNavigate()
   const [shipmentRequests, setShipmentRequests] = useState<ShipmentFormData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -131,10 +132,12 @@ const ShipmentTable = () => {
     setPage(1) // Reset to first page when changing filter
   }
 
-  const handleStatusFilterChange = (keys: any) => {
-    const selectedStatus = Array.from(keys)[0] as string
-    setStatusFilter(selectedStatus)
-    setPage(1) // Reset to first page when changing filter
+  const handleRowClick = (shipmentRequestID: string | number, event: React.MouseEvent) => {
+    // Prevent navigation if clicking on action buttons or links
+    if ((event.target as HTMLElement).closest('a, button, [role="button"]')) {
+      return
+    }
+    navigate(`/shipment/${shipmentRequestID}`)
   }
 
   useEffect(() => {
@@ -191,89 +194,35 @@ const ShipmentTable = () => {
   const renderActionButtons = () => {
     return (
       <div className="flex flex-row items-center justify-center gap-1">
-        {/* View Details button - always shown */}
-        {/* <Link to={`/shipment/${request.shipmentRequestID}`}>
-          <Icon
-            className="w-5 h-5 text-gray-500 hover:text-gray-700"
-            icon="solar:eye-bold"
-          />
-        </Link> */}
-
         {/* Conditional buttons based on activeButton */}
         {activeButton === "Review" && (
-          <>
-            {/* <Button
-              size="sm"
-              variant="solid"
-              className="bg-yellow-500 hover:bg-yellow-800 text-white px-1 py-0.5 text-xs flex items-center gap-1"
+          <>          
+            <button
+              onClick={() => console.log("Update clicked!")}
+              className="bg-yellow-500 hover:bg-yellow-800 text-white px-2 py-0 text-xs flex items-center gap-1 rounded-lg"
             >
-              <Icon
-                className="w-3.5 h-3.5 text-white" // slightly smaller icon
-                icon="solar:pen-bold"
-              />
-              <span className="text-white text-xs">Edit</span>
-            </Button> */}
-            <div className="bg-yellow-500 hover:bg-yellow-800 text-white px-3 py-0.4 text-xs flex items-center gap-1 rounded-lg cursor-pointer">
-              <Icon
-                className="w-3.5 h-3.5 text-white"
-                icon="solar:pen-bold"
-              />
+              <Icon className="w-3.5 h-3.5 text-white" icon="solar:pen-bold" />
               <span className="text-white text-xs">Update</span>
-            </div>
+            </button>
           </>
-
-
-          // <Button
-          //   size="sm"
-          //   variant="solid"
-          //   className="bg-yellow-500 hover:bg-yellow-800 text-white px-1 text-sm flex items-center gap-1 py-0"
-          // >
-          //   <Icon
-          //     className="w-4 h-4 text-white"
-          //     icon="solar:pen-bold"
-          //   />
-          //   <span className="text-white text-xs">Edit</span>
-          // </Button>
         )}
 
         {activeButton === "Approval" && (
           <>
-            {/* <Button
-              size="sm"
-              variant="solid"
-              className="bg-green-500 hover:bg-green-800 text-white px-1 text-sm flex items-center gap-1"
+            <button
+              onClick={() => console.log("Update clicked!")}
+              className="bg-green-500 hover:bg-green-800 text-white px-2 py-0 text-xs flex items-center gap-1 rounded-lg"
             >
-              <Icon
-                className="w-4 h-4 text-white"
-                icon="solar:check-circle-bold"
-              />
+              <Icon className="w-3.5 h-3.5 text-white" icon="solar:check-circle-bold" />
               <span className="text-white text-xs">Approve</span>
-            </Button>
-            <Button
-              size="sm"
-              variant="solid"
-              className="bg-red-500 hover:bg-red-800 text-white px-1 text-sm flex items-center gap-1"
+            </button>
+            <button
+              onClick={() => console.log("Update clicked!")}
+              className="bg-red-500 hover:bg-red-800 text-white px-2 py-0 text-xs flex items-center gap-1 rounded-lg"
             >
-              <Icon
-                className="w-4 h-4 text-white"
-                icon="solar:close-circle-bold"
-              />
-              <span className="text-white text-[10px]">Reject</span>
-            </Button> */}
-            <div className="bg-green-500 hover:bg-green-800 text-white px-3 py-0.4 text-xs flex items-center gap-1 rounded-lg cursor-pointer">
-              <Icon
-                className="w-3.5 h-3.5 text-white"
-                icon="solar:check-circle-bold"
-              />
-              <span className="text-white text-xs">Approve</span>
-            </div>
-            <div className="bg-red-500 hover:bg-red-800 text-white px-3 py-0.4 text-xs flex items-center gap-1 rounded-lg cursor-pointer">
-              <Icon
-                className="w-3.5 h-3.5 text-white"
-                icon="solar:close-circle-bold"
-              />
+              <Icon className="w-3.5 h-3.5 text-white" icon="solar:close-circle-bold" />
               <span className="text-white text-xs">Reject</span>
-            </div>            
+            </button>            
           </>
         )}
       </div>
@@ -323,7 +272,11 @@ const ShipmentTable = () => {
                     className="w-48"
                     placeholder="Select status..."
                     selectedKeys={[statusFilter]}
-                    onSelectionChange={handleStatusFilterChange}
+                    onSelectionChange={(keys) => {
+                      const selectedStatus = Array.from(keys)[0] as string
+                      setStatusFilter(selectedStatus)
+                      setPage(1) // Reset to first page when changing filter
+                    }}
                   >
                     {statusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
@@ -400,8 +353,12 @@ const ShipmentTable = () => {
           </TableHeader>
           <TableBody>
             {paginatedData.map((request) => (
-              <TableRow key={request.shipmentRequestID} className="border-b border-gray-200 h-4">
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0" >
+              <TableRow
+                key={request.shipmentRequestID}
+                className="border-b border-gray-200 h-4 hover:bg-blue-300 cursor-pointer transition-colors duration-150"
+                onClick={(event) => handleRowClick(request.shipmentRequestID, event)}
+              >
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0" >
                   <Link
                     to={`/shipment/${request.shipmentRequestID}`}
                     className="text-primary hover:text-primary-600 font-medium"
@@ -409,41 +366,41 @@ const ShipmentTable = () => {
                     {request.shipmentRequestID}
                   </Link>
                 </TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {
-                  // request.shipment_scope_type?.toUpperCase() ? request.shipment_scope_type?.toUpperCase() : request.shipment_scope?.toUpperCase()
-                  request.shipment_scope?.toUpperCase()
+                    // request.shipment_scope_type?.toUpperCase() ? request.shipment_scope_type?.toUpperCase() : request.shipment_scope?.toUpperCase()
+                    request.shipment_scope?.toUpperCase()
                   }
                 </TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {request.topic} ({request.po_number})
                   {/* DONT_DELETE_YET */}
                   {/* {request.topic === 'Others' && request.other_topic ? <p className="text-xs text-gray-500">
                   {request.other_topic}
                 </p> : ''} */}
                 </TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {request.ship_from?.company_name
                     ?.split(' ')
                     .slice(0, 3)
                     .join(' ') || request.ship_from?.company_name}
                 </TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {request.ship_to?.company_name
                     ?.split(' ')
                     .slice(0, 3)
                     .join(' ') || request.ship_to?.company_name}
                 </TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
 
                   <div
                     className={`${getStatusColor(request.request_status) === 'success'
-                        ? 'text-green-500'
-                        : getStatusColor(request.request_status) === 'warning'
-                          ? 'text-yellow-500'
-                          : getStatusColor(request.request_status) === 'danger'
-                            ? 'text-red-500'
-                            : 'text-gray-500'
+                      ? 'text-green-500'
+                      : getStatusColor(request.request_status) === 'warning'
+                        ? 'text-yellow-500'
+                        : getStatusColor(request.request_status) === 'danger'
+                          ? 'text-red-500'
+                          : 'text-gray-500'
                       } px-1 py-0.5 text-xs flex items-center gap-1 rounded cursor-pointer`}
                   >
                     <span className="text-xs">
@@ -453,7 +410,7 @@ const ShipmentTable = () => {
 
 
                 </TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   <p className="font-medium">
                     {(() => {
                       const words = request.created_user_name.split(' ');
@@ -468,7 +425,7 @@ const ShipmentTable = () => {
                   </p>
                   {/* <p className="text-xs text-gray-500">{request.created_user_mail}</p> */}
                 </TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   <p className="font-medium">
                     {(() => {
                       const words = request.approver_user_name.split(' ');
@@ -482,10 +439,10 @@ const ShipmentTable = () => {
                     })()}
                   </p>
                 </TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.created_date_time)}</TableCell>
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.due_date)}</TableCell>
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.created_date_time)}</TableCell>
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.due_date)}</TableCell>
 
-                <TableCell className="text-xs whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700 w-auto">
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700 w-auto">
                   {activeButton !== "Request" ? renderActionButtons() : null}
                 </TableCell>
 
