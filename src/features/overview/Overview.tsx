@@ -34,6 +34,8 @@ const Overview = () => {
               <p><span className="font-medium">Level:</span> {user.level}</p>
               <p><span className="font-medium">Section Index:</span> {user.section_index}</p>
               <p><span className="font-medium">Active:</span> {user.active}</p>
+              <p><span className="font-medium">Head ID:</span> {user.headID}</p>
+              <p><span className="font-medium">Logistic Role :</span> {user.logisticRole}</p>
             </div>
           ) : (
             <p className="text-gray-500">No user data available</p>
@@ -69,6 +71,8 @@ const Overview = () => {
               <p><span className="font-medium">Level:</span> {approver.level}</p>
               <p><span className="font-medium">Section Index:</span> {approver.section_index}</p>
               <p><span className="font-medium">Active:</span> {approver.active}</p>
+              <p><span className="font-medium">Head ID:</span> {approver.headID}</p>
+              <p><span className="font-medium">Logistic Role :</span> {approver.logisticRole}</p>
             </div>
           ) : (
             <p className="text-gray-500">No approver data available</p>

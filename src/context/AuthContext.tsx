@@ -26,6 +26,8 @@ interface User {
   user_code: string | null;
   supervisorID: string;
   level: string | null;
+  headID: string | null;
+  logisticRole : string | null;
 }
 
 interface Approver {
@@ -45,6 +47,8 @@ interface Approver {
   user_code: string | null;
   supervisorID: string | null;
   level: string | null;
+  headID: string | null;
+  logisticRole : string | null;
 }
 
 interface AuthContextType {
