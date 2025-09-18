@@ -7,8 +7,14 @@ export const msalConfig: Configuration = {
     auth: {
     clientId: import.meta.env.VITE_APP_CLIENT_ID || "",
     authority: `https://login.microsoftonline.com/${import.meta.env.VITE_APP_TENANT_ID}`,
-    redirectUri: import.meta.env.VITE_APP_LOCAL_WEB_URL || import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin, // VITE_APP_PROD_WEB_URL
-    postLogoutRedirectUri: import.meta.env.VITE_APP_LOCAL_WEB_URL || import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin,
+
+    //  server
+    redirectUri: import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin,
+    postLogoutRedirectUri: import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin,
+
+    // local 
+    // redirectUri: import.meta.env.VITE_APP_LOCAL_WEB_URL || import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin, 
+    // postLogoutRedirectUri: import.meta.env.VITE_APP_LOCAL_WEB_URL || import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin,
   },
     cache: {
         cacheLocation: 'sessionStorage',
