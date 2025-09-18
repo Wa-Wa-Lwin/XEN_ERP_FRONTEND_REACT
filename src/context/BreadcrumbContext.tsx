@@ -1,17 +1,13 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useAuth } from './AuthContext';
 
 export type ActiveButtonType = 'Request' | 'Review' | 'Approval' | null;
-
-export const ACTIVE_BUTTONS: ActiveButtonType[] = [
-  "Request",
-  "Review",
-  "Approval",
-];
 
 interface BreadcrumbContextType {
   activeButton: ActiveButtonType;
   setActiveButton: (button: ActiveButtonType) => void;
+  activeButtons: ActiveButtonType[];
 }
 
 const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
@@ -21,11 +17,33 @@ interface BreadcrumbProviderProps {
 }
 
 export const BreadcrumbProvider: React.FC<BreadcrumbProviderProps> = ({ children }) => {
-  const [activeButton, setActiveButton] = useState<ActiveButtonType>('Request'); // NOTE: Default to 'Request' 
+  const { msLoginUser } = useAuth();
+
+  // Allowed emails for Review buttons
+  const reviewerEmails = ['wawa@xenoptics.com', 'susu@xenoptics.com'];
+
+  // Check if current user email is allowed to see review buttons
+  const isReviewAllowed = msLoginUser?.email && reviewerEmails.includes(msLoginUser.email.toLowerCase());
+
+  // Allowed emails for Approval buttons
+  const approverEmails = ['erp@xenoptics.com', 'susu@xenoptics.com'];
+
+  // Check if current user email is allowed to see Approval buttons
+  const isApprovalAllowed = msLoginUser?.email && approverEmails.includes(msLoginUser.email.toLowerCase());
+
+
+  const activeButtons: ActiveButtonType[] = [
+    "Request" as ActiveButtonType,
+    ...(isReviewAllowed ? ["Review" as ActiveButtonType] : []),
+    ...(isApprovalAllowed ? ["Approval" as ActiveButtonType] : []),
+  ];
+
+  const [activeButton, setActiveButton] = useState<ActiveButtonType>('Request'); 
 
   const value: BreadcrumbContextType = {
     activeButton,
-    setActiveButton
+    setActiveButton,
+    activeButtons,
   };
 
   return (
