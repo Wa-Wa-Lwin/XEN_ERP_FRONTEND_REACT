@@ -140,14 +140,14 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                 >
                     <TableHeader>
                         <TableColumn className="w-12">#</TableColumn>
-                        <TableColumn className="w-48 min-w-[80px]">DESCRIPTION</TableColumn>
-                        <TableColumn className="w-36">SKU</TableColumn>
-                        <TableColumn className="w-24">HS CODE</TableColumn>
-                        <TableColumn className="w-28">ORIGIN</TableColumn>
-                        <TableColumn className="w-20">PRICE</TableColumn>
-                        <TableColumn className="w-28">CURRENCY</TableColumn>
-                        <TableColumn className="w-20">WEIGHT(kg)</TableColumn>
-                        <TableColumn className="w-16">QTY</TableColumn>
+                        <TableColumn className="w-48 min-w-[80px]">DESCRIPTION <span className="text-red-500">*</span></TableColumn>
+                        <TableColumn className="w-36">SKU <span className="text-red-500">*</span></TableColumn>
+                        <TableColumn className="w-24">HS CODE <span className="text-red-500">*</span></TableColumn>
+                        <TableColumn className="w-28">ORIGIN <span className="text-red-500">*</span></TableColumn>
+                        <TableColumn className="w-20">PRICE <span className="text-red-500">*</span></TableColumn>
+                        <TableColumn className="w-28">CURRENCY <span className="text-red-500">*</span></TableColumn>
+                        <TableColumn className="w-20">WEIGHT(kg) <span className="text-red-500">*</span></TableColumn>
+                        <TableColumn className="w-16">QTY <span className="text-red-500">*</span></TableColumn>
                         <TableColumn className="w-16">ACTION</TableColumn>
                     </TableHeader>
                     <TableBody emptyContent="No items added yet">

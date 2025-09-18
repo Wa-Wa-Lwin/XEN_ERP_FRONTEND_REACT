@@ -27,7 +27,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
           render={({ field }) => (
             <Select
               {...field}
-              label="Topic"
+              label={<span>Topic <span className="text-red-500">*</span></span>}
               placeholder="Select topic"
               errorMessage={errors.topic?.message}
               isInvalid={!!errors.topic}
@@ -52,7 +52,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
             {...register('other_topic', {
               required: selectedTopic.has('others') ? 'Other topic is required' : false
             })}
-            label="Other Topic"
+            label={<span>Other Topic <span className="text-red-500">*</span></span>}
             placeholder="Enter other topic"
             errorMessage={errors.other_topic?.message}
             isInvalid={!!errors.other_topic}
@@ -67,7 +67,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
             render={({ field }) => (
               <Select
                 {...field}
-                label="Sales Person"
+                label={<span>Sales Person <span className="text-red-500">*</span></span>}
                 placeholder="Select sales person"
                 errorMessage={errors.sales_person?.message}
                 isInvalid={!!errors.sales_person}
@@ -89,7 +89,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         )}
         <Input
           {...register('po_number', { required: 'PO Number is required' })}
-          label="PO Number"
+          label={<span>PO Number <span className="text-red-500">*</span></span>}
           placeholder="Enter PO number"
           errorMessage={errors.po_number?.message}
           isInvalid={!!errors.po_number}
@@ -97,7 +97,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         <Input
           {...register('po_date', { required: 'PO Date is required' })}
           type="date"
-          label="PO Date"
+          label={<span>PO Date <span className="text-red-500">*</span></span>}
           errorMessage={errors.po_date?.message}
           isInvalid={!!errors.po_date}
         />
@@ -108,7 +108,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
           render={({ field }) => (
             <Select
               {...field}
-              label="Service Options"
+              label={<span>Service Options <span className="text-red-500">*</span></span>}
               placeholder="Select service options"
               errorMessage={errors.service_options?.message}
               isInvalid={!!errors.service_options}
@@ -131,7 +131,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         {selectedServiceOptions.has('Urgent') && (
           <Input
             {...register('urgent_reason', { required: 'Urgent reason is required' })}
-            label="Urgent Reason"
+            label={<span>Urgent Reason <span className="text-red-500">*</span></span>}
             placeholder="Enter urgent reason"
             errorMessage={errors.urgent_reason?.message}
             isInvalid={!!errors.urgent_reason}
@@ -147,7 +147,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
             }
           })}
           type="date"
-          label="Expected Ship Date"
+          label={<span>Expected Ship Date <span className="text-red-500">*</span></span>}
           min={today}
           errorMessage={errors.due_date?.message}
           isInvalid={!!errors.due_date}
@@ -160,7 +160,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
           render={({ field }) => (
             <Select
               {...field}
-              label="Customs Purpose"
+              label={<span>Customs Purpose <span className="text-red-500">*</span></span>}
               placeholder="Select customs purpose"
               errorMessage={errors.customs_purpose?.message}
               isInvalid={!!errors.customs_purpose}
@@ -186,7 +186,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
           render={({ field }) => (
             <Select
               {...field}
-              label="Incoterms"
+              label={<span>Incoterms <span className="text-red-500">*</span></span>}
               placeholder="Select Incoterms"
               errorMessage={errors.customs_terms_of_trade?.message}
               isInvalid={!!errors.customs_terms_of_trade}
@@ -203,20 +203,18 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
                 </SelectItem>
               ))}
             </Select>
+
           )}
+
         />
-
-
-        <div className="md:col-span-4">
-          <Textarea
-            {...register('remark', { required: 'Remark is required' })}
-            label="Remark"
-            placeholder="Enter remark"
-            errorMessage={errors.remark?.message}
-            isInvalid={!!errors.remark}
-            minRows={2}
-          />
-        </div>
+        <Textarea
+          {...register('remark', { required: 'Remark is required' })}
+          label={<span>Remark <span className="text-red-500">*</span></span>}
+          placeholder="Enter remark"
+          errorMessage={errors.remark?.message}
+          isInvalid={!!errors.remark}
+          minRows={1}
+        />
       </CardBody>
     </Card>
   )

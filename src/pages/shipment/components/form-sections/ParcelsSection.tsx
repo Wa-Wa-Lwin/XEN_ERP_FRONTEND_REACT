@@ -244,7 +244,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                             render={({ field }) => (
                                                 <Select
                                                     {...field}
-                                                    label="Box Type"
+                                                    label={<span>Box Type <span className="text-red-500">*</span></span>}
                                                     placeholder="Select box type"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
@@ -278,7 +278,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label="Width (cm)"
+                                                    label={<span>Width (cm) <span className="text-red-500">*</span></span>}
                                                     placeholder="Enter width"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.width?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.width}
@@ -304,7 +304,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label="Height (cm)"
+                                                    label={<span>Height (cm) <span className="text-red-500">*</span></span>}
                                                     placeholder="Enter height"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.height?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.height}
@@ -330,7 +330,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label="Depth (cm)"
+                                                    label={<span>Depth (cm) <span className="text-red-500">*</span></span>}
                                                     placeholder="Enter depth"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
@@ -354,7 +354,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         render={({ field }) => (
                                             <Select
                                                 {...field}
-                                                label="Dimension Unit"
+                                                label={<span>Dimension Unit <span className="text-red-500">*</span></span>}
                                                 defaultSelectedKeys={['cm']}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.dimension_unit?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.dimension_unit}
@@ -384,7 +384,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label="Parcel Weight (kg)"
+                                                    label={<span>Parcel Weight (kg) <span className="text-red-500">*</span></span>}
                                                     placeholder="Enter parcel weight"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_weight_value}
@@ -412,7 +412,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                     <div className="col-span-4">
                                         <Textarea
                                             {...register(`parcels.${parcelIndex}.description`, { required: 'Description is required' })}
-                                            label="Parcel Description"
+                                            label={<span>Parcel Description <span className="text-red-500">*</span></span>}
                                             placeholder="Enter parcel description"
                                             errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
                                             isInvalid={!!errors.parcels?.[parcelIndex]?.description}
@@ -430,7 +430,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label="Net Weight (kg)"
+                                                    label={<span>Net Weight (kg) <span className="text-red-500">*</span></span>}
                                                     placeholder="Auto-calculated"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}
@@ -453,7 +453,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label="Gross Weight (kg)"
+                                                    label={<span>Gross Weight (kg) <span className="text-red-500">*</span></span>}
                                                     placeholder="Auto-calculated"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
@@ -474,7 +474,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         render={({ field }) => (
                                             <Select
                                                 {...field}
-                                                label="Weight Unit"
+                                                label={<span>Weight Unit <span className="text-red-500">*</span></span>}
                                                 defaultSelectedKeys={['kg']}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.weight_unit?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.weight_unit}

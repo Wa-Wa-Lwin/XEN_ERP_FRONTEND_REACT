@@ -191,7 +191,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
         <CardBody key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
             {...register(`${prefix}_company_name`, { required: 'Company name is required' })}
-            label="Company Name"
+            label={<span>Company Name <span className="text-red-500">*</span></span>}
             placeholder="Enter company name"
             errorMessage={errors[`${prefix}_company_name`]?.message}
             isInvalid={!!errors[`${prefix}_company_name`]}
@@ -199,7 +199,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
           />
           <Input
             {...register(`${prefix}_contact_name`, { required: 'Contact name is required' })}
-            label="Contact Name"
+            label={<span>Contact Name <span className="text-red-500">*</span></span>}
             placeholder="Enter contact name"
             errorMessage={errors[`${prefix}_contact_name`]?.message}
             isInvalid={!!errors[`${prefix}_contact_name`]}
@@ -208,7 +208,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
 
           <Input
             {...register(`${prefix}_phone`, { required: 'Phone is required' })}
-            label="Phone"
+            label={<span>Phone <span className="text-red-500">*</span></span>}
             placeholder="Enter phone"
             errorMessage={errors[`${prefix}_phone`]?.message}
             isInvalid={!!errors[`${prefix}_phone`]}
@@ -218,7 +218,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
           <Input
             {...register(`${prefix}_email`, { required: 'Email is required' })}
             type="email"
-            label="Email"
+            label={<span>Email <span className="text-red-500">*</span></span>}
             placeholder="Enter email"
             errorMessage={errors[`${prefix}_email`]?.message}
             isInvalid={!!errors[`${prefix}_email`]}
@@ -231,7 +231,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             render={({ field }) => (
               <Select
                 {...field}
-                label="Country"
+                label={<span>Country <span className="text-red-500">*</span></span>}
                 placeholder="Select Country"
                 errorMessage={errors[`${prefix}_country`]?.message}
                 isInvalid={!!errors[`${prefix}_country`]}
@@ -252,7 +252,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
           />
           <Input
             {...register(`${prefix}_city`, { required: 'City is required' })}
-            label="City"
+            label={<span>City <span className="text-red-500">*</span></span>}
             placeholder="Enter city"
             errorMessage={errors[`${prefix}_city`]?.message}
             isInvalid={!!errors[`${prefix}_city`]}
@@ -261,7 +261,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
 
           <Input
             {...register(`${prefix}_state`, { required: 'State is required' })}
-            label="State"
+            label={<span>State <span className="text-red-500">*</span></span>}
             placeholder="Enter state"
             errorMessage={errors[`${prefix}_state`]?.message}
             isInvalid={!!errors[`${prefix}_state`]}
@@ -269,7 +269,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
 
           <Input
             {...register(`${prefix}_postal_code`, { required: 'Postal code is required' })}
-            label="Postal Code"
+            label={<span>Postal Code <span className="text-red-500">*</span></span>}
             placeholder="Enter postal code"
             errorMessage={errors[`${prefix}_postal_code`]?.message}
             isInvalid={!!errors[`${prefix}_postal_code`]}
@@ -277,7 +277,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
 
           <Textarea
             {...register(`${prefix}_street1`, { required: 'Street 1 is required' })}
-            label="Street 1"
+            label={<span>Street 1 <span className="text-red-500">*</span></span>}
             placeholder="Enter street line 1"
             errorMessage={errors[`${prefix}_street1`]?.message}
             isInvalid={!!errors[`${prefix}_street1`]}

@@ -32,14 +32,14 @@ const InsuranceInformation = ({ register, errors }: FormSectionProps) => {
               })}
               type="number"
               step="0.01"
-              label="Insured Value Amount"
+              label={<span>Insured Value Amount <span className="text-red-500">*</span></span>}
               placeholder="Enter amount"
               errorMessage={errors.insurance_insured_value_amount?.message}
               isInvalid={!!errors.insurance_insured_value_amount}
             />
             <Input
               {...register('insurance_insured_value_currency', { required: insuranceEnabled ? 'Currency is required' : false })}
-              label="Currency"
+              label={<span>Currency <span className="text-red-500">*</span></span>}
               placeholder="USD"
               defaultValue="USD"
               errorMessage={errors.insurance_insured_value_currency?.message}

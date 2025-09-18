@@ -18,7 +18,7 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
               required: 'Pickup date is required',
             })}
             type="date"
-            label="Pickup Date"
+            label={<span>Pickup Date <span className="text-red-500">*</span></span>}
             errorMessage={errors.pick_up_date?.message}
             isInvalid={!!errors.pick_up_date}
           />
@@ -28,7 +28,7 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
                 required: 'Start time is required',
               })}
               type="time"
-              label="Start Time"
+              label={<span>Start Time <span className="text-red-500">*</span></span>}
               errorMessage={errors.pick_up_start_time?.message}
               isInvalid={!!errors.pick_up_start_time}
             />
@@ -37,7 +37,7 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
                 required: 'End time is required',
               })}
               type="time"
-              label="End Time"
+              label={<span>End Time <span className="text-red-500">*</span></span>}
               errorMessage={errors.pick_up_end_time?.message}
               isInvalid={!!errors.pick_up_end_time}
             />
@@ -47,7 +47,7 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
               {...register('pick_up_instructions', {
                 required: 'Instructions are required',
               })}
-              label="Pickup Instructions"
+              label={<span>Pickup Instructions <span className="text-red-500">*</span></span>}
               placeholder="Enter pickup instructions"
               errorMessage={errors.pick_up_instructions?.message}
               isInvalid={!!errors.pick_up_instructions}
