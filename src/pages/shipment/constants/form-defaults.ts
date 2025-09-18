@@ -4,7 +4,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   shipmentRequestID: 0,
   shipment_scope: '',
   shipment_scope_type: '',
-  request_status: 'draft',
+  request_status: '',
   service_options: '',
   urgent_reason: '',
   remark: '',

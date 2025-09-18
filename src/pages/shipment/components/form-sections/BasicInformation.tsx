@@ -2,20 +2,35 @@ import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem } from 
 import { Controller } from 'react-hook-form'
 import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS, INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults'
 import type { FormSectionProps } from '../../types/shipment-form.types'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface BasicInformationProps extends FormSectionProps {
   today: string
   watch: (name?: string) => any
 }
 
-const BasicInformation = ({ register, errors, control, today, watch }: BasicInformationProps) => {
+const BasicInformation = ({ register, errors, control, today, watch, setValue }: BasicInformationProps) => {
 
   const [selectedTopic, setSelectedTopic] = useState<Set<string>>(new Set());
   const [selectedServiceOptions, setSelectedServiceOptions] = useState<Set<string>>(new Set());
 
   // Watch the send_to field to conditionally apply validation
   const sendTo = watch('send_to');
+
+  // Helper function to set request status based on send_to value
+  const setRequestStatusValue = (sendToValue: string) => {
+    if (setValue) {
+      const requestStatus = sendToValue === "Approver" ? "requestor_requested" : "send_to_logistic";
+      setValue("request_status", requestStatus, { shouldDirty: true, shouldValidate: true });
+    }
+  };
+
+  // Automatically set request_status based on send_to value
+  useEffect(() => {
+    if (sendTo) {
+      setRequestStatusValue(sendTo);
+    }
+  }, [sendTo]);
 
   // Helper function to determine if a field should be required based on send_to value
   const isFieldRequired = (fieldName?: string) => {
@@ -255,13 +270,15 @@ const BasicInformation = ({ register, errors, control, today, watch }: BasicInfo
 
         />
         <Textarea
-          {...register('remark', { required: isFieldRequired() ? 'Remark is required' : false })}
-          label={<span>Remark {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+          {...register('remark')}
+          label={<span>Remark</span>}
           placeholder="Enter remark"
           errorMessage={errors.remark?.message}
           isInvalid={!!errors.remark}
           minRows={1}
+          className='hidden'
         />
+
       </CardBody>
     </Card>
   )

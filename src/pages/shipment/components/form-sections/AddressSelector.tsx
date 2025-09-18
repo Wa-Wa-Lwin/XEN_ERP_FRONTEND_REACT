@@ -107,7 +107,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
 
       // Convert 2-letter to 3-letter (fallback to original if not found)
       const rawCountry = address.Country || address.MailCountr || "";
-      const countryISO3 = ISO2_TO_ISO3[rawCountry] || rawCountry;
+      const countryISO3 = ISO2_TO_ISO3[rawCountry.toUpperCase()] || rawCountry;
+
+      console.log('Country conversion:', { rawCountry, countryISO3 });
 
       // Map address data with fallbacks
       const fieldMappings = [
@@ -126,6 +128,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
 
       // Set values using setValue
       fieldMappings.forEach(({ field, value }) => {
+        console.log('Setting field:', field, 'to value:', value);
         setValue(field, value, setValueOptions)
       })
 
@@ -240,8 +243,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
                 placeholder="Select Country"
                 errorMessage={errors[`${prefix}_country`]?.message}
                 isInvalid={!!errors[`${prefix}_country`]}
+                selectedKeys={field.value ? [field.value] : []}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
+                  console.log('Country selected:', selectedKey);
                   if (selectedKey) {
                     field.onChange(selectedKey)
                   }

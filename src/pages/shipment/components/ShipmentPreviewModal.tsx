@@ -154,8 +154,9 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             </p>
           )}
 
+          {/* DONT DELETE YET */}
           {/* All Available Rates */}
-          {formData.rates && formData.rates.length > 0 && (
+          {/* {formData.rates && formData.rates.length > 0 && (
             <p>
               <h3 className="text-lg font-medium">
                 Available Shipping Rates ({formData.rates.length})
@@ -196,7 +197,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                 </div>
               ))}
             </p>
-          )}
+          )} */}
         </ModalBody>
 
 
