@@ -20,7 +20,7 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext'
 import type { ShipmentFormData, ShipmentRequestsResponse } from '../types/shipment-form.types';
 
 const ShipmentTable = () => {
-  const { user } = useAuth()
+  const { msLoginUser } = useAuth()
   const { activeButton } = useBreadcrumb()
   const [shipmentRequests, setShipmentRequests] = useState<ShipmentFormData[]>([])
   const [loading, setLoading] = useState(true)
@@ -72,28 +72,45 @@ const ShipmentTable = () => {
   const filteredRequests = useMemo(() => {
     let filtered = shipmentRequests
 
-    // Filter by user (mine vs all)
-    if (filterType === 'mine' && user?.email) {
+    // Different filtering logic based on active button
+    if (activeButton === 'Review') {
+      // Review tab: only show send_to_logistic status
       filtered = filtered.filter(request =>
-        request.created_user_mail.toLowerCase() === user.email.toLowerCase()
+        request.request_status === 'send_to_logistic'
       )
-    }
+    } else if (activeButton === 'Approval') {
+      // Approval tab: only show requestor_requested and logistic_updated
+      // AND approver_user_mail equals msLoginUser email
+      filtered = filtered.filter(request =>
+        ['requestor_requested', 'logistic_updated'].includes(request.request_status) &&
+        msLoginUser?.email &&
+        request.approver_user_mail?.toLowerCase() === msLoginUser.email.toLowerCase()
+      )
+    } else {
+      // Request tab: use original filtering logic
+      // Filter by user (mine vs all)
+      if (filterType === 'mine' && msLoginUser?.email) {
+        filtered = filtered.filter(request =>
+          request.created_user_mail.toLowerCase() === msLoginUser.email.toLowerCase()
+        )
+      }
 
-    // Filter by status
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'waiting') {
-        filtered = filtered.filter(request =>
-          ['requestor_requested', 'send_to_logistic', 'logistic_updated'].includes(request.request_status)
-        )
-      } else {
-        filtered = filtered.filter(request =>
-          request.request_status === statusFilter
-        )
+      // Filter by status
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'waiting') {
+          filtered = filtered.filter(request =>
+            ['requestor_requested', 'send_to_logistic', 'logistic_updated'].includes(request.request_status)
+          )
+        } else {
+          filtered = filtered.filter(request =>
+            request.request_status === statusFilter
+          )
+        }
       }
     }
 
     return filtered
-  }, [shipmentRequests, filterType, user?.email, statusFilter])
+  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email])
 
   // Pagination logic
   const paginatedData = useMemo(() => {
@@ -296,58 +313,63 @@ const ShipmentTable = () => {
 
           {/* Filter Toggle Buttons */}
           <div className="flex gap-2">
-            {/* Status Filter Row */}
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-700">Filter by:</span>
-                <Select
-                  size="sm"
-                  className="w-48"
-                  placeholder="Select status..."
-                  selectedKeys={[statusFilter]}
-                  onSelectionChange={handleStatusFilterChange}
-                >
-                  {statusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-
-                {statusFilter !== 'all' && (
-                  <Button
+            {/* Status Filter Row - Only show for Request tab */}
+            {activeButton === 'Request' && (
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-gray-700">Filter by:</span>
+                  <Select
                     size="sm"
-                    variant="light"
-                    color="danger"
-                    onPress={() => {
-                      setStatusFilter('all')
-                      setPage(1)
-                    }}
+                    className="w-48"
+                    placeholder="Select status..."
+                    selectedKeys={[statusFilter]}
+                    onSelectionChange={handleStatusFilterChange}
                   >
-                    Clear Filter
-                  </Button>
-                )}
+                    {statusOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+
+                  {statusFilter !== 'all' && (
+                    <Button
+                      size="sm"
+                      variant="light"
+                      color="danger"
+                      onPress={() => {
+                        setStatusFilter('all')
+                        setPage(1)
+                      }}
+                    >
+                      Clear Filter
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="flex gap-1">
-              <Button
-                size="sm"
-                variant={filterType === 'all' ? 'solid' : 'bordered'}
-                color={filterType === 'all' ? 'primary' : 'default'}
-                onPress={() => handleFilterChange('all')}
-              >
-                All Requests
-              </Button>
-              <Button
-                size="sm"
-                variant={filterType === 'mine' ? 'solid' : 'bordered'}
-                color={filterType === 'mine' ? 'primary' : 'default'}
-                onPress={() => handleFilterChange('mine')}
-                isDisabled={!user?.email}
-              >
-                My Requests
-              </Button>
-            </div>
+            )}
+            {/* Only show All/My Requests filter for Request tab */}
+            {activeButton === 'Request' && (
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  variant={filterType === 'all' ? 'solid' : 'bordered'}
+                  color={filterType === 'all' ? 'primary' : 'default'}
+                  onPress={() => handleFilterChange('all')}
+                >
+                  All Requests
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filterType === 'mine' ? 'solid' : 'bordered'}
+                  color={filterType === 'mine' ? 'primary' : 'default'}
+                  onPress={() => handleFilterChange('mine')}
+                  isDisabled={!msLoginUser?.email}
+                >
+                  My Requests
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
