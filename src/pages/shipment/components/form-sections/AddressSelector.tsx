@@ -7,6 +7,8 @@ import {
   Input,
   Select,
   SelectItem,
+  Autocomplete,
+  AutocompleteItem,
   Textarea,
   Button,
   Modal,
@@ -237,29 +239,43 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             control={control}
             rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
             render={({ field }) => (
-              <Select
+              <Autocomplete
                 {...field}
-                label={<span>Country {isFieldRequired('country') && <span className="text-red-500">*</span>}</span>}
-                placeholder="Select Country"
+                defaultItems={COUNTRIES}
+                label={
+                  <span>
+                    Country {isFieldRequired('country') && <span className="text-red-500">*</span>}
+                  </span>
+                }
+                placeholder="Search or select a country"
                 errorMessage={errors[`${prefix}_country`]?.message}
                 isInvalid={!!errors[`${prefix}_country`]}
-                selectedKeys={field.value ? [field.value] : []}
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys)[0] as string
-                  console.log('Country selected:', selectedKey);
-                  if (selectedKey) {
-                    field.onChange(selectedKey)
+                selectedKey={field.value || null}
+                onSelectionChange={(key) => {
+                  console.log('Country selected:', key);
+                  if (key) {
+                    field.onChange(key)
                   }
                 }}
+                listboxProps={{
+                  emptyContent: "No countries found."
+                }}
+                scrollShadowProps={{
+                  isEnabled: false
+                }}
+                classNames={{
+                  listbox: "max-h-60"
+                }}
               >
-                {COUNTRIES.map((option) => (
-                  <SelectItem key={option.key} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </Select>
+                {(item) => (
+                  <AutocompleteItem key={item.key} value={item.value}>
+                    {item.value}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
             )}
           />
+
           <Input
             {...register(`${prefix}_city`, { required: isFieldRequired('city') ? 'City is required' : false })}
             label={<span>City {isFieldRequired('city') && <span className="text-red-500">*</span>}</span>}
