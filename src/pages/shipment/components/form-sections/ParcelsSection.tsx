@@ -1,15 +1,15 @@
-import {useFieldArray, Controller} from 'react-hook-form'
-import {useState, useEffect, useCallback} from 'react'
-import {Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem} from '@heroui/react'
-import {Icon} from '@iconify/react'
-import {DEFAULT_PARCEL} from '../../constants/form-defaults'
-import {DIMENSION_UNITS, WEIGHT_UNITS} from '../../constants/form-defaults'
+import { useFieldArray, Controller } from 'react-hook-form'
+import { useState, useEffect, useCallback } from 'react'
+import { Card, CardHeader, CardBody, Button, Input, Textarea, Select, SelectItem } from '@heroui/react'
+import { Icon } from '@iconify/react'
+import { DEFAULT_PARCEL } from '../../constants/form-defaults'
+import { DIMENSION_UNITS, WEIGHT_UNITS } from '../../constants/form-defaults'
 import ParcelItems from './ParcelItems'
-import type {FormSectionProps} from '../../types/shipment-form.types'
-import {PARCEL_BOX_TYPES} from '@pages/shipment/constants/parcel_box_types'
+import type { FormSectionProps } from '../../types/shipment-form.types'
+import { PARCEL_BOX_TYPES } from '@pages/shipment/constants/parcel_box_types'
 
-const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectionProps & { watch: any }) => {
-    const {fields: parcelFields, append: appendParcel, remove: removeParcel} = useFieldArray({
+const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSectionProps & { watch: any }) => {
+    const { fields: parcelFields, append: appendParcel, remove: removeParcel } = useFieldArray({
         control,
         name: 'parcels'
     })
@@ -71,18 +71,18 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
     const handleBoxTypeChange = (parcelIndex: number, selectedBoxTypeId: string) => {
         const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.id.toString() === selectedBoxTypeId)
 
-        console.log('handleBoxTypeChange called with:', {parcelIndex, selectedBoxTypeId, selectedBoxType})
+        console.log('handleBoxTypeChange called with:', { parcelIndex, selectedBoxTypeId, selectedBoxType })
 
         if (selectedBoxType) {
             // Set form values with shouldValidate and shouldDirty options
-            setValue(`parcels.${parcelIndex}.box_type`, selectedBoxType.box_type_name, {shouldValidate: true, shouldDirty: true})
+            setValue(`parcels.${parcelIndex}.box_type`, selectedBoxType.box_type_name, { shouldValidate: true, shouldDirty: true })
             setValue(`parcels.${parcelIndex}.box_type_name`, selectedBoxType.box_type_name, {
                 shouldValidate: true,
                 shouldDirty: true
             })
-            setValue(`parcels.${parcelIndex}.width`, selectedBoxType.width, {shouldValidate: true, shouldDirty: true})
-            setValue(`parcels.${parcelIndex}.height`, selectedBoxType.height, {shouldValidate: true, shouldDirty: true})
-            setValue(`parcels.${parcelIndex}.depth`, selectedBoxType.depth, {shouldValidate: true, shouldDirty: true})
+            setValue(`parcels.${parcelIndex}.width`, selectedBoxType.width, { shouldValidate: true, shouldDirty: true })
+            setValue(`parcels.${parcelIndex}.height`, selectedBoxType.height, { shouldValidate: true, shouldDirty: true })
+            setValue(`parcels.${parcelIndex}.depth`, selectedBoxType.depth, { shouldValidate: true, shouldDirty: true })
             setValue(`parcels.${parcelIndex}.dimension_unit`, selectedBoxType.dimension_unit, {
                 shouldValidate: true,
                 shouldDirty: true
@@ -170,7 +170,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                         type="button"
                         color="primary"
                         size="sm"
-                        startContent={<Icon icon="solar:add-circle-bold"/>}
+                        startContent={<Icon icon="solar:add-circle-bold" />}
                         onPress={() => appendParcel(DEFAULT_PARCEL)}
                     >
                         Add Parcel
@@ -181,34 +181,67 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                 {parcelFields.map((parcel, parcelIndex) => (
                     <Card key={parcel.id} className="border">
                         <CardHeader>
-                            <div className="flex justify-between items-center w-full">
-                                <h3 className="text-lg font-medium">Parcel {parcelIndex + 1}</h3>
-                                {parcelFields.length > 1 && (
-                                    <Button
-                                        type="button"
-                                        color="danger"
-                                        size="sm"
-                                        variant="light"
-                                        startContent={<Icon icon="solar:trash-bin-minimalistic-bold"/>}
-                                        onPress={() => handleRemoveParcel(parcelIndex)}
-                                    >
-                                        Remove Parcel
-                                    </Button>
-                                )}
+                            <div className="flex items-center justify-between gap-4 w-full">
+                                {/* Left side */}
+                                <h3 className="text-lg font-medium">
+                                    Parcel {parcelIndex + 1}
+                                </h3>
+
+                                {/* Right side */}
+                                <div className="flex gap-2 flex-wrap justify-end">
+                                    {isAutoFilled(parcelIndex) && (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="light"
+                                            color="primary"
+                                            startContent={<Icon icon="solar:pen-bold" />}
+                                            onPress={() => handleToggleManualEdit(parcelIndex)}
+                                        >
+                                            Edit Dimensions Manually
+                                        </Button>
+                                    )}
+                                    {manualEditParcels.has(parcelIndex) && autoFilledParcels.has(parcelIndex) && (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="light"
+                                            color="warning"
+                                            startContent={<Icon icon="solar:lock-keyhole-minimalistic-bold" />}
+                                            onPress={() => handleToggleManualEdit(parcelIndex)}
+                                        >
+                                            Lock Auto-filled Values
+                                        </Button>
+                                    )}
+                                    {parcelFields.length > 1 && (
+                                        <Button
+                                            type="button"
+                                            color="danger"
+                                            size="sm"
+                                            variant="light"
+                                            startContent={<Icon icon="solar:trash-bin-minimalistic-bold" />}
+                                            onPress={() => handleRemoveParcel(parcelIndex)}
+                                        >
+                                            Remove Parcel
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                         </CardHeader>
+
+
                         <CardBody>
                             {/* Parcel Information */}
                             <div className="space-y-4 mb-6">
 
                                 {/* Box Type and Description Row */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                                    <div className="space-y-2 col-span-2">
                                         <Controller
                                             name={`parcels.${parcelIndex}.box_type_name`}
                                             control={control}
-                                            rules={{required: 'Box type is required'}}
-                                            render={({field}) => (
+                                            rules={{ required: 'Box type is required' }}
+                                            render={({ field }) => (
                                                 <Select
                                                     {...field}
                                                     label="Box Type"
@@ -234,46 +267,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                 </Select>
                                             )}
                                         />
-                                        {isAutoFilled(parcelIndex) && (
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="light"
-                                                color="primary"
-                                                startContent={<Icon icon="solar:pen-bold"/>}
-                                                onPress={() => handleToggleManualEdit(parcelIndex)}
-                                                className="w-full"
-                                            >
-                                                Edit Dimensions Manually
-                                            </Button>
-                                        )}
-                                        {manualEditParcels.has(parcelIndex) && autoFilledParcels.has(parcelIndex) && (
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="light"
-                                                color="warning"
-                                                startContent={<Icon icon="solar:lock-keyhole-minimalistic-bold"/>}
-                                                onPress={() => handleToggleManualEdit(parcelIndex)}
-                                                className="w-full"
-                                            >
-                                                Lock Auto-filled Values
-                                            </Button>
-                                        )}
                                     </div>
-                                    <Textarea
-                                        {...register(`parcels.${parcelIndex}.description`, {required: 'Description is required'})}
-                                        label="Parcel Description"
-                                        placeholder="Enter parcel description"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.description}
-                                        // className="h-12"
-                                        minRows={1}
-                                    />
-                                </div>
-
-                                {/* Dimensions Row */}
-                                <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-4">
                                     <div className="relative">
                                         <Controller
                                             name={`parcels.${parcelIndex}.width`}
@@ -293,7 +287,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                     endContent={
                                                         isAutoFilled(parcelIndex) && (
                                                             <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                  className="text-gray-400"/>
+                                                                className="text-gray-400" />
                                                         )
                                                     }
                                                 />
@@ -319,7 +313,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                     endContent={
                                                         isAutoFilled(parcelIndex) && (
                                                             <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                  className="text-gray-400"/>
+                                                                className="text-gray-400" />
                                                         )
                                                     }
                                                 />
@@ -345,7 +339,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                     endContent={
                                                         isAutoFilled(parcelIndex) && (
                                                             <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                  className="text-gray-400"/>
+                                                                className="text-gray-400" />
                                                         )
                                                     }
                                                 />
@@ -399,7 +393,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                     endContent={
                                                         isAutoFilled(parcelIndex) && (
                                                             <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                  className="text-gray-400"/>
+                                                                className="text-gray-400" />
                                                         )
                                                     }
                                                     onChange={(e) => {
@@ -409,6 +403,21 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                     }}
                                                 />
                                             )}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Dimensions Row */}
+                                <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-4">
+                                    <div className="col-span-4">
+                                        <Textarea
+                                            {...register(`parcels.${parcelIndex}.description`, { required: 'Description is required' })}
+                                            label="Parcel Description"
+                                            placeholder="Enter parcel description"
+                                            errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
+                                            isInvalid={!!errors.parcels?.[parcelIndex]?.description}
+                                            // className="h-12"
+                                            minRows={1}
                                         />
                                     </div>
                                     <div className="relative">
@@ -428,7 +437,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                     isReadOnly={true}
                                                     className="bg-gray-50"
                                                     endContent={
-                                                        <Icon icon="solar:calculator-bold" className="text-gray-400"/>
+                                                        <Icon icon="solar:calculator-bold" className="text-gray-400" />
                                                     }
                                                 />
                                             )}
@@ -451,7 +460,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                                                     isReadOnly={true}
                                                     className="bg-gray-50"
                                                     endContent={
-                                                        <Icon icon="solar:calculator-bold" className="text-gray-400"/>
+                                                        <Icon icon="solar:calculator-bold" className="text-gray-400" />
                                                     }
                                                 />
                                             )}
@@ -489,7 +498,7 @@ const ParcelsSection = ({register, errors, control, setValue, watch}: FormSectio
                             </div>
                             {/* Parcel Items */}
                             <ParcelItems parcelIndex={parcelIndex} control={control} register={register} errors={errors}
-                                         setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)}/>
+                                setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} />
                         </CardBody>
                     </Card>
                 ))}
