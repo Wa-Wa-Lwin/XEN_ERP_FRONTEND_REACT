@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem } from '@heroui/react'
+import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem, Spacer } from '@heroui/react'
 import { Controller } from 'react-hook-form'
 import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS, INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults'
 import type { FormSectionProps } from '../../types/shipment-form.types'
@@ -48,91 +48,29 @@ const BasicInformation = ({ register, errors, control, today, watch, setValue }:
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <h2 className="text-xl font-semibold">Basic Information</h2>
+
+    //    <Card className="p-1 m-1"> 
+    //  <Card className="pt-2 pb-2 px-4 m-0"> 
+    //   <Card shadow="none" className="pt-2 pb-0 px-4 m-0"> 
+    // <Card shadow="none" className="p-1 m-1 border-b border-gray-300">
+    <Card shadow="none">
+      <CardHeader className="px-0 pt-0 pb-1">
+        <h2 className="text-lg font-semibold">Basic Information</h2>
       </CardHeader>
-      <CardBody className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Controller
-          name="send_to"
-          control={control}
-          rules={{ required: 'Send To is required' }}
-          render={({ field }) => (
-            <Select
-              {...field}
-              label={<span>Send To {true && <span className="text-red-500">*</span>}</span>}
-              placeholder="Select recipient"
-              errorMessage={errors.send_to?.message}
-              isInvalid={!!errors.send_to}
-              defaultSelectedKeys={["Approver"]}
-              onSelectionChange={(keys) => {
-                const selectedKey = Array.from(keys)[0] as string
-                if (selectedKey) {
-                  field.onChange(selectedKey)
-                }
-              }}
-            >
-              <SelectItem key="Approver" value="Approver">
-                Approver
-              </SelectItem>
-              <SelectItem key="Logistic" value="Logistic">
-                Logistic
-              </SelectItem>
-            </Select>
-          )}
-        />
-        
-        <Controller
-          name="topic"
-          control={control}
-          rules={{ required: isFieldRequired() ? 'Topic is required' : false }}
-          render={({ field }) => (
-            <Select
-              {...field}
-              label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-              placeholder="Select topic"
-              errorMessage={errors.topic?.message}
-              isInvalid={!!errors.topic}
-              onSelectionChange={(keys) => {
-                const selectedKey = Array.from(keys)[0] as string
-                if (selectedKey) {
-                  field.onChange(selectedKey)
-                  setSelectedTopic(new Set([selectedKey]))
-                }
-              }}
-            >
-              {TOPIC_OPTIONS.map((option) => (
-                <SelectItem key={option.key} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </Select>
-          )}
-        />
-        {selectedTopic.has('others') && (
-          <Input
-            {...register('other_topic', {
-              required: selectedTopic.has('others') && isFieldRequired() ? 'Other topic is required' : false
-            })}
-            label={<span>Other Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-            placeholder="Enter other topic"
-            errorMessage={errors.other_topic?.message}
-            isInvalid={!!errors.other_topic}
-            required
-          />
-        )}
-        {selectedTopic.has('for_sales') && (
+      <CardBody className="px-0 pt-0 pb-0">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <Controller
-            name="sales_person"
+            name="send_to"
             control={control}
-            rules={{ required: isFieldRequired() ? 'Sales person is required' : false }}
+            rules={{ required: 'Send To is required' }}
             render={({ field }) => (
               <Select
                 {...field}
-                label={<span>Sales Person {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                placeholder="Select sales person"
-                errorMessage={errors.sales_person?.message}
-                isInvalid={!!errors.sales_person}
+                label={<span>Send To {true && <span className="text-red-500">*</span>}</span>}
+                placeholder="Select recipient"
+                errorMessage={errors.send_to?.message}
+                isInvalid={!!errors.send_to}
+                defaultSelectedKeys={["Approver"]}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {
@@ -140,7 +78,36 @@ const BasicInformation = ({ register, errors, control, today, watch, setValue }:
                   }
                 }}
               >
-                {SALES_PERSON_OPTIONS.map((option) => (
+                <SelectItem key="Approver" value="Approver">
+                  Approver
+                </SelectItem>
+                <SelectItem key="Logistic" value="Logistic">
+                  Logistic
+                </SelectItem>
+              </Select>
+            )}
+          />
+
+          <Controller
+            name="topic"
+            control={control}
+            rules={{ required: isFieldRequired() ? 'Topic is required' : false }}
+            render={({ field }) => (
+              <Select
+                {...field}
+                label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                placeholder="Select topic"
+                errorMessage={errors.topic?.message}
+                isInvalid={!!errors.topic}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                    setSelectedTopic(new Set([selectedKey]))
+                  }
+                }}
+              >
+                {TOPIC_OPTIONS.map((option) => (
                   <SelectItem key={option.key} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -148,138 +115,178 @@ const BasicInformation = ({ register, errors, control, today, watch, setValue }:
               </Select>
             )}
           />
-        )}
-        <Input
-          {...register('po_number', { required: isFieldRequired() ? 'PO Number is required' : false })}
-          label={<span>PO Number {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-          placeholder="Enter PO number"
-          errorMessage={errors.po_number?.message}
-          isInvalid={!!errors.po_number}
-        />
-        <Input
-          {...register('po_date', { required: isFieldRequired() ? 'PO Date is required' : false })}
-          type="date"
-          label={<span>PO Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-          errorMessage={errors.po_date?.message}
-          isInvalid={!!errors.po_date}
-        />
-        <Controller
-          name="service_options"
-          control={control}
-          rules={{ required: isFieldRequired() ? 'Service options is required' : false }}
-          render={({ field }) => (
-            <Select
-              {...field}
-              label={<span>Service Options {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-              placeholder="Select service options"
-              errorMessage={errors.service_options?.message}
-              isInvalid={!!errors.service_options}
-              onSelectionChange={(keys) => {
-                const selectedKey = Array.from(keys)[0] as string
-                if (selectedKey) {
-                  field.onChange(selectedKey)
-                  setSelectedServiceOptions(new Set([selectedKey]))
-                }
-              }}
-            >
-              {SERVICE_OPTIONS.map((option) => (
-                <SelectItem key={option.key} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </Select>
+          {selectedTopic.has('others') && (
+            <Input
+              {...register('other_topic', {
+                required: selectedTopic.has('others') && isFieldRequired() ? 'Other topic is required' : false
+              })}
+              label={<span>Other Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+              placeholder="Enter other topic"
+              errorMessage={errors.other_topic?.message}
+              isInvalid={!!errors.other_topic}
+              required
+            />
           )}
-        />
-        {selectedServiceOptions.has('Urgent') && (
+          {selectedTopic.has('for_sales') && (
+            <Controller
+              name="sales_person"
+              control={control}
+              rules={{ required: isFieldRequired() ? 'Sales person is required' : false }}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label={<span>Sales Person {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                  placeholder="Select sales person"
+                  errorMessage={errors.sales_person?.message}
+                  isInvalid={!!errors.sales_person}
+                  onSelectionChange={(keys) => {
+                    const selectedKey = Array.from(keys)[0] as string
+                    if (selectedKey) {
+                      field.onChange(selectedKey)
+                    }
+                  }}
+                >
+                  {SALES_PERSON_OPTIONS.map((option) => (
+                    <SelectItem key={option.key} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
+            />
+          )}
           <Input
-            {...register('urgent_reason', { required: isFieldRequired() ? 'Urgent reason is required' : false })}
-            label={<span>Urgent Reason {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-            placeholder="Enter urgent reason"
-            errorMessage={errors.urgent_reason?.message}
-            isInvalid={!!errors.urgent_reason}
+            {...register('po_number', { required: isFieldRequired() ? 'PO Number is required' : false })}
+            label={<span>PO Number {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+            placeholder="Enter PO number"
+            errorMessage={errors.po_number?.message}
+            isInvalid={!!errors.po_number}
           />
-        )}
-
-
-        <Input
-          {...register('due_date', {
-            required: isFieldRequired() ? 'Due date is required' : false,
-            validate: (value: string) => {
-              if (!isFieldRequired() || !value) return true;
-              return value >= today || 'Due date cannot be earlier than today'
-            }
-          })}
-          type="date"
-          label={<span>Request Ship Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-          min={today}
-          errorMessage={errors.due_date?.message}
-          isInvalid={!!errors.due_date}
-        />
-
-        <Controller
-          name="customs_purpose"
-          control={control}
-          rules={{ required: isFieldRequired('customs_purpose') ? 'Customs purpose is required' : false }}
-          render={({ field }) => (
-            <Select
-              {...field}
-              label={<span>Customs Purpose {isFieldRequired('customs_purpose') && <span className="text-red-500">*</span>}</span>}
-              placeholder="Select customs purpose"
-              errorMessage={errors.customs_purpose?.message}
-              isInvalid={!!errors.customs_purpose}
-              onSelectionChange={(keys) => {
-                const selectedKey = Array.from(keys)[0] as string
-                if (selectedKey) {
-                  field.onChange(selectedKey)
-                }
-              }}
-            >
-              {CUSTOM_PURPOSES.map((option) => (
-                <SelectItem key={option.key} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </Select>
-          )}
-        />
-        <Controller
-          name="customs_terms_of_trade"
-          control={control}
-          rules={{ required: isFieldRequired('customs_terms_of_trade') ? 'Terms of trade is required' : false }}
-          render={({ field }) => (
-            <Select
-              {...field}
-              label={<span>Incoterms {isFieldRequired('customs_terms_of_trade') && <span className="text-red-500">*</span>}</span>}
-              placeholder="Select Incoterms"
-              errorMessage={errors.customs_terms_of_trade?.message}
-              isInvalid={!!errors.customs_terms_of_trade}
-              onSelectionChange={(keys) => {
-                const selectedKey = Array.from(keys)[0] as string
-                if (selectedKey) {
-                  field.onChange(selectedKey)
-                }
-              }}
-            >
-              {INCOTERMS.map((option) => (
-                <SelectItem key={option.key} value={option.value}>
-                  {option.value}
-                </SelectItem>
-              ))}
-            </Select>
-
+          <Input
+            {...register('po_date', { required: isFieldRequired() ? 'PO Date is required' : false })}
+            type="date"
+            label={<span>PO Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+            errorMessage={errors.po_date?.message}
+            isInvalid={!!errors.po_date}
+          />
+          <Controller
+            name="service_options"
+            control={control}
+            rules={{ required: isFieldRequired() ? 'Service options is required' : false }}
+            render={({ field }) => (
+              <Select
+                {...field}
+                label={<span>Service Options {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                placeholder="Select service options"
+                errorMessage={errors.service_options?.message}
+                isInvalid={!!errors.service_options}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                    setSelectedServiceOptions(new Set([selectedKey]))
+                  }
+                }}
+              >
+                {SERVICE_OPTIONS.map((option) => (
+                  <SelectItem key={option.key} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            )}
+          />
+          {selectedServiceOptions.has('Urgent') && (
+            <Input
+              {...register('urgent_reason', { required: isFieldRequired() ? 'Urgent reason is required' : false })}
+              label={<span>Urgent Reason {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+              placeholder="Enter urgent reason"
+              errorMessage={errors.urgent_reason?.message}
+              isInvalid={!!errors.urgent_reason}
+            />
           )}
 
-        />
-        <Textarea
-          {...register('remark')}
-          label={<span>Remark</span>}
-          placeholder="Enter remark"
-          errorMessage={errors.remark?.message}
-          isInvalid={!!errors.remark}
-          minRows={1}
-          className='hidden'
-        />
 
+          <Input
+            {...register('due_date', {
+              required: isFieldRequired() ? 'Due date is required' : false,
+              validate: (value: string) => {
+                if (!isFieldRequired() || !value) return true;
+                return value >= today || 'Due date cannot be earlier than today'
+              }
+            })}
+            type="date"
+            label={<span>Request Ship Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+            min={today}
+            errorMessage={errors.due_date?.message}
+            isInvalid={!!errors.due_date}
+          />
+
+          <Controller
+            name="customs_purpose"
+            control={control}
+            rules={{ required: isFieldRequired('customs_purpose') ? 'Customs purpose is required' : false }}
+            render={({ field }) => (
+              <Select
+                {...field}
+                label={<span>Customs Purpose {isFieldRequired('customs_purpose') && <span className="text-red-500">*</span>}</span>}
+                placeholder="Select customs purpose"
+                errorMessage={errors.customs_purpose?.message}
+                isInvalid={!!errors.customs_purpose}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                  }
+                }}
+              >
+                {CUSTOM_PURPOSES.map((option) => (
+                  <SelectItem key={option.key} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            )}
+          />
+          <Controller
+            name="customs_terms_of_trade"
+            control={control}
+            rules={{ required: isFieldRequired('customs_terms_of_trade') ? 'Terms of trade is required' : false }}
+            render={({ field }) => (
+              <Select
+                {...field}
+                label={<span>Incoterms {isFieldRequired('customs_terms_of_trade') && <span className="text-red-500">*</span>}</span>}
+                placeholder="Select Incoterms"
+                errorMessage={errors.customs_terms_of_trade?.message}
+                isInvalid={!!errors.customs_terms_of_trade}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                  }
+                }}
+              >
+                {INCOTERMS.map((option) => (
+                  <SelectItem key={option.key} value={option.value}>
+                    {option.value}
+                  </SelectItem>
+                ))}
+              </Select>
+
+            )}
+
+          />
+          <Textarea
+            {...register('remark')}
+            label={<span>Remark</span>}
+            placeholder="Enter remark"
+            errorMessage={errors.remark?.message}
+            isInvalid={!!errors.remark}
+            minRows={1}
+            className='hidden'
+          />
+
+        </div>
       </CardBody>
     </Card>
   )

@@ -179,33 +179,31 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
     }
 
     return (
-        <Card>
-            <CardHeader>
-                <div className="flex justify-between items-center w-full">
-                    <h2 className="text-xl font-semibold">Parcels and Items</h2>
-                    <Button
-                        type="button"
-                        color="primary"
-                        size="sm"
-                        startContent={<Icon icon="solar:add-circle-bold" />}
-                        onPress={() => appendParcel(DEFAULT_PARCEL)}
-                    >
-                        Add Parcel
-                    </Button>
-                </div>
+        <Card className="p-2">
+        {/* <Card shadow="none"> */}
+        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+            <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
+                <h2 className="text-lg font-semibold">Parcels and Items</h2>
+                <Button
+                    type="button"
+                    color="primary"
+                    size="sm"
+                    startContent={<Icon icon="solar:add-circle-bold" />}
+                    onPress={() => appendParcel(DEFAULT_PARCEL)}
+                >
+                    Add Parcel
+                </Button>
             </CardHeader>
-            <CardBody className="space-y-6">
+            <CardBody className="px-0 pt-0 pb-0 space-y-3">
                 {parcelFields.map((parcel, parcelIndex) => (
-                    <Card key={parcel.id} className="border">
-                        <CardHeader>
-                            <div className="flex items-center justify-between gap-4 w-full">
-                                {/* Left side */}
-                                <h3 className="text-lg font-medium">
-                                    Parcel {parcelIndex + 1}
-                                </h3>
+                    <Card key={parcel.id} shadow="none" className="p-0 m-0">
+                        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
+                            <h3 className="text-base font-medium">
+                                Parcel {parcelIndex + 1}
+                            </h3>
 
-                                {/* Right side */}
-                                <div className="flex gap-2 flex-wrap justify-end">
+                            {/* Right side */}
+                            <div className="flex gap-2 flex-wrap justify-end">
                                     {isAutoFilled(parcelIndex) && (
                                         <Button
                                             type="button"
@@ -242,17 +240,15 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                             Remove Parcel
                                         </Button>
                                     )}
-                                </div>
                             </div>
                         </CardHeader>
 
-
-                        <CardBody>
+                        <CardBody className="px-0 pt-0 pb-0">
                             {/* Parcel Information */}
-                            <div className="space-y-4 mb-6">
+                            <div className="space-y-3 mb-4">
 
                                 {/* Box Type and Description Row */}
-                                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
                                     <div className="space-y-2 col-span-2">
                                         <Controller
                                             name={`parcels.${parcelIndex}.box_type_name`}
@@ -436,7 +432,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                 </div>
 
                                 {/* Dimensions Row */}
-                                <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-3">
                                     <div className="col-span-4">
                                         <Textarea
                                             {...register(`parcels.${parcelIndex}.description`, { required: isFieldRequired('description') ? 'Description is required' : false })}

@@ -4,14 +4,14 @@ import type { FormSectionProps } from '../../types/shipment-form.types'
 const PickupInformation = ({ register, errors }: FormSectionProps) => {
 
   return (
-    <Card>
-      <CardHeader>
-        <div>
-          <h2 className="text-xl font-semibold">Pickup Information</h2>
-        </div>
+    <Card shadow="none">
+    {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+      <CardHeader className="px-0 pt-0 pb-1">
+        <h2 className="text-lg font-semibold">Pickup Information</h2>
       </CardHeader>
 
-      <CardBody className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <CardBody className="px-0 pt-0 pb-0">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <>
           <Input
             {...register('pick_up_date', {
@@ -55,6 +55,7 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
             />
           </div>
         </>
+        </div>
       </CardBody>
     </Card>
   )

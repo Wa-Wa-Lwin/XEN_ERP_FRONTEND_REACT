@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, CardBody, Button } from '@heroui/react'
+import { Button, Divider, Card, CardBody } from '@heroui/react'
 import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
 import {
@@ -45,54 +45,54 @@ const ShipmentForm = () => {
       // Transform form data to match the backend API format
       const shipment = {
         ship_from: {
-          contact_name: formData.ship_from_contact_name ,
-          company_name: formData.ship_from_company_name ,
-          street1: formData.ship_from_street1 ,
-          city: formData.ship_from_city ,
-          state: formData.ship_from_state ,
-          postal_code: formData.ship_from_postal_code ,
-          country: formData.ship_from_country ,
-          phone: formData.ship_from_phone ,
-          email: formData.ship_from_email 
+          contact_name: formData.ship_from_contact_name,
+          company_name: formData.ship_from_company_name,
+          street1: formData.ship_from_street1,
+          city: formData.ship_from_city,
+          state: formData.ship_from_state,
+          postal_code: formData.ship_from_postal_code,
+          country: formData.ship_from_country,
+          phone: formData.ship_from_phone,
+          email: formData.ship_from_email
         },
         ship_to: {
-          contact_name: formData.ship_to_contact_name ,
-          company_name: formData.ship_to_company_name ,
-          street1: formData.ship_to_street1 ,
-          city: formData.ship_to_city ,
-          state: formData.ship_to_state ,
-          postal_code: formData.ship_to_postal_code ,
-          country: formData.ship_to_country ,
-          phone: formData.ship_to_phone ,
-          email: formData.ship_to_email 
+          contact_name: formData.ship_to_contact_name,
+          company_name: formData.ship_to_company_name,
+          street1: formData.ship_to_street1,
+          city: formData.ship_to_city,
+          state: formData.ship_to_state,
+          postal_code: formData.ship_to_postal_code,
+          country: formData.ship_to_country,
+          phone: formData.ship_to_phone,
+          email: formData.ship_to_email
         },
         parcels: formData.parcels?.map(parcel => ({
           box_type: "custom",
           dimension: {
-            width: parseFloat(String(parcel.width)) || 0 ,
-            height: parseFloat(String(parcel.height)) || 0 ,
-            depth: parseFloat(String(parcel.depth)) || 0 ,
+            width: parseFloat(String(parcel.width)) || 0,
+            height: parseFloat(String(parcel.height)) || 0,
+            depth: parseFloat(String(parcel.depth)) || 0,
             unit: parcel.dimension_unit
           },
           items: parcel.parcel_items?.map(item => ({
-            description: item.description ,
-            quantity: parseInt(String(item.quantity)) || 1 ,
+            description: item.description,
+            quantity: parseInt(String(item.quantity)) || 1,
             price: {
-              currency: item.price_currency ,
-              amount: parseFloat(String(item.price_amount)) || 0 ,
+              currency: item.price_currency,
+              amount: parseFloat(String(item.price_amount)) || 0,
             },
-            item_id: item.item_id ,
-            origin_country: item.origin_country ,
+            item_id: item.item_id,
+            origin_country: item.origin_country,
             weight: {
-              unit: item.weight_unit ,
-              value: parseFloat(String(item.weight_value)) || 0 ,
+              unit: item.weight_unit,
+              value: parseFloat(String(item.weight_value)) || 0,
             },
-            sku: item.sku ,
-            hs_code: item.hs_code 
+            sku: item.sku,
+            hs_code: item.hs_code
           })),
-          description: parcel.description ,
+          description: parcel.description,
           weight: {
-            unit: parcel.weight_unit ,
+            unit: parcel.weight_unit,
             value: parseFloat(String(parcel.weight_value)) || 0
           }
         })),
@@ -305,7 +305,7 @@ const ShipmentForm = () => {
         const itemWeight = parseFloat(String(item.weight_value)) || 0
         if (itemWeight <= 0) {
           errors.push({
-            path:  `Parcel ${parcelIndex + 1} – Item ${itemIndex + 1} Weight`, // `parcels.${parcelIndex}.items.${itemIndex}.weight_value`,
+            path: `Parcel ${parcelIndex + 1} – Item ${itemIndex + 1} Weight`, // `parcels.${parcelIndex}.items.${itemIndex}.weight_value`,
             info: `Item weight must be greater than 0kg`
           })
         }
@@ -434,29 +434,37 @@ const ShipmentForm = () => {
 
   return (
     <>
-      <Card className="w-full rounded bg-transparent">
-        <CardBody>
+      <Card shadow="none" className="p-0 m-0 bg-transparent">
+        <CardBody className="p-0">
           <form
             onSubmit={handleSubmit(handlePreview, () => {
 
             })}
-            className="space-y-8"
+            className="space-y-6"
           >
+            <div className="py-1 px-4">
+              <BasicInformation register={register} errors={errors} control={control} today={today} watch={watch} setValue={setValue} />
+            </div>
+            <div className="py-1 px-4">
 
-            <BasicInformation register={register} errors={errors} control={control} today={today} watch={watch} setValue={setValue} />
 
-            {/* <Divider /> */}
+              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" />
+            </div>
 
-            <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" />
+            <div className="py-1 px-4">
+              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" />
+            </div>
+            <div className="py-1 px-4">
 
-            <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" />
+              <PickupInformation register={register} errors={errors} />
+            </div>
 
-            {/* <PickupInformation register={register} errors={errors} watch={watch} /> */}
-            <PickupInformation register={register} errors={errors} />
+            <div className="py-1 px-4">
+              <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} watch={watch} />
+            </div>
 
-            {/* <InsuranceInformation register={register} errors={errors} /> */}
-
-            <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} watch={watch} />
+            {/* <Divider className="my-6" /> */}
+            <div className="py-1 px-4">
 
             <RatesSection
               rates={calculatedRates}
@@ -467,6 +475,7 @@ const ShipmentForm = () => {
               register={register}
               errors={errors}
             />
+            </div>
 
             <div className="flex justify-end gap-4">
               <Button
@@ -487,7 +496,7 @@ const ShipmentForm = () => {
                   // Also log current form state for debugging
                   const currentValues = getValues()
                   console.log("Current form values:", currentValues)
-                  
+
                   // Manually trigger validation to see errors
                   trigger().then(isValid => {
                     console.log("Manual validation result:", isValid)

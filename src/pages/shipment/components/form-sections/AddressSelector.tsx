@@ -171,9 +171,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <h2 className="text-xl font-semibold">{title}</h2>
+      <Card shadow="none">
+      {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
+          <h2 className="text-lg font-semibold">{title}</h2>
           <div className="flex gap-2">
             <Button
               size="sm"
@@ -186,17 +187,18 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             </Button>
           </div>
         </CardHeader>
-        {selectedAddressInfo && (
-          <div className="px-6 pb-2">
-            <Alert
-              color="success"
-              variant="flat"
-              title="Address Selected"
-              description={selectedAddressInfo}
-            />
-          </div>
-        )}
-        <CardBody key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <CardBody className="px-0 pt-0 pb-0">
+          {selectedAddressInfo && (
+            <div className="mb-3">
+              <Alert
+                color="success"
+                variant="flat"
+                title="Address Selected"
+                description={selectedAddressInfo}
+              />
+            </div>
+          )}
+          <div key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <Input
             {...register(`${prefix}_company_name`, { required: isFieldRequired('company_name') ? 'Company name is required' : false })}
             label={<span>Company Name {isFieldRequired('company_name') && <span className="text-red-500">*</span>}</span>}
@@ -321,6 +323,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             errorMessage={errors[`${prefix}_tax_id`]?.message}
             isInvalid={!!errors[`${prefix}_tax_id`]}
           />
+          </div>
         </CardBody>
       </Card>
 

@@ -243,11 +243,11 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center w-full">
-          <div className="flex flex-col">
-            <h2 className="text-xl font-semibold">Shipping Rates</h2>
+    <Card shadow="none">
+    {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+      <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between w-full">
+        <div className="flex flex-col">
+          <h2 className="text-lg font-semibold">Shipping Rates</h2>
             {ratesError && (
               <p className="text-red-500 text-sm mt-1">
                 <Icon icon="solar:info-circle-bold" className="inline mr-1" />
@@ -285,11 +285,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             >
               {isCalculating ? 'Calculating...' : 'Calculate Rates'}
             </Button>
-          </div>
         </div>
       </CardHeader>
 
-      <CardBody>
+      <CardBody className="px-0 pt-0 pb-0">
         {rates.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Icon icon="solar:calculator-bold" className="text-4xl mb-2 mx-auto" />
