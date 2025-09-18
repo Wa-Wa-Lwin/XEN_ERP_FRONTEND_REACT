@@ -153,7 +153,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                 <Table
                     aria-label="Parcel items table"
                     classNames={{
-                        wrapper: "min-h-[200px] p-0 border-0 rounded-none",
+                        wrapper: `${itemFields.length <= 1 ? 'min-h-0' : 'min-h-[50px]'} p-0 border-0 rounded-none`,
                         table: "min-w-[1200px]",
                         td: "px-1 py-1",
                         th: "px-1 py-2",
