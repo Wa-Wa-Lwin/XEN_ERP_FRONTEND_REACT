@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Divider, Card, CardBody } from '@heroui/react'
+import { Button, Card, CardBody } from '@heroui/react'
 import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
 import {
@@ -443,7 +443,7 @@ const ShipmentForm = () => {
             className="space-y-6"
           >
             <div className="py-1 px-4">
-              <BasicInformation register={register} errors={errors} control={control} today={today} watch={watch} setValue={setValue} />
+              <BasicInformation register={register} errors={errors} control={control} watch={watch} setValue={setValue} />
             </div>
             <div className="py-1 px-4">
 
@@ -456,7 +456,7 @@ const ShipmentForm = () => {
             </div>
             <div className="py-1 px-4">
 
-              <PickupInformation register={register} errors={errors} />
+              <PickupInformation register={register} errors={errors} today={today} setValue={setValue} />
             </div>
 
             <div className="py-1 px-4">

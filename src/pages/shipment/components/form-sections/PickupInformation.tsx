@@ -1,7 +1,21 @@
 import { Card, CardHeader, CardBody, Input, Textarea } from '@heroui/react'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 
-const PickupInformation = ({ register, errors }: FormSectionProps) => {
+interface PickupInformationProps extends FormSectionProps {
+  today: string
+  setValue?: any
+}
+
+const PickupInformation = ({ register, errors, today, setValue }: PickupInformationProps) => {
+
+  // Handler to sync both date fields when one is changed
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dateValue = e.target.value
+    if (setValue) {
+      setValue('pick_up_date', dateValue, { shouldValidate: true, shouldDirty: true })
+      setValue('due_date', dateValue, { shouldValidate: true, shouldDirty: true })
+    }
+  }
 
   return (
     <Card shadow="none">
@@ -15,12 +29,22 @@ const PickupInformation = ({ register, errors }: FormSectionProps) => {
         <>
           <Input
             {...register('pick_up_date', {
-              required: 'Pickup date is required',
+              required: 'Pickup/Due date is required',
+              onChange: handleDateChange
             })}
             type="date"
-            label={<span>Pickup Date <span className="text-red-500">*</span></span>}
-            errorMessage={errors.pick_up_date?.message}
-            isInvalid={!!errors.pick_up_date}
+            label={<span>Pickup/Due Date <span className="text-red-500">*</span></span>}
+            placeholder="Select pickup and due date"
+            errorMessage={errors.pick_up_date?.message || errors.due_date?.message}
+            isInvalid={!!errors.pick_up_date || !!errors.due_date}
+            min={today}
+            onChange={handleDateChange}
+          />
+
+          {/* Hidden field to sync due_date with pick_up_date */}
+          <input
+            {...register('due_date')}
+            type="hidden"
           />
           <div className="flex gap-2">
             <Input
