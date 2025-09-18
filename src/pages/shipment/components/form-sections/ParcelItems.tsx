@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useFieldArray } from 'react-hook-form'
 import {
-    Button, Input, Select, SelectItem,
+    Button, Input, Select, SelectItem, Autocomplete, AutocompleteItem,
     Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
     Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
     Pagination
@@ -255,30 +255,34 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                         control={control}
                                         rules={{ required: isItemFieldRequired('origin_country') ? 'Origin country is required' : false }}
                                         render={({ field }) => (
-                                            <Select
+                                            <Autocomplete
                                                 {...field}
-                                                placeholder="Country"
+                                                defaultItems={COUNTRIES}
+                                                placeholder="country"
                                                 variant="flat"
                                                 size="sm"
                                                 errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country}
-                                                classNames={{
-                                                    trigger: "min-h-unit-8 h-unit-8",
-                                                    value: "text-sm"
-                                                }}
-                                                onSelectionChange={(keys) => {
-                                                    const selectedKey = Array.from(keys)[0] as string
-                                                    if (selectedKey) {
-                                                        field.onChange(selectedKey)
+                                                selectedKey={field.value || null}
+                                                onSelectionChange={(key) => {
+                                                    if (key) {
+                                                        field.onChange(key)
                                                     }
                                                 }}
+                                                listboxProps={{
+                                                    emptyContent: "No countries found."
+                                                }}
+                                                classNames={{
+                                                    base: "min-h-unit-8 h-unit-8",
+                                                    listbox: "max-h-60"
+                                                }}
                                             >
-                                                {COUNTRIES.map((option) => (
-                                                    <SelectItem key={option.key} value={option.value}>
-                                                        {option.key}
-                                                    </SelectItem>
-                                                ))}
-                                            </Select>
+                                                {(item) => (
+                                                    <AutocompleteItem key={item.key} value={item.value}>
+                                                        {item.key}
+                                                    </AutocompleteItem>
+                                                )}
+                                            </Autocomplete>
                                         )}
                                     />
                                 </TableCell>

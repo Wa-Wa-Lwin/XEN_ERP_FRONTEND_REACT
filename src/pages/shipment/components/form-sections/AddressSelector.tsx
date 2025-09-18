@@ -5,8 +5,6 @@ import {
   CardHeader,
   CardBody,
   Input,
-  Select,
-  SelectItem,
   Autocomplete,
   AutocompleteItem,
   Textarea,
