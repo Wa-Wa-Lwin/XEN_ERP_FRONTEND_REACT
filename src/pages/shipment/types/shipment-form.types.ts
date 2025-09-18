@@ -80,10 +80,36 @@ export interface ShipmentFormData {
   due_date: string
   sales_person: string
   po_date: string
-  
+
   // Ship to and Ship from as nested objects
   ship_to: ShippingAddress
   ship_from: ShippingAddress
+
+  // Flattened ship_from properties
+  ship_from_contact_name: string
+  ship_from_company_name: string
+  ship_from_street1: string
+  ship_from_street2?: string
+  ship_from_street3?: string
+  ship_from_city: string
+  ship_from_state: string
+  ship_from_postal_code: string
+  ship_from_country: string
+  ship_from_phone: string
+  ship_from_email: string
+
+  // Flattened ship_to properties
+  ship_to_contact_name: string
+  ship_to_company_name: string
+  ship_to_street1: string
+  ship_to_street2?: string
+  ship_to_street3?: string
+  ship_to_city: string
+  ship_to_state: string
+  ship_to_postal_code: string
+  ship_to_country: string
+  ship_to_phone: string
+  ship_to_email: string
   
   // Dynamic arrays
   parcels: Parcel[]

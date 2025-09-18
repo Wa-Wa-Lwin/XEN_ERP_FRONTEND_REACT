@@ -319,7 +319,7 @@ const ShipmentForm = () => {
       <Card className="w-full rounded bg-transparent">
         <CardBody>
           <form
-            onSubmit={handleSubmit(handlePreview, (errors) => {
+            onSubmit={handleSubmit(handlePreview, () => {
 
             })}
             className="space-y-8"

@@ -26,7 +26,7 @@ interface MaterialData {
 
 const DEBOUNCE_MS = 200
 
-const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange }: ParcelItemsProps) => {
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeightChange }: ParcelItemsProps) => {
     const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
         control,
         name: `parcels.${parcelIndex}.parcel_items`
@@ -158,52 +158,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         {itemIndex + 1}
                                     </span>
                                 </TableCell>
-                                {/*<TableCell>*/}
-                                {/*    <div className="flex items-center gap-1">*/}
-                                {/*        <Button*/}
-                                {/*            type="button"*/}
-                                {/*            color={materials.length > 0 ? "success" : "primary"}*/}
-                                {/*            size="sm"*/}
-                                {/*            variant="light"*/}
-                                {/*            isIconOnly*/}
-                                {/*            onPress={() => openMaterialModal(itemIndex)}*/}
-                                {/*            isLoading={isLoadingMaterials}*/}
-                                {/*        >*/}
-                                {/*            {!isLoadingMaterials && (*/}
-                                {/*                <Icon*/}
-                                {/*                    icon={materials.length > 0 ? "solar:database-bold" : "material-symbols:search"}*/}
-                                {/*                    width={16}*/}
-                                {/*                />*/}
-                                {/*            )}*/}
-                                {/*        </Button>*/}
-                                {/*        <Input*/}
-                                {/*            {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, { required: 'Item description is required' })}*/}
-                                {/*            placeholder="Enter item description"*/}
-                                {/*            variant="flat"*/}
-                                {/*            size="sm"*/}
-                                {/*            errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description?.message}*/}
-                                {/*            isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description}*/}
-                                {/*            classNames={{*/}
-                                {/*                input: "text-sm",*/}
-                                {/*                inputWrapper: "min-h-unit-8 h-unit-8"*/}
-                                {/*            }}*/}
-                                {/*        />*/}
-                                {/*    </div>*/}
-                                {/*</TableCell>*/}
-                                {/*<TableCell>*/}
-                                {/*    <Input*/}
-                                {/*        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`, { required: 'SKU is required' })}*/}
-                                {/*        placeholder="SKU"*/}
-                                {/*        variant="flat"*/}
-                                {/*        size="sm"*/}
-                                {/*        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.sku?.message}*/}
-                                {/*        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.sku}*/}
-                                {/*        classNames={{*/}
-                                {/*            input: "text-sm",*/}
-                                {/*            inputWrapper: "min-h-unit-8 h-unit-8"*/}
-                                {/*        }}*/}
-                                {/*    />*/}
-                                {/*</TableCell>*/}
                                 <TableCell>
                                     <div className="flex items-center gap-1">
                                         <Button

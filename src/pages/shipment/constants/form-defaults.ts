@@ -15,37 +15,65 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   sales_person: '',
   po_date: new Date().toISOString().split('T')[0], // today
   
-  // Ship from defaults
+  // Nested ship_from and ship_to objects
+  ship_from: {
+    country: '',
+    contact_name: '',
+    phone: '',
+    fax: null,
+    email: '',
+    company_name: '',
+    company_url: null,
+    street1: '',
+    street2: null,
+    street3: null,
+    city: '',
+    state: '',
+    postal_code: '',
+    tax_id: null
+  },
+  ship_to: {
+    country: '',
+    contact_name: '',
+    phone: '',
+    fax: null,
+    email: '',
+    company_name: '',
+    company_url: null,
+    street1: '',
+    street2: null,
+    street3: null,
+    city: '',
+    state: '',
+    postal_code: '',
+    tax_id: null
+  },
+
+  // Flattened ship_from properties
   ship_from_country: '',
   ship_from_contact_name: '',
   ship_from_phone: '',
-  ship_from_fax: '',
   ship_from_email: '',
   ship_from_company_name: '',
-  ship_from_company_url: '',
   ship_from_street1: '',
   ship_from_street2: '',
   ship_from_street3: '',
   ship_from_city: '',
   ship_from_state: '',
   ship_from_postal_code: '',
-  ship_from_tax_id: '',
-  
-  // Ship to defaults
+
+  // Flattened ship_to properties
   ship_to_country: '',
   ship_to_contact_name: '',
   ship_to_phone: '',
-  ship_to_fax: '',
   ship_to_email: '',
   ship_to_company_name: '',
-  ship_to_company_url: '',
   ship_to_street1: '',
   ship_to_street2: '',
   ship_to_street3: '',
   ship_to_city: '',
   ship_to_state: '',
   ship_to_postal_code: '',
-  ship_to_tax_id: '',
   
   // Customs
   customs_purpose: '',
