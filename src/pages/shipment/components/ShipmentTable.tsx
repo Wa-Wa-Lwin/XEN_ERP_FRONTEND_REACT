@@ -413,6 +413,7 @@ const ShipmentTable = () => {
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   <p className="font-medium">
                     {(() => {
+                      if (!request.created_user_name) return '';
                       const words = request.created_user_name.split(' ');
                       if (words[0].length <= 5 && words.length > 1) {
                         // First word ≤ 5 characters → show first two words
@@ -428,6 +429,7 @@ const ShipmentTable = () => {
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   <p className="font-medium">
                     {(() => {
+                      if (!request.approver_user_name) return '';
                       const words = request.approver_user_name.split(' ');
                       if (words[0].length <= 5 && words.length > 1) {
                         // First word ≤ 5 characters → show first two words
