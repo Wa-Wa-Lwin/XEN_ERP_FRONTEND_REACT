@@ -307,6 +307,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             placeholder="Enter street line 1"
             errorMessage={errors[`${prefix}_street1`]?.message}
             isInvalid={!!errors[`${prefix}_street1`]}
+            minRows={1}
           />
 
           <Textarea
@@ -315,6 +316,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             placeholder="Enter street line 2"
             errorMessage={errors[`${prefix}_street2`]?.message}
             isInvalid={!!errors[`${prefix}_street2`]}
+            minRows={1}
           />
           <Input
             {...register(`${prefix}_tax_id`)}
