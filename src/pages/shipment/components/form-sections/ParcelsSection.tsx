@@ -9,6 +9,19 @@ import type { FormSectionProps } from '../../types/shipment-form.types'
 import { PARCEL_BOX_TYPES } from '@pages/shipment/constants/parcel_box_types'
 
 const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSectionProps & { watch: any }) => {
+    // Watch the send_to field to conditionally apply validation
+    const sendTo = watch('send_to');
+
+    // Helper function to determine if a field should be required based on send_to value
+    const isFieldRequired = (fieldName: string) => {
+        if (sendTo === 'Logistic') {
+            // For logistics, only specific parcel fields are required
+            const logisticRequiredFields = ['box_type_name', 'width', 'height', 'depth', 'parcel_weight_value'];
+            return logisticRequiredFields.includes(fieldName);
+        }
+        // For Approver or default, all fields are required as before
+        return true;
+    };
     const { fields: parcelFields, append: appendParcel, remove: removeParcel } = useFieldArray({
         control,
         name: 'parcels'
@@ -240,11 +253,18 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         <Controller
                                             name={`parcels.${parcelIndex}.box_type_name`}
                                             control={control}
-                                            rules={{ required: 'Box type is required' }}
+                                            rules={{ required: isFieldRequired('box_type_name') ? 'Box type is required' : false }}
                                             render={({ field }) => (
                                                 <Select
                                                     {...field}
-                                                    label={<span>Box Type <span className="text-red-500">*</span></span>}
+                                                    label={
+                                                        <span>
+                                                            Box Type{' '}
+                                                            {isFieldRequired('box_type_name') && (
+                                                                <span className="text-red-500">*</span>
+                                                            )}
+                                                        </span>
+                                                    }
                                                     placeholder="Select box type"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
@@ -272,13 +292,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         <Controller
                                             name={`parcels.${parcelIndex}.width`}
                                             control={control}
-                                            rules={{ required: 'Width is required', min: 0 }}
+                                            rules={{ required: isFieldRequired('width') ? 'Width is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Width (cm) <span className="text-red-500">*</span></span>}
+                                                    label={<span>Width (cm) {isFieldRequired('width') && <span className="text-red-500">*</span>}</span>}
                                                     placeholder="Enter width"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.width?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.width}
@@ -298,13 +318,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         <Controller
                                             name={`parcels.${parcelIndex}.height`}
                                             control={control}
-                                            rules={{ required: 'Height is required', min: 0 }}
+                                            rules={{ required: isFieldRequired('height') ? 'Height is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Height (cm) <span className="text-red-500">*</span></span>}
+                                                    label={<span>Height (cm) {isFieldRequired('height') && <span className="text-red-500">*</span>}</span>}
                                                     placeholder="Enter height"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.height?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.height}
@@ -324,13 +344,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         <Controller
                                             name={`parcels.${parcelIndex}.depth`}
                                             control={control}
-                                            rules={{ required: 'Depth is required', min: 0 }}
+                                            rules={{ required: isFieldRequired('depth') ? 'Depth is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Depth (cm) <span className="text-red-500">*</span></span>}
+                                                    label={<span>Depth (cm) {isFieldRequired('depth') && <span className="text-red-500">*</span>}</span>}
                                                     placeholder="Enter depth"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
@@ -349,12 +369,12 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                     <Controller
                                         name={`parcels.${parcelIndex}.dimension_unit`}
                                         control={control}
-                                        rules={{ required: 'Dimension unit is required' }}
+                                        rules={{ required: isFieldRequired('dimension_unit') ? 'Dimension unit is required' : false }}
                                         defaultValue="cm"
                                         render={({ field }) => (
                                             <Select
                                                 {...field}
-                                                label={<span>Dimension Unit <span className="text-red-500">*</span></span>}
+                                                label={<span>Dimension Unit {isFieldRequired('dimension_unit') && <span className="text-red-500">*</span>}</span>}
                                                 defaultSelectedKeys={['cm']}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.dimension_unit?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.dimension_unit}
@@ -378,13 +398,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         <Controller
                                             name={`parcels.${parcelIndex}.parcel_weight_value`}
                                             control={control}
-                                            rules={{ required: 'Parcel weight is required', min: 0 }}
+                                            rules={{ required: isFieldRequired('parcel_weight_value') ? 'Parcel weight is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Parcel Weight (kg) <span className="text-red-500">*</span></span>}
+                                                    label={<span>Parcel Weight (kg) {isFieldRequired('parcel_weight_value') && <span className="text-red-500">*</span>}</span>}
                                                     placeholder="Enter parcel weight"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_weight_value}
@@ -411,8 +431,14 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                 <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-4">
                                     <div className="col-span-4">
                                         <Textarea
-                                            {...register(`parcels.${parcelIndex}.description`, { required: 'Description is required' })}
-                                            label={<span>Parcel Description <span className="text-red-500">*</span></span>}
+                                            {...register(`parcels.${parcelIndex}.description`, { required: isFieldRequired('description') ? 'Description is required' : false })}
+                                            label={
+                                                <span>
+                                                    Parcel Description
+                                                    {isFieldRequired('description') && (
+                                                        <span className="text-red-500">*</span>
+                                                    )}
+                                                </span>}
                                             placeholder="Enter parcel description"
                                             errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
                                             isInvalid={!!errors.parcels?.[parcelIndex]?.description}
@@ -424,13 +450,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         <Controller
                                             name={`parcels.${parcelIndex}.net_weight_value`}
                                             control={control}
-                                            rules={{ required: 'Net weight is required', min: 0 }}
+                                            rules={{ required: isFieldRequired('net_weight_value') ? 'Net weight is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Net Weight (kg) <span className="text-red-500">*</span></span>}
+                                                    label={<span>Net Weight (kg) {isFieldRequired('net_weight_value') && <span className="text-red-500">*</span>}</span>}
                                                     placeholder="Auto-calculated"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}
@@ -447,13 +473,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         <Controller
                                             name={`parcels.${parcelIndex}.weight_value`}
                                             control={control}
-                                            rules={{ required: 'Weight is required', min: 0 }}
+                                            rules={{ required: isFieldRequired('weight_value') ? 'Weight is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Gross Weight (kg) <span className="text-red-500">*</span></span>}
+                                                    label={<span>Gross Weight (kg) {isFieldRequired('weight_value') && <span className="text-red-500">*</span>}</span>}
                                                     placeholder="Auto-calculated"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
@@ -469,12 +495,12 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                     <Controller
                                         name={`parcels.${parcelIndex}.weight_unit`}
                                         control={control}
-                                        rules={{ required: 'Weight unit is required' }}
+                                        rules={{ required: isFieldRequired('weight_unit') ? 'Weight unit is required' : false }}
                                         defaultValue="kg"
                                         render={({ field }) => (
                                             <Select
                                                 {...field}
-                                                label={<span>Weight Unit <span className="text-red-500">*</span></span>}
+                                                label={<span>Weight Unit {isFieldRequired('weight_unit') && <span className="text-red-500">*</span>}</span>}
                                                 defaultSelectedKeys={['kg']}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.weight_unit?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.weight_unit}
@@ -498,7 +524,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                             </div>
                             {/* Parcel Items */}
                             <ParcelItems parcelIndex={parcelIndex} control={control} register={register} errors={errors}
-                                setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} />
+                                setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} sendTo={sendTo} />
                         </CardBody>
                     </Card>
                 ))}

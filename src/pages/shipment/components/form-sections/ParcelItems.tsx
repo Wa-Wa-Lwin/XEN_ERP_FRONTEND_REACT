@@ -26,7 +26,17 @@ interface MaterialData {
 
 const DEBOUNCE_MS = 200
 
-const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeightChange }: ParcelItemsProps) => {
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeightChange, sendTo }: ParcelItemsProps & { sendTo?: string }) => {
+    // Helper function to determine if item fields should be required based on send_to value
+    const isItemFieldRequired = (fieldName: string) => {
+        if (sendTo === 'Logistic') {
+            // For logistics, only specific item fields are required
+            const logisticRequiredFields = ['description', 'quantity'];
+            return logisticRequiredFields.includes(fieldName);
+        }
+        // For Approver or default, all fields are required as before
+        return true;
+    };
     const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
         control,
         name: `parcels.${parcelIndex}.parcel_items`
@@ -140,14 +150,14 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                 >
                     <TableHeader>
                         <TableColumn className="w-12">#</TableColumn>
-                        <TableColumn className="w-48 min-w-[80px]">DESCRIPTION <span className="text-red-500">*</span></TableColumn>
-                        <TableColumn className="w-36">SKU <span className="text-red-500">*</span></TableColumn>
-                        <TableColumn className="w-24">HS CODE <span className="text-red-500">*</span></TableColumn>
-                        <TableColumn className="w-28">ORIGIN <span className="text-red-500">*</span></TableColumn>
-                        <TableColumn className="w-20">PRICE <span className="text-red-500">*</span></TableColumn>
-                        <TableColumn className="w-28">CURRENCY <span className="text-red-500">*</span></TableColumn>
-                        <TableColumn className="w-20">WEIGHT(kg) <span className="text-red-500">*</span></TableColumn>
-                        <TableColumn className="w-16">QTY <span className="text-red-500">*</span></TableColumn>
+                        <TableColumn className="w-48 min-w-[80px]">DESCRIPTION {isItemFieldRequired('description') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-36">SKU {isItemFieldRequired('sku') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-24">HS CODE {isItemFieldRequired('hs_code') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-28">ORIGIN {isItemFieldRequired('origin_country') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-20">PRICE {isItemFieldRequired('price_amount') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-28">CURRENCY {isItemFieldRequired('price_currency') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-20">WEIGHT(kg) {isItemFieldRequired('weight_value') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-16">QTY {isItemFieldRequired('quantity') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-16">ACTION</TableColumn>
                     </TableHeader>
                     <TableBody emptyContent="No items added yet">
@@ -180,7 +190,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                         <Controller
                                             name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`}
                                             control={control}
-                                            rules={{ required: 'Item description is required' }}
+                                            rules={{ required: isItemFieldRequired('description') ? 'Item description is required' : false }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}                     // makes it controlled + subscribed
@@ -204,7 +214,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`}
                                         control={control}
-                                        rules={{ required: 'SKU is required' }}
+                                        rules={{ required: isItemFieldRequired('sku') ? 'SKU is required' : false }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
@@ -223,7 +233,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                 </TableCell>
                                 <TableCell>
                                     <Input
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, { required: 'HS Code is required' })}
+                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, { required: isItemFieldRequired('hs_code') ? 'HS Code is required' : false })}
                                         placeholder="HS Code"
                                         variant="flat"
                                         size="sm"
@@ -239,7 +249,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`}
                                         control={control}
-                                        rules={{ required: 'Origin country is required' }}
+                                        rules={{ required: isItemFieldRequired('origin_country') ? 'Origin country is required' : false }}
                                         render={({ field }) => (
                                             <Select
                                                 {...field}
@@ -270,7 +280,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                 </TableCell>
                                 <TableCell>
                                     <Input
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`, { required: 'Price is required', min: 0 })}
+                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`, { required: isItemFieldRequired('price_amount') ? 'Price is required' : false, min: 0 })}
                                         type="number"
                                         step="0.01"
                                         placeholder="0.00"
@@ -288,7 +298,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
                                         control={control}
-                                        rules={{ required: 'Currency is required' }}
+                                        rules={{ required: isItemFieldRequired('price_currency') ? 'Currency is required' : false }}
                                         defaultValue="THB"
                                         render={({ field }) => (
                                             <Select
@@ -323,7 +333,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`}
                                         control={control}
-                                        rules={{ required: 'Weight is required', min: 0 }}
+                                        rules={{ required: isItemFieldRequired('weight_value') ? 'Weight is required' : false, min: 0 }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
@@ -352,7 +362,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.quantity`}
                                         control={control}
-                                        rules={{ required: 'Quantity is required', min: 1 }}
+                                        rules={{ required: isItemFieldRequired('quantity') ? 'Quantity is required' : false, min: 1 }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
@@ -407,7 +417,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                     key={`weight-unit-${item.id}`}
                     name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_unit`}
                     control={control}
-                    rules={{ required: 'Weight unit is required' }}
+                    rules={{ required: isItemFieldRequired('weight_unit') ? 'Weight unit is required' : false }}
                     defaultValue="kg"
                     render={({ field }) => (
                         <Select

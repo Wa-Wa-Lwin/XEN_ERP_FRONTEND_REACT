@@ -80,6 +80,7 @@ export interface ShipmentFormData {
   due_date: string
   sales_person: string
   po_date: string
+  send_to: string
 
   // Ship to and Ship from as nested objects
   ship_to: ShippingAddress

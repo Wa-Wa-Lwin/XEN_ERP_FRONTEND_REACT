@@ -14,7 +14,8 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   due_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // tomorrow
   sales_person: '',
   po_date: new Date().toISOString().split('T')[0], // today
-  
+  send_to: 'Approver',
+
   // Nested ship_from and ship_to objects
   ship_from: {
     country: '',

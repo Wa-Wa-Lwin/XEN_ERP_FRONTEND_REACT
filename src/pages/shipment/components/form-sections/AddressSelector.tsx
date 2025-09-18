@@ -35,9 +35,20 @@ import { ISO2_TO_ISO3 } from '@pages/shipment/constants/change-iso-country-codes
 interface AddressSelectorProps extends FormSectionProps {
   title: string
   prefix: 'ship_from' | 'ship_to'
+  sendTo?: string
 }
 
-const AddressSelector = ({ register, errors, control, title, prefix, setValue }: AddressSelectorProps) => {
+const AddressSelector = ({ register, errors, control, title, prefix, setValue, sendTo }: AddressSelectorProps) => {
+  // Helper function to determine if a field should be required based on send_to value
+  const isFieldRequired = (fieldName: string) => {
+    if (sendTo === 'Logistic') {
+      // For logistics, only company name and country are required
+      const logisticRequiredFields = ['company_name', 'country'];
+      return logisticRequiredFields.includes(fieldName);
+    }
+    // For Approver or default, all fields are required as before
+    return true;
+  };
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [addresses, setAddresses] = useState<AddressData[]>([])
   const [filteredAddresses, setFilteredAddresses] = useState<AddressData[]>([])
@@ -190,16 +201,16 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
         )}
         <CardBody key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
-            {...register(`${prefix}_company_name`, { required: 'Company name is required' })}
-            label={<span>Company Name <span className="text-red-500">*</span></span>}
+            {...register(`${prefix}_company_name`, { required: isFieldRequired('company_name') ? 'Company name is required' : false })}
+            label={<span>Company Name {isFieldRequired('company_name') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter company name"
             errorMessage={errors[`${prefix}_company_name`]?.message}
             isInvalid={!!errors[`${prefix}_company_name`]}
             key={`${formKey}_${prefix}_company_name`}
           />
           <Input
-            {...register(`${prefix}_contact_name`, { required: 'Contact name is required' })}
-            label={<span>Contact Name <span className="text-red-500">*</span></span>}
+            {...register(`${prefix}_contact_name`, { required: isFieldRequired('contact_name') ? 'Contact name is required' : false })}
+            label={<span>Contact Name {isFieldRequired('contact_name') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter contact name"
             errorMessage={errors[`${prefix}_contact_name`]?.message}
             isInvalid={!!errors[`${prefix}_contact_name`]}
@@ -207,8 +218,8 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
           />
 
           <Input
-            {...register(`${prefix}_phone`, { required: 'Phone is required' })}
-            label={<span>Phone <span className="text-red-500">*</span></span>}
+            {...register(`${prefix}_phone`, { required: isFieldRequired('phone') ? 'Phone is required' : false })}
+            label={<span>Phone {isFieldRequired('phone') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter phone"
             errorMessage={errors[`${prefix}_phone`]?.message}
             isInvalid={!!errors[`${prefix}_phone`]}
@@ -216,9 +227,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
           />
 
           <Input
-            {...register(`${prefix}_email`, { required: 'Email is required' })}
+            {...register(`${prefix}_email`, { required: isFieldRequired('email') ? 'Email is required' : false })}
             type="email"
-            label={<span>Email <span className="text-red-500">*</span></span>}
+            label={<span>Email {isFieldRequired('email') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter email"
             errorMessage={errors[`${prefix}_email`]?.message}
             isInvalid={!!errors[`${prefix}_email`]}
@@ -227,11 +238,11 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
           <Controller
             name={`${prefix}_country`}
             control={control}
-            rules={{ required: 'Country is required' }}
+            rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
             render={({ field }) => (
               <Select
                 {...field}
-                label={<span>Country <span className="text-red-500">*</span></span>}
+                label={<span>Country {isFieldRequired('country') && <span className="text-red-500">*</span>}</span>}
                 placeholder="Select Country"
                 errorMessage={errors[`${prefix}_country`]?.message}
                 isInvalid={!!errors[`${prefix}_country`]}
@@ -251,8 +262,8 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             )}
           />
           <Input
-            {...register(`${prefix}_city`, { required: 'City is required' })}
-            label={<span>City <span className="text-red-500">*</span></span>}
+            {...register(`${prefix}_city`, { required: isFieldRequired('city') ? 'City is required' : false })}
+            label={<span>City {isFieldRequired('city') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter city"
             errorMessage={errors[`${prefix}_city`]?.message}
             isInvalid={!!errors[`${prefix}_city`]}
@@ -260,24 +271,24 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
           />
 
           <Input
-            {...register(`${prefix}_state`, { required: 'State is required' })}
-            label={<span>State <span className="text-red-500">*</span></span>}
+            {...register(`${prefix}_state`, { required: isFieldRequired('state') ? 'State is required' : false })}
+            label={<span>State {isFieldRequired('state') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter state"
             errorMessage={errors[`${prefix}_state`]?.message}
             isInvalid={!!errors[`${prefix}_state`]}
           />
 
           <Input
-            {...register(`${prefix}_postal_code`, { required: 'Postal code is required' })}
-            label={<span>Postal Code <span className="text-red-500">*</span></span>}
+            {...register(`${prefix}_postal_code`, { required: isFieldRequired('postal_code') ? 'Postal code is required' : false })}
+            label={<span>Postal Code {isFieldRequired('postal_code') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter postal code"
             errorMessage={errors[`${prefix}_postal_code`]?.message}
             isInvalid={!!errors[`${prefix}_postal_code`]}
           />
 
           <Textarea
-            {...register(`${prefix}_street1`, { required: 'Street 1 is required' })}
-            label={<span>Street 1 <span className="text-red-500">*</span></span>}
+            {...register(`${prefix}_street1`, { required: isFieldRequired('street1') ? 'Street 1 is required' : false })}
+            label={<span>Street 1 {isFieldRequired('street1') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter street line 1"
             errorMessage={errors[`${prefix}_street1`]?.message}
             isInvalid={!!errors[`${prefix}_street1`]}

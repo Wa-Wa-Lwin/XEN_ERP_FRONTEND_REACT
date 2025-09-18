@@ -6,12 +6,26 @@ import { useState } from 'react'
 
 interface BasicInformationProps extends FormSectionProps {
   today: string
+  watch: (name?: string) => any
 }
 
-const BasicInformation = ({ register, errors, control, today }: BasicInformationProps) => {
+const BasicInformation = ({ register, errors, control, today, watch }: BasicInformationProps) => {
 
   const [selectedTopic, setSelectedTopic] = useState<Set<string>>(new Set());
   const [selectedServiceOptions, setSelectedServiceOptions] = useState<Set<string>>(new Set());
+
+  // Watch the send_to field to conditionally apply validation
+  const sendTo = watch('send_to');
+
+  // Helper function to determine if a field should be required based on send_to value
+  const isFieldRequired = () => {
+    if (sendTo === 'Logistic') {
+      // For logistics, no basic information fields are required
+      return false;
+    }
+    // For Approver or default, all fields are required as before
+    return true;
+  };
 
   return (
     <Card>
@@ -26,7 +40,7 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
           render={({ field }) => (
             <Select
               {...field}
-              label={<span>Send To <span className="text-red-500">*</span></span>}
+              label={<span>Send To {true && <span className="text-red-500">*</span>}</span>}
               placeholder="Select recipient"
               errorMessage={errors.send_to?.message}
               isInvalid={!!errors.send_to}
@@ -50,11 +64,11 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         <Controller
           name="topic"
           control={control}
-          rules={{ required: 'Topic is required' }}
+          rules={{ required: isFieldRequired() ? 'Topic is required' : false }}
           render={({ field }) => (
             <Select
               {...field}
-              label={<span>Topic <span className="text-red-500">*</span></span>}
+              label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
               placeholder="Select topic"
               errorMessage={errors.topic?.message}
               isInvalid={!!errors.topic}
@@ -77,9 +91,9 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         {selectedTopic.has('others') && (
           <Input
             {...register('other_topic', {
-              required: selectedTopic.has('others') ? 'Other topic is required' : false
+              required: selectedTopic.has('others') && isFieldRequired() ? 'Other topic is required' : false
             })}
-            label={<span>Other Topic <span className="text-red-500">*</span></span>}
+            label={<span>Other Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter other topic"
             errorMessage={errors.other_topic?.message}
             isInvalid={!!errors.other_topic}
@@ -90,11 +104,11 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
           <Controller
             name="sales_person"
             control={control}
-            rules={{ required: 'Sales person is required' }}
+            rules={{ required: isFieldRequired() ? 'Sales person is required' : false }}
             render={({ field }) => (
               <Select
                 {...field}
-                label={<span>Sales Person <span className="text-red-500">*</span></span>}
+                label={<span>Sales Person {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
                 placeholder="Select sales person"
                 errorMessage={errors.sales_person?.message}
                 isInvalid={!!errors.sales_person}
@@ -115,27 +129,27 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
           />
         )}
         <Input
-          {...register('po_number', { required: 'PO Number is required' })}
-          label={<span>PO Number <span className="text-red-500">*</span></span>}
+          {...register('po_number', { required: isFieldRequired() ? 'PO Number is required' : false })}
+          label={<span>PO Number {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
           placeholder="Enter PO number"
           errorMessage={errors.po_number?.message}
           isInvalid={!!errors.po_number}
         />
         <Input
-          {...register('po_date', { required: 'PO Date is required' })}
+          {...register('po_date', { required: isFieldRequired() ? 'PO Date is required' : false })}
           type="date"
-          label={<span>PO Date <span className="text-red-500">*</span></span>}
+          label={<span>PO Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
           errorMessage={errors.po_date?.message}
           isInvalid={!!errors.po_date}
         />
         <Controller
           name="service_options"
           control={control}
-          rules={{ required: 'Service options is required' }}
+          rules={{ required: isFieldRequired() ? 'Service options is required' : false }}
           render={({ field }) => (
             <Select
               {...field}
-              label={<span>Service Options <span className="text-red-500">*</span></span>}
+              label={<span>Service Options {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
               placeholder="Select service options"
               errorMessage={errors.service_options?.message}
               isInvalid={!!errors.service_options}
@@ -157,8 +171,8 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         />
         {selectedServiceOptions.has('Urgent') && (
           <Input
-            {...register('urgent_reason', { required: 'Urgent reason is required' })}
-            label={<span>Urgent Reason <span className="text-red-500">*</span></span>}
+            {...register('urgent_reason', { required: isFieldRequired() ? 'Urgent reason is required' : false })}
+            label={<span>Urgent Reason {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter urgent reason"
             errorMessage={errors.urgent_reason?.message}
             isInvalid={!!errors.urgent_reason}
@@ -168,13 +182,14 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
 
         <Input
           {...register('due_date', {
-            required: 'Due date is required',
+            required: isFieldRequired() ? 'Due date is required' : false,
             validate: (value: string) => {
+              if (!isFieldRequired() || !value) return true;
               return value >= today || 'Due date cannot be earlier than today'
             }
           })}
           type="date"
-          label={<span>Expected Ship Date <span className="text-red-500">*</span></span>}
+          label={<span>Expected Ship Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
           min={today}
           errorMessage={errors.due_date?.message}
           isInvalid={!!errors.due_date}
@@ -183,11 +198,11 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         <Controller
           name="customs_purpose"
           control={control}
-          rules={{ required: 'Customs purpose is required' }}
+          rules={{ required: isFieldRequired() ? 'Customs purpose is required' : false }}
           render={({ field }) => (
             <Select
               {...field}
-              label={<span>Customs Purpose <span className="text-red-500">*</span></span>}
+              label={<span>Customs Purpose {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
               placeholder="Select customs purpose"
               errorMessage={errors.customs_purpose?.message}
               isInvalid={!!errors.customs_purpose}
@@ -209,11 +224,11 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
         <Controller
           name="customs_terms_of_trade"
           control={control}
-          rules={{ required: 'Terms of trade is required' }}
+          rules={{ required: isFieldRequired() ? 'Terms of trade is required' : false }}
           render={({ field }) => (
             <Select
               {...field}
-              label={<span>Incoterms <span className="text-red-500">*</span></span>}
+              label={<span>Incoterms {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
               placeholder="Select Incoterms"
               errorMessage={errors.customs_terms_of_trade?.message}
               isInvalid={!!errors.customs_terms_of_trade}
@@ -235,8 +250,8 @@ const BasicInformation = ({ register, errors, control, today }: BasicInformation
 
         />
         <Textarea
-          {...register('remark', { required: 'Remark is required' })}
-          label={<span>Remark <span className="text-red-500">*</span></span>}
+          {...register('remark', { required: isFieldRequired() ? 'Remark is required' : false })}
+          label={<span>Remark {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
           placeholder="Enter remark"
           errorMessage={errors.remark?.message}
           isInvalid={!!errors.remark}
