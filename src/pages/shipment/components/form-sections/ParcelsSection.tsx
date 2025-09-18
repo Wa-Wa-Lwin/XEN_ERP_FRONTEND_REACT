@@ -12,6 +12,10 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
     // Watch the send_to field to conditionally apply validation
     const sendTo = watch('send_to');
 
+    // Watch ship from and ship to countries for conditional validation
+    const shipFromCountry = watch('ship_from_country');
+    const shipToCountry = watch('ship_to_country');
+
     // Helper function to determine if a field should be required based on send_to value
     const isFieldRequired = (fieldName: string) => {
         if (sendTo === 'Logistic') {
@@ -534,7 +538,8 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                             </div>
                             {/* Parcel Items */}
                             <ParcelItems parcelIndex={parcelIndex} control={control} register={register} errors={errors}
-                                setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} sendTo={sendTo} />
+                                setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} sendTo={sendTo}
+                                shipFromCountry={shipFromCountry} shipToCountry={shipToCountry} />
                         </CardBody>
                     </Card>
                 ))}

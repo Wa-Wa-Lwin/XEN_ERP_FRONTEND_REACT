@@ -64,6 +64,7 @@ const BasicInformation = ({ register, errors, control, today, watch, setValue }:
               placeholder="Select recipient"
               errorMessage={errors.send_to?.message}
               isInvalid={!!errors.send_to}
+              defaultSelectedKeys={["Approver"]}
               onSelectionChange={(keys) => {
                 const selectedKey = Array.from(keys)[0] as string
                 if (selectedKey) {

@@ -26,8 +26,8 @@ interface MaterialData {
 
 const DEBOUNCE_MS = 200
 
-const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeightChange, sendTo }: ParcelItemsProps & { sendTo?: string }) => {
-    // Helper function to determine if item fields should be required based on send_to value
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeightChange, sendTo, shipFromCountry, shipToCountry }: ParcelItemsProps & { sendTo?: string, shipFromCountry?: string, shipToCountry?: string }) => {
+    // Helper function to determine if item fields should be required based on send_to value and countries
     const isItemFieldRequired = (fieldName: string) => {
         if (sendTo === 'Logistic') {
             // For logistics, HS code and origin country are not required
@@ -38,7 +38,14 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
             // All other fields are still required for logistics
             return true;
         }
-        // For Approver or default, all fields are required as before
+
+        // Additional condition: HS Code and Origin country are optional if both ship from and ship to countries are THA
+        if ((fieldName === 'hs_code' || fieldName === 'origin_country') &&
+            shipFromCountry === 'THA' && shipToCountry === 'THA') {
+            return false;
+        }
+
+        // For Approver or default, all other fields are required as before
         return true;
     };
     const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
