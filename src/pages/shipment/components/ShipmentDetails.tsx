@@ -55,49 +55,7 @@ const ShipmentDetails = () => {
       return;
     }
 
-    // Additional validation checks
-    if (!shipment) {
-      showNotificationError('Shipment data not loaded. Please refresh the page and try again.', 'Data Error');
-      return;
-    }
-
-    if (shipment.request_status === 'approver_approved') {
-      showNotificationError('This shipment has already been approved.', 'Already Processed');
-      return;
-    }
-
-    if (shipment.request_status === 'approver_rejected') {
-      showNotificationError('This shipment has already been rejected.', 'Already Processed');
-      return;
-    }
-
-    if (!['requestor_requested', 'logistic_updated'].includes(shipment.request_status)) {
-      showNotificationError(
-        `This shipment cannot be ${action === 'approver_approved' ? 'approved' : 'rejected'} in its current status: ${shipment.request_status}`,
-        'Invalid Status'
-      );
-      return;
-    }
-
-    // Check if user has permission
-    if (msLoginUser.email.toLowerCase() !== shipment.approver_user_mail?.toLowerCase()) {
-      showNotificationError(
-        'You are not authorized to approve this shipment. Only the assigned approver can take this action.',
-        'Permission Denied'
-      );
-      return;
-    }
-
-    // Check if rejection requires a remark
     const isApprove = action === 'approver_approved';
-    if (!isApprove && (!remark || remark.trim().length === 0)) {
-      showNotificationError(
-        'Please provide a remark explaining the reason for rejection.',
-        'Remark Required'
-      );
-      return;
-    }
-
     const setLoadingState = isApprove ? setIsApproving : setIsRejecting;
 
     try {
@@ -176,107 +134,16 @@ const ShipmentDetails = () => {
       }
     } catch (error) {
       console.error('Error during approval action:', error);
-      const actionText = isApprove ? 'approval' : 'rejection';
 
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
-        const errorData = error.response?.data;
-
-        // Handle specific HTTP status codes
-        switch (status) {
-          case 400:
-            showNotificationError(
-              `Invalid ${actionText} request. Please check the shipment details and try again.`,
-              `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} Failed`
-            );
-            break;
-          case 401:
-            showNotificationError(
-              `Authentication required. Please log in again to ${isApprove ? 'approve' : 'reject'} this shipment.`,
-              'Authentication Error'
-            );
-            break;
-          case 403:
-            showNotificationError(
-              `You don't have permission to ${isApprove ? 'approve' : 'reject'} this shipment. Please contact your administrator.`,
-              'Permission Denied'
-            );
-            break;
-          case 404:
-            showNotificationError(
-              `Shipment not found. The shipment may have been deleted or moved.`,
-              'Shipment Not Found'
-            );
-            break;
-          case 409:
-            showNotificationError(
-              `This shipment has already been processed. Please refresh the page to see the current status.`,
-              'Conflict Error'
-            );
-            break;
-          case 422:
-            if (errorData?.meta?.details && Array.isArray(errorData.meta.details)) {
-              const errorMessages = errorData.meta.details.map((detail: any) =>
-                `• ${detail.path}: ${detail.info}`
-              ).join('\n');
-              showNotificationError(
-                `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} failed due to validation errors:\n\n${errorMessages}`,
-                'Validation Error'
-              );
-            } else {
-              showNotificationError(
-                `Invalid data provided for ${actionText}. Please check the form and try again.`,
-                'Validation Error'
-              );
-            }
-            break;
-          case 500:
-            showNotificationError(
-              `Server error occurred while processing ${actionText}. Please try again in a few moments or contact support.`,
-              'Server Error'
-            );
-            break;
-          case 502:
-          case 503:
-          case 504:
-            showNotificationError(
-              `Service temporarily unavailable. Please try the ${actionText} again in a few moments.`,
-              'Service Unavailable'
-            );
-            break;
-          default:
-            // Handle custom error messages from API
-            if (errorData?.meta?.message) {
-              showNotificationError(
-                `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} failed: ${errorData.meta.message}`,
-                `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} Error`
-              );
-            } else {
-              showNotificationError(
-                `Failed to process ${actionText}. Please try again or contact support if the problem persists.`,
-                `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} Failed`
-              );
-            }
-        }
-      } else if (error instanceof Error) {
-        // Handle network errors or other JavaScript errors
-        if (error.message.includes('Network Error') || error.message.includes('fetch')) {
-          showNotificationError(
-            `Network connection failed. Please check your internet connection and try the ${actionText} again.`,
-            'Connection Error'
-          );
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.meta?.message) {
+          showNotificationError(`Action failed: ${errorData.meta.message}`, 'Action Failed');
         } else {
-          showNotificationError(
-            `Unexpected error during ${actionText}: ${error.message}`,
-            `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} Error`
-          );
+          showNotificationError('Failed to process approval action. Please try again.', 'Action Failed');
         }
       } else {
-        // Handle unknown errors
-        showNotificationError(
-          `An unexpected error occurred during ${actionText}. Please refresh the page and try again.`,
-          'Unknown Error'
-        );
+        showNotificationError('Failed to process approval action. Please check your connection and try again.', 'Connection Error');
       }
     } finally {
       setLoadingState(false);
@@ -284,27 +151,12 @@ const ShipmentDetails = () => {
   };
 
   const handleCreateLabel = async () => {
-    if (!shipmentId) {
-      showNotificationError('Shipment ID is missing. Please refresh the page and try again.', 'Data Error');
-      return;
-    }
-
-    // Validate shipment status
-    if (!shipment) {
-      showNotificationError('Shipment data not loaded. Please refresh the page and try again.', 'Data Error');
-      return;
-    }
-
-    if (shipment.request_status !== 'approver_approved') {
-      showNotificationError('Labels can only be created for approved shipments.', 'Invalid Status');
-      return;
-    }
+    if (!shipmentId) return;
 
     try {
       const baseUrl = import.meta.env.VITE_APP_CREATE_LABEL;
       if (!baseUrl) {
-        showNotificationError('Label creation service is not configured. Please contact support.', 'Configuration Error');
-        return;
+        throw new Error("Create Label API URL not configured");
       }
 
       const apiUrl = `${baseUrl}${shipmentId}`;
@@ -327,114 +179,23 @@ const ShipmentDetails = () => {
       console.error("Error creating label:", error);
 
       if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
         const errorData = error.response?.data;
         const meta = errorData?.$create_label_response_body?.meta;
         const details = meta?.details;
 
-        // Handle specific HTTP status codes for label creation
-        switch (status) {
-          case 400:
-            let msg = errorData?.message || meta?.message || "Invalid label creation request";
+        let msg = errorData?.message || meta?.message || "Unknown error";
 
-            // If validation details exist, append them
-            if (Array.isArray(details) && details.length > 0) {
-              const formattedDetails = details
-                .map((d: any) => `• ${d.path}: ${d.info}`)
-                .join("\n");
-              msg += `\n\nValidation Errors:\n${formattedDetails}`;
-            }
-
-            showNotificationError(
-              `Label creation failed due to invalid data:\n\n${msg}`,
-              'Invalid Request'
-            );
-            break;
-          case 401:
-            showNotificationError(
-              'Authentication required to create labels. Please log in again.',
-              'Authentication Error'
-            );
-            break;
-          case 403:
-            showNotificationError(
-              'You don\'t have permission to create labels for this shipment.',
-              'Permission Denied'
-            );
-            break;
-          case 404:
-            showNotificationError(
-              'Shipment not found. The shipment may have been deleted or moved.',
-              'Shipment Not Found'
-            );
-            break;
-          case 409:
-            showNotificationError(
-              'A label has already been created for this shipment.',
-              'Label Already Exists'
-            );
-            break;
-          case 422:
-            let validationMsg = errorData?.message || meta?.message || "Validation failed";
-
-            if (Array.isArray(details) && details.length > 0) {
-              const formattedDetails = details
-                .map((d: any) => `• ${d.path}: ${d.info}`)
-                .join("\n");
-              validationMsg += `\n\nDetails:\n${formattedDetails}`;
-            }
-
-            showNotificationError(
-              `Label creation failed validation:\n\n${validationMsg}`,
-              'Validation Error'
-            );
-            break;
-          case 500:
-            showNotificationError(
-              'Server error occurred while creating the label. Please try again in a few moments.',
-              'Server Error'
-            );
-            break;
-          case 502:
-          case 503:
-          case 504:
-            showNotificationError(
-              'Label creation service is temporarily unavailable. Please try again later.',
-              'Service Unavailable'
-            );
-            break;
-          default:
-            let defaultMsg = errorData?.message || meta?.message || "Unknown error occurred";
-
-            if (Array.isArray(details) && details.length > 0) {
-              const formattedDetails = details
-                .map((d: any) => `• ${d.path}: ${d.info}`)
-                .join("\n");
-              defaultMsg += `\n\nDetails:\n${formattedDetails}`;
-            }
-
-            showNotificationError(
-              `Failed to create label:\n\n${defaultMsg}`,
-              'Label Creation Failed'
-            );
+        // If validation details exist, append them
+        if (Array.isArray(details) && details.length > 0) {
+          const formattedDetails = details
+            .map((d: any) => `• ${d.path}: ${d.info}`)
+            .join("\n");
+          msg += `\n\nDetails:\n${formattedDetails}`;
         }
-      } else if (error instanceof Error) {
-        if (error.message.includes('Network Error') || error.message.includes('fetch')) {
-          showNotificationError(
-            'Network connection failed. Please check your internet connection and try again.',
-            'Connection Error'
-          );
-        } else {
-          showNotificationError(
-            `Unexpected error during label creation: ${error.message}`,
-            'Label Creation Error'
-          );
-        }
+
+        showNotificationError(`Failed to create label:\n${msg}`, 'Label Creation Failed');
       } else {
-        showNotificationError(
-          'An unexpected error occurred while creating the label. Please try again.',
-          'Unknown Error'
-        );
+        showNotificationError('Failed to create label. Please check your connection.', 'Connection Error');
       }
     }
   };
@@ -515,8 +276,6 @@ const ShipmentDetails = () => {
             <DetailRow label="Requestor" value={`${shipment.created_user_name} (${shipment.created_user_mail})`} />
             <DetailRow label="Approver" value={`${shipment.approver_user_name} (${shipment.approver_user_mail})`} />
             <DetailRow label="Remark" value={shipment.remark} />
-            <DetailRow label="Customs Purpose" value={shipment.customs_purpose} />
-            <DetailRow label="Incoterms" value={shipment.customs_terms_of_trade} />
           </div>
           {["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
             msLoginUser?.email === shipment.approver_user_mail ? (
