@@ -88,7 +88,7 @@ const ShipmentForm = () => {
               value: parseFloat(String(item.weight_value)) || 0,
             },
             sku: item.sku,
-            hs_code: item.hs_code
+            hs_code: item.hscode
           })),
           description: parcel.description,
           weight: {
@@ -463,32 +463,42 @@ const ShipmentForm = () => {
             onSubmit={handleSubmit(handlePreview, () => {
 
             })}
-            className="space-y-6"
+            className="space-y-1"
           >
             <div className="py-1 px-4">
               <BasicInformation register={register} errors={errors} control={control} watch={watch} setValue={setValue} />
+              <div className="pt-2 px-1">
+                <hr />
+              </div>              
             </div>
             <div className="py-1 px-4">
-
-
               <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" />
+              <div className="pt-2 px-1">
+                <hr />
+              </div>
             </div>
-
             <div className="py-1 px-4">
               <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" />
+              <div className="pt-2 px-1">
+                <hr />
+              </div>
             </div>
             <div className="py-1 px-4">
-
               <PickupInformation register={register} errors={errors} today={today} setValue={setValue} watch={watch} />
+              <div className="pt-2 px-1">
+                <hr />
+              </div>
             </div>
 
             <div className="py-1 px-4">
               <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} watch={watch} />
+              <div className="pt-2 px-1">
+                <hr />
+              </div>
             </div>
 
             {/* <Divider className="my-6" /> */}
             <div className="py-1 px-4">
-
             <RatesSection
               rates={calculatedRates}
               onCalculateRates={handleCalculateRate}

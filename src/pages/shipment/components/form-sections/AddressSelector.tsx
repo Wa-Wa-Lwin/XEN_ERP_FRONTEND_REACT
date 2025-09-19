@@ -173,7 +173,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
     <>
       <Card shadow="none">
       {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
+        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center gap-6 justify-left">
           <h2 className="text-lg font-semibold">{title}</h2>
           <div className="flex gap-2">
             <Button

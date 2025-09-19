@@ -4,7 +4,8 @@ import {
     Button, Input, Select, SelectItem, Autocomplete, AutocompleteItem,
     Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
     Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
-    Pagination
+    Pagination,
+    Textarea
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useParcelItemsCache } from '@hooks/useParcelItemsCache'
@@ -22,6 +23,7 @@ interface MaterialData {
     supplier_name: string;
     sku: string;
     part_no: string;
+    hscode: string;
 }
 
 const DEBOUNCE_MS = 200
@@ -31,7 +33,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
     const isItemFieldRequired = (fieldName: string) => {
         if (sendTo === 'Logistic') {
             // For logistics, HS code and origin country are not required
-            const logisticNotRequiredFields = ['hs_code', 'origin_country'];
+            const logisticNotRequiredFields = ['hscode', 'origin_country'];
             if (logisticNotRequiredFields.includes(fieldName)) {
                 return false;
             }
@@ -40,7 +42,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
         }
 
         // Additional condition: HS Code and Origin country are optional if both ship from and ship to countries are THA
-        if ((fieldName === 'hs_code' || fieldName === 'origin_country') &&
+        if ((fieldName === 'hscode' || fieldName === 'origin_country') &&
             shipFromCountry === 'THA' && shipToCountry === 'THA') {
             return false;
         }
@@ -87,7 +89,8 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
             m.type_name?.toLowerCase().includes(q) ||
             m.supplier_name?.toLowerCase().includes(q) ||
             m.sku?.toLowerCase().includes(q) ||
-            m.part_no?.toLowerCase().includes(q)
+            m.part_no?.toLowerCase().includes(q) ||
+            m.hscode?.toLowerCase().includes(q)
         )
     }, [materials, debouncedQuery])
 
@@ -121,8 +124,9 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
     const handleMaterialSelect = (selectedMaterial: MaterialData) => {
         if (currentItemIndex !== null) {
             const basePath = `parcels.${parcelIndex}.parcel_items.${currentItemIndex}`
-            setValue(`${basePath}.description`, selectedMaterial.description, { shouldValidate: true, shouldDirty: true })
-            setValue(`${basePath}.sku`, selectedMaterial.sku, { shouldValidate: true, shouldDirty: true })
+            setValue(`${basePath}.description`, selectedMaterial.description || '', { shouldValidate: true, shouldDirty: true })
+            setValue(`${basePath}.sku`, selectedMaterial.sku || '', { shouldValidate: true, shouldDirty: true })
+            setValue(`${basePath}.hscode`, selectedMaterial.hscode || '', { shouldValidate: true, shouldDirty: true })
         }
         setIsModalOpen(false)
         setCurrentItemIndex(null)
@@ -163,7 +167,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                         <TableColumn className="w-12">#</TableColumn>
                         <TableColumn className="w-48 min-w-[80px]">DESCRIPTION {isItemFieldRequired('description') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-36">SKU {isItemFieldRequired('sku') && <span className="text-red-500">*</span>}</TableColumn>
-                        <TableColumn className="w-24">HS CODE {isItemFieldRequired('hs_code') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-24">HS CODE {isItemFieldRequired('hscode') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-28">ORIGIN {isItemFieldRequired('origin_country') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-20">PRICE {isItemFieldRequired('price_amount') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-28">CURRENCY {isItemFieldRequired('price_currency') && <span className="text-red-500">*</span>}</TableColumn>
@@ -203,7 +207,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             control={control}
                                             rules={{ required: isItemFieldRequired('description') ? 'Item description is required' : false }}
                                             render={({ field }) => (
-                                                <Input
+                                                <Textarea
                                                     {...field}                     // makes it controlled + subscribed
                                                     placeholder="Enter item description"
                                                     variant="flat"
@@ -214,6 +218,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                         input: "text-sm",
                                                         inputWrapper: "min-h-unit-8 h-unit-8"
                                                     }}
+                                                    minRows={1}
                                                 />
                                             )}
                                         />
@@ -227,7 +232,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                         control={control}
                                         rules={{ required: isItemFieldRequired('sku') ? 'SKU is required' : false }}
                                         render={({ field }) => (
-                                            <Input
+                                            <Textarea
                                                 {...field}
                                                 placeholder="SKU"
                                                 variant="flat"
@@ -238,24 +243,49 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                     input: "text-sm",
                                                     inputWrapper: "min-h-unit-8 h-unit-8"
                                                 }}
+                                                minRows={1}
                                             />
                                         )}
                                     />
                                 </TableCell>
+                                {/* HS CODE cell */}
                                 <TableCell>
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hscode`}
+                                        control={control}
+                                        rules={{ required: isItemFieldRequired('hscode') ? 'HS CODE is required' : false }}
+                                        render={({ field }) => (
+                                            <Textarea
+                                                {...field}
+                                                placeholder="HS CODE"
+                                                variant="flat"
+                                                size="sm"
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode}
+                                                classNames={{
+                                                    input: "text-sm",
+                                                    inputWrapper: "min-h-unit-8 h-unit-8"
+                                                }}
+                                                minRows={1}
+                                            />
+                                        )}
+                                    />
+                                </TableCell>
+                                {/* <TableCell>
                                     <Input
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, { required: isItemFieldRequired('hs_code') ? 'HS Code is required' : false })}
+                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hscode`, { required: isItemFieldRequired('hscode') ? 'HS Code is required' : false })}
                                         placeholder="HS Code"
                                         variant="flat"
                                         size="sm"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code}
+                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode?.message}
+                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode}
                                         classNames={{
                                             input: "text-sm",
                                             inputWrapper: "min-h-unit-8 h-unit-8"
                                         }}
+                                        
                                     />
-                                </TableCell>
+                                </TableCell> */}
                                 <TableCell>
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`}
@@ -294,7 +324,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Input
+                                    <Textarea
                                         {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`, { required: isItemFieldRequired('price_amount') ? 'Price is required' : false, min: 0 })}
                                         type="number"
                                         step="0.01"
@@ -308,6 +338,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             inputWrapper: "min-h-unit-8 h-unit-8"
                                         }}
                                         min={0}
+                                        minRows={1}
                                     />
                                 </TableCell>
                                 <TableCell>
@@ -503,6 +534,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             <TableColumn>TYPE</TableColumn>
                                             <TableColumn>SKU</TableColumn>
                                             <TableColumn>PART NO</TableColumn>
+                                            <TableColumn>HS CODE</TableColumn>
                                             <TableColumn>SUPPLIER</TableColumn>
                                             <TableColumn>REVISION</TableColumn>
                                             <TableColumn>ACTION</TableColumn>
@@ -521,14 +553,15 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             {paginatedMaterials.map((material) => (
                                                 <TableRow key={material.material_code}>
                                                     <TableCell>
-                            <span className="font-medium text-primary">
-                              {material.material_code}
-                            </span>
+                                                        <span className="font-medium text-primary">
+                                                            {material.material_code}
+                                                        </span>
                                                     </TableCell>
                                                     <TableCell><span className="text-sm">{material.description}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.type_name}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.sku}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.part_no}</span></TableCell>
+                                                    <TableCell><span className="text-sm">{material.hscode}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.supplier_name}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.part_revision}</span></TableCell>
                                                     <TableCell>
@@ -549,9 +582,9 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
 
                                 {/* Pagination footer inside body */}
                                 <div className="flex items-center justify-between pt-3">
-                  <span className="text-sm text-default-500">
-                    Showing {showingFrom.toLocaleString()}–{showingTo.toLocaleString()} of {totalItems.toLocaleString()}
-                  </span>
+                                    <span className="text-sm text-default-500">
+                                        Showing {showingFrom.toLocaleString()}–{showingTo.toLocaleString()} of {totalItems.toLocaleString()}
+                                    </span>
                                     <Pagination
                                         page={clampedPage}
                                         total={totalPages}

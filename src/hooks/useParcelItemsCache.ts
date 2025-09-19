@@ -9,6 +9,7 @@ interface MaterialData {
   supplier_name: string;
   sku: string;
   part_no: string;
+  hscode: string;
 }
 
 interface ParcelItemsCache {

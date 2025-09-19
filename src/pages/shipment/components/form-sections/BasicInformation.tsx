@@ -54,6 +54,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
         <h2 className="text-lg font-semibold">Basic Information</h2>
       </CardHeader>
       <CardBody className="px-0 pt-0 pb-0">
+        {/* <div className="grid grid-cols-1 md:grid-cols-1 gap-3"> */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <Controller
             name="send_to"

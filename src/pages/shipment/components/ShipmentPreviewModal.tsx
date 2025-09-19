@@ -39,8 +39,9 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
             <b>Due Date - </b> {formData.due_date || 'Not specified'} <br />
             <b>Sales Person - </b> {formData.sales_person || 'Not specified'} <br />
-            <b>Remark - </b> {formData.remark || 'Not specified'} <br />
+            {/* <b>Remark - </b> {formData.remark || 'Not specified'} <br /> */}
           </p>
+          <hr />
 
           {/* Ship From Address */}
           <p>
@@ -59,6 +60,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             <b>Phone - </b> {formData.ship_from_phone || 'Not specified'} <br />
             <b>Email - </b> {formData.ship_from_email || 'Not specified'}          
           </p>
+           <hr />
 
           {/* Ship To Address */}
           <p>
@@ -77,7 +79,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             <b>Phone - </b> {formData.ship_to_phone || 'Not specified'} <br />          
             <b>Email - </b> {formData.ship_to_email || 'Not specified'}             
           </p>
-
+             <hr />
           {/* Pickup Information */}
           {formData.pick_up_status && (
             <p>

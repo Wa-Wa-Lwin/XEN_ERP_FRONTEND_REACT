@@ -3,7 +3,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { Card, CardHeader, CardBody, Input, Select, SelectItem, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
-import { ShipmentForReview, LogisticReviewFormData } from '../types/logistic-review.types'
+import type { ShipmentForReview } from '../types/logistic-review.types'
 import { INCOTERMS, CUSTOM_PURPOSES } from '@pages/shipment/constants/form-defaults'
 
 interface LogisticReviewFormProps {
@@ -17,7 +17,7 @@ interface FormData {
   customs_purpose: string
   parcels: Array<{
     parcel_items: Array<{
-      hs_code: string
+      hscode: string
       origin_country: string
       description: string
       quantity: number
@@ -169,13 +169,13 @@ const LogisticReviewForm = ({ shipmentData, onSuccess, onCancel }: LogisticRevie
                             <TableCell>{item.quantity}</TableCell>
                             <TableCell>
                               <Input
-                                {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, {
+                                {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hscode`, {
                                   required: 'HS Code is required'
                                 })}
                                 placeholder="Enter HS Code"
                                 size="sm"
-                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code?.message}
-                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code}
+                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode?.message}
+                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode}
                               />
                             </TableCell>
                             <TableCell>

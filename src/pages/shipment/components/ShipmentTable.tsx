@@ -18,6 +18,7 @@ import axios from 'axios'
 import { useAuth } from '../../../context/AuthContext'
 import { useBreadcrumb } from '../../../context/BreadcrumbContext'
 import type { ShipmentFormData, ShipmentRequestsResponse } from '../types/shipment-form.types';
+import { spawn } from 'child_process';
 
 const ShipmentTable = () => {
   const { msLoginUser } = useAuth()
@@ -373,6 +374,9 @@ const ShipmentTable = () => {
                   }
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                  {request.service_options === 'Urgent' && (
+                    <span className="text-red-500 ml-1">* </span>
+                  )}
                   {request.topic} ({request.po_number})
                   {/* DONT_DELETE_YET */}
                   {/* {request.topic === 'Others' && request.other_topic ? <p className="text-xs text-gray-500">

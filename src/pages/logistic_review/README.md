@@ -15,7 +15,7 @@ This feature allows users with logistic access to review and update specific fie
 - Allows editing of:
   - `customs_terms_of_trade` (Incoterms)
   - `customs_purpose`
-  - `hs_code` (per parcel item)
+  - `hscode` (per parcel item)
   - `origin_country` (per parcel item)
 
 ### LogisticReviewButton

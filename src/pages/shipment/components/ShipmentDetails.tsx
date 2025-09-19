@@ -270,6 +270,7 @@ const ShipmentDetails = () => {
               {shipment.request_status}
             </Chip>
             <DetailRow label="Topic" value={`${shipment.topic} (${shipment.po_number})`} />
+            <DetailRow label="Sales Person" value={`${shipment.sales_person} `} />
             <DetailRow label="Requestor" value={`${shipment.created_user_name} (${shipment.created_user_mail})`} />
             <DetailRow label="Approver" value={`${shipment.approver_user_name} (${shipment.approver_user_mail})`} />
             <DetailRow label="Remark" value={shipment.remark} />
@@ -433,7 +434,7 @@ const ShipmentDetails = () => {
                     {parcel.items?.length > 0 ? (
                       <ul className="list-disc list-inside text-sm space-y-1">
                         {parcel.items.map((item: any, i: number) => (
-                          <li key={i}>{item.description} – {item.quantity} pcs, {item.weight_value} {item.weight_unit}</li>
+                          <li key={i}>{item.description} – {item.quantity} pcs, {item.weight_value} {item.weight_unit} | HS CODE - {item.hscode || 'N/A'}, {item.origin_country} </li>
                         ))}
                       </ul>
                     ) : <span className="text-gray-400">No items</span>}

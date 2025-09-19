@@ -1,7 +1,7 @@
 export interface LogisticReviewUpdateData {
   customs_terms_of_trade: string
   customs_purpose: string
-  hs_code: string
+  hscode: string
   origin_country: string
 }
 
@@ -20,7 +20,7 @@ export interface ShipmentForReview {
   // Include any other fields needed for display
   parcels?: Array<{
     parcel_items?: Array<{
-      hs_code: string
+      hscode: string
       origin_country: string
       description: string
       quantity: number

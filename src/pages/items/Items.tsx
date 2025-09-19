@@ -25,6 +25,7 @@ interface MaterialData {
   supplier_name: string;
   sku: string;
   part_no: string;
+  hscode: string;
 }
 
 const Items = () => {
@@ -139,6 +140,7 @@ const Items = () => {
                   <TableColumn className="w-32">TYPE</TableColumn>
                   <TableColumn className="min-w-[200px]">SKU</TableColumn>
                   <TableColumn className="min-w-[200px]">PART NO</TableColumn>
+                  <TableColumn className="min-w-[200px]">HS CODE</TableColumn>
                   <TableColumn className="min-w-[250px]">SUPPLIER</TableColumn>
                   <TableColumn className="w-24">REVISION</TableColumn>
                 </TableHeader>
@@ -181,6 +183,11 @@ const Items = () => {
                       <TableCell>
                         <span className="text-sm text-default-600">
                           {material.part_no}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-default-600">
+                          {material.hscode}
                         </span>
                       </TableCell>
                       <TableCell>

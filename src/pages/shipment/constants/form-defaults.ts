@@ -126,7 +126,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
       weight_unit: 'kg',
       weight_value: 0,
       sku: '',
-      hs_code: '',
+      hscode: '',
       return_reason: ''
     }]
   }],
@@ -192,7 +192,7 @@ export const DEFAULT_PARCEL = {
     weight_unit: 'kg',
     weight_value: 0,
     sku: '',
-    hs_code: '',
+    hscode: '',
     return_reason: ''
   }]
 }
@@ -207,29 +207,44 @@ export const DEFAULT_PARCEL_ITEM = {
   weight_unit: 'kg',
   weight_value: 0,
   sku: '',
-  hs_code: '',
+  hscode: '',
   return_reason: ''
 }
 
+// export const TOPIC_OPTIONS = [
+//   { key: 'for_sales', value: 'for_sales', label: 'For Sales' },
+//   { key: 'sample', value: 'sample', label: 'Sample' },
+//   { key: 'demonstration', value: 'demonstration', label: 'Demonstration' },
+//   { key: 'consign_parts', value: 'consign_parts', label: 'Consign Parts' },
+//   { key: 'return', value: 'return', label: 'Return' },
+//   { key: 'replacement', value: 'replacement', label: 'Replacement' },
+//   { key: 'others', value: 'others', label: 'Others' }
+// ]
 export const TOPIC_OPTIONS = [
-  { key: 'for_sales', value: 'for_sales', label: 'For Sales' },
-  { key: 'sample', value: 'sample', label: 'Sample' },
-  { key: 'demonstration', value: 'demonstration', label: 'Demonstration' },
-  { key: 'consign_parts', value: 'consign_parts', label: 'Consign Parts' },
-  { key: 'return', value: 'return', label: 'Return' },
-  { key: 'replacement', value: 'replacement', label: 'Replacement' },
-  { key: 'others', value: 'others', label: 'Others' }
-]
+  { key: 'For Sales', value: 'For Sales', label: 'For Sales' },
+  { key: 'Sample', value: 'Sample', label: 'Sample' },
+  { key: 'Demonstration', value: 'Demonstration', label: 'Demonstration' },
+  { key: 'Consign Parts', value: 'Consign Parts', label: 'Consign Parts' },
+  { key: 'Return', value: 'Return', label: 'Return' },
+  { key: 'Replacement', value: 'Replacement', label: 'Replacement' },
+  { key: 'Others', value: 'Others', label: 'Others' }
+];
+
 
 export const SERVICE_OPTIONS = [
   { key: 'Normal', value: 'Normal', label: 'Normal' },
   { key: 'Urgent', value: 'Urgent', label: 'Urgent' },
 ]
 
+// export const SALES_PERSON_OPTIONS = [
+//   { key: 'personA', value: 'Person A', label: 'Person A' },
+//   { key: 'personB', value: 'Person B', label: 'Person B' },
+//   { key: 'personC', value: 'Person C', label: 'Person C' }
+// ]
 export const SALES_PERSON_OPTIONS = [
-  { key: 'personA', value: 'Person A', label: 'Person A' },
-  { key: 'personB', value: 'Person B', label: 'Person B' },
-  { key: 'personC', value: 'Person C', label: 'Person C' }
+  { key: 'Solomon', value: 'Solomon', label: 'Solomon' },
+  { key: 'Nati', value: 'Nati', label: 'Nati' },
+  { key: 'Allen', value: 'Allen', label: 'Allen' }
 ]
 
 export const DIMENSION_UNITS = [
