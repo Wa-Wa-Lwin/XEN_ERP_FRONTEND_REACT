@@ -372,6 +372,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     placeholder="Select box type"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
+                                                   
                                                     onSelectionChange={(keys) => {
                                                         const selectedKey = Array.from(keys)[0] as string
                                                         if (selectedKey) {
@@ -389,6 +390,47 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                         </SelectItem>
                                                     ))}
                                                 </Select>
+
+
+
+                                                // <Select
+                                                //     {...field}
+                                                //     label={
+                                                //         <span>
+                                                //             Box Type{' '}
+                                                //             {isFieldRequired('box_type_name') && (
+                                                //                 <span className="text-red-500">*</span>
+                                                //             )}
+                                                //         </span>
+                                                //     }
+                                                //     placeholder="Select box type"
+                                                //     errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
+                                                //     isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
+                                                //     selectedKeys={(() => {
+                                                //         const currentBoxTypeName = watchedParcels?.[parcelIndex]?.box_type_name;
+                                                //         if (currentBoxTypeName) {
+                                                //             const foundBoxType = PARCEL_BOX_TYPES.find(box => box.box_type_name === currentBoxTypeName);
+                                                //             return foundBoxType ? [foundBoxType.id.toString()] : [];
+                                                //         }
+                                                //         return [];
+                                                //     })()}
+                                                //     onSelectionChange={(keys) => {
+                                                //         const selectedKey = Array.from(keys)[0] as string
+                                                //         if (selectedKey) {
+                                                //             const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.id.toString() === selectedKey)
+                                                //             if (selectedBoxType) {
+                                                //                 field.onChange(selectedBoxType.box_type_name)
+                                                //                 handleBoxTypeChange(parcelIndex, selectedKey)
+                                                //             }
+                                                //         }
+                                                //     }}
+                                                // >
+                                                //     {PARCEL_BOX_TYPES.map((boxType) => (
+                                                //         <SelectItem key={boxType.id} value={boxType.id.toString()}>
+                                                //             {boxType.box_type_name}
+                                                //         </SelectItem>
+                                                //     ))}
+                                                // </Select>
                                             )}
                                         />
                                     </div>

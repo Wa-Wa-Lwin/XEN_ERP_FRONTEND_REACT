@@ -3,6 +3,7 @@ import { Button, Card, CardBody } from '@heroui/react'
 import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
 import { useNotification } from '@context/NotificationContext'
+import { DEFAULT_FORM_VALUES } from '../constants/form-defaults'
 import {
   BasicInformation,
   AddressSelector,
@@ -424,8 +425,14 @@ const ShipmentForm = () => {
       details: []
     })
 
-    // Simply reset the form to default values - the defaults should already include the required values
+    // Reset the form to default values
     reset()
+
+    // Force trigger a re-render by updating watched fields that are used in controlled components
+    // This ensures Select components with selectedKeys and controlled inputs update properly
+    setTimeout(() => {
+      trigger() // Trigger validation to ensure all form state is synchronized
+    }, 0)
 
     // Log the form values after reset to debug
     setTimeout(() => {
@@ -499,7 +506,7 @@ const ShipmentForm = () => {
               </div>
             </div>
             <div className="py-1 px-4">
-              <PickupInformation register={register} errors={errors} today={today} setValue={setValue} watch={watch} />
+              <PickupInformation register={register} control={control} errors={errors} today={today} setValue={setValue} watch={watch} />
               <div className="pt-2 px-1">
                 <hr />
               </div>

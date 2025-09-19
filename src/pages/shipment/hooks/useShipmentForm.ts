@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '@context/AuthContext'
 import { useNotification } from '@context/NotificationContext'
@@ -10,14 +10,44 @@ import type { ShipmentFormData } from '../types/shipment-form.types'
 export const useShipmentForm = () => {
   const { user, approver, msLoginUser } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { success, error: showError } = useNotification()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
+
   const formMethods = useForm<ShipmentFormData>({
     defaultValues: DEFAULT_FORM_VALUES
   })
 
   const { register, control, handleSubmit, watch, setValue, getValues, trigger, reset, formState: { errors } } = formMethods
+
+  // Load duplicate data if URL contains duplicate parameter
+  useEffect(() => {
+    const isDuplicate = searchParams.get('duplicate') === 'true'
+    if (isDuplicate) {
+      const duplicateDataString = sessionStorage.getItem('duplicateShipmentData')
+      if (duplicateDataString) {
+        try {
+          const duplicateData = JSON.parse(duplicateDataString)
+          console.log('Loading duplicate shipment data:', duplicateData)
+
+          // Reset form with the duplicate data
+          reset({
+            ...DEFAULT_FORM_VALUES,
+            ...duplicateData
+          })
+
+          // Clear the session storage after loading
+          sessionStorage.removeItem('duplicateShipmentData')
+
+          // Show success message
+          success('Shipment data loaded for duplication. Please review and modify as needed before submitting.', 'Duplicate Data Loaded')
+        } catch (error) {
+          console.error('Error loading duplicate data:', error)
+          showError('Failed to load duplicate shipment data', 'Loading Error')
+        }
+      }
+    }
+  }, [searchParams, reset, success, showError])
 
   const onSubmit = async (data: ShipmentFormData) => {
     if (!msLoginUser) {

@@ -263,7 +263,7 @@ export const WEIGHT_UNITS = [
 export const CUSTOM_PURPOSES = [
   { key: 'merchandise', value: 'merchandise', label: 'Merchandise' },
   { key: 'gift', value: 'gift', label: 'Gift' },
-  { key: 'gift', value: 'gift', label: 'Sample' },
+  { key: 'sample', value: 'sample', label: 'Sample' },
   { key: 'return', value: 'return', label: 'Return' },
   { key: 'repair', value: 'repair', label: 'Repair' },
   { key: 'personal', value: 'personal', label: 'Personal' }

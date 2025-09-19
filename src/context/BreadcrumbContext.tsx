@@ -20,13 +20,32 @@ export const BreadcrumbProvider: React.FC<BreadcrumbProviderProps> = ({ children
   const { msLoginUser } = useAuth();
 
   // Allowed emails for Review buttons
-  const reviewerEmails = ['wawa@xenoptics.com', 'susu@xenoptics.com'];
+  const reviewerEmails = [
+    'jarin@xenoptics.com',
+    'wawa@xenoptics.com', 
+    'susu@xenoptics.com', 
+    'sasipimol@xenoptics.com',
+    'arphaphat@xenoptics.com',
+    'vanchan@xenoptics.com',
+    'supisara@xenoptics.com',
+    'thinzar@xenoptics.com'
+  ];
 
   // Check if current user email is allowed to see review buttons
   const isReviewAllowed = msLoginUser?.email && reviewerEmails.includes(msLoginUser.email.toLowerCase());
 
   // Allowed emails for Approval buttons
-  const approverEmails = ['erp@xenoptics.com', 'susu@xenoptics.com'];
+  const approverEmails = [
+    'erp@xenoptics.com', 
+    'jarin@xenoptics.com',
+    'wawa@xenoptics.com', 
+    'susu@xenoptics.com', 
+    'sasipimol@xenoptics.com',
+    'arphaphat@xenoptics.com',
+    'vanchan@xenoptics.com',
+    'supisara@xenoptics.com',
+    'thinzar@xenoptics.com'
+  ];
 
   // Check if current user email is allowed to see Approval buttons
   const isApprovalAllowed = msLoginUser?.email && approverEmails.includes(msLoginUser.email.toLowerCase());

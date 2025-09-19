@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Textarea, Divider, Chip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
@@ -8,6 +8,7 @@ import { useNotification } from "@context/NotificationContext";
 
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
+  const navigate = useNavigate();
   const [shipment, setShipment] = useState<any | null>(null); // using any for now until types are aligned
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -200,6 +201,106 @@ const ShipmentDetails = () => {
     }
   };
 
+  const handleDuplicateShipment = () => {
+    if (!shipment) return;
+
+    // Prepare shipment data for duplication (excluding rates and sensitive data)
+    const duplicateData = {
+      // Basic Information
+      send_to: shipment.send_to || 'Approver',
+      topic: shipment.topic || '',
+      other_topic: shipment.other_topic || '',
+      sales_person: shipment.sales_person || '',
+      po_number: shipment.po_number || '',
+      po_date: shipment.po_date || '',
+      service_options: shipment.service_options || '',
+      urgent_reason: shipment.urgent_reason || '',
+      remark: shipment.remark || '',
+      due_date: shipment.due_date || '',
+
+      // Ship From Address
+      ship_from_company_name: shipment.ship_from?.company_name || '',
+      ship_from_contact_name: shipment.ship_from?.contact_name || '',
+      ship_from_street1: shipment.ship_from?.street1 || '',
+      ship_from_street2: shipment.ship_from?.street2 || '',
+      ship_from_street3: shipment.ship_from?.street3 || '',
+      ship_from_city: shipment.ship_from?.city || '',
+      ship_from_state: shipment.ship_from?.state || '',
+      ship_from_postal_code: shipment.ship_from?.postal_code || '',
+      ship_from_country: shipment.ship_from?.country || '',
+      ship_from_phone: shipment.ship_from?.phone || '',
+      ship_from_email: shipment.ship_from?.email || '',
+
+      // Ship To Address
+      ship_to_company_name: shipment.ship_to?.company_name || '',
+      ship_to_contact_name: shipment.ship_to?.contact_name || '',
+      ship_to_street1: shipment.ship_to?.street1 || '',
+      ship_to_street2: shipment.ship_to?.street2 || '',
+      ship_to_street3: shipment.ship_to?.street3 || '',
+      ship_to_city: shipment.ship_to?.city || '',
+      ship_to_state: shipment.ship_to?.state || '',
+      ship_to_postal_code: shipment.ship_to?.postal_code || '',
+      ship_to_country: shipment.ship_to?.country || '',
+      ship_to_phone: shipment.ship_to?.phone || '',
+      ship_to_email: shipment.ship_to?.email || '',
+
+      // Parcels data (excluding rates)
+      parcels: shipment.parcels?.map((parcel: any) => ({
+        box_type: parcel.box_type || 'custom',
+        box_type_name: parcel.box_type_name || '',
+        width: parcel.width || 0,
+        height: parcel.height || 0,
+        depth: parcel.depth || 0,
+        dimension_unit: parcel.dimension_unit || 'cm',
+        weight_value: parcel.weight_value || 0,
+        net_weight_value: parcel.net_weight_value || 0,
+        parcel_weight_value: parcel.parcel_weight_value || 0,
+        weight_unit: parcel.weight_unit || 'kg',
+        description: parcel.description || '',
+        parcel_items: parcel.items?.map((item: any) => ({
+          description: item.description || '',
+          quantity: item.quantity || 1,
+          price_currency: item.price_currency || 'THB',
+          price_amount: item.price_amount || 0,
+          item_id: item.item_id || '',
+          origin_country: item.origin_country || '',
+          weight_unit: item.weight_unit || 'kg',
+          weight_value: item.weight_value || 0,
+          sku: item.sku || '',
+          hscode: item.hscode || '',
+          return_reason: ''
+        })) || []
+      })) || [],
+
+      // Customs Information
+      customs_purpose: shipment.customs_purpose || '',
+      customs_terms_of_trade: shipment.customs_terms_of_trade || '',
+
+      // Clear rate and approval data
+      rates: [],
+
+      // Pickup Information
+      pick_up_status: shipment.pick_up_status || false,
+      pick_up_date: shipment.pick_up_date || '',
+      pick_up_start_time: shipment.pick_up_start_time || '',
+      pick_up_end_time: shipment.pick_up_end_time || '',
+      pick_up_instructions: shipment.pick_up_instructions || '',
+
+      // Insurance (optional, can be cleared)
+      insurance_enabled: false,
+      insurance_insured_value_amount: 0,
+      insurance_insured_value_currency: 'THB'
+    };
+
+    // Store the duplicate data in sessionStorage
+    sessionStorage.setItem('duplicateShipmentData', JSON.stringify(duplicateData));
+
+    // Navigate to shipment form with duplicate parameter
+    navigate('/shipment/request-form?duplicate=true');
+
+    success('Shipment data prepared for duplication. Please review and submit the new shipment request.', 'Duplicate Created');
+  };
+
   // const formattedError = shipment.error_msg.replace(/\|/g, '\n|');
   const formattedError = shipment?.error_msg ? shipment.error_msg.replace(/\|/g, '\n|') : "";
 
@@ -289,6 +390,17 @@ const ShipmentDetails = () => {
       <section className="space-y-3">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">General Information</h2>
+          {(msLoginUser?.email === 'wawa@xenoptics.com' || msLoginUser?.email === 'susu@xenoptics.com' || msLoginUser?.email === 'thinzar@xenoptics.com' ) && (
+            <Button
+              color="secondary"
+              size="sm"
+              variant="bordered"
+              startContent={<Icon icon="solar:copy-bold" />}
+              onPress={handleDuplicateShipment}
+            >
+              Duplicate Shipment Request
+            </Button>
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1 text-sm">

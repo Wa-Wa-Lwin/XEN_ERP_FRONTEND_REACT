@@ -16,6 +16,27 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
   // Watch the send_to field to conditionally apply validation
   const sendTo = watch('send_to');
 
+  // Watch form values to sync with form state
+  const topicValue = watch('topic');
+  const serviceOptionsValue = watch('service_options');
+  const sendToValue = watch('send_to');
+  const customsPurposeValue = watch('customs_purpose');
+  const customsTermsValue = watch('customs_terms_of_trade');
+  const salesPersonValue = watch('sales_person');
+
+  // Update local state when form values change (for duplicated data)
+  useEffect(() => {
+    if (topicValue) {
+      setSelectedTopic(new Set([topicValue]));
+    }
+  }, [topicValue]);
+
+  useEffect(() => {
+    if (serviceOptionsValue) {
+      setSelectedServiceOptions(new Set([serviceOptionsValue]));
+    }
+  }, [serviceOptionsValue]);
+
   // Helper function to set request status based on send_to value
   const setRequestStatusValue = (sendToValue: string) => {
     if (setValue) {
@@ -67,7 +88,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 placeholder="Select recipient"
                 errorMessage={errors.send_to?.message}
                 isInvalid={!!errors.send_to}
-                defaultSelectedKeys={["Approver"]}
+                selectedKeys={sendToValue ? [sendToValue] : ["Approver"]}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {
@@ -96,6 +117,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                   placeholder="Select topic"
                   errorMessage={errors.topic?.message}
                   isInvalid={!!errors.topic}
+                  selectedKeys={topicValue ? [topicValue] : []}
                   onSelectionChange={(keys) => {
                     const selectedKey = Array.from(keys)[0] as string
                     if (selectedKey) {
@@ -112,10 +134,10 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 </Select>
               )}
             />
-            {selectedTopic.has('others') && (
+            {selectedTopic.has('Others') && (
               <Input
                 {...register('other_topic', {
-                  required: selectedTopic.has('others') && isFieldRequired() ? 'Other topic is required' : false
+                  required: selectedTopic.has('Others') && isFieldRequired() ? 'Other topic is required' : false
                 })}
                 label={<span>Other Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
                 placeholder="Enter other topic"
@@ -136,6 +158,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                     placeholder="Select sales person"
                     errorMessage={errors.sales_person?.message}
                     isInvalid={!!errors.sales_person}
+                    selectedKeys={salesPersonValue ? [salesPersonValue] : []}
                     onSelectionChange={(keys) => {
                       const selectedKey = Array.from(keys)[0] as string
                       if (selectedKey) {
@@ -185,6 +208,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                   placeholder="Select service options"
                   errorMessage={errors.service_options?.message}
                   isInvalid={!!errors.service_options}
+                  selectedKeys={serviceOptionsValue ? [serviceOptionsValue] : []}
                   onSelectionChange={(keys) => {
                     const selectedKey = Array.from(keys)[0] as string
                     if (selectedKey) {
@@ -223,6 +247,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 placeholder="Select customs purpose"
                 errorMessage={errors.customs_purpose?.message}
                 isInvalid={!!errors.customs_purpose}
+                selectedKeys={customsPurposeValue ? [customsPurposeValue] : []}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {
@@ -249,6 +274,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 placeholder="Select Incoterms"
                 errorMessage={errors.customs_terms_of_trade?.message}
                 isInvalid={!!errors.customs_terms_of_trade}
+                selectedKeys={customsTermsValue ? [customsTermsValue] : []}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {

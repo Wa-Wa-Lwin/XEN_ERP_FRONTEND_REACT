@@ -73,6 +73,7 @@ export const COUNTRIES = [
   { key: "GUY", value: "GUY - Guyana" },
   { key: "HTI", value: "HTI - Haiti" },
   { key: "HND", value: "HND - Honduras" },
+  { key: "HKG", value: "HKG - Hong Kong" },
   { key: "HUN", value: "HUN - Hungary" },
   { key: "ISL", value: "ISL - Iceland" },
   { key: "IND", value: "IND - India" },

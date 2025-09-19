@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardBody, Input, Textarea } from '@heroui/react'
+import { Controller } from 'react-hook-form'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { getDefaultPickupValues } from '../../constants/form-defaults'
 import { useEffect } from 'react'
@@ -9,13 +10,15 @@ interface PickupInformationProps extends FormSectionProps {
   watch?: any
 }
 
-const PickupInformation = ({ register, errors, setValue, watch }: PickupInformationProps) => {
+const PickupInformation = ({ register, errors, control, setValue, watch }: PickupInformationProps) => {
 
   // Get default pickup values based on current time
   const { pickupDate: defaultPickupDate, minDate } = getDefaultPickupValues()
 
   // Watch pickup date to adjust start time
   const pickupDate = watch ? watch('pick_up_date') : defaultPickupDate
+  const pickupStartTime = watch ? watch('pick_up_start_time') : ''
+  const pickupEndTime = watch ? watch('pick_up_end_time') : ''
   const todayDate = new Date().toISOString().split('T')[0]
 
   // Determine start time based on pickup date
@@ -65,7 +68,7 @@ const PickupInformation = ({ register, errors, setValue, watch }: PickupInformat
             errorMessage={errors.pick_up_date?.message || errors.due_date?.message}
             isInvalid={!!errors.pick_up_date || !!errors.due_date}
             min={minDate}
-            defaultValue={defaultPickupDate}
+            value={pickupDate || defaultPickupDate}
             onChange={handleDateChange}
           />
 
@@ -76,25 +79,37 @@ const PickupInformation = ({ register, errors, setValue, watch }: PickupInformat
             defaultValue={defaultPickupDate}
           />
           <div className="flex gap-2">
-            <Input
-              {...register('pick_up_start_time', {
-                required: 'Start time is required',
-              })}
-              type="time"
-              label={<span>Start Time <span className="text-red-500">*</span></span>}
-              errorMessage={errors.pick_up_start_time?.message}
-              isInvalid={!!errors.pick_up_start_time}
-              defaultValue={getStartTimeForDate(defaultPickupDate)}
+            <Controller
+              name="pick_up_start_time"
+              control={control}
+              rules={{ required: 'Start time is required' }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="time"
+                  label={<span>Start Time <span className="text-red-500">*</span></span>}
+                  errorMessage={errors.pick_up_start_time?.message}
+                  isInvalid={!!errors.pick_up_start_time}
+                  value={field.value || pickupStartTime || getStartTimeForDate(pickupDate || defaultPickupDate)}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
-            <Input
-              {...register('pick_up_end_time', {
-                required: 'End time is required',
-              })}
-              type="time"
-              label={<span>End Time <span className="text-red-500">*</span></span>}
-              errorMessage={errors.pick_up_end_time?.message}
-              isInvalid={!!errors.pick_up_end_time}
-              defaultValue="17:00"
+            <Controller
+              name="pick_up_end_time"
+              control={control}
+              rules={{ required: 'End time is required' }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="time"
+                  label={<span>End Time <span className="text-red-500">*</span></span>}
+                  errorMessage={errors.pick_up_end_time?.message}
+                  isInvalid={!!errors.pick_up_end_time}
+                  value={field.value || pickupEndTime || '17:00'}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
           <div className="col-span-2">
