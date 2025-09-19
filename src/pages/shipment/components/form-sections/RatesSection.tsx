@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
@@ -231,19 +231,19 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return new Date(dateTime).toLocaleString()
   }
 
-  const getStatusColor = (rate: RateResponse) => {
-    if (rate.error_message) return 'danger'
-    if (rate.info_message && !rate.total_charge?.amount) return 'warning'
-    if (rate.total_charge?.amount) return 'success'
-    return 'default'
-  }
+  // const getStatusColor = (rate: RateResponse) => {
+  //   if (rate.error_message) return 'danger'
+  //   if (rate.info_message && !rate.total_charge?.amount) return 'warning'
+  //   if (rate.total_charge?.amount) return 'success'
+  //   return 'default'
+  // }
 
-  const getStatusText = (rate: RateResponse) => {
-    if (rate.error_message) return 'Error'
-    if (rate.info_message && !rate.total_charge?.amount) return 'No Quote'
-    if (rate.total_charge?.amount) return 'Available'
-    return 'Unknown'
-  }
+  // const getStatusText = (rate: RateResponse) => {
+  //   if (rate.error_message) return 'Error'
+  //   if (rate.info_message && !rate.total_charge?.amount) return 'No Quote'
+  //   if (rate.total_charge?.amount) return 'Available'
+  //   return 'Unknown'
+  // }
 
   // Filter unique rates based on shipper_account.id + service_type combination
   // Only show available rates (rates with total_charge amount and no errors)
