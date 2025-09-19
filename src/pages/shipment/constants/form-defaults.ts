@@ -119,7 +119,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     parcel_items: [{
       description: '',
       quantity: 1,
-      price_currency: '',
+      price_currency: 'THB',
       price_amount: 0,
       item_id: '',
       origin_country: '',
@@ -186,7 +186,7 @@ export const DEFAULT_PARCEL = {
   parcel_items: [{
     description: '',
     quantity: 1,
-    price_currency: '',
+    price_currency: 'THB',
     price_amount: 0,
     item_id: '',
     origin_country: '',
@@ -201,7 +201,7 @@ export const DEFAULT_PARCEL = {
 export const DEFAULT_PARCEL_ITEM = {
   description: '',
   quantity: 1,
-  price_currency: '',
+  price_currency: 'THB',
   price_amount: 0,
   item_id: '',
   origin_country: '',

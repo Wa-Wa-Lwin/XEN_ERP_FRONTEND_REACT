@@ -421,12 +421,14 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                 placeholder="Select currency"
                                                 variant="flat"
                                                 size="sm"
-                                                defaultSelectedKey="THB"
+                                                selectedKey={field.value || "THB"}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}
                                                 onSelectionChange={(key) => {
                                                     if (key) {
                                                         field.onChange(key.toString());
+                                                    } else {
+                                                        field.onChange("THB");
                                                     }
                                                 }}
                                             >
