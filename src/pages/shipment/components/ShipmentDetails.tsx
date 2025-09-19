@@ -4,6 +4,7 @@ import { Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, 
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
+import { useNotification } from "@context/NotificationContext";
 
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
@@ -16,6 +17,7 @@ const ShipmentDetails = () => {
   const [showError, setShowError] = useState(false);
 
   const { user, msLoginUser } = useAuth();
+  const { success, error: showNotificationError } = useNotification();
 
   useEffect(() => {
     const fetchShipment = async () => {
@@ -49,7 +51,7 @@ const ShipmentDetails = () => {
 
   const handleApprovalAction = async (action: 'approver_approved' | 'approver_rejected') => {
     if (!msLoginUser || !shipmentId) {
-      alert('Missing user information or shipment ID');
+      showNotificationError('Missing user information or shipment ID', 'Authentication Error');
       return;
     }
 
@@ -111,20 +113,20 @@ const ShipmentDetails = () => {
 
               const alertMessage = `✅ Shipment ${actionText} successfully!\n\n❌ However, shipping label creation failed:\n\n${errorDetails}\n\n📞 Please contact the logistics team to resolve these label creation issues before the shipment can proceed.`;
 
-              alert(alertMessage);
+              showNotificationError(alertMessage, 'Partial Success');
             } else {
               // Fallback if no detailed errors but label creation failed
               const labelMessage = responseData.label_message || responseData.response_message || 'Unknown label creation error';
-              alert(`✅ Shipment ${actionText} successfully!\n\n❌ However, shipping label creation failed: ${labelMessage}\n\n📞 Please contact the logistics team.`);
+              showNotificationError(`✅ Shipment ${actionText} successfully!\n\n❌ However, shipping label creation failed: ${labelMessage}\n\n📞 Please contact the logistics team.`, 'Partial Success');
             }
           } else {
             // Pure success - both approval and label creation worked
-            alert(`✅ Shipment ${actionText} successfully!\n\n📦 Shipping label has been created and is ready for use.`);
+            success(`Shipment ${actionText} successfully!\n\nShipping label has been created and is ready for use.`, 'Success');
           }
         } else {
           // Handle non-success status but still show action completion
           const actionText = isApprove ? 'approved' : 'rejected';
-          alert(`✅ Shipment ${actionText} successfully!`);
+          success(`Shipment ${actionText} successfully!`, 'Success');
         }
 
         // Refresh shipment data
@@ -136,12 +138,12 @@ const ShipmentDetails = () => {
       if (axios.isAxiosError(error) && error.response?.data) {
         const errorData = error.response.data;
         if (errorData.meta?.message) {
-          alert(`Action failed: ${errorData.meta.message}`);
+          showNotificationError(`Action failed: ${errorData.meta.message}`, 'Action Failed');
         } else {
-          alert('Failed to process approval action. Please try again.');
+          showNotificationError('Failed to process approval action. Please try again.', 'Action Failed');
         }
       } else {
-        alert('Failed to process approval action. Please check your connection and try again.');
+        showNotificationError('Failed to process approval action. Please check your connection and try again.', 'Connection Error');
       }
     } finally {
       setLoadingState(false);
@@ -168,10 +170,10 @@ const ShipmentDetails = () => {
       });
 
       if (response.status === 200) {
-        alert("✅ Label created successfully!");
+        success('Label created successfully!', 'Success');
         window.location.reload();
       } else {
-        alert(`❌ Failed to create label (HTTP ${response.status}).`);
+        showNotificationError(`Failed to create label (HTTP ${response.status}).`, 'Label Creation Failed');
       }
     } catch (error) {
       console.error("Error creating label:", error);
@@ -191,9 +193,9 @@ const ShipmentDetails = () => {
           msg += `\n\nDetails:\n${formattedDetails}`;
         }
 
-        alert(`❌ Failed to create label:\n${msg}`);
+        showNotificationError(`Failed to create label:\n${msg}`, 'Label Creation Failed');
       } else {
-        alert("❌ Failed to create label. Please check your connection.");
+        showNotificationError('Failed to create label. Please check your connection.', 'Connection Error');
       }
     }
   };

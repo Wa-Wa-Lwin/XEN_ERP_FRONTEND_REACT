@@ -3,12 +3,14 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '@context/AuthContext'
+import { useNotification } from '@context/NotificationContext'
 import { DEFAULT_FORM_VALUES } from '../constants/form-defaults'
 import type { ShipmentFormData } from '../types/shipment-form.types'
 
 export const useShipmentForm = () => {
   const { user, approver, msLoginUser } = useAuth()
   const navigate = useNavigate()
+  const { success, error: showError } = useNotification()
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const formMethods = useForm<ShipmentFormData>({
@@ -19,7 +21,7 @@ export const useShipmentForm = () => {
 
   const onSubmit = async (data: ShipmentFormData) => {
     if (!msLoginUser) {
-      alert('User authentication required')
+      showError('User authentication required', 'Authentication Error')
       return
     }
 
@@ -42,7 +44,7 @@ export const useShipmentForm = () => {
       )
 
       if (response.status === 200 || response.status === 201) {
-        alert('Shipment request created successfully!')
+        success('Shipment request created successfully!', 'Success')
         // Reset form and redirect to shipment list
         // Use setTimeout to ensure the state updates complete before navigation
         setTimeout(() => {
@@ -62,14 +64,14 @@ export const useShipmentForm = () => {
             `${detail.path}: ${detail.info}`
           ).join('\n')
 
-          alert(`Submission failed with validation errors:\n\n${errorMessages}`)
+          showError(`Submission failed with validation errors:\n\n${errorMessages}`, 'Validation Error')
         } else if (errorData.meta?.message) {
-          alert(`Submission failed: ${errorData.meta.message}`)
+          showError(`Submission failed: ${errorData.meta.message}`, 'Submission Failed')
         } else {
-          alert('Error submitting shipment request. Please check your form data and try again.')
+          showError('Error submitting shipment request. Please check your form data and try again.', 'Submission Error')
         }
       } else {
-        alert('Error submitting shipment request. Please check your internet connection and try again.')
+        showError('Error submitting shipment request. Please check your internet connection and try again.', 'Connection Error')
       }
     } finally {
       setIsSubmitting(false)

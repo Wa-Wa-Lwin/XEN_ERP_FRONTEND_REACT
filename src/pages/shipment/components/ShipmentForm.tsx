@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button, Card, CardBody } from '@heroui/react'
 import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
+import { useNotification } from '@context/NotificationContext'
 import {
   BasicInformation,
   AddressSelector,
@@ -17,6 +18,7 @@ import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentForm = () => {
   const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues, trigger, watch, reset } = useShipmentForm()
+  const { error: showError } = useNotification()
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
   const [isCalculatingRate, setIsCalculatingRate] = useState(false)
@@ -180,10 +182,10 @@ const ShipmentForm = () => {
             details: []
           })
         } else {
-          alert('Error calculating shipping rates. Please check your form data and try again.')
+          showError('Error calculating shipping rates. Please check your form data and try again.', 'Rate Calculation Error')
         }
       } else {
-        alert('Error calculating shipping rates. Please check your internet connection and try again.')
+        showError('Error calculating shipping rates. Please check your internet connection and try again.', 'Connection Error')
       }
       return formData
 

@@ -4,14 +4,19 @@ import { Suspense } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Router } from "@routers/Routers";
 import { AuthProvider } from "@context/AuthContext";
+import { NotificationProvider } from "@context/NotificationContext";
+import NotificationContainer from "@components/common/NotificationContainer";
 
 function App() {
 	return (
 		<Provider store={store}>
 			<AuthProvider>
-				<Suspense fallback={<Loading />}>
-					<RouterProvider router={Router} />
-				</Suspense>
+				<NotificationProvider>
+					<Suspense fallback={<Loading />}>
+						<RouterProvider router={Router} />
+					</Suspense>
+					<NotificationContainer />
+				</NotificationProvider>
 			</AuthProvider>
 		</Provider>
 	);

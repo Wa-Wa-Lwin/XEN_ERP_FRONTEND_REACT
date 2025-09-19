@@ -124,7 +124,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 required
               />
             )}
-            {selectedTopic.has('for_sales') && (
+            {selectedTopic.has('For Sales') && (
               <Controller
                 name="sales_person"
                 control={control}
