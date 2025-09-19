@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
 import { useNotification } from "@context/NotificationContext";
+import { INCOTERMS } from "../constants/form-defaults";
 
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
@@ -16,6 +17,7 @@ const ShipmentDetails = () => {
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [showAllRates, setShowAllRates] = useState(false);
 
   const { user, msLoginUser } = useAuth();
   const { success, error: showNotificationError } = useNotification();
@@ -310,6 +312,41 @@ const ShipmentDetails = () => {
   // const formattedError = shipment.error_msg.replace(/\|/g, '\n|');
   const formattedError = shipment?.error_msg ? shipment.error_msg.replace(/\|/g, '\n|') : "";
 
+  const getDisplayStatus = (status: string) => {
+    switch (status) {
+      case 'requestor_requested':
+        return 'WAITING APPROVER';
+      case 'send_to_logistic':
+        return 'WAITING LOGISTICS';
+      case 'logistic_updated':
+        return 'WAITING APPROVER';
+      case 'approver_approved':
+        return 'APPROVED';
+      case 'approver_rejected':
+        return 'REJECTED';
+      default:
+        return status.toUpperCase();
+    }
+  };
+
+  const formatDateTime = (dateTimeString: string) => {
+    if (!dateTimeString) return null;
+    const date = new Date(dateTimeString);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${year} ${month} ${day} [${displayHours}:${minutes}${period}]`;
+  };
+
+  const getIncotermDisplay = (key: string) => {
+    const incoterm = INCOTERMS.find(term => term.key === key);
+    return incoterm ? incoterm.value : key;
+  };
 
   interface DetailRowProps {
     label: string
@@ -390,13 +427,13 @@ const ShipmentDetails = () => {
   }
 
   return (
-    <div className="mx-auto w-full p-4 space-y-8">
+    <div className="mx-auto w-full p-4 space-y-2">
 
       {/* General Info */}
-      <section className="space-y-3">
+      <section className="space-y-1">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">General Information</h2>
-          {(msLoginUser?.email === 'wawa@xenoptics.com' || msLoginUser?.email === 'susu@xenoptics.com' || msLoginUser?.email === 'thinzar@xenoptics.com' ) && (
+          {(msLoginUser?.email === 'wawa@xenoptics.com' || msLoginUser?.email === 'susu@xenoptics.com' || msLoginUser?.email === 'thinzar@xenoptics.com') && (
             <Button
               color="secondary"
               size="sm"
@@ -408,8 +445,7 @@ const ShipmentDetails = () => {
             </Button>
           )}
         </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1 text-sm">
+        <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-1 text-sm">
           <div>
             <DetailRow label="ID" value={shipment.shipmentRequestID} />
             <Chip
@@ -421,109 +457,64 @@ const ShipmentDetails = () => {
               }
               variant="flat"
             >
-              {shipment.request_status}
+              {getDisplayStatus(shipment.request_status)}
             </Chip>
             <DetailRow label="Topic" value={`${shipment.topic} (${shipment.po_number})`} />
-            <DetailRow label="Sales Person" value={`${shipment.sales_person} `} />
+            {shipment.topic === 'For Sales' && (
+              <DetailRow label="Sales Person" value={shipment.sales_person} />
+            )}
+            {shipment.topic === 'Others' && (
+              <DetailRow label="Other" value={shipment.other_topic} />
+            )}
             <DetailRow label="Requestor" value={`${shipment.created_user_name} (${shipment.created_user_mail})`} />
             <DetailRow label="Approver" value={`${shipment.approver_user_name} (${shipment.approver_user_mail})`} />
-            <DetailRow label="Remark" value={shipment.remark} />
-            {/* <p>
-              MS login mail - {msLoginUser?.email} <br />
-              shipment.approver_user_mail - {shipment.approver_user_mail}
-            </p> */}
+            {shipment.remark && <DetailRow label="Remark" value={shipment.remark} />}
+            <DetailRow label="Request Created Date" value={formatDateTime(shipment.created_date_time)} />
+            {shipment.approver_rejected_date_time && (
+              <DetailRow label="Rejected Date" value={formatDateTime(shipment.approver_rejected_date_time)} />
+            )}
           </div>
-          {["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
-            msLoginUser?.email.toLowerCase() === shipment.approver_user_mail.toLowerCase() ? (
-            <section className="bg-gray-50 rounded-xl border p-4 space-y-3">
-              <h2 className="text-base font-semibold">Approval Actions</h2>
-              <Textarea
-                placeholder="Enter remark (optional for approval, required for rejection)"
-                value={remark}
-                onValueChange={setRemark}
-                size="sm"
-                variant="bordered"
-              />
-              <div className="flex gap-2">
-                <Button
-                  color="success"
-                  onPress={() => handleApprovalAction("approver_approved")}
-                  isLoading={isApproving}
-                  disabled={isApproving || isRejecting}
-                  size="sm"
-                  startContent={<Icon icon="solar:check-circle-bold" />}
-                >
-                  {isApproving ? "Approving..." : "Approve"}
-                </Button>
-                <Button
-                  color="danger"
-                  onPress={() => handleApprovalAction("approver_rejected")}
-                  isLoading={isRejecting}
-                  disabled={isApproving || isRejecting}
-                  size="sm"
-                  startContent={<Icon icon="solar:close-circle-bold" />}
-                >
-                  {isRejecting ? "Rejecting..." : "Reject"}
-                </Button>
-              </div>
-            </section>
-          ) : (
-            <div>
-              {shipment.label_status === "failed" && (
-                <div className="mb-3">
-                  <p className="text-red-600 font-semibold mb-2">
-                    ⚠️ Label creation failed
-                    {/* <br /> */}
-                    <Button
-                      size="sm"
-                      color="warning"
-                      onPress={() => setShowError(!showError)}
-                      className="ml-2"
-                    >
-                      {showError ? "Hide Error Details" : "Show Error Details"}
-                    </Button>
-                  </p>
+          <div>
+            <DetailRow label="Shipment Scope Type" value={shipment.shipment_scope_type.toUpperCase()} />
+            <DetailRow label="Service Options" value={shipment.service_options} />
+            
+            {shipment.service_options === 'Urgent' && (
+              <DetailRow label="Urgent Reason" value={shipment.urgent_reason} />
+            )}
+            <DetailRow label="Customs Purpose" value={shipment.customs_purpose} />
+            <DetailRow label="Customs Terms of Trade" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
+          </div>
+          <div>
+            
+            {shipment.approver_approved_date_time && (
+              <>
+                <DetailRow label="Label ID" value={shipment.label_id} />
+                <DetailRow label="Label Status" value={shipment.label_status} />
+                <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
+                <DetailRow label="Pick Up Date" value={shipment.pick_up_date} />
+                <DetailRow label="Pick Up Created Status" value={shipment.pick_up_created_status} />
+                <DetailRow label="Pickup Confirmation Numbers" value={shipment.pickup_confirmation_numbers} />
+                <DetailRow label="Invoice No" value={shipment.invoice_no} />
+                <DetailRow label="Invoice Date" value={shipment.invoice_date} />
+                <DetailRow label="Invoice Due Date" value={shipment.invoice_due_date} />
+                <DetailRow label="Approved Date" value={formatDateTime(shipment.approver_approved_date_time)} />
+              </>
+            )}
 
-
-                  {showError && (
-                    <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
-                      <b>Details:</b> {formattedError}
-                    </div>
-                  )}
-
-                  <Button
-                    color="primary"
-                    size="sm"
-                    onPress={handleCreateLabel}
-                    startContent={<Icon icon="solar:refresh-bold" />}
-                  >
-                    Retry Create Label
-                  </Button>
-                </div>
-              )}
-
-              <DetailRow label="Label" value={shipment.files_label_url} />
-              <DetailRow label="Invoice No" value={shipment.invoice_no} />
-              <DetailRow label="Invoice Date" value={shipment.invoice_date} />
-              <DetailRow label="Invoice Due Date" value={shipment.invoice_due_date} />
-              <DetailRow label="Invoice" value={shipment.files_invoice_url} />
-              <DetailRow label="Packing Slip" value={shipment.files_packing_slip} />
-            </div>
-          )}
-
-
+          </div>
         </div>
+        <hr />      
       </section>
       {/* Ship From / Ship To */}
-      <section className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-2">
+      <section className="grid md:grid-cols-3 gap-6">
+        <div className="space-y-0">
           <h2 className="text-base font-semibold">Ship From</h2>
           <DetailRow label="Company" value={shipment.ship_from?.company_name} />
           <DetailRow label="Address" value={`${shipment.ship_from?.street1}, ${shipment.ship_from?.city}, ${shipment.ship_from?.country}`} />
           <DetailRow label="Contact" value={`${shipment.ship_from?.contact_name} (${shipment.ship_from?.phone})`} />
           <DetailRow label="Email" value={shipment.ship_from?.email} />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-0">
           <h2 className="text-base font-semibold">Ship To</h2>
           <DetailRow label="Company" value={shipment.ship_to?.company_name} />
           <DetailRow label="Address" value={`${shipment.ship_to?.street1}, ${shipment.ship_to?.city}, ${shipment.ship_to?.country}`} />
@@ -537,7 +528,19 @@ const ShipmentDetails = () => {
       {/* Rates */}
       {shipment.rates?.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold mb-3">Rates</h2>
+          <div className="flex justify-left gap-6 items-center mb-0">
+            <h2 className="text-base font-semibold">Rates</h2>
+            {shipment.rates.length > 1 && (
+              <Button
+                size="sm"
+                variant="bordered"
+                onPress={() => setShowAllRates(!showAllRates)}
+                startContent={<Icon icon={showAllRates ? "solar:eye-closed-bold" : "solar:eye-bold"} />}
+              >
+                {showAllRates ? "Show Selected Only" : "View All Rates"}
+              </Button>
+            )}
+          </div>
           <Table shadow="none" aria-label="Rates Table">
             <TableHeader>
               <TableColumn>Chosen</TableColumn>
@@ -548,18 +551,19 @@ const ShipmentDetails = () => {
               <TableColumn>Cost</TableColumn>
             </TableHeader>
             <TableBody>
-              {shipment.rates.map((rate: any, idx: number) => (
-                <TableRow key={idx} className={rate.chosen == 1 ? "bg-green-50" : ""}>
-                  <TableCell>
-                    {rate.chosen == 1 ? <Icon icon="mdi:check-circle" className="text-green-600 w-5 h-5" /> : null}
-                  </TableCell>
-                  <TableCell>{idx + 1}</TableCell>
-                  <TableCell>{rate.shipper_account_description}</TableCell>
-                  <TableCell>{rate.service_name}</TableCell>
-                  <TableCell>{rate.transit_time} days</TableCell>
-                  <TableCell>{rate.total_charge_amount} {rate.total_charge_currency}</TableCell>
-                </TableRow>
-              ))}
+              {(showAllRates ? shipment.rates : shipment.rates.filter((rate: any) => rate.chosen == 1))
+                .map((rate: any, idx: number) => (
+                  <TableRow key={idx} className={rate.chosen == 1 ? "bg-green-50" : ""}>
+                    <TableCell>
+                      {rate.chosen == 1 ? <Icon icon="mdi:check-circle" className="text-green-600 w-5 h-5" /> : null}
+                    </TableCell>
+                    <TableCell>{showAllRates ? shipment.rates.indexOf(rate) + 1 : idx + 1}</TableCell>
+                    <TableCell>{rate.shipper_account_description}</TableCell>
+                    <TableCell>{rate.service_name}</TableCell>
+                    <TableCell>{rate.transit_time} days</TableCell>
+                    <TableCell>{rate.total_charge_amount} {rate.total_charge_currency}</TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </section>
@@ -570,7 +574,7 @@ const ShipmentDetails = () => {
       {/* Parcels */}
       {shipment.parcels?.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold mb-3">
+          <h2 className="text-base font-semibold mb-0">
             Parcels ({shipment.parcels.length})
           </h2>
           <Table shadow="none" aria-label="Parcels Table">
@@ -588,13 +592,15 @@ const ShipmentDetails = () => {
                   <TableCell>{idx + 1}</TableCell>
                   <TableCell>{parcel.description}</TableCell>
                   <TableCell>{parcel.box_type}</TableCell>
-                  <TableCell>{parcel.width} × {parcel.height} × {parcel.depth}</TableCell>
+                  <TableCell>{Math.floor(parcel.width)} × {Math.floor(parcel.height)} × {Math.floor(parcel.depth)}</TableCell>
                   <TableCell>{parcel.weight_value}</TableCell>
                   <TableCell>
                     {parcel.items?.length > 0 ? (
                       <ul className="list-disc list-inside text-sm space-y-1">
                         {parcel.items.map((item: any, i: number) => (
-                          <li key={i}>{item.description} – {item.quantity} pcs, {item.weight_value} {item.weight_unit} | HS CODE - {item.hs_code || 'N/A'}, {item.origin_country} </li>
+                          <li key={i}>
+                            <strong>SKU:</strong> {item.sku || 'N/A'} | <strong>Description:</strong> {item.description} | <strong>Price:</strong> {parseFloat(item.price_amount)} {item.price_currency} | <strong>Qty:</strong> {item.quantity} pcs | <strong>Weight:</strong> {parseFloat(item.weight_value).toFixed(1)} {item.weight_unit} | <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country}
+                          </li>
                         ))}
                       </ul>
                     ) : <span className="text-gray-400">No items</span>}
@@ -604,6 +610,77 @@ const ShipmentDetails = () => {
             </TableBody>
           </Table>
         </section>
+      )}
+
+      {["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
+        msLoginUser?.email.toLowerCase() === shipment.approver_user_mail.toLowerCase() ? (
+        <section className="bg-gray-50 rounded-xl border p-4 space-y-3">
+          <h2 className="text-base font-semibold">Approval Actions</h2>
+          <Textarea
+            placeholder="Enter remark (optional for approval, required for rejection)"
+            value={remark}
+            onValueChange={setRemark}
+            size="sm"
+            variant="bordered"
+          />
+          <div className="flex gap-2">
+            <Button
+              color="success"
+              onPress={() => handleApprovalAction("approver_approved")}
+              isLoading={isApproving}
+              disabled={isApproving || isRejecting}
+              size="sm"
+              startContent={<Icon icon="solar:check-circle-bold" />}
+            >
+              {isApproving ? "Approving..." : "Approve"}
+            </Button>
+            <Button
+              color="danger"
+              onPress={() => handleApprovalAction("approver_rejected")}
+              isLoading={isRejecting}
+              disabled={isApproving || isRejecting}
+              size="sm"
+              startContent={<Icon icon="solar:close-circle-bold" />}
+            >
+              {isRejecting ? "Rejecting..." : "Reject"}
+            </Button>
+          </div>
+        </section>
+      ) : (
+        <div>
+          {shipment.label_status === "failed" && (
+            <div className="mb-3">
+              <p className="text-red-600 font-semibold mb-2">
+                ⚠️ Label creation failed
+                {/* <br /> */}
+                <Button
+                  size="sm"
+                  color="warning"
+                  onPress={() => setShowError(!showError)}
+                  className="ml-2"
+                >
+                  {showError ? "Hide Error Details" : "Show Error Details"}
+                </Button>
+              </p>
+
+
+              {showError && (
+                <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
+                  <b>Details:</b> {formattedError}
+                </div>
+              )}
+
+              <Button
+                color="primary"
+                size="sm"
+                onPress={handleCreateLabel}
+                startContent={<Icon icon="solar:refresh-bold" />}
+              >
+                Retry Create Label
+              </Button>
+            </div>
+          )}
+        </div>
       )}
 
     </div>
