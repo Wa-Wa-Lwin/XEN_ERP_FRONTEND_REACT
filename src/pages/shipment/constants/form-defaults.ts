@@ -126,7 +126,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
       weight_unit: 'kg',
       weight_value: 0,
       sku: '',
-      hscode: '',
+      hs_code: '',
       return_reason: ''
     }]
   }],
@@ -193,7 +193,7 @@ export const DEFAULT_PARCEL = {
     weight_unit: 'kg',
     weight_value: 0,
     sku: '',
-    hscode: '',
+    hs_code: '',
     return_reason: ''
   }]
 }
@@ -208,7 +208,7 @@ export const DEFAULT_PARCEL_ITEM = {
   weight_unit: 'kg',
   weight_value: 0,
   sku: '',
-  hscode: '',
+  hs_code: '',
   return_reason: ''
 }
 

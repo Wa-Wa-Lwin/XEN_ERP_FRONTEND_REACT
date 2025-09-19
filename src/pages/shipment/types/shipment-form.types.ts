@@ -8,7 +8,7 @@ export interface ParcelItem {
   weight_unit: string
   weight_value: number
   sku: string
-  hscode: string
+  hs_code: string
   return_reason: string
 }
 

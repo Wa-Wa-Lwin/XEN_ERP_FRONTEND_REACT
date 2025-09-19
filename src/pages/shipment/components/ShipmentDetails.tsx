@@ -273,7 +273,7 @@ const ShipmentDetails = () => {
           weight_unit: item.weight_unit || 'kg',
           weight_value: item.weight_value || 0,
           sku: item.sku || '',
-          hscode: item.hscode || '',
+          hs_code: item.hs_code || item.hscode || '',
           return_reason: ''
         })) || []
       })) || [],
@@ -594,7 +594,7 @@ const ShipmentDetails = () => {
                     {parcel.items?.length > 0 ? (
                       <ul className="list-disc list-inside text-sm space-y-1">
                         {parcel.items.map((item: any, i: number) => (
-                          <li key={i}>{item.description} – {item.quantity} pcs, {item.weight_value} {item.weight_unit} | HS CODE - {item.hscode || 'N/A'}, {item.origin_country} </li>
+                          <li key={i}>{item.description} – {item.quantity} pcs, {item.weight_value} {item.weight_unit} | HS CODE - {item.hs_code || 'N/A'}, {item.origin_country} </li>
                         ))}
                       </ul>
                     ) : <span className="text-gray-400">No items</span>}

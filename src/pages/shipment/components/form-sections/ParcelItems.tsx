@@ -33,7 +33,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
     const isItemFieldRequired = (fieldName: string) => {
         if (sendTo === 'Logistic') {
             // For logistics, HS code and origin country are not required
-            const logisticNotRequiredFields = ['hscode', 'origin_country'];
+            const logisticNotRequiredFields = ['hs_code', 'origin_country'];
             if (logisticNotRequiredFields.includes(fieldName)) {
                 return false;
             }
@@ -42,7 +42,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
         }
 
         // Additional condition: HS Code and Origin country are optional if both ship from and ship to countries are THA
-        if ((fieldName === 'hscode' || fieldName === 'origin_country') &&
+        if ((fieldName === 'hs_code' || fieldName === 'origin_country') &&
             shipFromCountry === 'THA' && shipToCountry === 'THA') {
             return false;
         }
@@ -126,7 +126,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
             const basePath = `parcels.${parcelIndex}.parcel_items.${currentItemIndex}`
             setValue(`${basePath}.description`, selectedMaterial.description || '', { shouldValidate: true, shouldDirty: true })
             setValue(`${basePath}.sku`, selectedMaterial.sku || '', { shouldValidate: true, shouldDirty: true })
-            setValue(`${basePath}.hscode`, selectedMaterial.hscode || '', { shouldValidate: true, shouldDirty: true })
+            setValue(`${basePath}.hs_code`, selectedMaterial.hscode || '', { shouldValidate: true, shouldDirty: true })
         }
         setIsModalOpen(false)
         setCurrentItemIndex(null)
@@ -167,7 +167,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                         <TableColumn className="w-12">#</TableColumn>
                         <TableColumn className="w-48 min-w-[80px]">DESCRIPTION {isItemFieldRequired('description') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-36">SKU {isItemFieldRequired('sku') && <span className="text-red-500">*</span>}</TableColumn>
-                        <TableColumn className="w-24">HS CODE {isItemFieldRequired('hscode') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-24">HS CODE {isItemFieldRequired('hs_code') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-28">ORIGIN {isItemFieldRequired('origin_country') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-20">PRICE {isItemFieldRequired('price_amount') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-28">CURRENCY {isItemFieldRequired('price_currency') && <span className="text-red-500">*</span>}</TableColumn>
@@ -257,17 +257,17 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                 {/* HS CODE cell */}
                                 <TableCell>
                                     <Controller
-                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hscode`}
+                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`}
                                         control={control}
-                                        rules={{ required: isItemFieldRequired('hscode') ? 'HS CODE is required' : false }}
+                                        rules={{ required: isItemFieldRequired('hs_code') ? 'HS CODE is required' : false }}
                                         render={({ field }) => (
                                             <Textarea
                                                 {...field}
                                                 placeholder="HS CODE"
                                                 variant="flat"
                                                 size="sm"
-                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode}
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code}
                                                 classNames={{
                                                     input: "text-sm",
                                                     inputWrapper: "min-h-unit-8 h-unit-8"

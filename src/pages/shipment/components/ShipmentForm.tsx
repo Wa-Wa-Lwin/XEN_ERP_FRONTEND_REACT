@@ -91,7 +91,7 @@ const ShipmentForm = () => {
               value: parseFloat(String(item.weight_value)) || 0,
             },
             sku: item.sku,
-            hs_code: item.hscode
+            hs_code: item.hs_code
           })),
           description: parcel.description,
           weight: {
