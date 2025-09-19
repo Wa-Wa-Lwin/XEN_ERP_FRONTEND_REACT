@@ -147,6 +147,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     total_charge_amount: 0,
     total_charge_currency: 'USD',
     chosen: false,
+    unique_id:'',
     detailed_charges: ''
   }],
   pick_up_status: false,
