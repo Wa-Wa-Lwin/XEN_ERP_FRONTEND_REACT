@@ -191,7 +191,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     }
 
     const thbAmount = amount * rate;
-    return `${thbAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} THB`;
+    return `${thbAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
   };
 
   const convertWeightToKg = (weight: { value: number; unit: string } | null) => {
@@ -246,9 +246,15 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   }
 
   // Filter unique rates based on shipper_account.id + service_type combination
-  const getUniqueRates = (rates: RateResponse[]) => {
+  // Only show available rates (rates with total_charge amount and no errors)
+  const getAvailableUniqueRates = (rates: RateResponse[]) => {
     const seen = new Set<string>()
     return rates.filter(rate => {
+      // Only include rates that are available (have total_charge and no error_message)
+      if (rate.error_message || !rate.total_charge?.amount) {
+        return false
+      }
+
       // Create unique key combining shipper account and service type
       const uniqueKey = `${rate.shipper_account.id}-${rate.service_type}`
       if (seen.has(uniqueKey)) {
@@ -322,16 +328,14 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Select</TableColumn>
               <TableColumn>Carrier</TableColumn>
               <TableColumn>Service</TableColumn>
-              <TableColumn>Status</TableColumn>
-              <TableColumn>Estimated THB</TableColumn>
-              <TableColumn>Total Charge</TableColumn>              
-              <TableColumn>Charge Weight</TableColumn>
+              <TableColumn className='text-right'>Estimated THB</TableColumn>
+              <TableColumn>Total Charge</TableColumn>
+              <TableColumn>Charge Weight (kg)</TableColumn>
               <TableColumn>Transit Time</TableColumn>
               <TableColumn>Delivery Date</TableColumn>
-              <TableColumn>Messages</TableColumn>
             </TableHeader>
-            <TableBody emptyContent="No rates found.">
-              {getUniqueRates(rates).map((rate, index) => {
+            <TableBody emptyContent="No available rates found.">
+              {getAvailableUniqueRates(rates).map((rate, index) => {
                 const rateUniqueId = getRateUniqueId(rate, index)
                 const isSelected = selectedRateId === rateUniqueId
                 return (
@@ -367,43 +371,27 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   </TableCell>
                   <TableCell>{rate.shipper_account.description}</TableCell>
                   <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
-                  <TableCell>
-                    <Chip color={getStatusColor(rate)} size="sm">
-                      {getStatusText(rate)}
-                    </Chip>
-                  </TableCell>
-                  {/* <TableCell>{formatCurrency(rate.total_charge?.amount, rate.total_charge?.currency)}</TableCell> */}
-                  <TableCell>
+                  <TableCell className="text-right">
                     {convertToTHB(
                       rate.total_charge?.amount ?? null,
                       rate.total_charge?.currency ?? null
                     )}
+                    {/* {convertToTHB(
+                      rate.total_charge?.amount ?? null,
+                      rate.total_charge?.currency ?? null
+                    )} */}
                   </TableCell>
                   <TableCell>
                     {formatCurrency(
                       rate.total_charge?.amount ?? null,
                       rate.total_charge?.currency ?? null
                     )}
-                  </TableCell>                  
+                  </TableCell>
                   <TableCell>
                     {convertWeightToKg(rate.charge_weight)}
                   </TableCell>
                   <TableCell>{rate.transit_time ? `${rate.transit_time} day(s)` : '-'}</TableCell>
                   <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
-                  <TableCell className="space-y-1">
-                    {rate.error_message && (
-                      <p className="text-red-600 text-sm flex items-center">
-                        <Icon icon="solar:close-circle-bold" className="inline mr-1" />
-                        {rate.error_message}
-                      </p>
-                    )}
-                    {rate.info_message && (
-                      <p className="text-blue-600 text-sm flex items-center">
-                        <Icon icon="solar:info-circle-bold" className="inline mr-1" />
-                        {rate.info_message}
-                      </p>
-                    )}
-                  </TableCell>
                 </TableRow>
                 )
               })}

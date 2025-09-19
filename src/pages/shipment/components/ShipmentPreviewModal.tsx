@@ -147,7 +147,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                 <b>Shipper - </b> {selectedRate.shipper_account_description} <br />
                 <b>Service Type - </b> {selectedRate.service_type} <br />
                 <b>Total Charge - </b> {selectedRate.total_charge_amount} {selectedRate.total_charge_currency} <br />
-                <b>Transit Time - </b> {selectedRate.transit_time} <br />
+                <b>Transit Time - </b> {selectedRate.transit_time} (days) <br />
                 {selectedRate.delivery_date && (
                   <>
                     <b>Delivery Date - </b> {selectedRate.delivery_date} <br />
