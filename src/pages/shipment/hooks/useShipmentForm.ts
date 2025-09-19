@@ -41,11 +41,14 @@ export const useShipmentForm = () => {
         formData
       )
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         alert('Shipment request created successfully!')
         // Reset form and redirect to shipment list
-        reset()
-        navigate('/shipment')
+        // Use setTimeout to ensure the state updates complete before navigation
+        setTimeout(() => {
+          reset()
+          navigate('/shipment')
+        }, 100)
       }
     } catch (error) {
       console.error('Error submitting form:', error)
