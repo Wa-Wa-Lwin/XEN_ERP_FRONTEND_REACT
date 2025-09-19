@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '@context/AuthContext'
 import { DEFAULT_FORM_VALUES } from '../constants/form-defaults'
@@ -7,6 +8,7 @@ import type { ShipmentFormData } from '../types/shipment-form.types'
 
 export const useShipmentForm = () => {
   const { user, approver, msLoginUser } = useAuth()
+  const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const formMethods = useForm<ShipmentFormData>({
@@ -41,7 +43,9 @@ export const useShipmentForm = () => {
 
       if (response.status === 200) {
         alert('Shipment request created successfully!')
-        // Reset form or redirect
+        // Reset form and redirect to shipment list
+        reset()
+        navigate('/shipment')
       }
     } catch (error) {
       console.error('Error submitting form:', error)

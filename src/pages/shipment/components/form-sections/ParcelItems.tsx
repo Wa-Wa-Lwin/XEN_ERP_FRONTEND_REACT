@@ -341,7 +341,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                         minRows={1}
                                     />
                                 </TableCell>
-                                <TableCell>
+                                {/* <TableCell>
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
                                         control={control}
@@ -375,7 +375,39 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             </Select>
                                         )}
                                     />
+                                </TableCell> */}
+                                <TableCell>
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
+                                        control={control}
+                                        rules={{ required: isItemFieldRequired('price_currency') ? 'Currency is required' : false }}
+                                        defaultValue="THB"
+                                        render={({ field }) => (
+                                            <Autocomplete
+                                                {...field}
+                                                defaultItems={CURRENCIES}
+                                                placeholder="Select currency"
+                                                variant="flat"
+                                                size="sm"
+                                                defaultSelectedKey="THB"
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}                                                
+                                                onSelectionChange={(key) => {
+                                                    if (key) {
+                                                        field.onChange(key.toString());
+                                                    }
+                                                }}
+                                            >
+                                                {(currency) => (
+                                                    <AutocompleteItem key={currency.key} value={currency.value}>
+                                                        {currency.key}
+                                                    </AutocompleteItem>
+                                                )}
+                                            </Autocomplete>
+                                        )}
+                                    />
                                 </TableCell>
+
                                 <TableCell>
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`}
