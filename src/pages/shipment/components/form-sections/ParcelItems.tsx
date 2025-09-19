@@ -324,7 +324,33 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Textarea
+                                    <Input
+                                        {...register(
+                                            `parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`,
+                                            {
+                                                required: isItemFieldRequired('price_amount') ? 'Price is required' : false,
+                                                min: { value: 0, message: 'Price must be at least 0' },
+                                                pattern: {
+                                                    value: /^\d*\.?\d*$/,
+                                                    message: 'Only numbers and decimals allowed',
+                                                },
+                                            }
+                                        )}
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        variant="flat"
+                                        size="sm"
+                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
+                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount}
+                                        classNames={{
+                                            input: "text-sm",
+                                            inputWrapper: "min-h-unit-8 h-unit-8"
+                                        }}
+                                        min={0}
+                                    />
+
+                                    {/* <Textarea
                                         {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`, { required: isItemFieldRequired('price_amount') ? 'Price is required' : false, min: 0 })}
                                         type="number"
                                         step="0.01"
@@ -339,7 +365,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                         }}
                                         min={0}
                                         minRows={1}
-                                    />
+                                    /> */}
                                 </TableCell>
                                 {/* <TableCell>
                                     <Controller
@@ -391,7 +417,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                 size="sm"
                                                 defaultSelectedKey="THB"
                                                 errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}                                                
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}
                                                 onSelectionChange={(key) => {
                                                     if (key) {
                                                         field.onChange(key.toString());
