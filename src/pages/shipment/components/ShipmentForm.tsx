@@ -529,6 +529,7 @@ const ShipmentForm = () => {
               onSelectRate={handleRateSelection}
               register={register}
               errors={errors}
+              serviceOption={watch('service_options')}
             />
             </div>
 

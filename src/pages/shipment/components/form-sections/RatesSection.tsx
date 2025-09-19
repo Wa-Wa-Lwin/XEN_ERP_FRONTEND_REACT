@@ -36,9 +36,10 @@ interface RatesSectionProps extends FormSectionProps {
   isCalculating: boolean
   selectedRateId?: string
   onSelectRate: (rateId: string) => void
+  serviceOption?: string
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
@@ -247,9 +248,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   // Filter unique rates based on shipper_account.id + service_type combination
   // Only show available rates (rates with total_charge amount and no errors)
+  // For "normal" service option, show only the cheapest rate
   const getAvailableUniqueRates = (rates: RateResponse[]) => {
     const seen = new Set<string>()
-    return rates.filter(rate => {
+    let availableRates = rates.filter(rate => {
       // Only include rates that are available (have total_charge and no error_message)
       if (rate.error_message || !rate.total_charge?.amount) {
         return false
@@ -263,12 +265,50 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       seen.add(uniqueKey)
       return true
     })
+
+    // If service option is "normal", return only the cheapest rate
+    if (serviceOption === 'Normal' && availableRates.length > 0) {
+      // Convert all rates to THB for fair comparison
+      const ratesWithTHBCost = availableRates.map(rate => {
+        const amount = rate.total_charge?.amount || 0
+        const currency = rate.total_charge?.currency || 'THB'
+        const conversionRate = exchangeRates[currency.toUpperCase()] || 1
+        const thbAmount = amount * conversionRate
+
+        return {
+          ...rate,
+          thbAmount
+        }
+      })
+
+      // Find the cheapest rate
+      const cheapestRate = ratesWithTHBCost.reduce((cheapest, current) =>
+        current.thbAmount < cheapest.thbAmount ? current : cheapest
+      )
+
+      return [cheapestRate]
+    }
+
+    return availableRates
   }
 
   // Generate unique rate ID for selection (should match the one in ShipmentForm)
   const getRateUniqueId = (rate: RateResponse, index: number) => {
     return `${rate.shipper_account.id}-${rate.service_type}-${index}`
   }
+
+  // Auto-select the cheapest rate when service option is "normal"
+  useEffect(() => {
+    if (serviceOption === 'Normal' && rates.length > 0) {
+      const availableRates = getAvailableUniqueRates(rates)
+      if (availableRates.length === 1) {
+        const cheapestRateId = getRateUniqueId(availableRates[0], 0)
+        if (selectedRateId !== cheapestRateId) {
+          onSelectRate(cheapestRateId)
+        }
+      }
+    }
+  }, [rates, serviceOption, exchangeRates, selectedRateId, onSelectRate])
 
   return (
     <Card shadow="none">
@@ -352,7 +392,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                         disabled
                         startContent={<Icon icon="solar:check-circle-bold" />}
                       >
-                        Selected
+                        {serviceOption === 'Normal' ? 'Cheapest' : 'Selected'}
                       </Button>
                     ) : (
                       <Button

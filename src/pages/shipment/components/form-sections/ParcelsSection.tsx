@@ -259,8 +259,8 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
 
     return (
         <Card className="p-2">
-        {/* <Card shadow="none"> */}
-        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+            {/* <Card shadow="none"> */}
+            {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
             <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
                 <h2 className="text-lg font-semibold">Parcels and Items</h2>
                 <Button
@@ -283,67 +283,42 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
 
                             {/* Right side */}
                             <div className="flex gap-2 flex-wrap justify-end">
-                                    {/* Description mode toggle */}
-                                    {!manualDescriptionParcels.has(parcelIndex) ? (
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="light"
-                                            color="secondary"
-                                            startContent={<Icon icon="solar:pen-bold" />}
-                                            onPress={() => handleToggleDescriptionMode(parcelIndex)}
-                                        >
-                                            Edit Description Manually
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="light"
-                                            color="success"
-                                            startContent={<Icon icon="solar:magic-stick-3-bold" />}
-                                            onPress={() => handleToggleDescriptionMode(parcelIndex)}
-                                        >
-                                            Use Auto Description
-                                        </Button>
-                                    )}
-
-                                    {isAutoFilled(parcelIndex) && (
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="light"
-                                            color="primary"
-                                            startContent={<Icon icon="solar:pen-bold" />}
-                                            onPress={() => handleToggleManualEdit(parcelIndex)}
-                                        >
-                                            Edit Dimensions Manually
-                                        </Button>
-                                    )}
-                                    {manualEditParcels.has(parcelIndex) && autoFilledParcels.has(parcelIndex) && (
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="light"
-                                            color="warning"
-                                            startContent={<Icon icon="solar:lock-keyhole-minimalistic-bold" />}
-                                            onPress={() => handleToggleManualEdit(parcelIndex)}
-                                        >
-                                            Lock Auto-filled Values
-                                        </Button>
-                                    )}
-                                    {parcelFields.length > 1 && (
-                                        <Button
-                                            type="button"
-                                            color="danger"
-                                            size="sm"
-                                            variant="light"
-                                            startContent={<Icon icon="solar:trash-bin-minimalistic-bold" />}
-                                            onPress={() => handleRemoveParcel(parcelIndex)}
-                                        >
-                                            Remove Parcel
-                                        </Button>
-                                    )}
+                                {isAutoFilled(parcelIndex) && (
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="light"
+                                        color="primary"
+                                        startContent={<Icon icon="solar:pen-bold" />}
+                                        onPress={() => handleToggleManualEdit(parcelIndex)}
+                                    >
+                                        Edit Dimensions Manually
+                                    </Button>
+                                )}
+                                {manualEditParcels.has(parcelIndex) && autoFilledParcels.has(parcelIndex) && (
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="light"
+                                        color="warning"
+                                        startContent={<Icon icon="solar:lock-keyhole-minimalistic-bold" />}
+                                        onPress={() => handleToggleManualEdit(parcelIndex)}
+                                    >
+                                        Lock Auto-filled Values
+                                    </Button>
+                                )}
+                                {parcelFields.length > 1 && (
+                                    <Button
+                                        type="button"
+                                        color="danger"
+                                        size="sm"
+                                        variant="light"
+                                        startContent={<Icon icon="solar:trash-bin-minimalistic-bold" />}
+                                        onPress={() => handleRemoveParcel(parcelIndex)}
+                                    >
+                                        Remove Parcel
+                                    </Button>
+                                )}
                             </div>
                         </CardHeader>
 
@@ -372,7 +347,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     placeholder="Select box type"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
-                                                   
+
                                                     onSelectionChange={(keys) => {
                                                         const selectedKey = Array.from(keys)[0] as string
                                                         if (selectedKey) {
@@ -580,6 +555,30 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                 {/* Dimensions Row */}
                                 <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-3">
                                     <div className="col-span-4">
+                                        {/* Description mode toggle */}
+                                        {!manualDescriptionParcels.has(parcelIndex) ? (
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="light"
+                                                color="secondary"
+                                                startContent={<Icon icon="solar:pen-bold" />}
+                                                onPress={() => handleToggleDescriptionMode(parcelIndex)}
+                                            >
+                                                Edit Description Manually
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="light"
+                                                color="success"
+                                                startContent={<Icon icon="solar:magic-stick-3-bold" />}
+                                                onPress={() => handleToggleDescriptionMode(parcelIndex)}
+                                            >
+                                                Use Auto Description
+                                            </Button>
+                                        )}
                                         <Controller
                                             name={`parcels.${parcelIndex}.description`}
                                             control={control}
@@ -614,6 +613,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                             )}
                                         />
                                     </div>
+
                                     <div className="relative">
                                         <Controller
                                             name={`parcels.${parcelIndex}.net_weight_value`}
@@ -632,9 +632,9 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     className="bg-gray-50"
                                                     endContent={
                                                         <>
-                                                            <Icon icon="solar:calculator-bold" className="text-gray-400" /> 
+                                                            <Icon icon="solar:calculator-bold" className="text-gray-400" />
                                                             <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
-                                                        </>                                                        
+                                                        </>
                                                     }
                                                 />
                                             )}
@@ -658,9 +658,9 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     className="bg-gray-50"
                                                     endContent={
                                                         <>
-                                                            <Icon icon="solar:calculator-bold" className="text-gray-400" /> 
+                                                            <Icon icon="solar:calculator-bold" className="text-gray-400" />
                                                             <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
-                                                        </>  
+                                                        </>
                                                     }
                                                 />
                                             )}
