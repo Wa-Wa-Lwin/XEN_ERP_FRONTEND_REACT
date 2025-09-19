@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Textarea, Divider, Chip } from "@heroui/react";
+import { Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Textarea, Divider, Chip, Input, Select, SelectItem } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
 import { useNotification } from "@context/NotificationContext";
-import { INCOTERMS } from "../constants/form-defaults";
+import { INCOTERMS, CUSTOM_PURPOSES } from "../constants/form-defaults";
 
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
@@ -18,6 +18,10 @@ const ShipmentDetails = () => {
   const [isRejecting, setIsRejecting] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showAllRates, setShowAllRates] = useState(false);
+  const [isUpdatingLogistics, setIsUpdatingLogistics] = useState(false);
+  const [editCustomsPurpose, setEditCustomsPurpose] = useState("");
+  const [editCustomsTermsOfTrade, setEditCustomsTermsOfTrade] = useState("");
+  const [editedParcelItems, setEditedParcelItems] = useState<any[]>([]);
 
   const { user, msLoginUser } = useAuth();
   const { success, error: showNotificationError } = useNotification();
@@ -40,7 +44,27 @@ const ShipmentDetails = () => {
         const apiUrl = `${baseUrl}${shipmentId}`;
         const response = await axios.get(apiUrl);
 
-        setShipment(response.data.shipment_request);
+        const shipmentData = response.data.shipment_request;
+        setShipment(shipmentData);
+
+        // Initialize edit state
+        setEditCustomsPurpose(shipmentData.customs_purpose || "");
+        setEditCustomsTermsOfTrade(shipmentData.customs_terms_of_trade || "");
+
+        // Initialize parcel items for editing
+        const allItems: any[] = [];
+        shipmentData.parcels?.forEach((parcel: any, parcelIndex: number) => {
+          parcel.items?.forEach((item: any, itemIndex: number) => {
+            allItems.push({
+              ...item,
+              parcelIndex,
+              itemIndex,
+              id: `${parcelIndex}-${itemIndex}`,
+              parcelItemID: item.parcelItemID // Ensure we have the required ID
+            });
+          });
+        });
+        setEditedParcelItems(allItems);
       } catch (err) {
         console.error("Error fetching shipment details:", err);
         setError(err instanceof Error ? err.message : "Failed to load details");
@@ -157,6 +181,106 @@ const ShipmentDetails = () => {
     } finally {
       setLoadingState(false);
     }
+  };
+
+  const handleLogisticsUpdate = async () => {
+    if (!shipmentId || !msLoginUser) return;
+
+    try {
+      setIsUpdatingLogistics(true);
+
+      const logisticUrl = import.meta.env.VITE_APP_LOGISTIC_EDIT_SHIPMENT_REQUEST;
+      if (!logisticUrl) {
+        throw new Error("Logistics API URL not configured");
+      }
+
+      const apiUrl = `${logisticUrl}${shipmentId}`;
+
+      // Prepare parcels data in the format expected by the backend
+      const parcelsData = shipment.parcels?.map((parcel: any) => ({
+        parcel_items: parcel.items?.map((originalItem: any) => {
+          // Find the edited version of this item
+          const editedItem = editedParcelItems.find(
+            (edited) => edited.parcelItemID === originalItem.parcelItemID
+          );
+
+          return {
+            parcelItemID: originalItem.parcelItemID,
+            item_id: editedItem?.item_id || originalItem.item_id || '',
+            origin_country: editedItem?.origin_country || originalItem.origin_country || '',
+            hs_code: editedItem?.hs_code || originalItem.hs_code || ''
+          };
+        }) || []
+      })) || [];
+
+      const payload = {
+        send_status: 'logistic_updated',
+        login_user_id: user?.userID || 0,
+        login_user_name: msLoginUser.name,
+        login_user_mail: msLoginUser.email,
+        customs_purpose: editCustomsPurpose || shipment.customs_purpose,
+        customs_terms_of_trade: editCustomsTermsOfTrade || shipment.customs_terms_of_trade,
+        parcels: parcelsData,
+        remark: 'Logistics information updated'
+      };
+
+      console.log('🔍 Debug Logistics Update:');
+      console.log('  - Base URL from env:', logisticUrl);
+      console.log('  - Shipment ID:', shipmentId);
+      console.log('  - Final API URL:', apiUrl);
+      console.log('  - Payload:', payload);
+
+      const response = await axios.put(apiUrl, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.status === 200) {
+        const responseData = response.data;
+
+        if (responseData.status === 'success') {
+          success('Logistics information updated successfully!', 'Success');
+          window.location.reload();
+        } else {
+          showNotificationError('Failed to update logistics information. Please try again.', 'Update Failed');
+        }
+      }
+
+    } catch (error) {
+      console.error('Error updating logistics information:', error);
+
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const errorData = error.response.data;
+
+        // Log the full error for debugging
+        console.error('Full API Error Response:', errorData);
+
+        if (errorData.message && errorData.message.includes('parcel_items')) {
+          showNotificationError('Database configuration issue detected. The parcel_items table may not exist or be accessible. Please contact the development team.', 'Database Error');
+        } else if (errorData.message) {
+          showNotificationError(`Update failed: ${errorData.message}`, 'Update Failed');
+        } else if (errorData.errors) {
+          // Handle validation errors
+          const errorMessages = Object.values(errorData.errors).flat().join('\n');
+          showNotificationError(`Validation failed:\n${errorMessages}`, 'Validation Error');
+        } else {
+          showNotificationError('Failed to update logistics information. Please try again.', 'Update Failed');
+        }
+      } else {
+        showNotificationError('Failed to update logistics information. Please check your connection and try again.', 'Connection Error');
+      }
+    } finally {
+      setIsUpdatingLogistics(false);
+    }
+  };
+
+  const handleParcelItemUpdate = (itemId: string, field: string, value: string) => {
+    setEditedParcelItems(prev =>
+      prev.map(item =>
+        item.id === itemId ? { ...item, [field]: value } : item
+      )
+    );
   };
 
   const handleCreateLabel = async () => {
@@ -646,6 +770,86 @@ const ShipmentDetails = () => {
               startContent={<Icon icon="solar:close-circle-bold" />}
             >
               {isRejecting ? "Rejecting..." : "Reject"}
+            </Button>
+          </div>
+        </section>
+      ) : shipment.request_status === "send_to_logistic" ? (
+        <section className="bg-blue-50 rounded-xl border p-4 space-y-4">
+          <h2 className="text-base font-semibold">Logistics Information Update</h2>
+
+          {/* Customs Information */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <Select
+              label="Customs Purpose"
+              placeholder="Select customs purpose"
+              selectedKeys={editCustomsPurpose ? [editCustomsPurpose] : []}
+              onSelectionChange={(keys) => setEditCustomsPurpose(Array.from(keys)[0] as string)}
+              size="sm"
+              variant="bordered"
+            >
+              {CUSTOM_PURPOSES.map((purpose) => (
+                <SelectItem key={purpose.key} value={purpose.key}>
+                  {purpose.label}
+                </SelectItem>
+              ))}
+            </Select>
+
+            <Select
+              label="Customs Terms of Trade"
+              placeholder="Select terms of trade"
+              selectedKeys={editCustomsTermsOfTrade ? [editCustomsTermsOfTrade] : []}
+              onSelectionChange={(keys) => setEditCustomsTermsOfTrade(Array.from(keys)[0] as string)}
+              size="sm"
+              variant="bordered"
+            >
+              {INCOTERMS.map((term) => (
+                <SelectItem key={term.key} value={term.key}>
+                  {term.value}
+                </SelectItem>
+              ))}
+            </Select>
+          </div>
+
+          {/* Parcel Items */}
+          {editedParcelItems.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Parcel Items</h3>
+              <div className="space-y-2">
+                {editedParcelItems.map((item) => (
+                  <div key={item.id} className="grid md:grid-cols-4 gap-2 p-3 rounded border">
+                    <div className="text-xs text-gray-600 md:col-span-4">
+                      <strong>Description:</strong> {item.description}
+                    </div>
+                    <Input
+                      label="HS Code"
+                      value={item.hs_code || ""}
+                      onValueChange={(value) => handleParcelItemUpdate(item.id, "hs_code", value)}
+                      size="sm"
+                      variant="bordered"
+                    />
+                    <Input
+                      label="Origin Country"
+                      value={item.origin_country || ""}
+                      onValueChange={(value) => handleParcelItemUpdate(item.id, "origin_country", value)}
+                      size="sm"
+                      variant="bordered"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <Button
+              color="primary"
+              onPress={handleLogisticsUpdate}
+              isLoading={isUpdatingLogistics}
+              disabled={isUpdatingLogistics}
+              size="sm"
+              startContent={<Icon icon="solar:refresh-bold" />}
+            >
+              {isUpdatingLogistics ? "Updating..." : "Update Logistics Info"}
             </Button>
           </div>
         </section>
