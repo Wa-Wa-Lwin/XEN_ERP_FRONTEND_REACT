@@ -12,8 +12,14 @@ interface ShipmentPreviewModalProps {
 }
 
 const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitting, selectedRateId }: ShipmentPreviewModalProps) => {
-  // Find the selected rate from formData.rates
-  const selectedRate = formData.rates?.find(rate => rate.shipper_account_id === selectedRateId)
+  // Debug logging
+  console.log('Preview Modal - selectedRateId:', selectedRateId)
+  console.log('Preview Modal - formData.rates:', formData.rates)
+  console.log('Preview Modal - rate unique_ids:', formData.rates?.map(r => r.unique_id))
+
+  // Find the selected rate from formData.rates using unique ID
+  const selectedRate = formData.rates?.find(rate => rate.unique_id === selectedRateId)
+  console.log('Preview Modal - selectedRate:', selectedRate)
   return (
     <Modal
       isOpen={isOpen}
@@ -164,8 +170,8 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                 Available Shipping Rates ({formData.rates.length})
               </h3>
               {formData.rates.map((rate, index) => (
-                <div key={index} className={`ml-4 mt-2 p-3 border rounded-lg ${rate.shipper_account_id === selectedRateId ? 'border-green-400 bg-green-50' : ''}`}>
-                  {rate.shipper_account_id === selectedRateId && (
+                <div key={index} className={`ml-4 mt-2 p-3 border rounded-lg ${rate.unique_id === selectedRateId ? 'border-green-400 bg-green-50' : ''}`}>
+                  {rate.unique_id === selectedRateId && (
                     <div className="text-green-600 text-sm font-medium mb-2">
                       <Icon icon="solar:check-circle-bold" className="inline mr-1" />
                       SELECTED

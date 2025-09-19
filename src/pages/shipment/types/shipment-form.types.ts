@@ -43,6 +43,7 @@ export interface Rate {
   charge_weight_unit: string
   total_charge_amount: number
   total_charge_currency: string
+  unique_id: string // Unique identifier combining shipper_account_id and service_type
   chosen: boolean
   detailed_charges: string
 }

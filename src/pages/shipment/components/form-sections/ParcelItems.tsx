@@ -219,6 +219,12 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                         inputWrapper: "min-h-unit-8 h-unit-8"
                                                     }}
                                                     minRows={1}
+                                                    onChange={(e) => {
+                                                        field.onChange(e)
+                                                        if (onWeightChange) {
+                                                            setTimeout(onWeightChange, 100)
+                                                        }
+                                                    }}
                                                 />
                                             )}
                                         />

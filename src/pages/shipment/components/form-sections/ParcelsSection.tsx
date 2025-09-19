@@ -33,6 +33,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
 
     const [autoFilledParcels, setAutoFilledParcels] = useState<Set<number>>(new Set())
     const [manualEditParcels, setManualEditParcels] = useState<Set<number>>(new Set())
+    const [manualDescriptionParcels, setManualDescriptionParcels] = useState<Set<number>>(new Set())
 
     // Watch all parcel data for weight calculations
     const watchedParcels = watch('parcels')
@@ -58,7 +59,43 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
         return parcelWeight + netWeight
     }, [watchedParcels, calculateNetWeight])
 
-    // Update weights automatically
+    // Generate parcel description from item descriptions
+    const generateParcelDescription = useCallback((parcelIndex: number): string => {
+        const parcel = watchedParcels?.[parcelIndex]
+        if (!parcel?.parcel_items || !Array.isArray(parcel.parcel_items)) {
+            return ''
+        }
+
+        // Get all non-empty item descriptions
+        const itemDescriptions = parcel.parcel_items
+            .map((item: any) => item.description?.trim())
+            .filter((desc: string) => desc && desc.length > 0)
+
+        if (itemDescriptions.length === 0) {
+            return ''
+        }
+
+        // Join descriptions with comma and space
+        const fullDescription = itemDescriptions.join(', ')
+
+        // Truncate to 200 characters with "etc." if needed
+        if (fullDescription.length > 200) {
+            // Find the last complete item before 195 characters (leaving space for ", etc.")
+            const truncated = fullDescription.substring(0, 195)
+            const lastCommaIndex = truncated.lastIndexOf(', ')
+
+            if (lastCommaIndex > 0) {
+                return truncated.substring(0, lastCommaIndex) + ', etc.'
+            } else {
+                // If no comma found, just truncate and add etc.
+                return truncated.substring(0, 195) + ', etc.'
+            }
+        }
+
+        return fullDescription
+    }, [watchedParcels])
+
+    // Update weights and description automatically
     const updateWeights = useCallback((parcelIndex: number) => {
         const netWeight = calculateNetWeight(parcelIndex)
         const grossWeight = calculateGrossWeight(parcelIndex)
@@ -71,7 +108,16 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
             shouldValidate: true,
             shouldDirty: true
         })
-    }, [calculateNetWeight, calculateGrossWeight, setValue])
+
+        // Only update description if not in manual mode
+        if (!manualDescriptionParcels.has(parcelIndex)) {
+            const description = generateParcelDescription(parcelIndex)
+            setValue(`parcels.${parcelIndex}.description`, description, {
+                shouldValidate: true,
+                shouldDirty: true
+            })
+        }
+    }, [calculateNetWeight, calculateGrossWeight, generateParcelDescription, setValue, manualDescriptionParcels])
 
     // Watch for changes in item weights and quantities
     useEffect(() => {
@@ -144,6 +190,27 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
         })
     }
 
+    const handleToggleDescriptionMode = (parcelIndex: number) => {
+        setManualDescriptionParcels(prev => {
+            const updated = new Set(prev)
+            if (updated.has(parcelIndex)) {
+                // Switching back to auto mode - generate description
+                updated.delete(parcelIndex)
+                setTimeout(() => {
+                    const description = generateParcelDescription(parcelIndex)
+                    setValue(`parcels.${parcelIndex}.description`, description, {
+                        shouldValidate: true,
+                        shouldDirty: true
+                    })
+                }, 100)
+            } else {
+                // Switching to manual mode
+                updated.add(parcelIndex)
+            }
+            return updated
+        })
+    }
+
 
     const isAutoFilled = (parcelIndex: number) => {
         return autoFilledParcels.has(parcelIndex) && !manualEditParcels.has(parcelIndex)
@@ -166,6 +233,18 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
         })
         // @ts-expect-error - no type
         setManualEditParcels(prev => {
+            const updated = new Set()
+            prev.forEach(index => {
+                if (index < parcelIndex) {
+                    updated.add(index)
+                } else if (index > parcelIndex) {
+                    updated.add(index - 1)
+                }
+            })
+            return updated
+        })
+        // @ts-expect-error - no type
+        setManualDescriptionParcels(prev => {
             const updated = new Set()
             prev.forEach(index => {
                 if (index < parcelIndex) {
@@ -204,6 +283,31 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
 
                             {/* Right side */}
                             <div className="flex gap-2 flex-wrap justify-end">
+                                    {/* Description mode toggle */}
+                                    {!manualDescriptionParcels.has(parcelIndex) ? (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="light"
+                                            color="secondary"
+                                            startContent={<Icon icon="solar:pen-bold" />}
+                                            onPress={() => handleToggleDescriptionMode(parcelIndex)}
+                                        >
+                                            Edit Description Manually
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="light"
+                                            color="success"
+                                            startContent={<Icon icon="solar:magic-stick-3-bold" />}
+                                            onPress={() => handleToggleDescriptionMode(parcelIndex)}
+                                        >
+                                            Use Auto Description
+                                        </Button>
+                                    )}
+
                                     {isAutoFilled(parcelIndex) && (
                                         <Button
                                             type="button"
@@ -434,20 +538,38 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                 {/* Dimensions Row */}
                                 <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-3">
                                     <div className="col-span-4">
-                                        <Textarea
-                                            {...register(`parcels.${parcelIndex}.description`, { required: isFieldRequired('description') ? 'Description is required' : false })}
-                                            label={
-                                                <span>
-                                                    Parcel Description
-                                                    {isFieldRequired('description') && (
-                                                        <span className="text-red-500">*</span>
-                                                    )}
-                                                </span>}
-                                            placeholder="Enter parcel description"
-                                            errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
-                                            isInvalid={!!errors.parcels?.[parcelIndex]?.description}
-                                            // className="h-12"
-                                            minRows={1}
+                                        <Controller
+                                            name={`parcels.${parcelIndex}.description`}
+                                            control={control}
+                                            rules={{ required: isFieldRequired('description') ? 'Description is required' : false }}
+                                            render={({ field }) => (
+                                                <Textarea
+                                                    {...field}
+                                                    label={
+                                                        <span>
+                                                            Parcel Description {!manualDescriptionParcels.has(parcelIndex) && '(Auto-generated)'}
+                                                            {isFieldRequired('description') && (
+                                                                <span className="text-red-500">*</span>
+                                                            )}
+                                                        </span>}
+                                                    placeholder={manualDescriptionParcels.has(parcelIndex) ? "Enter parcel description manually" : "Auto-generated from item descriptions"}
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.description}
+                                                    isReadOnly={!manualDescriptionParcels.has(parcelIndex)}
+                                                    className={!manualDescriptionParcels.has(parcelIndex) ? "bg-gray-50" : ""}
+                                                    endContent={
+                                                        !manualDescriptionParcels.has(parcelIndex) ? (
+                                                            <>
+                                                                <Icon icon="solar:magic-stick-3-bold" className="text-gray-400" />
+                                                                <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
+                                                            </>
+                                                        ) : (
+                                                            <Icon icon="solar:pen-bold" className="text-gray-400" />
+                                                        )
+                                                    }
+                                                    minRows={1}
+                                                />
+                                            )}
                                         />
                                     </div>
                                     <div className="relative">

@@ -245,17 +245,23 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return 'Unknown'
   }
 
-  // Filter unique rates based on shipper_account.id
+  // Filter unique rates based on shipper_account.id + service_type combination
   const getUniqueRates = (rates: RateResponse[]) => {
     const seen = new Set<string>()
     return rates.filter(rate => {
-      const id = rate.shipper_account.id
-      if (seen.has(id)) {
+      // Create unique key combining shipper account and service type
+      const uniqueKey = `${rate.shipper_account.id}-${rate.service_type}`
+      if (seen.has(uniqueKey)) {
         return false
       }
-      seen.add(id)
+      seen.add(uniqueKey)
       return true
     })
+  }
+
+  // Generate unique rate ID for selection
+  const getRateUniqueId = (rate: RateResponse) => {
+    return `${rate.shipper_account.id}-${rate.service_type}`
   }
 
   return (
@@ -326,14 +332,15 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </TableHeader>
             <TableBody emptyContent="No rates found.">
               {getUniqueRates(rates).map((rate) => {
-                const isSelected = selectedRateId === rate.shipper_account.id
+                const rateUniqueId = getRateUniqueId(rate)
+                const isSelected = selectedRateId === rateUniqueId
                 return (
                 <TableRow
-                  key={rate.shipper_account.id}
+                  key={rateUniqueId}
                   className={isSelected ? 'bg-green-50 border-green-200' : ''}
                 >
                   <TableCell>
-                    {selectedRateId === rate.shipper_account.id ? (
+                    {isSelected ? (
                       <Button
                         size="sm"
                         color="success"
@@ -349,7 +356,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                         color="primary"
                         variant="flat"
                         onPress={() => {
-                          onSelectRate(rate.shipper_account.id)
+                          onSelectRate(rateUniqueId)
                         }}
                         disabled={!!rate.error_message || !rate.total_charge?.amount}
                         startContent={<Icon icon="solar:check-circle-line-duotone" />}

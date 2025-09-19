@@ -126,6 +126,11 @@ const ShipmentForm = () => {
       // Extract rates from the API response
       const apiRates = response.data?.data?.rates || []
 
+      // Helper function to generate unique rate ID
+      const getRateUniqueId = (rate: any) => {
+        return `${rate.shipper_account.id}-${rate.service_type}`
+      }
+
       // Transform API rates to match our interface
       const transformedRates = apiRates.map((rate: any) => ({
         shipper_account_id: rate.shipper_account.id,
@@ -143,6 +148,7 @@ const ShipmentForm = () => {
         charge_weight_unit: rate.charge_weight?.unit || '',
         total_charge_amount: rate.total_charge?.amount || 0,
         total_charge_currency: rate.total_charge?.currency || '',
+        unique_id: getRateUniqueId(rate), // Add unique ID for selection
         chosen: false,
         detailed_charges: JSON.stringify(rate.detailed_charges) || ''
       }))
@@ -349,6 +355,12 @@ const ShipmentForm = () => {
     if (calculatedRates.length === 0) {
       formDataWithRates = await calculateRates(formData)
     } else {
+      // Helper function to generate unique rate ID (same as in calculateRates)
+      const getRateUniqueId = (rate: any) => {
+        const shipperAccountId = rate.shipper_account?.id || rate.shipper_account_id
+        return `${shipperAccountId}-${rate.service_type}`
+      }
+
       // Use existing rates data
       const transformedRates = calculatedRates.map((rate: any) => ({
         shipper_account_id: rate.shipper_account?.id || rate.shipper_account_id,
@@ -366,6 +378,7 @@ const ShipmentForm = () => {
         charge_weight_unit: rate.charge_weight?.unit || rate.charge_weight_unit || '',
         total_charge_amount: rate.total_charge?.amount || rate.total_charge_amount || 0,
         total_charge_currency: rate.total_charge?.currency || rate.total_charge_currency || '',
+        unique_id: getRateUniqueId(rate), // Add unique ID for selection
         chosen: false,
         detailed_charges: typeof rate.detailed_charges === 'string' ? rate.detailed_charges : JSON.stringify(rate.detailed_charges) || ''
       }))
@@ -382,10 +395,10 @@ const ShipmentForm = () => {
 
   const handleConfirmSubmit = () => {
     if (previewData) {
-      // Mark selected rate as chosen
+      // Mark selected rate as chosen using unique ID
       const updatedRates = previewData.rates?.map(rate => ({
         ...rate,
-        chosen: rate.shipper_account_id === selectedRateId
+        chosen: rate.unique_id === selectedRateId
       })) || []
 
       const finalData = {
