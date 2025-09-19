@@ -59,6 +59,12 @@ const ShipmentDetails = () => {
     const isApprove = action === 'approver_approved';
     const setLoadingState = isApprove ? setIsApproving : setIsRejecting;
 
+    // Check if remark is required for rejection
+    if (!isApprove && !remark.trim()) {
+      showNotificationError('Remark is required when rejecting a shipment request.', 'Missing Remark');
+      return;
+    }
+
     try {
       setLoadingState(true);
 
@@ -422,13 +428,17 @@ const ShipmentDetails = () => {
             <DetailRow label="Requestor" value={`${shipment.created_user_name} (${shipment.created_user_mail})`} />
             <DetailRow label="Approver" value={`${shipment.approver_user_name} (${shipment.approver_user_mail})`} />
             <DetailRow label="Remark" value={shipment.remark} />
+            {/* <p>
+              MS login mail - {msLoginUser?.email} <br />
+              shipment.approver_user_mail - {shipment.approver_user_mail}
+            </p> */}
           </div>
           {["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
-            msLoginUser?.email === shipment.approver_user_mail ? (
+            msLoginUser?.email.toLowerCase() === shipment.approver_user_mail.toLowerCase() ? (
             <section className="bg-gray-50 rounded-xl border p-4 space-y-3">
               <h2 className="text-base font-semibold">Approval Actions</h2>
               <Textarea
-                placeholder="Enter remark (optional)"
+                placeholder="Enter remark (optional for approval, required for rejection)"
                 value={remark}
                 onValueChange={setRemark}
                 size="sm"
