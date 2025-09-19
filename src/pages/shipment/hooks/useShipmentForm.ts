@@ -57,8 +57,39 @@ export const useShipmentForm = () => {
 
     setIsSubmitting(true)
     try {
+      // Ensure pickup times are in correct format (H:i - 24 hour format like "15:03")
+      const formatTimeForAPI = (timeString: string) => {
+        if (!timeString) return ''
+
+        const time = timeString.trim()
+
+        // Handle various time formats and extract only hours and minutes
+        // Remove seconds and microseconds if present
+        let cleanTime = time
+
+        // If time has seconds/microseconds like "15:03:00.0000000", extract only HH:MM
+        if (time.includes(':')) {
+          const parts = time.split(':')
+          if (parts.length >= 2) {
+            const hours = parts[0].padStart(2, '0')
+            const minutes = parts[1].padStart(2, '0')
+            cleanTime = `${hours}:${minutes}`
+          }
+        }
+
+        // Validate final format is HH:MM
+        if (cleanTime.match(/^\d{2}:\d{2}$/)) {
+          return cleanTime
+        }
+
+        return ''
+      }
+
       const formData = {
         ...data,
+        // Format pickup times to ensure they match API requirements
+        pick_up_start_time: formatTimeForAPI(data.pick_up_start_time || ''),
+        pick_up_end_time: formatTimeForAPI(data.pick_up_end_time || ''),
         // Auto-bind from auth context - use msLoginUser if no DB data
         created_user_id: user?.userID || 0,
         created_user_name: user ? (user.firstName + ' ' + user.lastName) : msLoginUser.name,
