@@ -119,7 +119,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     parcel_items: [{
       description: '',
       quantity: 1,
-      price_currency: 'USD',
+      price_currency: '',
       price_amount: 0,
       item_id: '',
       origin_country: '',
@@ -145,7 +145,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     charge_weight_value: 0,
     charge_weight_unit: 'kg',
     total_charge_amount: 0,
-    total_charge_currency: 'USD',
+    total_charge_currency: '',
     chosen: false,
     unique_id:'',
     detailed_charges: ''
@@ -157,7 +157,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   pick_up_instructions: '',
   insurance_enabled: false,
   insurance_insured_value_amount: 0,
-  insurance_insured_value_currency: 'USD',
+  insurance_insured_value_currency: '',
 
   created_user_id: '',
   created_user_name: '',
@@ -186,7 +186,7 @@ export const DEFAULT_PARCEL = {
   parcel_items: [{
     description: '',
     quantity: 1,
-    price_currency: 'USD',
+    price_currency: '',
     price_amount: 0,
     item_id: '',
     origin_country: '',
@@ -201,7 +201,7 @@ export const DEFAULT_PARCEL = {
 export const DEFAULT_PARCEL_ITEM = {
   description: '',
   quantity: 1,
-  price_currency: 'USD',
+  price_currency: '',
   price_amount: 0,
   item_id: '',
   origin_country: '',
