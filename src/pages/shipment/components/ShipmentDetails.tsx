@@ -490,13 +490,16 @@ const ShipmentDetails = () => {
               <>
                 <DetailRow label="Label ID" value={shipment.label_id} />
                 <DetailRow label="Label Status" value={shipment.label_status} />
+                 <DetailRow label="Label" value={shipment.files_label_url} />
                 <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
                 <DetailRow label="Pick Up Date" value={shipment.pick_up_date} />
                 <DetailRow label="Pick Up Created Status" value={shipment.pick_up_created_status} />
                 <DetailRow label="Pickup Confirmation Numbers" value={shipment.pickup_confirmation_numbers} />
                 <DetailRow label="Invoice No" value={shipment.invoice_no} />
+                <DetailRow label="Invoice" value={shipment.files_invoice_url} />
                 <DetailRow label="Invoice Date" value={shipment.invoice_date} />
                 <DetailRow label="Invoice Due Date" value={shipment.invoice_due_date} />
+                <DetailRow label="Packing Slip" value={shipment.files_packing_slip} />
                 <DetailRow label="Approved Date" value={formatDateTime(shipment.approver_approved_date_time)} />
               </>
             )}
