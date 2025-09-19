@@ -4,7 +4,7 @@ import { Card, CardHeader, CardBody, Button, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useAuth } from '@context/AuthContext'
 import LogisticReviewForm from './components/LogisticReviewForm'
-import { ShipmentForReview } from './types/logistic-review.types'
+import type { ShipmentForReview } from './types/logistic-review.types'
 import axios from 'axios'
 
 const LogisticReviewPage = () => {

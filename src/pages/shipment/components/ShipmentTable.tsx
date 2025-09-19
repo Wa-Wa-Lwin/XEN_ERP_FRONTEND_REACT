@@ -18,7 +18,6 @@ import axios from 'axios'
 import { useAuth } from '../../../context/AuthContext'
 import { useBreadcrumb } from '../../../context/BreadcrumbContext'
 import type { ShipmentFormData, ShipmentRequestsResponse } from '../types/shipment-form.types';
-import { spawn } from 'child_process';
 
 const ShipmentTable = () => {
   const { msLoginUser } = useAuth()

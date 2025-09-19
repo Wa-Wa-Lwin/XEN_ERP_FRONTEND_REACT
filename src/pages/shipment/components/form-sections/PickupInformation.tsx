@@ -9,10 +9,10 @@ interface PickupInformationProps extends FormSectionProps {
   watch?: any
 }
 
-const PickupInformation = ({ register, errors, today, setValue, watch }: PickupInformationProps) => {
+const PickupInformation = ({ register, errors, setValue, watch }: PickupInformationProps) => {
 
   // Get default pickup values based on current time
-  const { pickupDate: defaultPickupDate, startTime: defaultStartTime, endTime: defaultEndTime, minDate } = getDefaultPickupValues()
+  const { pickupDate: defaultPickupDate, minDate } = getDefaultPickupValues()
 
   // Watch pickup date to adjust start time
   const pickupDate = watch ? watch('pick_up_date') : defaultPickupDate
@@ -94,7 +94,7 @@ const PickupInformation = ({ register, errors, today, setValue, watch }: PickupI
               label={<span>End Time <span className="text-red-500">*</span></span>}
               errorMessage={errors.pick_up_end_time?.message}
               isInvalid={!!errors.pick_up_end_time}
-              defaultValue={defaultEndTime}
+              defaultValue="17:00"
             />
           </div>
           <div className="col-span-2">
