@@ -252,6 +252,8 @@ const ShipmentTable = () => {
     )
   }
 
+  let hide_column = false; 
+
   return (
     <div className="w-full">
       <div className="mb-4 space-y-4">
@@ -347,7 +349,9 @@ const ShipmentTable = () => {
             <TableColumn>Request Date</TableColumn>
             <TableColumn>Due Date</TableColumn>
             <TableColumn className="text-center">
-              {activeButton !== "Request" ? "Actions" : "\u00A0" /* non-breaking space */}
+              {/* {activeButton !== "Request" ? "Actions" : "\u00A0" } */} 
+              {hide_column ? "Actions" : "\u00A0" /* non-breaking space */}
+              {/* hide this column for now */}
             </TableColumn>
 
           </TableHeader>
@@ -448,7 +452,8 @@ const ShipmentTable = () => {
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.due_date)}</TableCell>
 
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700 w-auto">
-                  {activeButton !== "Request" ? renderActionButtons() : null}
+                  {/* {activeButton !== "Request" ? renderActionButtons() : null} */}
+                  {hide_column ? renderActionButtons() : null}
                 </TableCell>
 
               </TableRow>
