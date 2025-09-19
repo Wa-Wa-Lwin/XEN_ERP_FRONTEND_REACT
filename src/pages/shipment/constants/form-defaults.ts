@@ -270,16 +270,16 @@ export const CUSTOM_PURPOSES = [
 ];
 
 export const INCOTERMS = [
-  { key: "DAT", value: "DAT (Delivered at Terminal)" },
-  { key: "DDU", value: "DDU (Delivered Duty Unpaid)" },
-  { key: "DDP", value: "DDP (Delivered Duty Paid)" },
-  { key: "DAP", value: "DAP (Delivered at Place)" },
-  { key: "EXW", value: "EXW (Ex Works)" },
-  { key: "FCA", value: "FCA (Free Carrier)" },
-  { key: "FOB", value: "FOB (Free on Board)" },
-  { key: "CIP", value: "CIP (Carriage and Insurance Paid to)" },
-  { key: "CIF", value: "CIF (Cost, Insurance and Freight)" },
-  { key: "CPT", value: "CPT (Carriage Paid To)" },
-  { key: "CFR", value: "CFR (Cost and Freight)" },
-  { key: "DPU", value: "DPU (Delivered at Place Unloaded)" }
+  { key: "dat", value: "DAT (Delivered at Terminal)" },
+  { key: "ddu", value: "DDU (Delivered Duty Unpaid)" },
+  { key: "ddp", value: "DDP (Delivered Duty Paid)" },
+  { key: "dap", value: "DAP (Delivered at Place)" },
+  { key: "exw", value: "EXW (Ex Works)" },
+  { key: "fca", value: "FCA (Free Carrier)" },
+  { key: "fob", value: "FOB (Free on Board)" },
+  { key: "cip", value: "CIP (Carriage and Insurance Paid to)" },
+  { key: "cif", value: "CIF (Cost, Insurance and Freight)" },
+  { key: "cpt", value: "CPT (Carriage Paid To)" },
+  { key: "cfr", value: "CFR (Cost and Freight)" },
+  { key: "dpu", value: "DPU (Delivered at Place Unloaded)" }
 ];

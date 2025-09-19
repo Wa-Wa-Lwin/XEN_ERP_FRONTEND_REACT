@@ -404,7 +404,7 @@ const ShipmentDetails = () => {
               startContent={<Icon icon="solar:copy-bold" />}
               onPress={handleDuplicateShipment}
             >
-              Duplicate Shipment Request
+              Developer Ony : Duplicate Shipment Request
             </Button>
           )}
         </div>
