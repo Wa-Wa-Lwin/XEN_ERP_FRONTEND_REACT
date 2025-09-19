@@ -260,12 +260,12 @@ export const WEIGHT_UNITS = [
 ]
 
 export const CUSTOM_PURPOSES = [
-  { key: 'MERCHANDISE', value: 'merchandise', label: 'Merchandise' },
-  { key: 'GIFT', value: 'gift', label: 'Gift' },
-  { key: 'SAMPLE', value: 'sample', label: 'Sample' },
-  { key: 'RETURN', value: 'return', label: 'Return' },
-  { key: 'REPAIR', value: 'repair', label: 'Repair' },
-  { key: 'PERSONAL', value: 'personal', label: 'Personal' }
+  { key: 'merchandise', value: 'merchandise', label: 'Merchandise' },
+  { key: 'gift', value: 'gift', label: 'Gift' },
+  { key: 'gift', value: 'gift', label: 'Sample' },
+  { key: 'return', value: 'return', label: 'Return' },
+  { key: 'repair', value: 'repair', label: 'Repair' },
+  { key: 'personal', value: 'personal', label: 'Personal' }
 ];
 
 export const INCOTERMS = [
