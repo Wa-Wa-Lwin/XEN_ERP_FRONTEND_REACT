@@ -259,9 +259,9 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     })
   }
 
-  // Generate unique rate ID for selection
-  const getRateUniqueId = (rate: RateResponse) => {
-    return `${rate.shipper_account.id}-${rate.service_type}`
+  // Generate unique rate ID for selection (should match the one in ShipmentForm)
+  const getRateUniqueId = (rate: RateResponse, index: number) => {
+    return `${rate.shipper_account.id}-${rate.service_type}-${index}`
   }
 
   return (
@@ -331,8 +331,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Messages</TableColumn>
             </TableHeader>
             <TableBody emptyContent="No rates found.">
-              {getUniqueRates(rates).map((rate) => {
-                const rateUniqueId = getRateUniqueId(rate)
+              {getUniqueRates(rates).map((rate, index) => {
+                const rateUniqueId = getRateUniqueId(rate, index)
                 const isSelected = selectedRateId === rateUniqueId
                 return (
                 <TableRow

@@ -128,12 +128,12 @@ const ShipmentForm = () => {
       const apiRates = response.data?.data?.rates || []
 
       // Helper function to generate unique rate ID
-      const getRateUniqueId = (rate: any) => {
-        return `${rate.shipper_account.id}-${rate.service_type}`
+      const getRateUniqueId = (rate: any, index: number) => {
+        return `${rate.shipper_account.id}-${rate.service_type}-${index}`
       }
 
       // Transform API rates to match our interface
-      const transformedRates = apiRates.map((rate: any) => ({
+      const transformedRates = apiRates.map((rate: any, index: number) => ({
         shipper_account_id: rate.shipper_account.id,
         shipper_account_slug: rate.shipper_account.slug,
         shipper_account_description: rate.shipper_account.description,
@@ -149,7 +149,7 @@ const ShipmentForm = () => {
         charge_weight_unit: rate.charge_weight?.unit || '',
         total_charge_amount: rate.total_charge?.amount || 0,
         total_charge_currency: rate.total_charge?.currency || '',
-        unique_id: getRateUniqueId(rate), // Add unique ID for selection
+        unique_id: getRateUniqueId(rate, index), // Add unique ID for selection
         chosen: false,
         detailed_charges: JSON.stringify(rate.detailed_charges) || ''
       }))
@@ -357,13 +357,13 @@ const ShipmentForm = () => {
       formDataWithRates = await calculateRates(formData)
     } else {
       // Helper function to generate unique rate ID (same as in calculateRates)
-      const getRateUniqueId = (rate: any) => {
+      const getRateUniqueId = (rate: any, index: number) => {
         const shipperAccountId = rate.shipper_account?.id || rate.shipper_account_id
-        return `${shipperAccountId}-${rate.service_type}`
+        return `${shipperAccountId}-${rate.service_type}-${index}`
       }
 
       // Use existing rates data
-      const transformedRates = calculatedRates.map((rate: any) => ({
+      const transformedRates = calculatedRates.map((rate: any, index: number) => ({
         shipper_account_id: rate.shipper_account?.id || rate.shipper_account_id,
         shipper_account_slug: rate.shipper_account?.slug || rate.shipper_account_slug,
         shipper_account_description: rate.shipper_account?.description || rate.shipper_account_description,
@@ -379,7 +379,7 @@ const ShipmentForm = () => {
         charge_weight_unit: rate.charge_weight?.unit || rate.charge_weight_unit || '',
         total_charge_amount: rate.total_charge?.amount || rate.total_charge_amount || 0,
         total_charge_currency: rate.total_charge?.currency || rate.total_charge_currency || '',
-        unique_id: getRateUniqueId(rate), // Add unique ID for selection
+        unique_id: getRateUniqueId(rate, index), // Add unique ID for selection
         chosen: false,
         detailed_charges: typeof rate.detailed_charges === 'string' ? rate.detailed_charges : JSON.stringify(rate.detailed_charges) || ''
       }))
@@ -396,10 +396,10 @@ const ShipmentForm = () => {
 
   const handleConfirmSubmit = () => {
     if (previewData) {
-      // Mark selected rate as chosen using unique ID
+      // Mark selected rate as chosen using unique ID, ensure only one rate is chosen
       const updatedRates = previewData.rates?.map(rate => ({
         ...rate,
-        chosen: rate.unique_id === selectedRateId
+        chosen: rate.unique_id === selectedRateId ? true : false
       })) || []
 
       const finalData = {
