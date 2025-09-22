@@ -112,7 +112,19 @@ const ShipmentForm = () => {
       }
 
       // Determine type based on countries (you can modify this logic as needed)
-      const type = formData.ship_from_country === formData.ship_to_country ? "domestic" : "export"
+      // const type = formData.ship_from_country === formData.ship_to_country ? "domestic" : "export"
+      let type: string;
+
+      if (formData.ship_from_country === "THA" && formData.ship_to_country === "THA") {
+        type = "domestic";
+      } else if (formData.ship_to_country === "THA" && formData.ship_from_country !== "THA") {
+        type = "import";
+      } else if (formData.ship_from_country === "THA" && formData.ship_to_country !== "THA") {
+        type = "export";
+      } else {
+        type = "cross-border"; // neither side is THA
+      }
+
 
       // Backend API payload structure
       const backendPayload = {
@@ -514,7 +526,7 @@ const ShipmentForm = () => {
               <BasicInformation register={register} errors={errors} control={control} watch={watch} setValue={setValue} />
               <div className="pt-2 px-1">
                 <hr />
-              </div>              
+              </div>
             </div>
             <div className="py-1 px-4">
               <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" />
@@ -544,16 +556,16 @@ const ShipmentForm = () => {
 
             {/* <Divider className="my-6" /> */}
             <div className="py-1 px-4">
-            <RatesSection
-              rates={calculatedRates}
-              onCalculateRates={handleCalculateRate}
-              isCalculating={isCalculatingRate}
-              selectedRateId={selectedRateId}
-              onSelectRate={handleRateSelection}
-              register={register}
-              errors={errors}
-              serviceOption={watch('service_options')}
-            />
+              <RatesSection
+                rates={calculatedRates}
+                onCalculateRates={handleCalculateRate}
+                isCalculating={isCalculatingRate}
+                selectedRateId={selectedRateId}
+                onSelectRate={handleRateSelection}
+                register={register}
+                errors={errors}
+                serviceOption={watch('service_options')}
+              />
             </div>
 
             <div className="flex justify-end gap-4">

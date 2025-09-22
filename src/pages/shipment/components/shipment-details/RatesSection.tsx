@@ -42,9 +42,9 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
               <TableColumn className="min-w-[80px]">Chosen</TableColumn>
               <TableColumn className="min-w-[60px]">No.</TableColumn>
               <TableColumn className="min-w-[120px]">Rate ID</TableColumn>
-              <TableColumn className="min-w-[150px]">Carrier</TableColumn>
-              <TableColumn className="min-w-[200px]">Service</TableColumn>
-              <TableColumn className="min-w-[120px]">Service Type</TableColumn>
+              <TableColumn className="min-w-[150px]">Carrier(Service)</TableColumn>
+              {/* <TableColumn className="min-w-[200px]">Service</TableColumn> */}
+              {/* <TableColumn className="min-w-[120px]">Service Type</TableColumn> */}
               <TableColumn className="min-w-[100px]">Transit Time</TableColumn>
               <TableColumn className="min-w-[120px]">Cost</TableColumn>
               <TableColumn className="min-w-[100px]">Charge Weight</TableColumn>
@@ -66,14 +66,14 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                       <span className="text-sm font-mono">{rate.rateID}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{rate.shipper_account_description}</span>
+                      <span className="text-sm">{rate.shipper_account_description}({rate.service_name || 'N/A'})</span>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <span className="text-sm">{rate.service_name || 'N/A'}</span>
-                    </TableCell>
-                    <TableCell>
+                    </TableCell> */}
+                    {/* <TableCell>
                       <span className="text-xs text-gray-600">{rate.service_type || 'N/A'}</span>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <span className="text-sm">{rate.transit_time ? `${rate.transit_time} days` : 'N/A'}</span>
                     </TableCell>

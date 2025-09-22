@@ -559,7 +559,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
             <Modal
                 isOpen={isModalOpen}
                 onOpenChange={setIsModalOpen}
-                className="min-w-[80svw]"
+                className="min-w-[90svw]"
                 scrollBehavior="inside"
             >
                 <ModalContent>
@@ -602,8 +602,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             <TableColumn>PART NO</TableColumn>
                                             <TableColumn>HS CODE</TableColumn>
                                             <TableColumn>SUPPLIER</TableColumn>
-                                            <TableColumn>REVISION</TableColumn>
-                                            <TableColumn>ACTION</TableColumn>
                                         </TableHeader>
                                         <TableBody
                                             emptyContent={
@@ -617,7 +615,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             loadingContent="Loading materials from server..."
                                         >
                                             {paginatedMaterials.map((material) => (
-                                                <TableRow key={material.material_code}>
+                                                <TableRow
+                                                    key={material.material_code}
+                                                    className="cursor-pointer hover:bg-default-100 transition-colors"
+                                                    onClick={() => handleMaterialSelect(material)}
+                                                >
                                                     <TableCell>
                                                         <span className="font-medium text-primary">
                                                             {material.material_code}
@@ -629,17 +631,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                     <TableCell><span className="text-sm">{material.part_no}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.hscode}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.supplier_name}</span></TableCell>
-                                                    <TableCell><span className="text-sm">{material.part_revision}</span></TableCell>
-                                                    <TableCell>
-                                                        <Button
-                                                            size="sm"
-                                                            color="primary"
-                                                            variant="flat"
-                                                            onPress={() => handleMaterialSelect(material)}
-                                                        >
-                                                            Select
-                                                        </Button>
-                                                    </TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
