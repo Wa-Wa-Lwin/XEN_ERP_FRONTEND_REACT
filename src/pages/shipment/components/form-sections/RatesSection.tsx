@@ -330,8 +330,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             )}
           </div>
           <div className="flex gap-2">
-            {/* DONT DELETE YET  */}
-            {/* <Button
+            <Button
               type="button"
               variant="light"
               size="sm"
@@ -340,9 +339,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               isLoading={isLoadingRates}
               disabled={isLoadingRates}
               title="Force refresh exchange rates"
+              className='hidden'
             >
               {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
-            </Button> */}
+            </Button>
             <Button
               type="button"
               color="secondary"
