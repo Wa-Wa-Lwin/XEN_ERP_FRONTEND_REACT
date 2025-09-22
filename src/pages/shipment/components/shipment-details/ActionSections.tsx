@@ -59,6 +59,8 @@ const ActionSections = ({
           onValueChange={setRemark}
           size="sm"
           variant="bordered"
+          isInvalid={true}  // 🔴 this makes the border red
+          errorMessage="Remark is required for rejection" // optional helper text
         />
         <div className="flex gap-2">
           <Button

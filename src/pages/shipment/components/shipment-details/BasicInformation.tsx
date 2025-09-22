@@ -24,15 +24,6 @@ const BasicInformation = ({
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">General Information</h2>
         <div className="flex gap-2">
-          <Button
-            color="primary"
-            size="sm"
-            variant="bordered"
-            startContent={<Icon icon={showHistory ? "solar:eye-closed-bold" : "solar:history-bold"} />}
-            onPress={() => setShowHistory(!showHistory)}
-          >
-            {showHistory ? "Hide History" : "Show History"}
-          </Button>
           {(msLoginUser?.email === 'wawa@xenoptics.com' ||
             msLoginUser?.email === 'susu@xenoptics.com' ||
             msLoginUser?.email === 'thinzar@xenoptics.com') && onDuplicateShipment && (
