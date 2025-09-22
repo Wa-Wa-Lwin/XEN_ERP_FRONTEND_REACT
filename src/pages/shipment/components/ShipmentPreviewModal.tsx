@@ -1,4 +1,4 @@
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@heroui/react'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import type { ShipmentFormData } from '../types/shipment-form.types'
 
@@ -24,7 +24,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="4xl"
+      size="5xl"
       scrollBehavior="inside"
       classNames={{
         base: "max-h-[90vh]",
@@ -106,34 +106,51 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
           )}
 
           {/* Parcels */}
-          <p>
-            <h3 className="text-lg font-medium">
+          <div>
+            <h3 className="text-lg font-medium mb-2">
               Parcels ({formData.parcels?.length || 0})
             </h3>
-            {formData.parcels?.map((parcel, index) => (
-              <div key={index} className="ml-4 mt-2">
-                <b>Parcel {index + 1}</b> <br />
-                <b>Box Type - </b> {parcel.box_type_name || 'Not specified'} <br />
-                <b>Dimensions - </b> {parcel.width} × {parcel.height} × {parcel.depth} {parcel.dimension_unit} <br />
-                <b>Weight - </b> {parcel.parcel_weight_value} {parcel.weight_unit} <br />
-                {parcel.description && (
-                  <>
-                    <b>Description - </b> {parcel.description} <br />
-                  </>
-                )}
-                {parcel.parcel_items?.length > 0 && (
-                  <div className="ml-4 mt-1">
-                    <b>Items ({parcel.parcel_items.length})</b><br />
-                    {parcel.parcel_items.map((item, itemIndex) => (
-                      <div key={itemIndex} className="ml-2">
-                        • {item.description} — Qty: {item.quantity}, Price: {item.price_amount} {item.price_currency}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )) || <span>No parcels added</span>}
-          </p>
+            {formData.parcels && formData.parcels.length > 0 ? (
+              <Table shadow="none" aria-label="Parcels Table">
+                <TableHeader>
+                  <TableColumn>No.</TableColumn>
+                  <TableColumn>Description</TableColumn>
+                  <TableColumn>Box Type</TableColumn>
+                  <TableColumn>Dimensions ({formData.parcels[0].dimension_unit})</TableColumn>
+                  <TableColumn>Weight ({formData.parcels[0].weight_unit})</TableColumn>
+                  <TableColumn>Items</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {formData.parcels.map((parcel, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>{parcel.description || 'N/A'}</TableCell>
+                      <TableCell>{parcel.box_type_name || parcel.box_type || 'N/A'}</TableCell>
+                      <TableCell>{Math.floor(parcel.width)} × {Math.floor(parcel.height)} × {Math.floor(parcel.depth)}</TableCell>
+                      <TableCell>{parcel.parcel_weight_value || parcel.weight_value}</TableCell>
+                      <TableCell>
+                        {parcel.parcel_items?.length > 0 ? (
+                          <ul className="list-disc list-inside text-sm space-y-1">
+                            {parcel.parcel_items.map((item, i) => (
+                              <li key={i}>
+                                
+                                <strong>Description:</strong> {item.description} | <strong>SKU:</strong> {item.sku || 'N/A'} | <br/> 
+                                <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country || 'N/A'} | <br/> 
+                                <strong>Price:</strong> {parseFloat(String(item.price_amount))} {item.price_currency} | <strong>Qty:</strong> {item.quantity} pcs | <strong>Weight:</strong> {parseFloat(String(item.weight_value)).toFixed(1)} {item.weight_unit} | 
+                                
+                              </li>
+                            ))}
+                          </ul>
+                        ) : <span className="text-gray-400">No items</span>}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <span className="text-gray-400">No parcels added</span>
+            )}
+          </div>
 
           {/* Selected Shipping Rate */}
           {selectedRate && (

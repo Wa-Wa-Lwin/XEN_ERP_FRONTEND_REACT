@@ -360,7 +360,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     }}
                                                 >
                                                     {PARCEL_BOX_TYPES.map((boxType) => (
-                                                        <SelectItem key={boxType.id} value={boxType.id.toString()}>
+                                                        <SelectItem key={boxType.box_type_name} value={boxType.id.toString()}>
                                                             {boxType.box_type_name}
                                                         </SelectItem>
                                                     ))}

@@ -213,17 +213,12 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
               <Input
                 {...register('urgent_reason', { required: isFieldRequired() ? 'Urgent reason is required' : false })}
                 label={<span>Urgent Reason {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                placeholder="Enter urgent reason"
+                placeholder="Enter"
                 errorMessage={errors.urgent_reason?.message}
                 isInvalid={!!errors.urgent_reason}
               />
             )}
           </div>
-
-
-
-
-
 
           <Input
             {...register('po_number', { required: isFieldRequired() ? 'PO Number is required' : false })}

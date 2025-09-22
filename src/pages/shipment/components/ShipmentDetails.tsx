@@ -19,6 +19,7 @@ const ShipmentDetails = () => {
   const [isRejecting, setIsRejecting] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showAllRates, setShowAllRates] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [isUpdatingLogistics, setIsUpdatingLogistics] = useState(false);
   const [editCustomsPurpose, setEditCustomsPurpose] = useState("");
   const [editCustomsTermsOfTrade, setEditCustomsTermsOfTrade] = useState("");
@@ -454,6 +455,23 @@ const ShipmentDetails = () => {
     }
   };
 
+  const getDisplayStatusHistory = (status: string) => {
+    switch (status) {
+      case 'requestor_requested':
+        return 'Requested to Approver';
+      case 'send_to_logistic':
+        return 'Send to Logistic to Review';
+      case 'logistic_updated':
+        return 'Logistic Updated';
+      case 'approver_approved':
+        return 'Approved';
+      case 'approver_rejected':
+        return 'Rejected';
+      default:
+        return status.toUpperCase();
+    }
+  };
+
   const formatDateTime = (dateTimeString: string) => {
     if (!dateTimeString) return null;
     const date = new Date(dateTimeString);
@@ -558,17 +576,19 @@ const ShipmentDetails = () => {
       <section className="space-y-1">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">General Information</h2>
-          {(msLoginUser?.email === 'wawa@xenoptics.com' || msLoginUser?.email === 'susu@xenoptics.com' || msLoginUser?.email === 'thinzar@xenoptics.com') && (
-            <Button
-              color="secondary"
-              size="sm"
-              variant="bordered"
-              startContent={<Icon icon="solar:copy-bold" />}
-              onPress={handleDuplicateShipment}
-            >
-              Developer Ony : Duplicate Shipment Request
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {(msLoginUser?.email === 'wawa@xenoptics.com' || msLoginUser?.email === 'susu@xenoptics.com' || msLoginUser?.email === 'thinzar@xenoptics.com') && (
+              <Button
+                color="secondary"
+                size="sm"
+                variant="bordered"
+                startContent={<Icon icon="solar:copy-bold" />}
+                onPress={handleDuplicateShipment}
+              >
+                Developer Ony : Duplicate Shipment Request
+              </Button>
+            )}
+          </div>
         </div>
         <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-1 text-sm">
           <div>
@@ -604,7 +624,7 @@ const ShipmentDetails = () => {
           <div>
             <DetailRow label="Shipment Scope Type" value={shipment.shipment_scope_type.toUpperCase()} />
             <DetailRow label="Service Options" value={shipment.service_options} />
-            
+
             {shipment.service_options === 'Urgent' && (
               <DetailRow label="Urgent Reason" value={shipment.urgent_reason} />
             )}
@@ -612,12 +632,12 @@ const ShipmentDetails = () => {
             <DetailRow label="Customs Terms of Trade" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
           </div>
           <div>
-            
+
             {shipment.approver_approved_date_time && (
               <>
                 <DetailRow label="Label ID" value={shipment.label_id} />
                 <DetailRow label="Label Status" value={shipment.label_status} />
-                 <DetailRow label="Label" value={shipment.files_label_url} />
+                <DetailRow label="Label" value={shipment.files_label_url} />
                 <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
                 <DetailRow label="Pick Up Date" value={shipment.pick_up_date} />
                 <DetailRow label="Pick Up Created Status" value={shipment.pick_up_created_status} />
@@ -633,7 +653,7 @@ const ShipmentDetails = () => {
 
           </div>
         </div>
-        <hr />      
+        <hr />
       </section>
       {/* Ship From / Ship To */}
       <section className="grid md:grid-cols-3 gap-6">
@@ -739,8 +759,62 @@ const ShipmentDetails = () => {
               ))}
             </TableBody>
           </Table>
+          <hr />
         </section>
       )}
+
+       {/* Shipment History  */}
+      <section className="space-y-1">
+        <div className="flex justify-left gap-6 items-center mb-0">
+          <h2 className="text-base font-semibold">Request History</h2>
+          <Button
+            color="primary"
+            size="sm"
+            variant="bordered"
+            startContent={<Icon icon={showHistory ? "solar:eye-closed-bold" : "solar:history-bold"} />}
+            onPress={() => setShowHistory(!showHistory)}
+          >
+            {showHistory ? "Hide History" : "Show History"}
+          </Button>
+        </div>
+        {/* History Section */}
+        {showHistory &&
+          shipment.shipment_request_histories &&
+          shipment.shipment_request_histories.length > 0 && (
+            <div>
+              {shipment.shipment_request_histories
+                .sort((a: any, b: any) => {
+                  // Sort by date, with fallback for null dates
+                  const dateA = new Date(
+                    a.history_record_date_time || a.shipment_request_created_date_time || 0
+                  );
+                  const dateB = new Date(
+                    b.history_record_date_time || b.shipment_request_created_date_time || 0
+                  );
+                  return dateB.getTime() - dateA.getTime(); // Most recent first
+                })
+                .map((history: any, idx: number) => (
+                  <div key={idx} className="text-sm text-gray-700">
+                    <p>
+                      {history.user_name} ({history.user_role || 'logistics'})  <Chip
+                        size="sm"
+                        variant="flat"
+                        color={
+                          history.status?.includes('approved') ? 'success' :
+                            history.status?.includes('rejected') ? 'danger' :
+                              history.status?.includes('updated') ? 'warning' : 'primary'
+                        }
+                      >
+                        {getDisplayStatusHistory(history.status)}
+                      </Chip>  {formatDateTime(history.history_record_date_time || history.shipment_request_created_date_time)} | <b>Remark: </b> {history.remark || 'N/A'}
+                    </p>
+                  </div>
+                ))}
+            </div>
+          )}
+
+        <hr />
+      </section>
 
       {["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
         msLoginUser?.email.toLowerCase() === shipment.approver_user_mail.toLowerCase() ? (
@@ -778,93 +852,93 @@ const ShipmentDetails = () => {
         </section>
       ) : shipment.request_status === "send_to_logistic" ? (
         <div className="grid md:grid-cols-2 gap-4">
-        <section className="bg-blue-50 rounded-xl border p-4 space-y-4">
-          <h2 className="text-base font-semibold">Logistics Information Update</h2>
+          <section className="bg-blue-50 rounded-xl border p-4 space-y-4">
+            <h2 className="text-base font-semibold">Logistics Information Update</h2>
 
-          {/* Customs Information */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <Select
-              label="Customs Purpose"
-              placeholder="Select customs purpose"
-              selectedKeys={editCustomsPurpose ? [editCustomsPurpose] : []}
-              onSelectionChange={(keys) => setEditCustomsPurpose(Array.from(keys)[0] as string)}
-              size="sm"
-              variant="bordered"
-            >
-              {CUSTOM_PURPOSES.map((purpose) => (
-                <SelectItem key={purpose.key} value={purpose.key}>
-                  {purpose.label}
-                </SelectItem>
-              ))}
-            </Select>
-
-            <Select
-              label="Customs Terms of Trade"
-              placeholder="Select terms of trade"
-              selectedKeys={editCustomsTermsOfTrade ? [editCustomsTermsOfTrade] : []}
-              onSelectionChange={(keys) => setEditCustomsTermsOfTrade(Array.from(keys)[0] as string)}
-              size="sm"
-              variant="bordered"
-            >
-              {INCOTERMS.map((term) => (
-                <SelectItem key={term.key} value={term.key}>
-                  {term.value}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-
-          {/* Parcel Items */}
-          {editedParcelItems.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold">Parcel Items</h3>
-              <div className="space-y-2">
-                {editedParcelItems.map((item) => (
-                  <div key={item.id} className="grid md:grid-cols-2 gap-2 p-3 rounded border">
-                    <div className="text-xs text-gray-600 md:col-span-4">
-                      <strong>Description:</strong> {item.description}
-                    </div>
-                    <Input
-                      label="HS Code"
-                      value={item.hs_code || ""}
-                      onValueChange={(value) => handleParcelItemUpdate(item.id, "hs_code", value)}
-                      size="sm"
-                      variant="bordered"
-                    />
-                    <Autocomplete
-                      label="Origin Country"
-                      placeholder="Search country..."
-                      selectedKey={item.origin_country || ""}
-                      onSelectionChange={(key) => handleParcelItemUpdate(item.id, "origin_country", key as string)}
-                      size="sm"
-                      variant="bordered"
-                      allowsCustomValue
-                    >
-                      {COUNTRIES.map((country) => (
-                        <AutocompleteItem key={country.key} value={country.key}>
-                          {country.value}
-                        </AutocompleteItem>
-                      ))}
-                    </Autocomplete>
-                  </div>
+            {/* Customs Information */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <Select
+                label="Customs Purpose"
+                placeholder="Select customs purpose"
+                selectedKeys={editCustomsPurpose ? [editCustomsPurpose] : []}
+                onSelectionChange={(keys) => setEditCustomsPurpose(Array.from(keys)[0] as string)}
+                size="sm"
+                variant="bordered"
+              >
+                {CUSTOM_PURPOSES.map((purpose) => (
+                  <SelectItem key={purpose.key} value={purpose.key}>
+                    {purpose.label}
+                  </SelectItem>
                 ))}
-              </div>
-            </div>
-          )}
+              </Select>
 
-          <div className="flex gap-2">
-            <Button
-              color="primary"
-              onPress={handleLogisticsUpdate}
-              isLoading={isUpdatingLogistics}
-              disabled={isUpdatingLogistics}
-              size="sm"
-              startContent={<Icon icon="solar:refresh-bold" />}
-            >
-              {isUpdatingLogistics ? "Updating..." : "Update Logistics Info"}
-            </Button>
-          </div>
-        </section>
+              <Select
+                label="Customs Terms of Trade"
+                placeholder="Select terms of trade"
+                selectedKeys={editCustomsTermsOfTrade ? [editCustomsTermsOfTrade] : []}
+                onSelectionChange={(keys) => setEditCustomsTermsOfTrade(Array.from(keys)[0] as string)}
+                size="sm"
+                variant="bordered"
+              >
+                {INCOTERMS.map((term) => (
+                  <SelectItem key={term.key} value={term.key}>
+                    {term.value}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+
+            {/* Parcel Items */}
+            {editedParcelItems.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold">Parcel Items</h3>
+                <div className="space-y-2">
+                  {editedParcelItems.map((item) => (
+                    <div key={item.id} className="grid md:grid-cols-2 gap-2 p-3 rounded border">
+                      <div className="text-xs text-gray-600 md:col-span-4">
+                        <strong>Description:</strong> {item.description}
+                      </div>
+                      <Input
+                        label="HS Code"
+                        value={item.hs_code || ""}
+                        onValueChange={(value) => handleParcelItemUpdate(item.id, "hs_code", value)}
+                        size="sm"
+                        variant="bordered"
+                      />
+                      <Autocomplete
+                        label="Origin Country"
+                        placeholder="Search country..."
+                        selectedKey={item.origin_country || ""}
+                        onSelectionChange={(key) => handleParcelItemUpdate(item.id, "origin_country", key as string)}
+                        size="sm"
+                        variant="bordered"
+                        allowsCustomValue
+                      >
+                        {COUNTRIES.map((country) => (
+                          <AutocompleteItem key={country.key} value={country.key}>
+                            {country.value}
+                          </AutocompleteItem>
+                        ))}
+                      </Autocomplete>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <Button
+                color="primary"
+                onPress={handleLogisticsUpdate}
+                isLoading={isUpdatingLogistics}
+                disabled={isUpdatingLogistics}
+                size="sm"
+                startContent={<Icon icon="solar:refresh-bold" />}
+              >
+                {isUpdatingLogistics ? "Updating..." : "Update Logistics Info"}
+              </Button>
+            </div>
+          </section>
         </div>
       ) : (
         <div>
