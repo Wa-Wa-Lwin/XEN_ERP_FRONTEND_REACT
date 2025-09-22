@@ -133,7 +133,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
     }
 
     return (
-        <div className="border-t border-b pt-2 pb-2 mb-2">
+        <div className="border-t border-b pt-2 pb-2 mb-2 bg-gray-100">
             <div className="flex justify-left items-center mb-4 gap-3">
                 <h4 className="text-md font-medium">Parcel Items</h4>
                 <Button
@@ -164,7 +164,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                     }}
                 >
                     <TableHeader>
-                        <TableColumn className="w-8">#</TableColumn>
+                        <TableColumn className="w-12">#</TableColumn>
                         <TableColumn className="w-48 min-w-[80px]">DESCRIPTION {isItemFieldRequired('description') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-36">SKU {isItemFieldRequired('sku') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-24">HS CODE {isItemFieldRequired('hs_code') && <span className="text-red-500">*</span>}</TableColumn>
@@ -567,10 +567,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                         <>
                             <ModalHeader className="flex flex-col gap-1">
                                 <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3>Material Lookup</h3>
-                                        <p className="text-small text-default-600">Click on any row to select and auto-fill item details</p>
-                                    </div>
+                                    <h3>Material Lookup</h3>
                                     {materials.length > 0 && (
                                         <span className="text-sm text-default-500">
                                             {materials.length} materials available
@@ -606,6 +603,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             <TableColumn>HS CODE</TableColumn>
                                             <TableColumn>SUPPLIER</TableColumn>
                                             <TableColumn>REVISION</TableColumn>
+                                            <TableColumn>ACTION</TableColumn>
                                         </TableHeader>
                                         <TableBody
                                             emptyContent={
@@ -619,11 +617,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             loadingContent="Loading materials from server..."
                                         >
                                             {paginatedMaterials.map((material) => (
-                                                <TableRow
-                                                    key={material.material_code}
-                                                    className="cursor-pointer hover:bg-default-100 transition-colors"
-                                                    onClick={() => handleMaterialSelect(material)}
-                                                >
+                                                <TableRow key={material.material_code}>
                                                     <TableCell>
                                                         <span className="font-medium text-primary">
                                                             {material.material_code}
@@ -636,6 +630,16 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                     <TableCell><span className="text-sm">{material.hscode}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.supplier_name}</span></TableCell>
                                                     <TableCell><span className="text-sm">{material.part_revision}</span></TableCell>
+                                                    <TableCell>
+                                                        <Button
+                                                            size="sm"
+                                                            color="primary"
+                                                            variant="flat"
+                                                            onPress={() => handleMaterialSelect(material)}
+                                                        >
+                                                            Select
+                                                        </Button>
+                                                    </TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
