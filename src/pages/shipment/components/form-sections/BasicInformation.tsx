@@ -16,6 +16,12 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
   // Watch the send_to field to conditionally apply validation
   const sendTo = watch('send_to');
 
+  // Initialize request_status on component mount
+  useEffect(() => {
+    const currentSendTo = sendTo || 'Approver';
+    setRequestStatusValue(currentSendTo);
+  }, []);
+
   // Watch form values to sync with form state
   const topicValue = watch('topic');
   const serviceOptionsValue = watch('service_options');
