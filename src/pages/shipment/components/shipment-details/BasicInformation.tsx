@@ -14,8 +14,6 @@ interface BasicInformationProps {
 
 const BasicInformation = ({
   shipment,
-  showHistory,
-  setShowHistory,
   msLoginUser,
   onDuplicateShipment
 }: BasicInformationProps) => {
