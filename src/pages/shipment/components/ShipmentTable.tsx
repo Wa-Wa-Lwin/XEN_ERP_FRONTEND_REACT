@@ -31,6 +31,9 @@ const ShipmentTable = () => {
   const [filterType, setFilterType] = useState<'all' | 'mine'>('mine')
   const [statusFilter, setStatusFilter] = useState<string>('waiting')
 
+  // Sort states
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
+
   // Status options for filtering
   const statusOptions = [
     { value: 'all', label: 'All Status' },
@@ -110,8 +113,22 @@ const ShipmentTable = () => {
       }
     }
 
+    // Apply sorting if enabled
+    if (sortDirection !== null) {
+      filtered = [...filtered].sort((a, b) => {
+        const aId = Number(a.shipmentRequestID)
+        const bId = Number(b.shipmentRequestID)
+
+        if (sortDirection === 'asc') {
+          return aId - bId
+        } else {
+          return bId - aId
+        }
+      })
+    }
+
     return filtered
-  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email])
+  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection])
 
   // Pagination logic
   const paginatedData = useMemo(() => {
@@ -349,7 +366,33 @@ const ShipmentTable = () => {
           removeWrapper
         >
           <TableHeader className="sticky top-0 z-20 bg-white shadow-sm text-sm">
-            <TableColumn>ID</TableColumn>
+            <TableColumn>
+              <div className="flex items-center gap-1">
+                ID
+                <Button
+                  size="sm"
+                  variant="light"
+                  isIconOnly
+                  className="h-5 w-5 min-w-0"
+                  onPress={() => {
+                    setSortDirection(current => {
+                      if (current === null) return 'desc'
+                      if (current === 'desc') return 'asc'
+                      return null
+                    })
+                  }}
+                >
+                  <Icon
+                    icon={
+                      sortDirection === null ? "solar:sort-bold" :
+                      sortDirection === 'desc' ? "solar:sort-from-top-to-bottom-bold" :
+                      "solar:sort-from-bottom-to-top-bold"
+                    }
+                    className="w-3 h-3"
+                  />
+                </Button>
+              </div>
+            </TableColumn>
             <TableColumn>Scope</TableColumn>
             <TableColumn>Topic (PO)</TableColumn>
             <TableColumn>FROM</TableColumn>
