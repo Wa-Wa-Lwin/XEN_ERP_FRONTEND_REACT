@@ -87,7 +87,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
               <Select
                 {...field}
                 label={<span>Send To {true && <span className="text-red-500">*</span>}</span>}
-                placeholder="Select recipient"
+                placeholder="Select"
                 errorMessage={errors.send_to?.message}
                 isInvalid={!!errors.send_to}
                 selectedKeys={sendToValue ? [sendToValue] : ["Approver"]}
@@ -116,7 +116,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                   <Select
                     {...field}
                     label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                    placeholder="Select topic"
+                    placeholder="Select"
                     errorMessage={errors.topic?.message}
                     isInvalid={!!errors.topic}
                     selectedKeys={topicValue ? [topicValue] : []}
@@ -189,7 +189,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 <Select
                   {...field}
                   label={<span>Service Options {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                  placeholder="Select service options"
+                  placeholder="Select"
                   errorMessage={errors.service_options?.message}
                   isInvalid={!!errors.service_options}
                   selectedKeys={serviceOptionsValue ? [serviceOptionsValue] : []}
@@ -228,7 +228,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
           <Input
             {...register('po_number', { required: isFieldRequired() ? 'PO Number is required' : false })}
             label={<span>PO Number {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-            placeholder="Enter PO number"
+            placeholder="Enter"
             errorMessage={errors.po_number?.message}
             isInvalid={!!errors.po_number}
           />
@@ -249,8 +249,8 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
             render={({ field }) => (
               <Select
                 {...field}
-                label={<span>Customs Purpose {isFieldRequired('customs_purpose') && <span className="text-red-500">*</span>}</span>}
-                placeholder="Select customs purpose"
+                label={<span>Customs {isFieldRequired('customs_purpose') && <span className="text-red-500">*</span>}</span>}
+                placeholder="Select"
                 errorMessage={errors.customs_purpose?.message}
                 isInvalid={!!errors.customs_purpose}
                 selectedKeys={customsPurposeValue ? [customsPurposeValue] : []}
@@ -278,7 +278,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 <Select
                   {...field}
                   label={<span>Incoterms {isFieldRequired('customs_terms_of_trade') && <span className="text-red-500">*</span>}</span>}
-                  placeholder="Select Incoterms"
+                  placeholder="Select"
                   errorMessage={errors.customs_terms_of_trade?.message}
                   isInvalid={!!errors.customs_terms_of_trade}
                   selectedKeys={customsTermsValue ? [customsTermsValue] : []}

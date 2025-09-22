@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Button, Card, CardBody } from '@heroui/react'
 import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
@@ -26,6 +26,15 @@ const ShipmentForm = () => {
   const [calculatedRates, setCalculatedRates] = useState<any[]>([])
   const [selectedRateId, setSelectedRateId] = useState<string>('')
 
+  // Watch for changes in critical fields that affect rates
+  const watchedFields = watch([
+    'ship_from_country', 'ship_from_postal_code', 'ship_from_city',
+    'ship_to_country', 'ship_to_postal_code', 'ship_to_city',
+    'parcels'
+  ])
+
+  // Store the form data snapshot when rates were calculated
+  const [setRateCalculationSnapshot] = React.useState<any>(null)
   const handleRateSelection = (rateId: string) => {
     setSelectedRateId(rateId)
   }
@@ -155,6 +164,7 @@ const ShipmentForm = () => {
       }))
 
       // Store rates in component state
+      console.log('Setting calculated rates:', apiRates)
       setCalculatedRates(apiRates) // Keep original for display
 
       // Store the rates in the form data
@@ -340,13 +350,24 @@ const ShipmentForm = () => {
       return
     }
 
+    // Validate that rates have been calculated
+    if (calculatedRates.length === 0) {
+      setErrorModal({
+        isOpen: true,
+        title: 'Rate Calculation Required',
+        message: 'Please calculate shipping rates before proceeding to preview.',
+        details: [{ path: 'Rates', info: 'Click "Calculate Rates" button to get available shipping options' }]
+      })
+      return
+    }
+
     // Validate that a rate is selected if rates are available
     if (calculatedRates.length > 0 && !selectedRateId) {
       setErrorModal({
         isOpen: true,
-        title: 'Selection Required',
+        title: 'Rate Selection Required',
         message: 'Please select a shipping rate before proceeding to preview.',
-        details: []
+        details: [{ path: 'Rate Selection', info: 'Choose one of the calculated shipping rates from the rates section' }]
       })
       return
     }
@@ -416,6 +437,7 @@ const ShipmentForm = () => {
     // Clear calculated rates and selected rate first
     setCalculatedRates([])
     setSelectedRateId('')
+    setRateCalculationSnapshot(null)
     // Close any open modals
     setIsPreviewOpen(false)
     setErrorModal({
@@ -471,7 +493,8 @@ const ShipmentForm = () => {
     const updatedFormData = await calculateRates(formData)
 
     if (updatedFormData.rates && updatedFormData.rates.length > 0) {
-
+      // Store snapshot of form data when rates were calculated
+      setRateCalculationSnapshot(watchedFields)
     } else {
       console.log("Rates calculated but no rates were returned.")
     }
@@ -545,6 +568,7 @@ const ShipmentForm = () => {
                 color="primary"
                 type="submit"
                 startContent={<Icon icon="solar:eye-bold" />}
+                isDisabled={calculatedRates.length === 0 || !selectedRateId}
                 onPress={() => {
                   console.log("Preview & Submit button clicked")
                   // Also log current form state for debugging
@@ -560,7 +584,11 @@ const ShipmentForm = () => {
                   })
                 }}
               >
-                Preview & Submit
+                {calculatedRates.length === 0
+                  ? 'Calculate Rates First'
+                  : !selectedRateId
+                    ? 'Select Rate First'
+                    : 'Preview & Submit'}
               </Button>
             </div>
           </form>
