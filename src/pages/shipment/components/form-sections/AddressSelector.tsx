@@ -382,13 +382,16 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
                       <TableColumn>ADDRESS</TableColumn>
                       <TableColumn>COUNTRY</TableColumn>
                       <TableColumn>CONTACT</TableColumn>
-                      <TableColumn>ACTIONS</TableColumn>
                     </TableHeader>
                     <TableBody emptyContent="No addresses found">
                       {filteredAddresses.slice(0, 50).map((address) => {
                         const typeInfo = getCardTypeInfo(address.CardType)
                         return (
-                          <TableRow key={address.CardCode}>
+                          <TableRow
+                            key={address.CardCode}
+                            className="cursor-pointer hover:bg-default-100 transition-colors"
+                            onClick={() => handleAddressSelect(address)}
+                          >
                             <TableCell>
                               <span className="font-medium text-primary text-sm">
                                 {address.CardCode}
@@ -408,14 +411,14 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
                               <div className="flex flex-col max-w-[200px]">
                                 <span className="text-sm font-medium text-foreground truncate">
                                   {address.CardName}
-                                </span>                                
+                                </span>
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col max-w-[250px]">
                                 <span className="text-sm text-default-600 truncate">
                                   {formatAddress(address)}
-                                </span>                                
+                                </span>
                               </div>
                             </TableCell>
                              <TableCell>
@@ -439,17 +442,6 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
                                   </span>
                                 )}
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                size="sm"
-                                color="primary"
-                                variant="flat"
-                                startContent={<Icon icon="solar:check-bold" />}
-                                onPress={() => handleAddressSelect(address)}
-                              >
-                                Select
-                              </Button>
                             </TableCell>
                           </TableRow>
                         )
