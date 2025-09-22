@@ -632,6 +632,40 @@ const ShipmentDetails = () => {
             <DetailRow label="Customs Terms of Trade" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
           </div>
           <div>
+            <div className="mb-3">
+              {(shipment.label_status === "failed" || (shipment.label_status === null && shipment.approver_approved_date_time !== null) ) && (
+                <div className="mb-3">
+                  <p className="text-red-600 font-semibold mb-2">
+                    ⚠️ Label creation failed
+                    {/* <br /> */}
+                    <Button
+                      size="sm"
+                      color="warning"
+                      onPress={() => setShowError(!showError)}
+                      className="ml-2"
+                    >
+                      {showError ? "Hide Error Details" : "Show Error Details"}
+                    </Button>
+                  </p>
+
+
+                  {showError && (
+                    <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50 mb-3">
+                      <b>Details:</b> {formattedError}
+                    </div>
+                  )}
+
+                  <Button
+                    color="primary"
+                    size="sm"
+                    onPress={handleCreateLabel}
+                    startContent={<Icon icon="solar:refresh-bold" />}
+                  >
+                    Retry Create Label
+                  </Button>
+                </div>
+              )}
+            </div>
 
             {shipment.approver_approved_date_time && (
               <>
@@ -763,7 +797,7 @@ const ShipmentDetails = () => {
         </section>
       )}
 
-       {/* Shipment History  */}
+      {/* Shipment History  */}
       <section className="space-y-1">
         <div className="flex justify-left gap-6 items-center mb-0">
           <h2 className="text-base font-semibold">Request History</h2>
@@ -850,7 +884,7 @@ const ShipmentDetails = () => {
             </Button>
           </div>
         </section>
-      ) : shipment.request_status === "send_to_logistic" ? (
+      ) : shipment.request_status === "send_to_logistic" && (
         <div className="grid md:grid-cols-2 gap-4">
           <section className="bg-blue-50 rounded-xl border p-4 space-y-4">
             <h2 className="text-base font-semibold">Logistics Information Update</h2>
@@ -939,41 +973,6 @@ const ShipmentDetails = () => {
               </Button>
             </div>
           </section>
-        </div>
-      ) : (
-        <div>
-          {shipment.label_status === "failed" && (
-            <div className="mb-3">
-              <p className="text-red-600 font-semibold mb-2">
-                ⚠️ Label creation failed
-                {/* <br /> */}
-                <Button
-                  size="sm"
-                  color="warning"
-                  onPress={() => setShowError(!showError)}
-                  className="ml-2"
-                >
-                  {showError ? "Hide Error Details" : "Show Error Details"}
-                </Button>
-              </p>
-
-
-              {showError && (
-                <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
-                  <b>Details:</b> {formattedError}
-                </div>
-              )}
-
-              <Button
-                color="primary"
-                size="sm"
-                onPress={handleCreateLabel}
-                startContent={<Icon icon="solar:refresh-bold" />}
-              >
-                Retry Create Label
-              </Button>
-            </div>
-          )}
         </div>
       )}
 
