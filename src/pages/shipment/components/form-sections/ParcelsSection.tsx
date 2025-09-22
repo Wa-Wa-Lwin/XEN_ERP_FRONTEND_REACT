@@ -258,209 +258,383 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
     }
 
     return (
-        <Card className="p-2">
-            {/* <Card shadow="none"> */}
-            {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-            <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
-                <h2 className="text-lg font-semibold">Parcels and Items</h2>
-                <Button
-                    type="button"
-                    color="primary"
-                    size="sm"
-                    startContent={<Icon icon="solar:add-circle-bold" />}
-                    onPress={() => appendParcel(DEFAULT_PARCEL)}
-                >
-                    Add Parcel
-                </Button>
-            </CardHeader>
-            <CardBody className="px-0 pt-0 pb-0 space-y-3">
-                {parcelFields.map((parcel, parcelIndex) => (
-                    <Card key={parcel.id} shadow="none" className="p-0 m-0">
-                        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
-                            <h3 className="text-base font-medium">
-                                Parcel {parcelIndex + 1}
-                            </h3>
+        <>
+            <Card className="p-2 mb-2">
+                {/* <Card shadow="none"> */}
+                {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+                <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
+                    <h2 className="text-lg font-semibold">Parcels and Items</h2>
+                </CardHeader>
+                <CardBody className="px-0 pt-0 pb-0 space-y-3">
+                    {parcelFields.map((parcel, parcelIndex) => (
+                        <Card key={parcel.id} shadow="none" className="p-0 m-0">
+                            <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
+                                <h3 className="text-base font-medium">
+                                    Parcel {parcelIndex + 1}
+                                </h3>
 
-                            {/* Right side */}
-                            <div className="flex gap-2 flex-wrap justify-end">
-                                {isAutoFilled(parcelIndex) && (
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="light"
-                                        color="primary"
-                                        startContent={<Icon icon="solar:pen-bold" />}
-                                        onPress={() => handleToggleManualEdit(parcelIndex)}
-                                    >
-                                        Edit Dimensions Manually
-                                    </Button>
-                                )}
-                                {manualEditParcels.has(parcelIndex) && autoFilledParcels.has(parcelIndex) && (
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="light"
-                                        color="warning"
-                                        startContent={<Icon icon="solar:lock-keyhole-minimalistic-bold" />}
-                                        onPress={() => handleToggleManualEdit(parcelIndex)}
-                                    >
-                                        Lock Auto-filled Values
-                                    </Button>
-                                )}
-                                {parcelFields.length > 1 && (
-                                    <Button
-                                        type="button"
-                                        color="danger"
-                                        size="sm"
-                                        variant="light"
-                                        startContent={<Icon icon="solar:trash-bin-minimalistic-bold" />}
-                                        onPress={() => handleRemoveParcel(parcelIndex)}
-                                    >
-                                        Remove Parcel
-                                    </Button>
-                                )}
-                            </div>
-                        </CardHeader>
+                                {/* Right side */}
+                                <div className="flex gap-2 flex-wrap justify-end">
+                                    {isAutoFilled(parcelIndex) && (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="light"
+                                            color="primary"
+                                            startContent={<Icon icon="solar:pen-bold" />}
+                                            onPress={() => handleToggleManualEdit(parcelIndex)}
+                                        >
+                                            Edit Dimensions Manually
+                                        </Button>
+                                    )}
+                                    {manualEditParcels.has(parcelIndex) && autoFilledParcels.has(parcelIndex) && (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="light"
+                                            color="warning"
+                                            startContent={<Icon icon="solar:lock-keyhole-minimalistic-bold" />}
+                                            onPress={() => handleToggleManualEdit(parcelIndex)}
+                                        >
+                                            Lock Auto-filled Values
+                                        </Button>
+                                    )}
+                                    {parcelFields.length > 1 && (
+                                        <Button
+                                            type="button"
+                                            color="danger"
+                                            size="sm"
+                                            variant="light"
+                                            startContent={<Icon icon="solar:trash-bin-minimalistic-bold" />}
+                                            onPress={() => handleRemoveParcel(parcelIndex)}
+                                        >
+                                            Remove Parcel
+                                        </Button>
+                                    )}
+                                </div>
+                            </CardHeader>
 
-                        <CardBody className="px-0 pt-0 pb-0">
-                            {/* Parcel Information */}
-                            <div className="space-y-3 mb-4">
+                            <CardBody className="px-0 pt-0 pb-0">
+                                {/* Parcel Information */}
+                                <div className="space-y-3 mb-4">
 
-                                {/* Box Type and Description Row */}
-                                <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
-                                    <div className="space-y-2 col-span-2">
+                                    {/* Box Type and Description Row */}
+                                    <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+                                        <div className="space-y-2 col-span-2">
+                                            <Controller
+                                                name={`parcels.${parcelIndex}.box_type_name`}
+                                                control={control}
+                                                rules={{ required: isFieldRequired('box_type_name') ? 'Box type is required' : false }}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        {...field}
+                                                        label={
+                                                            <span>
+                                                                Box Type{' '}
+                                                                {isFieldRequired('box_type_name') && (
+                                                                    <span className="text-red-500">*</span>
+                                                                )}
+                                                            </span>
+                                                        }
+                                                        placeholder="Select box type"
+                                                        errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
+                                                        isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
+
+                                                        onSelectionChange={(keys) => {
+                                                            const selectedKey = Array.from(keys)[0] as string
+                                                            if (selectedKey) {
+                                                                const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.id.toString() === selectedKey)
+                                                                if (selectedBoxType) {
+                                                                    field.onChange(selectedBoxType.box_type_name)
+                                                                    handleBoxTypeChange(parcelIndex, selectedKey)
+                                                                }
+                                                            }
+                                                        }}
+                                                    >
+                                                        {PARCEL_BOX_TYPES.map((boxType) => (
+                                                            <SelectItem key={boxType.box_type_name} value={boxType.id.toString()}>
+                                                                {boxType.box_type_name}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </Select>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="relative">
+                                            <Controller
+                                                name={`parcels.${parcelIndex}.width`}
+                                                control={control}
+                                                rules={{ required: isFieldRequired('width') ? 'Width is required' : false, min: 0 }}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        {...field}
+                                                        type="number"
+                                                        step="0.01"
+                                                        label={<span>Width (cm) {isFieldRequired('width') && <span className="text-red-500">*</span>}</span>}
+                                                        placeholder="Enter width"
+                                                        errorMessage={errors.parcels?.[parcelIndex]?.width?.message}
+                                                        isInvalid={!!errors.parcels?.[parcelIndex]?.width}
+                                                        isReadOnly={isAutoFilled(parcelIndex)}
+                                                        className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
+                                                        endContent={
+                                                            isAutoFilled(parcelIndex) && (
+                                                                <Icon icon="solar:lock-keyhole-minimalistic-bold"
+                                                                    className="text-gray-400" />
+                                                            )
+                                                        }
+                                                        min={1}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="relative">
+                                            <Controller
+                                                name={`parcels.${parcelIndex}.height`}
+                                                control={control}
+                                                rules={{ required: isFieldRequired('height') ? 'Height is required' : false, min: 0 }}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        {...field}
+                                                        type="number"
+                                                        step="0.01"
+                                                        label={<span>Height (cm) {isFieldRequired('height') && <span className="text-red-500">*</span>}</span>}
+                                                        placeholder="Enter height"
+                                                        errorMessage={errors.parcels?.[parcelIndex]?.height?.message}
+                                                        isInvalid={!!errors.parcels?.[parcelIndex]?.height}
+                                                        isReadOnly={isAutoFilled(parcelIndex)}
+                                                        className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
+                                                        endContent={
+                                                            isAutoFilled(parcelIndex) && (
+                                                                <Icon icon="solar:lock-keyhole-minimalistic-bold"
+                                                                    className="text-gray-400" />
+                                                            )
+                                                        }
+                                                        min={1}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="relative">
+                                            <Controller
+                                                name={`parcels.${parcelIndex}.depth`}
+                                                control={control}
+                                                rules={{ required: isFieldRequired('depth') ? 'Depth is required' : false, min: 0 }}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        {...field}
+                                                        type="number"
+                                                        step="0.01"
+                                                        label={<span>Depth (cm) {isFieldRequired('depth') && <span className="text-red-500">*</span>}</span>}
+                                                        placeholder="Enter depth"
+                                                        errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
+                                                        isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
+                                                        isReadOnly={isAutoFilled(parcelIndex)}
+                                                        className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
+                                                        endContent={
+                                                            isAutoFilled(parcelIndex) && (
+                                                                <Icon icon="solar:lock-keyhole-minimalistic-bold"
+                                                                    className="text-gray-400" />
+                                                            )
+                                                        }
+                                                        min={1}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
                                         <Controller
-                                            name={`parcels.${parcelIndex}.box_type_name`}
+                                            name={`parcels.${parcelIndex}.dimension_unit`}
                                             control={control}
-                                            rules={{ required: isFieldRequired('box_type_name') ? 'Box type is required' : false }}
+                                            rules={{ required: isFieldRequired('dimension_unit') ? 'Dimension unit is required' : false }}
+                                            defaultValue="cm"
                                             render={({ field }) => (
                                                 <Select
                                                     {...field}
-                                                    label={
-                                                        <span>
-                                                            Box Type{' '}
-                                                            {isFieldRequired('box_type_name') && (
-                                                                <span className="text-red-500">*</span>
-                                                            )}
-                                                        </span>
-                                                    }
-                                                    placeholder="Select box type"
-                                                    errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
-                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
-
+                                                    label={<span>Dimension Unit {isFieldRequired('dimension_unit') && <span className="text-red-500">*</span>}</span>}
+                                                    defaultSelectedKeys={['cm']}
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.dimension_unit?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.dimension_unit}
+                                                    className="hidden"
                                                     onSelectionChange={(keys) => {
                                                         const selectedKey = Array.from(keys)[0] as string
                                                         if (selectedKey) {
-                                                            const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.id.toString() === selectedKey)
-                                                            if (selectedBoxType) {
-                                                                field.onChange(selectedBoxType.box_type_name)
-                                                                handleBoxTypeChange(parcelIndex, selectedKey)
-                                                            }
+                                                            field.onChange(selectedKey)
                                                         }
                                                     }}
                                                 >
-                                                    {PARCEL_BOX_TYPES.map((boxType) => (
-                                                        <SelectItem key={boxType.box_type_name} value={boxType.id.toString()}>
-                                                            {boxType.box_type_name}
+                                                    {DIMENSION_UNITS.map((unit) => (
+                                                        <SelectItem key={unit.key} value={unit.value}>
+                                                            {unit.label}
                                                         </SelectItem>
                                                     ))}
                                                 </Select>
                                             )}
                                         />
+                                        <div className="relative">
+                                            <Controller
+                                                name={`parcels.${parcelIndex}.parcel_weight_value`}
+                                                control={control}
+                                                rules={{ required: isFieldRequired('parcel_weight_value') ? 'Parcel weight is required' : false, min: 0 }}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        {...field}
+                                                        type="number"
+                                                        step="0.01"
+                                                        label={<span>Parcel Weight (kg) {isFieldRequired('parcel_weight_value') && <span className="text-red-500">*</span>}</span>}
+                                                        placeholder="Enter parcel weight"
+                                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_weight_value?.message}
+                                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_weight_value}
+                                                        isReadOnly={isAutoFilled(parcelIndex)}
+                                                        className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
+                                                        endContent={
+                                                            isAutoFilled(parcelIndex) && (
+                                                                <Icon icon="solar:lock-keyhole-minimalistic-bold"
+                                                                    className="text-gray-400" />
+                                                            )
+                                                        }
+                                                        onChange={(e) => {
+                                                            field.onChange(e)
+                                                            // Trigger weight recalculation when parcel weight changes
+                                                            setTimeout(() => updateWeights(parcelIndex), 100)
+                                                        }}
+                                                        min={0}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Parcel Items */}
+                                <ParcelItems parcelIndex={parcelIndex} control={control} register={register} errors={errors}
+                                    setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} sendTo={sendTo}
+                                    shipFromCountry={shipFromCountry} shipToCountry={shipToCountry} />
+                                {/* Dimensions Row */}
+                                <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-3">
+                                    <div className='col-span-4 flex gap-3'>
+                                        <div>
+                                            {/* Description mode toggle */}
+                                            {!manualDescriptionParcels.has(parcelIndex) ? (
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="bordered"
+                                                    color="primary"
+                                                    startContent={<Icon icon="solar:pen-bold" />}
+                                                    onPress={() => handleToggleDescriptionMode(parcelIndex)}
+                                                >
+                                                    Edit Description Manually
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="bordered"
+                                                    color="success"
+                                                    startContent={<Icon icon="solar:magic-stick-3-bold" />}
+                                                    onPress={() => handleToggleDescriptionMode(parcelIndex)}
+                                                >
+                                                    Use Auto Description
+                                                </Button>
+                                            )}
+                                        </div>
+                                        <Controller
+                                            name={`parcels.${parcelIndex}.description`}
+                                            control={control}
+                                            rules={{ required: isFieldRequired('description') ? 'Description is required' : false }}
+                                            render={({ field }) => (
+                                                <Textarea
+                                                    {...field}
+                                                    label={
+                                                        <span>
+                                                            Parcel Description {!manualDescriptionParcels.has(parcelIndex) && '(Auto-generated)'}
+                                                            {isFieldRequired('description') && (
+                                                                <span className="text-red-500">*</span>
+                                                            )}
+                                                        </span>}
+                                                    placeholder={manualDescriptionParcels.has(parcelIndex) ? "Enter parcel description manually" : "Auto-generated from item descriptions"}
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.description}
+                                                    isReadOnly={!manualDescriptionParcels.has(parcelIndex)}
+                                                    className={!manualDescriptionParcels.has(parcelIndex) ? "bg-gray-50" : ""}
+                                                    endContent={
+                                                        !manualDescriptionParcels.has(parcelIndex) ? (
+                                                            <>
+                                                                <Icon icon="solar:magic-stick-3-bold" className="text-gray-400" />
+                                                                <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
+                                                            </>
+                                                        ) : (
+                                                            <Icon icon="solar:pen-bold" className="text-gray-400" />
+                                                        )
+                                                    }
+                                                    minRows={1}
+                                                />
+                                            )}
+                                        />
+
                                     </div>
                                     <div className="relative">
                                         <Controller
-                                            name={`parcels.${parcelIndex}.width`}
+                                            name={`parcels.${parcelIndex}.net_weight_value`}
                                             control={control}
-                                            rules={{ required: isFieldRequired('width') ? 'Width is required' : false, min: 0 }}
+                                            rules={{ required: isFieldRequired('net_weight_value') ? 'Net weight is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Width (cm) {isFieldRequired('width') && <span className="text-red-500">*</span>}</span>}
-                                                    placeholder="Enter width"
-                                                    errorMessage={errors.parcels?.[parcelIndex]?.width?.message}
-                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.width}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
+                                                    label={<span>Net Weight (kg) {isFieldRequired('net_weight_value') && <span className="text-red-500">*</span>}</span>}
+                                                    placeholder="Auto-calculated"
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}
+                                                    isReadOnly={true}
+                                                    className="bg-gray-50"
                                                     endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
+                                                        <>
+                                                            <Icon icon="solar:calculator-bold" className="text-gray-400" />
+                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
+                                                        </>
                                                     }
-                                                    min={1}
                                                 />
                                             )}
                                         />
                                     </div>
                                     <div className="relative">
                                         <Controller
-                                            name={`parcels.${parcelIndex}.height`}
+                                            name={`parcels.${parcelIndex}.weight_value`}
                                             control={control}
-                                            rules={{ required: isFieldRequired('height') ? 'Height is required' : false, min: 0 }}
+                                            rules={{ required: isFieldRequired('weight_value') ? 'Weight is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Height (cm) {isFieldRequired('height') && <span className="text-red-500">*</span>}</span>}
-                                                    placeholder="Enter height"
-                                                    errorMessage={errors.parcels?.[parcelIndex]?.height?.message}
-                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.height}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
+                                                    label={<span>Gross Weight (kg) {isFieldRequired('weight_value') && <span className="text-red-500">*</span>}</span>}
+                                                    placeholder="Auto-calculated"
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
+                                                    isReadOnly={true}
+                                                    className="bg-gray-50"
                                                     endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
+                                                        <>
+                                                            <Icon icon="solar:calculator-bold" className="text-gray-400" />
+                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
+                                                        </>
                                                     }
-                                                    min={1}
-                                                />
-                                            )}
-                                        />
-                                    </div>
-                                    <div className="relative">
-                                        <Controller
-                                            name={`parcels.${parcelIndex}.depth`}
-                                            control={control}
-                                            rules={{ required: isFieldRequired('depth') ? 'Depth is required' : false, min: 0 }}
-                                            render={({ field }) => (
-                                                <Input
-                                                    {...field}
-                                                    type="number"
-                                                    step="0.01"
-                                                    label={<span>Depth (cm) {isFieldRequired('depth') && <span className="text-red-500">*</span>}</span>}
-                                                    placeholder="Enter depth"
-                                                    errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
-                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
-                                                    endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
-                                                    }
-                                                    min={1}
                                                 />
                                             )}
                                         />
                                     </div>
                                     <Controller
-                                        name={`parcels.${parcelIndex}.dimension_unit`}
+                                        name={`parcels.${parcelIndex}.weight_unit`}
                                         control={control}
-                                        rules={{ required: isFieldRequired('dimension_unit') ? 'Dimension unit is required' : false }}
-                                        defaultValue="cm"
+                                        rules={{ required: isFieldRequired('weight_unit') ? 'Weight unit is required' : false }}
+                                        defaultValue="kg"
                                         render={({ field }) => (
                                             <Select
                                                 {...field}
-                                                label={<span>Dimension Unit {isFieldRequired('dimension_unit') && <span className="text-red-500">*</span>}</span>}
-                                                defaultSelectedKeys={['cm']}
-                                                errorMessage={errors.parcels?.[parcelIndex]?.dimension_unit?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.dimension_unit}
+                                                label={<span>Weight Unit {isFieldRequired('weight_unit') && <span className="text-red-500">*</span>}</span>}
+                                                defaultSelectedKeys={['kg']}
+                                                errorMessage={errors.parcels?.[parcelIndex]?.weight_unit?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.weight_unit}
                                                 className="hidden"
                                                 onSelectionChange={(keys) => {
                                                     const selectedKey = Array.from(keys)[0] as string
@@ -469,7 +643,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     }
                                                 }}
                                             >
-                                                {DIMENSION_UNITS.map((unit) => (
+                                                {WEIGHT_UNITS.map((unit) => (
                                                     <SelectItem key={unit.key} value={unit.value}>
                                                         {unit.label}
                                                     </SelectItem>
@@ -477,194 +651,22 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                             </Select>
                                         )}
                                     />
-                                    <div className="relative">
-                                        <Controller
-                                            name={`parcels.${parcelIndex}.parcel_weight_value`}
-                                            control={control}
-                                            rules={{ required: isFieldRequired('parcel_weight_value') ? 'Parcel weight is required' : false, min: 0 }}
-                                            render={({ field }) => (
-                                                <Input
-                                                    {...field}
-                                                    type="number"
-                                                    step="0.01"
-                                                    label={<span>Parcel Weight (kg) {isFieldRequired('parcel_weight_value') && <span className="text-red-500">*</span>}</span>}
-                                                    placeholder="Enter parcel weight"
-                                                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_weight_value?.message}
-                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_weight_value}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
-                                                    endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
-                                                    }
-                                                    onChange={(e) => {
-                                                        field.onChange(e)
-                                                        // Trigger weight recalculation when parcel weight changes
-                                                        setTimeout(() => updateWeights(parcelIndex), 100)
-                                                    }}
-                                                    min={0}
-                                                />
-                                            )}
-                                        />
-                                    </div>
                                 </div>
-                            </div>
-                            {/* Parcel Items */}
-                            <ParcelItems parcelIndex={parcelIndex} control={control} register={register} errors={errors}
-                                setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} sendTo={sendTo}
-                                shipFromCountry={shipFromCountry} shipToCountry={shipToCountry} />
-                            {/* Dimensions Row */}
-                            <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-3">
-                                <div className='col-span-4 flex gap-3'>
-                                    <div>
-                                        {/* Description mode toggle */}
-                                        {!manualDescriptionParcels.has(parcelIndex) ? (
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="bordered"
-                                                color="primary"
-                                                startContent={<Icon icon="solar:pen-bold" />}
-                                                onPress={() => handleToggleDescriptionMode(parcelIndex)}
-                                            >
-                                                Edit Description Manually
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="bordered"
-                                                color="success"
-                                                startContent={<Icon icon="solar:magic-stick-3-bold" />}
-                                                onPress={() => handleToggleDescriptionMode(parcelIndex)}
-                                            >
-                                                Use Auto Description
-                                            </Button>
-                                        )}
-                                    </div>
-                                    <Controller
-                                        name={`parcels.${parcelIndex}.description`}
-                                        control={control}
-                                        rules={{ required: isFieldRequired('description') ? 'Description is required' : false }}
-                                        render={({ field }) => (
-                                            <Textarea
-                                                {...field}
-                                                label={
-                                                    <span>
-                                                        Parcel Description {!manualDescriptionParcels.has(parcelIndex) && '(Auto-generated)'}
-                                                        {isFieldRequired('description') && (
-                                                            <span className="text-red-500">*</span>
-                                                        )}
-                                                    </span>}
-                                                placeholder={manualDescriptionParcels.has(parcelIndex) ? "Enter parcel description manually" : "Auto-generated from item descriptions"}
-                                                errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.description}
-                                                isReadOnly={!manualDescriptionParcels.has(parcelIndex)}
-                                                className={!manualDescriptionParcels.has(parcelIndex) ? "bg-gray-50" : ""}
-                                                endContent={
-                                                    !manualDescriptionParcels.has(parcelIndex) ? (
-                                                        <>
-                                                            <Icon icon="solar:magic-stick-3-bold" className="text-gray-400" />
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
-                                                        </>
-                                                    ) : (
-                                                        <Icon icon="solar:pen-bold" className="text-gray-400" />
-                                                    )
-                                                }
-                                                minRows={1}
-                                            />
-                                        )}
-                                    />
-
-                                </div>
-                                <div className="relative">
-                                    <Controller
-                                        name={`parcels.${parcelIndex}.net_weight_value`}
-                                        control={control}
-                                        rules={{ required: isFieldRequired('net_weight_value') ? 'Net weight is required' : false, min: 0 }}
-                                        render={({ field }) => (
-                                            <Input
-                                                {...field}
-                                                type="number"
-                                                step="0.01"
-                                                label={<span>Net Weight (kg) {isFieldRequired('net_weight_value') && <span className="text-red-500">*</span>}</span>}
-                                                placeholder="Auto-calculated"
-                                                errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}
-                                                isReadOnly={true}
-                                                className="bg-gray-50"
-                                                endContent={
-                                                    <>
-                                                        <Icon icon="solar:calculator-bold" className="text-gray-400" />
-                                                        <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
-                                                    </>
-                                                }
-                                            />
-                                        )}
-                                    />
-                                </div>
-                                <div className="relative">
-                                    <Controller
-                                        name={`parcels.${parcelIndex}.weight_value`}
-                                        control={control}
-                                        rules={{ required: isFieldRequired('weight_value') ? 'Weight is required' : false, min: 0 }}
-                                        render={({ field }) => (
-                                            <Input
-                                                {...field}
-                                                type="number"
-                                                step="0.01"
-                                                label={<span>Gross Weight (kg) {isFieldRequired('weight_value') && <span className="text-red-500">*</span>}</span>}
-                                                placeholder="Auto-calculated"
-                                                errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
-                                                isReadOnly={true}
-                                                className="bg-gray-50"
-                                                endContent={
-                                                    <>
-                                                        <Icon icon="solar:calculator-bold" className="text-gray-400" />
-                                                        <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
-                                                    </>
-                                                }
-                                            />
-                                        )}
-                                    />
-                                </div>
-                                <Controller
-                                    name={`parcels.${parcelIndex}.weight_unit`}
-                                    control={control}
-                                    rules={{ required: isFieldRequired('weight_unit') ? 'Weight unit is required' : false }}
-                                    defaultValue="kg"
-                                    render={({ field }) => (
-                                        <Select
-                                            {...field}
-                                            label={<span>Weight Unit {isFieldRequired('weight_unit') && <span className="text-red-500">*</span>}</span>}
-                                            defaultSelectedKeys={['kg']}
-                                            errorMessage={errors.parcels?.[parcelIndex]?.weight_unit?.message}
-                                            isInvalid={!!errors.parcels?.[parcelIndex]?.weight_unit}
-                                            className="hidden"
-                                            onSelectionChange={(keys) => {
-                                                const selectedKey = Array.from(keys)[0] as string
-                                                if (selectedKey) {
-                                                    field.onChange(selectedKey)
-                                                }
-                                            }}
-                                        >
-                                            {WEIGHT_UNITS.map((unit) => (
-                                                <SelectItem key={unit.key} value={unit.value}>
-                                                    {unit.label}
-                                                </SelectItem>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-                            </div>
-                        </CardBody>
-                    </Card>
-                ))}
-            </CardBody>
-        </Card>
+                            </CardBody>
+                        </Card>
+                    ))}
+                </CardBody>
+            </Card>
+            <Button
+                type="button"
+                color="primary"
+                size="md"
+                startContent={<Icon icon="solar:add-circle-bold" />}
+                onPress={() => appendParcel(DEFAULT_PARCEL)}
+            >
+                Add Parcel
+            </Button>
+        </>
     )
 }
 

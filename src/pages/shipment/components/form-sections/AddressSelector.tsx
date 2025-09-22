@@ -348,7 +348,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
                   <Icon icon="solar:buildings-2-bold" className="text-primary" width={24} />
                   <div>
                     <h3 className="text-xl font-bold">Select Address</h3>
-                    <p className="text-small text-default-600">Choose an address to auto-fill the form</p>
+                    <p className="text-small text-default-600">Click on any row to select and auto-fill the form</p>
                   </div>
                 </div>
                 <Input
@@ -382,13 +382,16 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
                       <TableColumn>ADDRESS</TableColumn>
                       <TableColumn>COUNTRY</TableColumn>
                       <TableColumn>CONTACT</TableColumn>
-                      <TableColumn>ACTIONS</TableColumn>
                     </TableHeader>
                     <TableBody emptyContent="No addresses found">
                       {filteredAddresses.slice(0, 50).map((address) => {
                         const typeInfo = getCardTypeInfo(address.CardType)
                         return (
-                          <TableRow key={address.CardCode}>
+                          <TableRow
+                            key={address.CardCode}
+                            className="cursor-pointer hover:bg-default-100 transition-colors"
+                            onClick={() => handleAddressSelect(address)}
+                          >
                             <TableCell>
                               <span className="font-medium text-primary text-sm">
                                 {address.CardCode}
@@ -439,17 +442,6 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
                                   </span>
                                 )}
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                size="sm"
-                                color="primary"
-                                variant="flat"
-                                startContent={<Icon icon="solar:check-bold" />}
-                                onPress={() => handleAddressSelect(address)}
-                              >
-                                Select
-                              </Button>
                             </TableCell>
                           </TableRow>
                         )
