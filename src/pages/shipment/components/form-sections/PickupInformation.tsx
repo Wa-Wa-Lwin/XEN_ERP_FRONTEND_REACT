@@ -63,7 +63,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
               onChange: handleDateChange
             })}
             type="date"
-            label={<span>Pickup/Due Date <span className="text-red-500">*</span></span>}
+            label={<span>Pickup Date <span className="text-red-500">*</span></span>}
             placeholder="Select pickup and due date"
             errorMessage={errors.pick_up_date?.message || errors.due_date?.message}
             isInvalid={!!errors.pick_up_date || !!errors.due_date}

@@ -76,7 +76,9 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
       </CardHeader>
       <CardBody className="px-0 pt-0 pb-0">
         {/* <div className="grid grid-cols-1 md:grid-cols-1 gap-3"> */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-3"> */}
+        
+        <div className="grid grid-cols-1 md:grid-cols-8 gap-3">
           <Controller
             name="send_to"
             control={control}
@@ -105,68 +107,28 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
               </Select>
             )}
           />
-          <div className="grid grid-cols-1 gap-2">
-            <Controller
-              name="topic"
-              control={control}
-              rules={{ required: isFieldRequired() ? 'Topic is required' : false }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                  placeholder="Select topic"
-                  errorMessage={errors.topic?.message}
-                  isInvalid={!!errors.topic}
-                  selectedKeys={topicValue ? [topicValue] : []}
-                  onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string
-                    if (selectedKey) {
-                      field.onChange(selectedKey)
-                      setSelectedTopic(new Set([selectedKey]))
-                    }
-                  }}
-                >
-                  {TOPIC_OPTIONS.map((option) => (
-                    <SelectItem key={option.key} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-              )}
-            />
-            {selectedTopic.has('Others') && (
-              <Input
-                {...register('other_topic', {
-                  required: selectedTopic.has('Others') && isFieldRequired() ? 'Other topic is required' : false
-                })}
-                label={<span>Other Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                placeholder="Enter other topic"
-                errorMessage={errors.other_topic?.message}
-                isInvalid={!!errors.other_topic}
-                required
-              />
-            )}
-            {selectedTopic.has('For Sales') && (
+            <div className="col-span-1 grid grid-cols-1 gap-2">
               <Controller
-                name="sales_person"
+                name="topic"
                 control={control}
-                rules={{ required: isFieldRequired() ? 'Sales person is required' : false }}
+                rules={{ required: isFieldRequired() ? 'Topic is required' : false }}
                 render={({ field }) => (
                   <Select
                     {...field}
-                    label={<span>Sales Person {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                    placeholder="Select sales person"
-                    errorMessage={errors.sales_person?.message}
-                    isInvalid={!!errors.sales_person}
-                    selectedKeys={salesPersonValue ? [salesPersonValue] : []}
+                    label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                    placeholder="Select topic"
+                    errorMessage={errors.topic?.message}
+                    isInvalid={!!errors.topic}
+                    selectedKeys={topicValue ? [topicValue] : []}
                     onSelectionChange={(keys) => {
                       const selectedKey = Array.from(keys)[0] as string
                       if (selectedKey) {
                         field.onChange(selectedKey)
+                        setSelectedTopic(new Set([selectedKey]))
                       }
                     }}
                   >
-                    {SALES_PERSON_OPTIONS.map((option) => (
+                    {TOPIC_OPTIONS.map((option) => (
                       <SelectItem key={option.key} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -174,28 +136,50 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                   </Select>
                 )}
               />
-            )}
-          </div>
+              {selectedTopic.has('Others') && (
+                <Input
+                  {...register('other_topic', {
+                    required: selectedTopic.has('Others') && isFieldRequired() ? 'Other topic is required' : false
+                  })}
+                  label={<span>Other Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                  placeholder="Enter"
+                  errorMessage={errors.other_topic?.message}
+                  isInvalid={!!errors.other_topic}
+                  required
+                />
+              )}
+              {selectedTopic.has('For Sales') && (
+                <Controller
+                  name="sales_person"
+                  control={control}
+                  rules={{ required: isFieldRequired() ? 'Sales person is required' : false }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label={<span>Sales Person {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                      placeholder="Select"
+                      errorMessage={errors.sales_person?.message}
+                      isInvalid={!!errors.sales_person}
+                      selectedKeys={salesPersonValue ? [salesPersonValue] : []}
+                      onSelectionChange={(keys) => {
+                        const selectedKey = Array.from(keys)[0] as string
+                        if (selectedKey) {
+                          field.onChange(selectedKey)
+                        }
+                      }}
+                    >
+                      {SALES_PERSON_OPTIONS.map((option) => (
+                        <SelectItem key={option.key} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+              )}
+            </div>
 
-
-
-          <Input
-            {...register('po_number', { required: isFieldRequired() ? 'PO Number is required' : false })}
-            label={<span>PO Number {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-            placeholder="Enter PO number"
-            errorMessage={errors.po_number?.message}
-            isInvalid={!!errors.po_number}
-          />
-          <Input
-            {...register('po_date', { required: isFieldRequired() ? 'PO Date is required' : false })}
-            type="date"
-            label={<span>PO Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-            errorMessage={errors.po_date?.message}
-            isInvalid={!!errors.po_date}
-            defaultValue={new Date().toISOString().split('T')[0]}
-          />
-          <div className="grid grid-cols-1 gap-2">
-
+          <div className="col-span-1 grid grid-cols-1 gap-2">
 
             <Controller
               name="service_options"
@@ -234,7 +218,29 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 isInvalid={!!errors.urgent_reason}
               />
             )}
-          </div>    
+          </div>
+
+
+
+
+
+
+          <Input
+            {...register('po_number', { required: isFieldRequired() ? 'PO Number is required' : false })}
+            label={<span>PO Number {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+            placeholder="Enter PO number"
+            errorMessage={errors.po_number?.message}
+            isInvalid={!!errors.po_number}
+          />
+          <Input
+            {...register('po_date', { required: isFieldRequired() ? 'PO Date is required' : false })}
+            type="date"
+            label={<span>PO Date {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+            errorMessage={errors.po_date?.message}
+            isInvalid={!!errors.po_date}
+            defaultValue={new Date().toISOString().split('T')[0]}
+          />
+
 
           <Controller
             name="customs_purpose"
@@ -263,35 +269,39 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
               </Select>
             )}
           />
-          <Controller
-            name="customs_terms_of_trade"
-            control={control}
-            rules={{ required: isFieldRequired('customs_terms_of_trade') ? 'Terms of trade is required' : false }}
-            render={({ field }) => (
-              <Select
-                {...field}
-                label={<span>Incoterms {isFieldRequired('customs_terms_of_trade') && <span className="text-red-500">*</span>}</span>}
-                placeholder="Select Incoterms"
-                errorMessage={errors.customs_terms_of_trade?.message}
-                isInvalid={!!errors.customs_terms_of_trade}
-                selectedKeys={customsTermsValue ? [customsTermsValue] : []}
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys)[0] as string
-                  if (selectedKey) {
-                    field.onChange(selectedKey)
-                  }
-                }}
-              >
-                {INCOTERMS.map((option) => (
-                  <SelectItem key={option.key} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </Select>
+          <div className="col-span-2">
+            <Controller
+              name="customs_terms_of_trade"
+              control={control}
+              rules={{ required: isFieldRequired('customs_terms_of_trade') ? 'Terms of trade is required' : false }}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label={<span>Incoterms {isFieldRequired('customs_terms_of_trade') && <span className="text-red-500">*</span>}</span>}
+                  placeholder="Select Incoterms"
+                  errorMessage={errors.customs_terms_of_trade?.message}
+                  isInvalid={!!errors.customs_terms_of_trade}
+                  selectedKeys={customsTermsValue ? [customsTermsValue] : []}
+                  onSelectionChange={(keys) => {
+                    const selectedKey = Array.from(keys)[0] as string
+                    if (selectedKey) {
+                      field.onChange(selectedKey)
+                    }
+                  }}
+                >
+                  {INCOTERMS.map((option) => (
+                    <SelectItem key={option.key} value={option.value}>
+                      {option.value}
+                    </SelectItem>
+                  ))}
+                </Select>
 
-            )}
+              )}
 
-          />
+            />
+
+          </div>
+
           <Textarea
             {...register('remark')}
             label={<span>Remark</span>}
@@ -310,7 +320,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
 
 export default BasicInformation
 
-//    <Card className="p-1 m-1"> 
+//    <Card className="p-1 m-1">
 //  <Card className="pt-2 pb-2 px-4 m-0">
 //   <Card shadow="none" className="pt-2 pb-0 px-4 m-0">
 // <Card shadow="none" className="p-1 m-1 border-b border-gray-300">

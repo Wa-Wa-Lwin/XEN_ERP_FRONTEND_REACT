@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Textarea, Divider, Chip, Input, Select, SelectItem } from "@heroui/react";
+import { Spinner, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Textarea, Divider, Chip, Input, Select, SelectItem, Autocomplete, AutocompleteItem } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
 import { useNotification } from "@context/NotificationContext";
 import { INCOTERMS, CUSTOM_PURPOSES } from "../constants/form-defaults";
+import { COUNTRIES } from "../constants/countries";
 
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
@@ -590,8 +591,10 @@ const ShipmentDetails = () => {
             {shipment.topic === 'Others' && (
               <DetailRow label="Other" value={shipment.other_topic} />
             )}
-            <DetailRow label="Requestor" value={`${shipment.created_user_name} (${shipment.created_user_mail})`} />
-            <DetailRow label="Approver" value={`${shipment.approver_user_name} (${shipment.approver_user_mail})`} />
+            {/* <DetailRow label="Requestor" value={`${shipment.created_user_name} (${shipment.created_user_mail})`} /> */}
+            <DetailRow label="Requestor" value={`${shipment.created_user_name}`} />
+            {/* <DetailRow label="Approver" value={`${shipment.approver_user_name} (${shipment.approver_user_mail})`} /> */}
+            <DetailRow label="Approver" value={`${shipment.approver_user_name} `} />
             {shipment.remark && <DetailRow label="Remark" value={shipment.remark} />}
             <DetailRow label="Request Created Date" value={formatDateTime(shipment.created_date_time)} />
             {shipment.approver_rejected_date_time && (
@@ -605,7 +608,7 @@ const ShipmentDetails = () => {
             {shipment.service_options === 'Urgent' && (
               <DetailRow label="Urgent Reason" value={shipment.urgent_reason} />
             )}
-            <DetailRow label="Customs Purpose" value={shipment.customs_purpose} />
+            <DetailRow label="Customs Purpose" value={shipment.customs_purpose.toUpperCase()} />
             <DetailRow label="Customs Terms of Trade" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
           </div>
           <div>
@@ -774,6 +777,7 @@ const ShipmentDetails = () => {
           </div>
         </section>
       ) : shipment.request_status === "send_to_logistic" ? (
+        <div className="grid md:grid-cols-2 gap-4">
         <section className="bg-blue-50 rounded-xl border p-4 space-y-4">
           <h2 className="text-base font-semibold">Logistics Information Update</h2>
 
@@ -816,7 +820,7 @@ const ShipmentDetails = () => {
               <h3 className="text-sm font-semibold">Parcel Items</h3>
               <div className="space-y-2">
                 {editedParcelItems.map((item) => (
-                  <div key={item.id} className="grid md:grid-cols-4 gap-2 p-3 rounded border">
+                  <div key={item.id} className="grid md:grid-cols-2 gap-2 p-3 rounded border">
                     <div className="text-xs text-gray-600 md:col-span-4">
                       <strong>Description:</strong> {item.description}
                     </div>
@@ -827,13 +831,21 @@ const ShipmentDetails = () => {
                       size="sm"
                       variant="bordered"
                     />
-                    <Input
+                    <Autocomplete
                       label="Origin Country"
-                      value={item.origin_country || ""}
-                      onValueChange={(value) => handleParcelItemUpdate(item.id, "origin_country", value)}
+                      placeholder="Search country..."
+                      selectedKey={item.origin_country || ""}
+                      onSelectionChange={(key) => handleParcelItemUpdate(item.id, "origin_country", key as string)}
                       size="sm"
                       variant="bordered"
-                    />
+                      allowsCustomValue
+                    >
+                      {COUNTRIES.map((country) => (
+                        <AutocompleteItem key={country.key} value={country.key}>
+                          {country.value}
+                        </AutocompleteItem>
+                      ))}
+                    </Autocomplete>
                   </div>
                 ))}
               </div>
@@ -853,6 +865,7 @@ const ShipmentDetails = () => {
             </Button>
           </div>
         </section>
+        </div>
       ) : (
         <div>
           {shipment.label_status === "failed" && (

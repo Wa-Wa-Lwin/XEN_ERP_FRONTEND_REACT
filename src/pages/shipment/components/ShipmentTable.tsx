@@ -196,7 +196,7 @@ const ShipmentTable = () => {
       <div className="flex flex-row items-center justify-center gap-1">
         {/* Conditional buttons based on activeButton */}
         {activeButton === "Review" && (
-          <>          
+          <>
             <button
               onClick={() => console.log("Update clicked!")}
               className="bg-yellow-500 hover:bg-yellow-800 text-white px-2 py-0 text-xs flex items-center gap-1 rounded-lg"
@@ -222,7 +222,7 @@ const ShipmentTable = () => {
             >
               <Icon className="w-3.5 h-3.5 text-white" icon="solar:close-circle-bold" />
               <span className="text-white text-xs">Reject</span>
-            </button>            
+            </button>
           </>
         )}
       </div>
@@ -252,13 +252,24 @@ const ShipmentTable = () => {
     )
   }
 
-  let hide_column = false; 
+  let hide_column = false;
 
   return (
     <div className="w-full">
       <div className="mb-4 space-y-4">
         <div className="flex justify-between items-center">
           <div className="p-0">
+            {/* <Button
+              size="md"
+              variant="bordered"
+              color="primary"
+              onPress={() => {
+                setStatusFilter('all')
+                setPage(1)
+              }}
+            >
+              Add Request
+            </Button> */}
             <h2 className="text-l font-semibold">Shipment Requests</h2>
           </div>
 
@@ -349,7 +360,7 @@ const ShipmentTable = () => {
             <TableColumn>Request Date</TableColumn>
             <TableColumn>Due Date</TableColumn>
             <TableColumn className="text-center">
-              {/* {activeButton !== "Request" ? "Actions" : "\u00A0" } */} 
+              {/* {activeButton !== "Request" ? "Actions" : "\u00A0" } */}
               {hide_column ? "Actions" : "\u00A0" /* non-breaking space */}
               {/* hide this column for now */}
             </TableColumn>
@@ -359,7 +370,8 @@ const ShipmentTable = () => {
             {paginatedData.map((request) => (
               <TableRow
                 key={request.shipmentRequestID}
-                className="border-b border-gray-200 h-4 hover:bg-blue-300 cursor-pointer transition-colors duration-150"
+                className={`border-b border-gray-200 h-4 hover:bg-blue-300 cursor-pointer transition-colors duration-150 ${request.service_options === 'Urgent' ? 'bg-yellow-100' : ''
+                  }`}
                 onClick={(event) => handleRowClick(request.shipmentRequestID, event)}
               >
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0" >
@@ -377,9 +389,9 @@ const ShipmentTable = () => {
                   }
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  {request.service_options === 'Urgent' && (
+                  {/* {request.service_options === 'Urgent' && (
                     <span className="text-red-500 ml-1">* </span>
-                  )}
+                  )} */}
                   {request.topic} ({request.po_number})
                   {/* DONT_DELETE_YET */}
                   {/* {request.topic === 'Others' && request.other_topic ? <p className="text-xs text-gray-500">

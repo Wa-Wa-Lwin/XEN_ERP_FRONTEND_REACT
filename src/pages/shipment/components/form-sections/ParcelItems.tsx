@@ -133,8 +133,8 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
     }
 
     return (
-        <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-4">
+        <div className="border-t border-b pt-2 pb-2 mb-2 bg-gray-100">
+            <div className="flex justify-left items-center mb-4 gap-3">
                 <h4 className="text-md font-medium">Parcel Items</h4>
                 <Button
                     type="button"

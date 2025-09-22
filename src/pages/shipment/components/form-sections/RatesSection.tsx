@@ -313,7 +313,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   return (
     <Card shadow="none">
     {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-      <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between w-full">
+      <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left gap-3 w-full">
         <div className="flex flex-col">
           <h2 className="text-lg font-semibold">Shipping Rates</h2>
             {ratesError && (
@@ -330,7 +330,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             )}
           </div>
           <div className="flex gap-2">
-            <Button
+            {/* DONT DELETE YET  */}
+            {/* <Button
               type="button"
               variant="light"
               size="sm"
@@ -341,7 +342,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               title="Force refresh exchange rates"
             >
               {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
-            </Button>
+            </Button> */}
             <Button
               type="button"
               color="secondary"
