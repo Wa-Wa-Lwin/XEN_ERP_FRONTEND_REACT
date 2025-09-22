@@ -77,7 +77,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
       <CardBody className="px-0 pt-0 pb-0">
         {/* <div className="grid grid-cols-1 md:grid-cols-1 gap-3"> */}
         {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-3"> */}
-        
+
         <div className="grid grid-cols-1 md:grid-cols-8 gap-3">
           <Controller
             name="send_to"
@@ -107,28 +107,68 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
               </Select>
             )}
           />
-            <div className="col-span-1 grid grid-cols-1 gap-2">
+          <div className="col-span-1 grid grid-cols-1 gap-2">
+            <Controller
+              name="topic"
+              control={control}
+              rules={{ required: isFieldRequired() ? 'Topic is required' : false }}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                  placeholder="Select"
+                  errorMessage={errors.topic?.message}
+                  isInvalid={!!errors.topic}
+                  selectedKeys={topicValue ? [topicValue] : []}
+                  onSelectionChange={(keys) => {
+                    const selectedKey = Array.from(keys)[0] as string
+                    if (selectedKey) {
+                      field.onChange(selectedKey)
+                      setSelectedTopic(new Set([selectedKey]))
+                    }
+                  }}
+                >
+                  {TOPIC_OPTIONS.map((option) => (
+                    <SelectItem key={option.key} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
+            />
+            {selectedTopic.has('Others') && (
+              <Input
+                {...register('other_topic', {
+                  required: selectedTopic.has('Others') && isFieldRequired() ? 'Other topic is required' : false
+                })}
+                label={<span>Other Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                placeholder="Enter"
+                errorMessage={errors.other_topic?.message}
+                isInvalid={!!errors.other_topic}
+                required
+              />
+            )}
+            {selectedTopic.has('For Sales') && (
               <Controller
-                name="topic"
+                name="sales_person"
                 control={control}
-                rules={{ required: isFieldRequired() ? 'Topic is required' : false }}
+                rules={{ required: isFieldRequired() ? 'Sales person is required' : false }}
                 render={({ field }) => (
                   <Select
                     {...field}
-                    label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
+                    label={<span>Sales Person {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
                     placeholder="Select"
-                    errorMessage={errors.topic?.message}
-                    isInvalid={!!errors.topic}
-                    selectedKeys={topicValue ? [topicValue] : []}
+                    errorMessage={errors.sales_person?.message}
+                    isInvalid={!!errors.sales_person}
+                    selectedKeys={salesPersonValue ? [salesPersonValue] : []}
                     onSelectionChange={(keys) => {
                       const selectedKey = Array.from(keys)[0] as string
                       if (selectedKey) {
                         field.onChange(selectedKey)
-                        setSelectedTopic(new Set([selectedKey]))
                       }
                     }}
                   >
-                    {TOPIC_OPTIONS.map((option) => (
+                    {SALES_PERSON_OPTIONS.map((option) => (
                       <SelectItem key={option.key} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -136,54 +176,15 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                   </Select>
                 )}
               />
-              {selectedTopic.has('Others') && (
-                <Input
-                  {...register('other_topic', {
-                    required: selectedTopic.has('Others') && isFieldRequired() ? 'Other topic is required' : false
-                  })}
-                  label={<span>Other Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                  placeholder="Enter"
-                  errorMessage={errors.other_topic?.message}
-                  isInvalid={!!errors.other_topic}
-                  required
-                />
-              )}
-              {selectedTopic.has('For Sales') && (
-                <Controller
-                  name="sales_person"
-                  control={control}
-                  rules={{ required: isFieldRequired() ? 'Sales person is required' : false }}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      label={<span>Sales Person {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
-                      placeholder="Select"
-                      errorMessage={errors.sales_person?.message}
-                      isInvalid={!!errors.sales_person}
-                      selectedKeys={salesPersonValue ? [salesPersonValue] : []}
-                      onSelectionChange={(keys) => {
-                        const selectedKey = Array.from(keys)[0] as string
-                        if (selectedKey) {
-                          field.onChange(selectedKey)
-                        }
-                      }}
-                    >
-                      {SALES_PERSON_OPTIONS.map((option) => (
-                        <SelectItem key={option.key} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </Select>
-                  )}
-                />
-              )}
-            </div>
+            )}
+          </div>
 
           <div className="col-span-1 grid grid-cols-1 gap-2">
 
             <Controller
               name="service_options"
               control={control}
+              defaultValue="Normal"
               rules={{ required: isFieldRequired() ? 'Service options is required' : false }}
               render={({ field }) => (
                 <Select
@@ -192,7 +193,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                   placeholder="Select"
                   errorMessage={errors.service_options?.message}
                   isInvalid={!!errors.service_options}
-                  selectedKeys={serviceOptionsValue ? [serviceOptionsValue] : []}
+                  selectedKeys={serviceOptionsValue ? [serviceOptionsValue] : ["Normal"]}
                   onSelectionChange={(keys) => {
                     const selectedKey = Array.from(keys)[0] as string
                     if (selectedKey) {
@@ -240,6 +241,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
           <Controller
             name="customs_purpose"
             control={control}
+            defaultValue="sample"
             rules={{ required: isFieldRequired('customs_purpose') ? 'Customs purpose is required' : false }}
             render={({ field }) => (
               <Select
@@ -248,7 +250,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 placeholder="Select"
                 errorMessage={errors.customs_purpose?.message}
                 isInvalid={!!errors.customs_purpose}
-                selectedKeys={customsPurposeValue ? [customsPurposeValue] : []}
+                selectedKeys={customsPurposeValue ? [customsPurposeValue] : ["sample"]}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {
@@ -268,6 +270,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
             <Controller
               name="customs_terms_of_trade"
               control={control}
+              defaultValue="exw"
               rules={{ required: isFieldRequired('customs_terms_of_trade') ? 'Terms of trade is required' : false }}
               render={({ field }) => (
                 <Select
@@ -276,7 +279,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                   placeholder="Select"
                   errorMessage={errors.customs_terms_of_trade?.message}
                   isInvalid={!!errors.customs_terms_of_trade}
-                  selectedKeys={customsTermsValue ? [customsTermsValue] : []}
+                  selectedKeys={customsTermsValue ? [customsTermsValue] : ["exw"]}
                   onSelectionChange={(keys) => {
                     const selectedKey = Array.from(keys)[0] as string
                     if (selectedKey) {
@@ -292,7 +295,6 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 </Select>
 
               )}
-
             />
 
           </div>

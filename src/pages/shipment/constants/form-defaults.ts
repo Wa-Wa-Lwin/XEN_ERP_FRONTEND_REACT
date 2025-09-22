@@ -29,7 +29,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   shipment_scope: '',
   shipment_scope_type: '',
   request_status: '',
-  service_options: '',
+  service_options: 'Normal',
   urgent_reason: '',
   remark: '',
   topic: '',
@@ -42,12 +42,12 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
 
   // Nested ship_from and ship_to objects
   ship_from: {
-    country: '',
+    country: 'TH',
     contact_name: '',
     phone: '',
     fax: null,
     email: '',
-    company_name: '',
+    company_name: 'Xenoptics Limited',
     company_url: null,
     street1: '',
     street2: null,
@@ -75,11 +75,11 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   },
 
   // Flattened ship_from properties
-  ship_from_country: '',
+  ship_from_country: 'TH',
   ship_from_contact_name: '',
   ship_from_phone: '',
   ship_from_email: '',
-  ship_from_company_name: '',
+  ship_from_company_name: 'Xenoptics Limited',
   ship_from_street1: '',
   ship_from_street2: '',
   ship_from_street3: '',
@@ -101,8 +101,8 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   ship_to_postal_code: '',
   
   // Customs
-  customs_purpose: '',
-  customs_terms_of_trade: '',
+  customs_purpose: 'sample',
+  customs_terms_of_trade: 'exw',
   
   parcels: [{
     box_type: '',

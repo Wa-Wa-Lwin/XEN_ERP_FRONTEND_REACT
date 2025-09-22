@@ -131,10 +131,10 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
         }
     }, [watchedParcels, updateWeights])
 
-    const handleBoxTypeChange = (parcelIndex: number, selectedBoxTypeId: string) => {
-        const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.id.toString() === selectedBoxTypeId)
+    const handleBoxTypeChange = (parcelIndex: number, selectedBoxTypeName: string) => {
+        const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.box_type_name === selectedBoxTypeName)
 
-        console.log('handleBoxTypeChange called with:', { parcelIndex, selectedBoxTypeId, selectedBoxType })
+        console.log('handleBoxTypeChange called with:', { parcelIndex, selectedBoxTypeName, selectedBoxType })
 
         if (selectedBoxType) {
             // Set form values with shouldValidate and shouldDirty options
@@ -174,7 +174,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
             // Trigger weight recalculation after parcel weight is set
             setTimeout(() => updateWeights(parcelIndex), 100)
         } else {
-            console.log('No box type found for ID:', selectedBoxTypeId)
+            console.log('No box type found for name:', selectedBoxTypeName)
         }
     }
 
@@ -351,7 +351,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     onSelectionChange={(keys) => {
                                                         const selectedKey = Array.from(keys)[0] as string
                                                         if (selectedKey) {
-                                                            const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.id.toString() === selectedKey)
+                                                            const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.box_type_name === selectedKey)
                                                             if (selectedBoxType) {
                                                                 field.onChange(selectedBoxType.box_type_name)
                                                                 handleBoxTypeChange(parcelIndex, selectedKey)
@@ -360,7 +360,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     }}
                                                 >
                                                     {PARCEL_BOX_TYPES.map((boxType) => (
-                                                        <SelectItem key={boxType.box_type_name} value={boxType.id.toString()}>
+                                                        <SelectItem key={boxType.box_type_name} value={boxType.box_type_name}>
                                                             {boxType.box_type_name}
                                                         </SelectItem>
                                                     ))}
