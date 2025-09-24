@@ -103,6 +103,9 @@ const ActionSections = ({
               onSelectionChange={(keys) => setEditCustomsPurpose(Array.from(keys)[0] as string)}
               size="sm"
               variant="bordered"
+              isRequired
+              isInvalid={!editCustomsPurpose}
+              errorMessage={!editCustomsPurpose ? "Customs purpose is required" : ""}
             >
               {CUSTOM_PURPOSES.map((purpose) => (
                 <SelectItem key={purpose.key} value={purpose.key}>
@@ -118,6 +121,9 @@ const ActionSections = ({
               onSelectionChange={(keys) => setEditCustomsTermsOfTrade(Array.from(keys)[0] as string)}
               size="sm"
               variant="bordered"
+              isRequired
+              isInvalid={!editCustomsTermsOfTrade}
+              errorMessage={!editCustomsTermsOfTrade ? "Terms of trade is required" : ""}
             >
               {INCOTERMS.map((term) => (
                 <SelectItem key={term.key} value={term.key}>
@@ -142,6 +148,9 @@ const ActionSections = ({
                       onValueChange={(value) => onParcelItemUpdate(item.id, "hs_code", value)}
                       size="sm"
                       variant="bordered"
+                      isRequired
+                      isInvalid={!item.hs_code}
+                      errorMessage={!item.hs_code ? "HS Code is required" : ""}
                     />
                     <Autocomplete
                       label="Origin Country"
@@ -151,6 +160,7 @@ const ActionSections = ({
                       size="sm"
                       variant="bordered"
                       allowsCustomValue
+                      isRequired                     
                     >
                       {COUNTRIES.map((country) => (
                         <AutocompleteItem key={country.key} value={country.key}>
@@ -167,7 +177,20 @@ const ActionSections = ({
           <div className="flex gap-2">
             <Button
               color="primary"
-              onPress={onLogisticsUpdate}
+              onPress={() => {
+                // Validation before calling update
+                if (
+                  !editCustomsPurpose ||
+                  !editCustomsTermsOfTrade ||
+                  editedParcelItems.some(
+                    (item) => !item.hs_code || !item.origin_country
+                  )
+                ) {
+                  alert("⚠️ Please fill all required fields before updating.");
+                  return;
+                }
+                onLogisticsUpdate();
+              }}
               isLoading={isUpdatingLogistics}
               disabled={isUpdatingLogistics}
               size="sm"
