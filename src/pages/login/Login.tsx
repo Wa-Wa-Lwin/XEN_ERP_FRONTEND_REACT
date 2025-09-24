@@ -47,7 +47,8 @@ export default function Component() {
 
       login(userData);
 
-      navigate("/overview")
+      // navigate("/overview")
+      navigate("/shipment")
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || "Login failed. Email or Password Not Correct.");
