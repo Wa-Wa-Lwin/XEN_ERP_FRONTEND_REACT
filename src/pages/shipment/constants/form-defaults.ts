@@ -75,17 +75,18 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   },
 
   // Flattened ship_from properties
-  ship_from_country: 'TH',
-  ship_from_contact_name: '',
-  ship_from_phone: '',
-  ship_from_email: '',
-  ship_from_company_name: 'Xenoptics Limited',
-  ship_from_street1: '',
-  ship_from_street2: '',
+  ship_from_country: 'THA',
+  ship_from_contact_name: 'Ms. Sasipimol',
+  ship_from_phone: '+66896345885',
+  ship_from_email: 'sasipimol@xenoptics.com',
+  ship_from_company_name: 'XENOptics Limited',
+  ship_from_street1: '195 Moo.3 Bypass Chiangmai-Hangdong Rd.',
+  ship_from_street2: 'T. Namphrae, A. Hangdong',
   ship_from_street3: '',
-  ship_from_city: '',
-  ship_from_state: '',
-  ship_from_postal_code: '',
+  ship_from_city: 'Hang Dong',
+  ship_from_state: 'Chiang Mai',
+  ship_from_postal_code: '50230',
+
 
   // Flattened ship_to properties
   ship_to_country: '',
