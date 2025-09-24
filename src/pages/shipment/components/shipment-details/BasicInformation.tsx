@@ -25,16 +25,16 @@ const BasicInformation = ({
           {(msLoginUser?.email === 'wawa@xenoptics.com' ||
             msLoginUser?.email === 'susu@xenoptics.com' ||
             msLoginUser?.email === 'thinzar@xenoptics.com') && onDuplicateShipment && (
-            <Button
-              color="secondary"
-              size="sm"
-              variant="bordered"
-              startContent={<Icon icon="solar:copy-bold" />}
-              onPress={onDuplicateShipment}
-            >
-              Developer Only: Duplicate Shipment Request
-            </Button>
-          )}
+              <Button
+                color="secondary"
+                size="sm"
+                variant="bordered"
+                startContent={<Icon icon="solar:copy-bold" />}
+                onPress={onDuplicateShipment}
+              >
+                Developer Only: Duplicate Shipment Request
+              </Button>
+            )}
         </div>
       </div>
 
@@ -45,8 +45,8 @@ const BasicInformation = ({
             size="sm"
             color={
               shipment.request_status.includes("approved") ? "success" :
-              shipment.request_status.includes("rejected") ? "danger" :
-              "warning"
+                shipment.request_status.includes("rejected") ? "danger" :
+                  "warning"
             }
             variant="flat"
           >
@@ -89,10 +89,12 @@ const BasicInformation = ({
               <DetailRow label="Pick Up Created Status" value={shipment.pick_up_created_status} />
               <DetailRow label="Pickup Confirmation Numbers" value={shipment.pickup_confirmation_numbers} />
               <DetailRow label="Invoice No" value={shipment.invoice_no} />
-              <DetailRow label="Invoice" value={shipment.files_invoice_url} />
+              <DetailRow label="Invoice" value={`https://192.168.60.31/api/logistics/invoice/${shipment.shipmentRequestID}`} />
+              {/* <DetailRow label="Invoice" value={shipment.files_invoice_url} /> */}
               <DetailRow label="Invoice Date" value={shipment.invoice_date} />
               <DetailRow label="Invoice Due Date" value={shipment.invoice_due_date} />
-              <DetailRow label="Packing Slip" value={shipment.files_packing_slip} />
+              <DetailRow label="Packing Slip" value={`https://192.168.60.31/api/logistics/packing_list/${shipment.shipmentRequestID}`} />
+              {/* <DetailRow label="Packing Slip" value={shipment.files_packing_slip} /> */}
               <DetailRow label="Approved Date" value={formatDateTime(shipment.approver_approved_date_time)} />
             </>
           )}
