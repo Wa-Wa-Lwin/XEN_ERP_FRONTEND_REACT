@@ -1,0 +1,382 @@
+import React from 'react'
+import { Input, Select, SelectItem, Button, Card, CardBody, CardHeader, Divider } from '@heroui/react'
+import { Controller, useFieldArray } from 'react-hook-form'
+import { Icon } from '@iconify/react'
+
+interface ParcelsFormProps {
+  register: any
+  control: any
+  errors: any
+  watch: any
+  setValue: any
+  getValues?: any
+}
+
+const DIMENSION_UNITS = [
+  { key: 'cm', value: 'cm', label: 'cm' },
+  { key: 'in', value: 'in', label: 'in' },
+  { key: 'mm', value: 'mm', label: 'mm' }
+]
+
+const WEIGHT_UNITS = [
+  { key: 'kg', value: 'kg', label: 'kg' },
+  { key: 'lb', value: 'lb', label: 'lb' },
+  { key: 'g', value: 'g', label: 'g' }
+]
+
+const CURRENCIES = [
+  { key: 'THB', value: 'THB', label: 'THB' },
+  { key: 'USD', value: 'USD', label: 'USD' },
+  { key: 'EUR', value: 'EUR', label: 'EUR' },
+  { key: 'GBP', value: 'GBP', label: 'GBP' },
+  { key: 'JPY', value: 'JPY', label: 'JPY' }
+]
+
+export const ParcelsForm: React.FC<ParcelsFormProps> = ({
+  register,
+  control,
+  errors,
+  watch,
+  setValue
+}) => {
+  const { fields: parcelFields, append: appendParcel, remove: removeParcel } = useFieldArray({
+    control,
+    name: 'parcels'
+  })
+
+  const addParcel = () => {
+    appendParcel({
+      width: 0,
+      height: 0,
+      depth: 0,
+      dimension_unit: 'cm',
+      weight_value: 0,
+      weight_unit: 'kg',
+      description: '',
+      parcel_items: [{
+        description: '',
+        quantity: 1,
+        price_currency: 'THB',
+        price_amount: 0,
+        item_id: '',
+        origin_country: '',
+        weight_unit: 'kg',
+        weight_value: 0,
+        sku: '',
+        hs_code: ''
+      }]
+    })
+  }
+
+  return (
+    <div className="space-y-4">
+      {parcelFields.map((parcel, parcelIndex) => (
+        <Card key={parcel.id} className="relative">
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-center w-full">
+              <h4 className="text-md font-medium">Parcel {parcelIndex + 1}</h4>
+              {parcelFields.length > 1 && (
+                <Button
+                  isIconOnly
+                  variant="light"
+                  color="danger"
+                  size="sm"
+                  onPress={() => removeParcel(parcelIndex)}
+                >
+                  <Icon icon="solar:trash-bin-minimalistic-linear" width={16} />
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <Divider />
+          <CardBody className="space-y-4">
+            {/* Parcel Dimensions */}
+            <div>
+              <h5 className="text-sm font-medium mb-3">Dimensions & Weight</h5>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Input
+                  type="number"
+                  label="Width"
+                  placeholder="0"
+                  min="0"
+                  step="0.1"
+                  {...register(`parcels.${parcelIndex}.width`, {
+                    required: 'Width is required',
+                    min: { value: 0.1, message: 'Must be greater than 0' }
+                  })}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.width}
+                  errorMessage={errors.parcels?.[parcelIndex]?.width?.message}
+                />
+
+                <Input
+                  type="number"
+                  label="Height"
+                  placeholder="0"
+                  min="0"
+                  step="0.1"
+                  {...register(`parcels.${parcelIndex}.height`, {
+                    required: 'Height is required',
+                    min: { value: 0.1, message: 'Must be greater than 0' }
+                  })}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.height}
+                  errorMessage={errors.parcels?.[parcelIndex]?.height?.message}
+                />
+
+                <Input
+                  type="number"
+                  label="Depth"
+                  placeholder="0"
+                  min="0"
+                  step="0.1"
+                  {...register(`parcels.${parcelIndex}.depth`, {
+                    required: 'Depth is required',
+                    min: { value: 0.1, message: 'Must be greater than 0' }
+                  })}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
+                  errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
+                />
+
+                <Controller
+                  name={`parcels.${parcelIndex}.dimension_unit`}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      label="Unit"
+                      selectedKeys={field.value ? [field.value] : []}
+                      onSelectionChange={(keys) => {
+                        const selectedKey = Array.from(keys)[0] as string
+                        field.onChange(selectedKey)
+                      }}
+                    >
+                      {DIMENSION_UNITS.map((unit) => (
+                        <SelectItem key={unit.key} value={unit.value}>
+                          {unit.label}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <Input
+                  type="number"
+                  label="Weight"
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                  {...register(`parcels.${parcelIndex}.weight_value`, {
+                    required: 'Weight is required',
+                    min: { value: 0.01, message: 'Must be greater than 0' }
+                  })}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
+                  errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
+                />
+
+                <Controller
+                  name={`parcels.${parcelIndex}.weight_unit`}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      label="Weight Unit"
+                      selectedKeys={field.value ? [field.value] : []}
+                      onSelectionChange={(keys) => {
+                        const selectedKey = Array.from(keys)[0] as string
+                        field.onChange(selectedKey)
+                      }}
+                    >
+                      {WEIGHT_UNITS.map((unit) => (
+                        <SelectItem key={unit.key} value={unit.value}>
+                          {unit.label}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+              </div>
+
+              <Input
+                label="Description"
+                placeholder="Brief description of the parcel contents"
+                className="mt-3"
+                {...register(`parcels.${parcelIndex}.description`)}
+              />
+            </div>
+
+            {/* Parcel Items */}
+            <div>
+              <h5 className="text-sm font-medium mb-3">Items in this Parcel</h5>
+              <ParcelItems
+                parcelIndex={parcelIndex}
+                register={register}
+                control={control}
+                errors={errors}
+                watch={watch}
+                setValue={setValue}
+              />
+            </div>
+          </CardBody>
+        </Card>
+      ))}
+
+      <Button
+        variant="bordered"
+        onPress={addParcel}
+        startContent={<Icon icon="solar:add-circle-linear" width={20} />}
+        className="w-full"
+      >
+        Add Another Parcel
+      </Button>
+    </div>
+  )
+}
+
+interface ParcelItemsProps {
+  parcelIndex: number
+  register: any
+  control: any
+  errors: any
+  watch: any
+  setValue: any
+}
+
+const ParcelItems: React.FC<ParcelItemsProps> = ({
+  parcelIndex,
+  register,
+  control,
+  errors
+}) => {
+  const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
+    control,
+    name: `parcels.${parcelIndex}.parcel_items`
+  })
+
+  const addItem = () => {
+    appendItem({
+      description: '',
+      quantity: 1,
+      price_currency: 'THB',
+      price_amount: 0,
+      item_id: '',
+      origin_country: '',
+      weight_unit: 'kg',
+      weight_value: 0,
+      sku: '',
+      hs_code: ''
+    })
+  }
+
+  return (
+    <div className="space-y-3">
+      {itemFields.map((item, itemIndex) => (
+        <div key={item.id} className="border rounded-lg p-4 space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium">Item {itemIndex + 1}</span>
+            {itemFields.length > 1 && (
+              <Button
+                isIconOnly
+                variant="light"
+                color="danger"
+                size="sm"
+                onPress={() => removeItem(itemIndex)}
+              >
+                <Icon icon="solar:trash-bin-minimalistic-linear" width={14} />
+              </Button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <Input
+              label="Description"
+              placeholder="Item description"
+              {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, {
+                required: 'Item description is required'
+              })}
+              isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description}
+              errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.description?.message}
+            />
+
+            <Input
+              type="number"
+              label="Quantity"
+              placeholder="1"
+              min="1"
+              {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.quantity`, {
+                required: 'Quantity is required',
+                min: { value: 1, message: 'Must be at least 1' }
+              })}
+              isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity}
+              errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.quantity?.message}
+            />
+
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                label="Unit Price"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`, {
+                  required: 'Price is required',
+                  min: { value: 0.01, message: 'Must be greater than 0' }
+                })}
+                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount}
+                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
+              />
+
+              <Controller
+                name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    label="Currency"
+                    selectedKeys={field.value ? [field.value] : []}
+                    onSelectionChange={(keys) => {
+                      const selectedKey = Array.from(keys)[0] as string
+                      field.onChange(selectedKey)
+                    }}
+                    className="min-w-20"
+                  >
+                    {CURRENCIES.map((currency) => (
+                      <SelectItem key={currency.key} value={currency.value}>
+                        {currency.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </div>
+
+            <Input
+              label="Item ID/SKU"
+              placeholder="Product SKU or ID"
+              {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.item_id`)}
+            />
+
+            <Input
+              label="Origin Country"
+              placeholder="Country code (e.g., THA)"
+              {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`)}
+            />
+
+            <Input
+              label="HS Code"
+              placeholder="Harmonized System Code"
+              {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`)}
+            />
+          </div>
+        </div>
+      ))}
+
+      <Button
+        variant="bordered"
+        size="sm"
+        onPress={addItem}
+        startContent={<Icon icon="solar:add-circle-linear" width={16} />}
+        className="w-full"
+      >
+        Add Item to Parcel
+      </Button>
+    </div>
+  )
+}
