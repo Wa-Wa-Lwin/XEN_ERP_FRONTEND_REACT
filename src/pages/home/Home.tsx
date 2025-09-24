@@ -74,7 +74,7 @@ export default function Component() {
             <div className="flex h-screen w-full">
                 <div
                     className={cn(
-                        "border-r-small! border-divider transition-width relative flex h-full w-72 flex-col p-1",
+                        "border-r-small! border-divider transition-all duration-300 ease-in-out relative flex h-full w-72 flex-col p-1 shrink-0",
                         {
                             "w-16 items-center px-2 py-6": isCompact,
                         },
@@ -158,7 +158,7 @@ export default function Component() {
                         </Tooltip>
                     </div>
                 </div>
-                <div className="w-full flex-1 flex flex-col p-4 min-h-0">
+                <div className="w-full flex-1 flex flex-col p-4 min-h-0 min-w-0 overflow-hidden">
                     <header ref={headerRef}
                             className="rounded-medium border-small border-divider flex items-center gap-3 p-4">
                         <Button isIconOnly size="sm" variant="light" onPress={onToggle}>
@@ -194,7 +194,7 @@ export default function Component() {
                         </div>
                     )}
                     <main
-                        className="mt-4 w-full flex-1 min-h-0 rounded-medium border-small border-divider overflow-auto">
+                        className="mt-4 w-full flex-1 min-h-0 min-w-0 rounded-medium border-small border-divider overflow-auto">
                         <Outlet/>
                     </main>
                 </div>
