@@ -328,7 +328,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </Button>
             <Button
               type="button"
-              color="secondary"
+              color="primary"
               size="sm"
               startContent={<Icon icon="solar:calculator-bold" />}
               onPress={onCalculateRates}

@@ -28,7 +28,7 @@ interface MaterialData {
 
 const DEBOUNCE_MS = 200
 
-const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeightChange, sendTo, shipFromCountry, shipToCountry }: ParcelItemsProps & { sendTo?: string, shipFromCountry?: string, shipToCountry?: string }) => {
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange, sendTo, shipFromCountry, shipToCountry }: ParcelItemsProps & { sendTo?: string, shipFromCountry?: string, shipToCountry?: string }) => {
     // Helper function to determine if item fields should be required based on send_to value and countries
     const isItemFieldRequired = (fieldName: string) => {
         if (sendTo === 'Logistic') {
@@ -138,7 +138,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                 <h4 className="text-md font-medium">Parcel Items</h4>
                 <Button
                     type="button"
-                    color="secondary"
+                    color="primary"
                     size="sm"
                     variant="bordered"
                     startContent={<Icon icon="solar:add-circle-bold" />}
@@ -218,6 +218,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                         input: "text-sm",
                                                         inputWrapper: "min-h-unit-8 h-unit-8"
                                                     }}
+                                                    color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`) ? "warning" : "default"}
                                                     minRows={1}
                                                     onChange={(e) => {
                                                         field.onChange(e)
@@ -249,6 +250,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                     input: "text-sm",
                                                     inputWrapper: "min-h-unit-8 h-unit-8"
                                                 }}
+                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`) ? "warning" : "default"}
                                                 minRows={1}
                                             />
                                         )}
@@ -272,6 +274,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                     input: "text-sm",
                                                     inputWrapper: "min-h-unit-8 h-unit-8"
                                                 }}
+                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`) ? "warning" : "default"}
                                                 minRows={1}
                                             />
                                         )}
@@ -319,6 +322,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                     base: "min-h-unit-8 h-unit-8",
                                                     listbox: "max-h-60"
                                                 }}
+                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`) ? "warning" : "default"}
                                             >
                                                 {(item) => (
                                                     <AutocompleteItem key={item.key} value={item.value}>
@@ -353,6 +357,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                             input: "text-sm",
                                             inputWrapper: "min-h-unit-8 h-unit-8"
                                         }}
+                                        color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`) ? "warning" : "default"}
                                         min={0}
                                     />
 
@@ -431,6 +436,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                         field.onChange("THB");
                                                     }
                                                 }}
+                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`) ? "warning" : "default"}
                                             >
                                                 {(currency) => (
                                                     <AutocompleteItem key={currency.key} value={currency.value}>
@@ -461,6 +467,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                     input: "text-sm",
                                                     inputWrapper: "min-h-unit-8 h-unit-8"
                                                 }}
+                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`) ? "warning" : "default"}
                                                 onChange={(e) => {
                                                     field.onChange(e)
                                                     if (onWeightChange) {
@@ -490,6 +497,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                                                     input: "text-sm",
                                                     inputWrapper: "min-h-unit-8 h-unit-8"
                                                 }}
+                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.quantity`) ? "warning" : "default"}
                                                 onChange={(e) => {
                                                     field.onChange(e)
                                                     if (onWeightChange) {
@@ -538,6 +546,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, onWeigh
                             {...field}
                             defaultSelectedKeys={['kg']}
                             className="hidden"
+                            color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_unit`) ? "warning" : "default"}
                             onSelectionChange={(keys) => {
                                 const selectedKey = Array.from(keys)[0] as string
                                 if (selectedKey) {

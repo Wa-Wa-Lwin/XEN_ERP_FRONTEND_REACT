@@ -36,9 +36,10 @@ interface AddressSelectorProps extends FormSectionProps {
   title: string
   prefix: 'ship_from' | 'ship_to'
   forceRefresh?: number
+  watch: (name?: string) => any
 }
 
-const AddressSelector = ({ register, errors, control, title, prefix, setValue, forceRefresh }: AddressSelectorProps) => {
+const AddressSelector = ({ register, errors, control, title, prefix, setValue, forceRefresh, watch }: AddressSelectorProps) => {
   // Helper function to determine if a field should be required based on send_to value
   const isFieldRequired = (_fieldName: string) => {
     // All address fields are required regardless of send_to value
@@ -214,6 +215,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_company_name`]?.message}
             isInvalid={!!errors[`${prefix}_company_name`]}
             key={`${formKey}_${prefix}_company_name`}
+            color={!watch(`${prefix}_company_name`) ? "warning" : "default"}
           />
           <Input
             {...register(`${prefix}_contact_name`, { required: isFieldRequired('contact_name') ? 'Contact name is required' : false })}
@@ -222,6 +224,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_contact_name`]?.message}
             isInvalid={!!errors[`${prefix}_contact_name`]}
             key={`${formKey}_${prefix}_contact_name`}
+            color={!watch(`${prefix}_contact_name`) ? "warning" : "default"}
           />
 
           <Input
@@ -231,6 +234,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_phone`]?.message}
             isInvalid={!!errors[`${prefix}_phone`]}
             key={`${formKey}_${prefix}_phone`}
+            color={!watch(`${prefix}_phone`) ? "warning" : "default"}
           />
 
           <Input
@@ -241,6 +245,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_email`]?.message}
             isInvalid={!!errors[`${prefix}_email`]}
             key={`${formKey}_${prefix}_email`}
+            color={!watch(`${prefix}_email`) ? "warning" : "default"}
           />
           <Controller
             key={`${formKey}_${prefix}_country`}
@@ -275,6 +280,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                 classNames={{
                   listbox: "max-h-60"
                 }}
+                color={!watch(`${prefix}_country`) ? "warning" : "default"}
               >
                 {(item) => (
                   <AutocompleteItem key={item.key} value={item.value}>
@@ -292,6 +298,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_city`]?.message}
             isInvalid={!!errors[`${prefix}_city`]}
             key={`${formKey}_${prefix}_city`}
+            color={!watch(`${prefix}_city`) ? "warning" : "default"}
           />
 
           <Input
@@ -301,6 +308,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_state`]?.message}
             isInvalid={!!errors[`${prefix}_state`]}
             key={`${formKey}_${prefix}_state`}
+            color={!watch(`${prefix}_state`) ? "warning" : "default"}
           />
 
           <Input
@@ -310,6 +318,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_postal_code`]?.message}
             isInvalid={!!errors[`${prefix}_postal_code`]}
             key={`${formKey}_${prefix}_postal_code`}
+            color={!watch(`${prefix}_postal_code`) ? "warning" : "default"}
           />
 
           <Textarea
@@ -320,6 +329,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_street1`]}
             minRows={1}
             key={`${formKey}_${prefix}_street1`}
+            color={!watch(`${prefix}_street1`) ? "warning" : "default"}
           />
 
           <Textarea
@@ -330,6 +340,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_street2`]}
             minRows={1}
             key={`${formKey}_${prefix}_street2`}
+            color={!watch(`${prefix}_street2`) ? "warning" : "default"}
           />
           <Input
             {...register(`${prefix}_tax_id`)}
@@ -338,6 +349,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_tax_id`]?.message}
             isInvalid={!!errors[`${prefix}_tax_id`]}
             key={`${formKey}_${prefix}_tax_id`}
+            color={!watch(`${prefix}_tax_id`) ? "warning" : "default"}
           />
           </div>
         </CardBody>

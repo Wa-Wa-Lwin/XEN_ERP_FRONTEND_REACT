@@ -104,6 +104,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                     field.onChange(selectedKey)
                   }
                 }}
+                color={!watch('send_to') ? "warning" : "default"}
               >
                 <SelectItem key="Approver" value="Approver">
                   Approver
@@ -135,6 +136,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                       setSelectedTopic(new Set([selectedKey]))
                     }
                   }}
+                  color={!watch('topic') ? "warning" : "default"}
                 >
                   {TOPIC_OPTIONS.map((option) => (
                     <SelectItem key={option.key} value={option.value}>
@@ -154,6 +156,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 errorMessage={errors.other_topic?.message}
                 isInvalid={!!errors.other_topic}
                 required
+                color={!watch('other_topic') ? "warning" : "default"}
               />
             )}
             {selectedTopic.has('For Sales') && (
@@ -175,6 +178,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                         field.onChange(selectedKey)
                       }
                     }}
+                    color={!watch('sales_person') ? "warning" : "default"}
                   >
                     {SALES_PERSON_OPTIONS.map((option) => (
                       <SelectItem key={option.key} value={option.value}>
@@ -209,6 +213,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                       setSelectedServiceOptions(new Set([selectedKey]))
                     }
                   }}
+                  color={!watch('service_options') ? "warning" : "default"}
                 >
                   {SERVICE_OPTIONS.map((option) => (
                     <SelectItem key={option.key} value={option.value}>
@@ -225,6 +230,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                 placeholder="Enter"
                 errorMessage={errors.urgent_reason?.message}
                 isInvalid={!!errors.urgent_reason}
+                color={!watch('urgent_reason') ? "warning" : "default"}
               />
             )}
           </div>
@@ -235,6 +241,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
             placeholder="Enter"
             errorMessage={errors.po_number?.message}
             isInvalid={!!errors.po_number}
+            color={!watch('po_number') ? "warning" : "default"}
           />
           <Input
             {...register('po_date', { required: isFieldRequired() ? 'PO Date is required' : false })}
@@ -243,6 +250,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
             errorMessage={errors.po_date?.message}
             isInvalid={!!errors.po_date}
             defaultValue={new Date().toISOString().split('T')[0]}
+            color={!watch('po_date') ? "warning" : "default"}
           />
 
 
@@ -265,6 +273,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                     field.onChange(selectedKey)
                   }
                 }}
+                color={!watch('customs_purpose') ? "warning" : "default"}
               >
                 {CUSTOM_PURPOSES.map((option) => (
                   <SelectItem key={option.key} value={option.value}>
@@ -294,6 +303,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                       field.onChange(selectedKey)
                     }
                   }}
+                  color={!watch('customs_terms_of_trade') ? "warning" : "default"}
                 >
                   {INCOTERMS.map((option) => (
                     <SelectItem key={option.key} value={option.value}>

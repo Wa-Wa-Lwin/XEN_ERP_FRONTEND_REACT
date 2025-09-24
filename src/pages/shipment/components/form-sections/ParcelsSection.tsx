@@ -347,6 +347,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
 
+                                                    color={!watch(`parcels.${parcelIndex}.box_type_name`) ? "warning" : "default"}
                                                     onSelectionChange={(keys) => {
                                                         const selectedKey = Array.from(keys)[0] as string
                                                         if (selectedKey) {
@@ -382,6 +383,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     errorMessage={errors.parcels?.[parcelIndex]?.width?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.width}
                                                     isReadOnly={isAutoFilled(parcelIndex)}
+                                                    color={!watch(`parcels.${parcelIndex}.width`) ? "warning" : "default"}
                                                     className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
                                                     endContent={
                                                         isAutoFilled(parcelIndex) && (
@@ -409,6 +411,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     errorMessage={errors.parcels?.[parcelIndex]?.height?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.height}
                                                     isReadOnly={isAutoFilled(parcelIndex)}
+                                                    color={!watch(`parcels.${parcelIndex}.height`) ? "warning" : "default"}
                                                     className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
                                                     endContent={
                                                         isAutoFilled(parcelIndex) && (
@@ -436,6 +439,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
                                                     isReadOnly={isAutoFilled(parcelIndex)}
+                                                    color={!watch(`parcels.${parcelIndex}.depth`) ? "warning" : "default"}
                                                     className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
                                                     endContent={
                                                         isAutoFilled(parcelIndex) && (
@@ -461,6 +465,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                 errorMessage={errors.parcels?.[parcelIndex]?.dimension_unit?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.dimension_unit}
                                                 className="hidden"
+                                                color={!watch(`parcels.${parcelIndex}.dimension_unit`) ? "warning" : "default"}
                                                 onSelectionChange={(keys) => {
                                                     const selectedKey = Array.from(keys)[0] as string
                                                     if (selectedKey) {
@@ -491,6 +496,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_weight_value}
                                                     isReadOnly={isAutoFilled(parcelIndex)}
+                                                    color={!watch(`parcels.${parcelIndex}.parcel_weight_value`) ? "warning" : "default"}
                                                     className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
                                                     endContent={
                                                         isAutoFilled(parcelIndex) && (
@@ -562,6 +568,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.description}
                                                 isReadOnly={!manualDescriptionParcels.has(parcelIndex)}
                                                 className={!manualDescriptionParcels.has(parcelIndex) ? "bg-gray-50" : ""}
+                                                color={!watch(`parcels.${parcelIndex}.description`) ? "warning" : "default"}
                                                 endContent={
                                                     !manualDescriptionParcels.has(parcelIndex) ? (
                                                         <>
@@ -593,6 +600,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                 errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}
                                                 isReadOnly={true}
+                                                color={!watch(`parcels.${parcelIndex}.net_weight_value`) ? "warning" : "default"}
                                                 className="bg-gray-50"
                                                 endContent={
                                                     <>
@@ -619,6 +627,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                                 errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
                                                 isReadOnly={true}
+                                                color={!watch(`parcels.${parcelIndex}.weight_value`) ? "warning" : "default"}
                                                 className="bg-gray-50"
                                                 endContent={
                                                     <>
@@ -643,6 +652,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                             errorMessage={errors.parcels?.[parcelIndex]?.weight_unit?.message}
                                             isInvalid={!!errors.parcels?.[parcelIndex]?.weight_unit}
                                             className="hidden"
+                                            color={!watch(`parcels.${parcelIndex}.weight_unit`) ? "warning" : "default"}
                                             onSelectionChange={(keys) => {
                                                 const selectedKey = Array.from(keys)[0] as string
                                                 if (selectedKey) {

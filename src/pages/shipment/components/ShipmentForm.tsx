@@ -532,7 +532,7 @@ const ShipmentForm = () => {
               </div>
             </div>
             <div className="py-1 px-4">
-              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" forceRefresh={refreshCounter} />
+              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" forceRefresh={refreshCounter} watch={watch} />
               <div className="pt-2 px-1">
                 <hr />
               </div>
@@ -584,7 +584,7 @@ const ShipmentForm = () => {
                   Swap Addresses
                 </Button>
               </div>
-              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" forceRefresh={refreshCounter} />
+              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" forceRefresh={refreshCounter} watch={watch} />
               <div className="pt-2 px-1">
                 <hr />
               </div>
@@ -617,7 +617,7 @@ const ShipmentForm = () => {
               />
             </div>
 
-            <div className="flex justify-end gap-4">
+            <div className="flex justify-start gap-4">
               <Button
                 variant="bordered"
                 type="button"

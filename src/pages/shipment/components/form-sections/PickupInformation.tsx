@@ -70,6 +70,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
             min={minDate}
             value={pickupDate || defaultPickupDate}
             onChange={handleDateChange}
+            color={!watch('pick_up_date') ? "warning" : "default"}
           />
 
           {/* Hidden field to sync due_date with pick_up_date */}
@@ -92,6 +93,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
                   isInvalid={!!errors.pick_up_start_time}
                   value={field.value || pickupStartTime || getStartTimeForDate(pickupDate || defaultPickupDate)}
                   onChange={(e) => field.onChange(e.target.value)}
+                  color={!watch('pick_up_start_time') ? "warning" : "default"}
                 />
               )}
             />
@@ -108,6 +110,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
                   isInvalid={!!errors.pick_up_end_time}
                   value={field.value || pickupEndTime || '17:00'}
                   onChange={(e) => field.onChange(e.target.value)}
+                  color={!watch('pick_up_end_time') ? "warning" : "default"}
                 />
               )}
             />
@@ -122,6 +125,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
               rows={1}
               className="resize-none"
               minRows={1}
+              color={!watch('pick_up_instructions') ? "warning" : "default"}
             />
           </div>
         </>
