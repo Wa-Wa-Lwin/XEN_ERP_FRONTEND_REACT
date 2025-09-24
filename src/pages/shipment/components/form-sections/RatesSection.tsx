@@ -232,23 +232,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return new Date(dateTime).toLocaleString()
   }
 
-  // const getStatusColor = (rate: RateResponse) => {
-  //   if (rate.error_message) return 'danger'
-  //   if (rate.info_message && !rate.total_charge?.amount) return 'warning'
-  //   if (rate.total_charge?.amount) return 'success'
-  //   return 'default'
-  // }
-
-  // const getStatusText = (rate: RateResponse) => {
-  //   if (rate.error_message) return 'Error'
-  //   if (rate.info_message && !rate.total_charge?.amount) return 'No Quote'
-  //   if (rate.total_charge?.amount) return 'Available'
-  //   return 'Unknown'
-  // }
-
-  // Filter unique rates based on shipper_account.id + service_type combination
-  // Only show available rates (rates with total_charge amount and no errors)
-  // For "normal" service option, show only the cheapest rate
   const getAvailableUniqueRates = (rates: RateResponse[]) => {
     const seen = new Set<string>()
     let availableRates = rates.filter(rate => {
@@ -258,7 +241,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       }
 
       // Create unique key combining shipper account and service type
-      const uniqueKey = `${rate.shipper_account.id}-${rate.service_type}`
+      // const uniqueKey = `${rate.shipper_account.id}-${rate.service_type}`
+      const uniqueKey = `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time}`
       if (seen.has(uniqueKey)) {
         return false
       }
@@ -294,7 +278,9 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   // Generate unique rate ID for selection (should match the one in ShipmentForm)
   const getRateUniqueId = (rate: RateResponse, _index: number) => {
-    return `${rate.shipper_account.id}-${rate.service_type}`
+    // return `${rate.shipper_account.id}-${rate.service_type}`
+    return `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time}`
+
   }
 
   // Auto-select the cheapest rate when service option is "normal"
@@ -437,8 +423,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 )
               })}
             </TableBody>
-
-
 
           </Table>
         )}

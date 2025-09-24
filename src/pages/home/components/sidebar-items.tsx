@@ -166,19 +166,19 @@ export const sectionItems: SidebarItem[] = [
       },      
     ],
   },
-  {
-    key: "rate-calculator",
-    title: "Rate Calculator",
-    to: "/rate-calculator",
-    items: [
-      {
-        key: "rate-calculator",
-        to: "/rate-calculator",
-        icon: "majesticons:calculator",
-        title: "Rate Calculator",
-      },      
-    ],
-  },
+  // {
+  //   key: "rate-calculator",
+  //   title: "Rate Calculator",
+  //   to: "/rate-calculator",
+  //   items: [
+  //     {
+  //       key: "rate-calculator",
+  //       to: "/rate-calculator",
+  //       icon: "majesticons:calculator",
+  //       title: "Rate Calculator",
+  //     },      
+  //   ],
+  // },
 ];
 
 export const sectionItemsWithTeams: SidebarItem[] = [

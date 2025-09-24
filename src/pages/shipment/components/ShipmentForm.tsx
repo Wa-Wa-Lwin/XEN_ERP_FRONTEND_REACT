@@ -151,7 +151,7 @@ const ShipmentForm = () => {
 
       // Helper function to generate unique rate ID
       const getRateUniqueId = (rate: any, _index: number) => {
-        return `${rate.shipper_account.id}-${rate.service_type}`
+        return `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time || 'null'}-${rate.total_charge?.amount || 0}-${rate.total_charge?.currency || 'null'}`
       }
 
       // Transform API rates to match our interface

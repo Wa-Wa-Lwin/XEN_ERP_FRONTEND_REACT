@@ -10,6 +10,8 @@ interface ParcelsFormProps {
   watch: any
   setValue: any
   getValues?: any
+  onOpenBoxTypeModal?: (parcelIndex: number) => void
+  onOpenItemsModal?: (parcelIndex: number, itemIndex: number) => void
 }
 
 const DIMENSION_UNITS = [
@@ -37,7 +39,9 @@ export const ParcelsForm: React.FC<ParcelsFormProps> = ({
   control,
   errors,
   watch,
-  setValue
+  setValue,
+  onOpenBoxTypeModal,
+  onOpenItemsModal
 }) => {
   const { fields: parcelFields, append: appendParcel, remove: removeParcel } = useFieldArray({
     control,
@@ -92,7 +96,19 @@ export const ParcelsForm: React.FC<ParcelsFormProps> = ({
           <CardBody className="space-y-4">
             {/* Parcel Dimensions */}
             <div>
-              <h5 className="text-sm font-medium mb-3">Dimensions & Weight</h5>
+              <div className="flex justify-between items-center mb-3">
+                <h5 className="text-sm font-medium">Dimensions & Weight</h5>
+                {onOpenBoxTypeModal && (
+                  <Button
+                    variant="bordered"
+                    size="sm"
+                    startContent={<Icon icon="solar:box-linear" width={16} />}
+                    onPress={() => onOpenBoxTypeModal(parcelIndex)}
+                  >
+                    Select Box Type
+                  </Button>
+                )}
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Input
                   type="number"
@@ -213,6 +229,7 @@ export const ParcelsForm: React.FC<ParcelsFormProps> = ({
                 errors={errors}
                 watch={watch}
                 setValue={setValue}
+                onOpenItemsModal={onOpenItemsModal}
               />
             </div>
           </CardBody>
@@ -238,13 +255,17 @@ interface ParcelItemsProps {
   errors: any
   watch: any
   setValue: any
+  onOpenItemsModal?: (parcelIndex: number, itemIndex: number) => void
 }
 
 const ParcelItems: React.FC<ParcelItemsProps> = ({
   parcelIndex,
   register,
   control,
-  errors
+  errors,
+  watch: _watch,
+  setValue: _setValue,
+  onOpenItemsModal
 }) => {
   const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
     control,
@@ -272,17 +293,29 @@ const ParcelItems: React.FC<ParcelItemsProps> = ({
         <div key={item.id} className="border rounded-lg p-4 space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Item {itemIndex + 1}</span>
-            {itemFields.length > 1 && (
-              <Button
-                isIconOnly
-                variant="light"
-                color="danger"
-                size="sm"
-                onPress={() => removeItem(itemIndex)}
-              >
-                <Icon icon="solar:trash-bin-minimalistic-linear" width={14} />
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {onOpenItemsModal && (
+                <Button
+                  variant="bordered"
+                  size="sm"
+                  startContent={<Icon icon="lets-icons:materials" width={14} />}
+                  onPress={() => onOpenItemsModal(parcelIndex, itemIndex)}
+                >
+                  Select Item
+                </Button>
+              )}
+              {itemFields.length > 1 && (
+                <Button
+                  isIconOnly
+                  variant="light"
+                  color="danger"
+                  size="sm"
+                  onPress={() => removeItem(itemIndex)}
+                >
+                  <Icon icon="solar:trash-bin-minimalistic-linear" width={14} />
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

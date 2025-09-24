@@ -7,7 +7,11 @@ import { AddressForm } from './components/AddressForm'
 import { ParcelsForm } from './components/ParcelsForm'
 import { RatesTable } from './components/RatesTable'
 import { ErrorModal } from './components/ErrorModal'
+import { AddressSelectModal } from './components/AddressSelectModal'
+import { ParcelBoxTypeSelectModal } from './components/ParcelBoxTypeSelectModal'
+import { ItemsSelectModal } from './components/ItemsSelectModal'
 import type { RateCalculatorFormData } from './types/rate-calculator.types'
+import type { AddressData } from '@pages/addresses/types'
 
 const DEFAULT_FORM_VALUES: RateCalculatorFormData = {
   // Ship From Address
@@ -61,6 +65,24 @@ const DEFAULT_FORM_VALUES: RateCalculatorFormData = {
 const RateCalculator = () => {
   const [calculatedRates, setCalculatedRates] = useState<any[]>([])
 
+  // Modal states
+  const [addressModal, setAddressModal] = useState<{
+    isOpen: boolean
+    type: 'ship_from' | 'ship_to'
+    title: string
+  }>({ isOpen: false, type: 'ship_from', title: '' })
+
+  const [boxTypeModal, setBoxTypeModal] = useState<{
+    isOpen: boolean
+    parcelIndex: number
+  }>({ isOpen: false, parcelIndex: 0 })
+
+  const [itemsModal, setItemsModal] = useState<{
+    isOpen: boolean
+    parcelIndex: number
+    itemIndex: number
+  }>({ isOpen: false, parcelIndex: 0, itemIndex: 0 })
+
   const { register, control, handleSubmit, watch, setValue, getValues, formState: { errors } } = useForm<RateCalculatorFormData>({
     defaultValues: DEFAULT_FORM_VALUES
   })
@@ -80,8 +102,71 @@ const RateCalculator = () => {
     setCalculatedRates([])
   }
 
+  // Modal handlers
+  const handleOpenAddressModal = (type: 'ship_from' | 'ship_to') => {
+    setAddressModal({
+      isOpen: true,
+      type,
+      title: type === 'ship_from' ? 'Select Ship From Address' : 'Select Ship To Address'
+    })
+  }
+
+  const handleSelectAddress = (address: AddressData) => {
+    const prefix = addressModal.type
+
+    // Map address data to form fields
+    setValue(`${prefix}_company_name`, address.CardName)
+    setValue(`${prefix}_contact_name`, address.CntctPrsn || '')
+    setValue(`${prefix}_phone`, address.Phone1 || '')
+    setValue(`${prefix}_email`, address.E_Mail || '')
+    setValue(`${prefix}_street1`, address.Address || address.MailAddres || '')
+    setValue(`${prefix}_street2`, address.Building || address.MailBuildi || '')
+    setValue(`${prefix}_city`, address.City || address.MailCity || '')
+    setValue(`${prefix}_state`, address.County || address.MailCounty || '')
+    setValue(`${prefix}_postal_code`, address.ZipCode || address.MailZipCod || '')
+    setValue(`${prefix}_country`, address.Country || address.MailCountr || '')
+  }
+
+  const handleOpenBoxTypeModal = (parcelIndex: number) => {
+    setBoxTypeModal({
+      isOpen: true,
+      parcelIndex
+    })
+  }
+
+  const handleSelectBoxType = (boxType: any) => {
+    const parcelIndex = boxTypeModal.parcelIndex
+
+    // Update parcel dimensions based on box type
+    if (boxType.id !== 'custom') {
+      setValue(`parcels.${parcelIndex}.width`, boxType.dimensions.length)
+      setValue(`parcels.${parcelIndex}.height`, boxType.dimensions.width)
+      setValue(`parcels.${parcelIndex}.depth`, boxType.dimensions.height)
+      setValue(`parcels.${parcelIndex}.dimension_unit`, boxType.dimensions.unit)
+      setValue(`parcels.${parcelIndex}.description`, boxType.name)
+    }
+  }
+
+  const handleOpenItemsModal = (parcelIndex: number, itemIndex: number) => {
+    setItemsModal({
+      isOpen: true,
+      parcelIndex,
+      itemIndex
+    })
+  }
+
+  const handleSelectItem = (item: any) => {
+    const { parcelIndex, itemIndex } = itemsModal
+
+    // Update item data based on selected material
+    setValue(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, item.description)
+    setValue(`parcels.${parcelIndex}.parcel_items.${itemIndex}.item_id`, item.material_code)
+    setValue(`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`, item.sku || '')
+    setValue(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, item.hscode || '')
+  }
+
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="max-w-full mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Rate Calculator</h1>
@@ -103,6 +188,16 @@ const RateCalculator = () => {
             </CardHeader>
             <Divider />
             <CardBody>
+              <div className="flex justify-end mb-3">
+                <Button
+                  variant="bordered"
+                  size="sm"
+                  startContent={<Icon icon="solar:list-linear" width={16} />}
+                  onPress={() => handleOpenAddressModal('ship_from')}
+                >
+                  Select from Address Book
+                </Button>
+              </div>
               <AddressForm
                 register={register}
                 control={control}
@@ -123,6 +218,16 @@ const RateCalculator = () => {
             </CardHeader>
             <Divider />
             <CardBody>
+              <div className="flex justify-end mb-3">
+                <Button
+                  variant="bordered"
+                  size="sm"
+                  startContent={<Icon icon="solar:list-linear" width={16} />}
+                  onPress={() => handleOpenAddressModal('ship_to')}
+                >
+                  Select from Address Book
+                </Button>
+              </div>
               <AddressForm
                 register={register}
                 control={control}
@@ -151,6 +256,8 @@ const RateCalculator = () => {
               watch={watch}
               setValue={setValue}
               getValues={getValues}
+              onOpenBoxTypeModal={handleOpenBoxTypeModal}
+              onOpenItemsModal={handleOpenItemsModal}
             />
           </CardBody>
         </Card>
@@ -202,6 +309,28 @@ const RateCalculator = () => {
         message={errorModal.message}
         details={errorModal.details}
         onClose={() => setErrorModal({ isOpen: false, title: '', message: '', details: [] })}
+      />
+
+      {/* Address Selection Modal */}
+      <AddressSelectModal
+        isOpen={addressModal.isOpen}
+        onClose={() => setAddressModal({ ...addressModal, isOpen: false })}
+        onSelect={handleSelectAddress}
+        title={addressModal.title}
+      />
+
+      {/* Box Type Selection Modal */}
+      <ParcelBoxTypeSelectModal
+        isOpen={boxTypeModal.isOpen}
+        onClose={() => setBoxTypeModal({ ...boxTypeModal, isOpen: false })}
+        onSelect={handleSelectBoxType}
+      />
+
+      {/* Items Selection Modal */}
+      <ItemsSelectModal
+        isOpen={itemsModal.isOpen}
+        onClose={() => setItemsModal({ ...itemsModal, isOpen: false })}
+        onSelect={handleSelectItem}
       />
     </div>
   )
