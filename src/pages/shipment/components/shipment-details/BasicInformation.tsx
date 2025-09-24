@@ -10,12 +10,23 @@ interface BasicInformationProps {
   setShowHistory: (show: boolean) => void;
   msLoginUser?: any;
   onDuplicateShipment?: () => void;
+
+  
+  // add these (same as ActionSections)
+  showError: boolean;
+  setShowError: (show: boolean) => void;
+  onCreateLabel: () => void;
+  formattedError: string;
 }
 
 const BasicInformation = ({
   shipment,
   msLoginUser,
-  onDuplicateShipment
+  onDuplicateShipment,
+  showError,
+  setShowError,
+  onCreateLabel,
+  formattedError
 }: BasicInformationProps) => {
   return (
     <section className="space-y-1">
@@ -79,7 +90,8 @@ const BasicInformation = ({
         </div>
 
         <div>
-          {shipment.approver_approved_date_time && (
+          {
+          (shipment.approver_approved_date_time && shipment.label_status === "created") ? (
             <>
               <DetailRow label="Label ID" value={shipment.label_id} />
               <DetailRow label="Label Status" value={shipment.label_status} />
@@ -97,7 +109,37 @@ const BasicInformation = ({
               {/* <DetailRow label="Packing Slip" value={shipment.files_packing_slip} /> */}
               <DetailRow label="Approved Date" value={formatDateTime(shipment.approver_approved_date_time)} />
             </>
+          ) : (
+            <div className="mb-3">
+          <p className="text-red-600 font-semibold mb-2">
+            ⚠️ Label creation failed
+            <Button
+              size="sm"
+              color="warning"
+              onPress={() => setShowError(!showError)}
+              className="ml-2"
+            >
+              {showError ? "Hide Error Details" : "Show Error Details"}
+            </Button>
+          </p>
+
+          {showError && (
+            <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
+              <b>Details:</b> {formattedError}
+            </div>
           )}
+
+          <Button
+            color="primary"
+            size="sm"
+            onPress={onCreateLabel}
+            startContent={<Icon icon="solar:refresh-bold" />}
+          >
+            Retry Create Label
+          </Button>
+        </div>
+          )
+        }
         </div>
       </div>
       <hr />

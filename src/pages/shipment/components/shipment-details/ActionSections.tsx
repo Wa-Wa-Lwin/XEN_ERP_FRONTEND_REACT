@@ -20,10 +20,6 @@ interface ActionSectionsProps {
   onParcelItemUpdate: (itemId: string, field: string, value: string) => void;
   isUpdatingLogistics: boolean;
   onLogisticsUpdate: () => void;
-  showError: boolean;
-  setShowError: (show: boolean) => void;
-  onCreateLabel: () => void;
-  formattedError: string;
 }
 
 const ActionSections = ({
@@ -41,11 +37,7 @@ const ActionSections = ({
   editedParcelItems,
   onParcelItemUpdate,
   isUpdatingLogistics,
-  onLogisticsUpdate,
-  showError,
-  setShowError,
-  onCreateLabel,
-  formattedError
+  onLogisticsUpdate
 }: ActionSectionsProps) => {
   // Approval Actions Section
   if (["requestor_requested", "logistic_updated"].includes(shipment.request_status) &&
@@ -204,41 +196,6 @@ const ActionSections = ({
     );
   }
 
-  // Label Error Section
-  if (shipment.label_status === "failed") {
-    return (
-      <div>
-        <div className="mb-3">
-          <p className="text-red-600 font-semibold mb-2">
-            ⚠️ Label creation failed
-            <Button
-              size="sm"
-              color="warning"
-              onPress={() => setShowError(!showError)}
-              className="ml-2"
-            >
-              {showError ? "Hide Error Details" : "Show Error Details"}
-            </Button>
-          </p>
-
-          {showError && (
-            <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
-              <b>Details:</b> {formattedError}
-            </div>
-          )}
-
-          <Button
-            color="primary"
-            size="sm"
-            onPress={onCreateLabel}
-            startContent={<Icon icon="solar:refresh-bold" />}
-          >
-            Retry Create Label
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return null;
 };

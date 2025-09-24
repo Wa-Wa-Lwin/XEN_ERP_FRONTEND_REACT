@@ -425,6 +425,10 @@ const ShipmentDetails = () => {
         setShowHistory={setShowHistory}
         msLoginUser={msLoginUser}
         onDuplicateShipment={handleDuplicateShipment}
+        showError={showError}
+        setShowError={setShowError}
+        onCreateLabel={handleCreateLabel}
+        formattedError={formattedError}
       />
 
       <AddressInformation shipment={shipment} />
@@ -461,10 +465,6 @@ const ShipmentDetails = () => {
         onParcelItemUpdate={handleParcelItemUpdate}
         isUpdatingLogistics={isUpdatingLogistics}
         onLogisticsUpdate={handleLogisticsUpdate}
-        showError={showError}
-        setShowError={setShowError}
-        onCreateLabel={handleCreateLabel}
-        formattedError={formattedError}
       />
     </div>
   );
