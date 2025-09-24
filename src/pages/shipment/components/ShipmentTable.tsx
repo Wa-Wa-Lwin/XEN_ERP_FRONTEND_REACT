@@ -400,6 +400,7 @@ const ShipmentTable = () => {
             <TableColumn>FROM</TableColumn>
             <TableColumn>TO</TableColumn>
             <TableColumn>Status</TableColumn>
+            <TableColumn>Carrier</TableColumn>
             <TableColumn>Requestor</TableColumn>
             <TableColumn>Approver</TableColumn>
             <TableColumn>Request Date</TableColumn>
@@ -473,6 +474,20 @@ const ShipmentTable = () => {
                   </div>
 
 
+                </TableCell>
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                  {(() => {
+                    const chosenRate = request.rates?.find(rate => rate.chosen == true);
+                    if (chosenRate) {
+                      return (
+                        <div>
+                          <p className="font-medium text-xs">{chosenRate.shipper_account_description}</p>
+                          <p className="text-xs text-gray-500">{chosenRate.service_name}</p>
+                        </div>
+                      );
+                    }
+                    return <p className="text-xs text-gray-400">No rate selected</p>;
+                  })()}
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   <p className="font-medium">
