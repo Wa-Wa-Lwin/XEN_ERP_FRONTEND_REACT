@@ -404,7 +404,7 @@ const ShipmentTable = () => {
             <TableColumn>Requestor</TableColumn>
             <TableColumn>Approver</TableColumn>
             <TableColumn>Request Date</TableColumn>
-            <TableColumn>Due Date</TableColumn>
+            <TableColumn>Pickup Date</TableColumn>
             <TableColumn className="text-center">
               {/* {activeButton !== "Request" ? "Actions" : "\u00A0" } */}
               {hide_column ? "Actions" : "\u00A0" /* non-breaking space */}
