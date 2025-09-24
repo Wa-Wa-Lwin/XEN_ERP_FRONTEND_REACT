@@ -134,7 +134,7 @@ const ActionSections = ({
                 {editedParcelItems.map((item) => (
                   <div key={item.id} className="grid md:grid-cols-2 gap-2 p-3 rounded border">
                     <div className="text-xs text-gray-600 md:col-span-4">
-                      <strong>Description:</strong> {item.description}
+                      <strong>Item Description:</strong> {item.description}
                     </div>
                     <Input
                       label="HS Code"

@@ -42,7 +42,7 @@ const Breadcrumb = () => {
                             ? "opacity-40"
                             : "opacity-100"
                         } h-12 w-36 text-md`}
-                        variant={activeButton === btn ? "solid" : "ghost"}
+                        variant={activeButton === btn ? "bordered" : "ghost"}
                         color={activeButton === btn ? "primary" : "default"}
                       >
                         {btn}
