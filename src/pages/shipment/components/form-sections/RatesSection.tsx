@@ -241,8 +241,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       }
 
       // Create unique key combining shipper account and service type
-      // const uniqueKey = `${rate.shipper_account.id}-${rate.service_type}`
-      const uniqueKey = `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time}`
+      const uniqueKey = `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time || 'null'}-${rate.total_charge?.amount || 0}-${rate.total_charge?.currency || 'null'}`
       if (seen.has(uniqueKey)) {
         return false
       }
@@ -278,9 +277,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   // Generate unique rate ID for selection (should match the one in ShipmentForm)
   const getRateUniqueId = (rate: RateResponse, _index: number) => {
-    // return `${rate.shipper_account.id}-${rate.service_type}`
-    return `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time}`
-
+    return `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time || 'null'}-${rate.total_charge?.amount || 0}-${rate.total_charge?.currency || 'null'}`
   }
 
   // Auto-select the cheapest rate when service option is "normal"

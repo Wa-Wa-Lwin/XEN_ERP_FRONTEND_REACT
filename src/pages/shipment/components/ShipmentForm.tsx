@@ -393,7 +393,9 @@ const ShipmentForm = () => {
       // Helper function to generate unique rate ID (same as in calculateRates)
       const getRateUniqueId = (rate: any, _index: number) => {
         const shipperAccountId = rate.shipper_account?.id || rate.shipper_account_id
-        return `${shipperAccountId}-${rate.service_type}`
+        const totalChargeAmount = rate.total_charge?.amount || rate.total_charge_amount || 0
+        const totalChargeCurrency = rate.total_charge?.currency || rate.total_charge_currency || 'null'
+        return `${shipperAccountId}-${rate.service_type}-${rate.transit_time || 'null'}-${totalChargeAmount}-${totalChargeCurrency}`
       }
 
       // Use existing rates data
