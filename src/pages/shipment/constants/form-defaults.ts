@@ -40,40 +40,6 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   po_date: new Date().toISOString().split('T')[0], // today
   send_to: 'Approver',
 
-  // Nested ship_from and ship_to objects
-  ship_from: {
-    country: 'TH',
-    contact_name: '',
-    phone: '',
-    fax: null,
-    email: '',
-    company_name: 'Xenoptics Limited',
-    company_url: null,
-    street1: '',
-    street2: null,
-    street3: null,
-    city: '',
-    state: '',
-    postal_code: '',
-    tax_id: null
-  },
-  ship_to: {
-    country: '',
-    contact_name: '',
-    phone: '',
-    fax: null,
-    email: '',
-    company_name: '',
-    company_url: null,
-    street1: '',
-    street2: null,
-    street3: null,
-    city: '',
-    state: '',
-    postal_code: '',
-    tax_id: null
-  },
-
   // Flattened ship_from properties
   ship_from_country: 'THA',
   ship_from_contact_name: 'Ms. Sasipimol',
@@ -86,7 +52,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   ship_from_city: 'Hang Dong',
   ship_from_state: 'Chiang Mai',
   ship_from_postal_code: '50230',
-
+  ship_from_tax_id: '',
 
   // Flattened ship_to properties
   ship_to_country: '',
@@ -100,6 +66,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   ship_to_city: '',
   ship_to_state: '',
   ship_to_postal_code: '',
+  ship_to_tax_id: '',
   
   // Customs
   customs_purpose: 'sample',

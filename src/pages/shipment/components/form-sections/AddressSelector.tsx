@@ -35,9 +35,10 @@ import { ISO2_TO_ISO3 } from '@pages/shipment/constants/change-iso-country-codes
 interface AddressSelectorProps extends FormSectionProps {
   title: string
   prefix: 'ship_from' | 'ship_to'
+  forceRefresh?: number
 }
 
-const AddressSelector = ({ register, errors, control, title, prefix, setValue }: AddressSelectorProps) => {
+const AddressSelector = ({ register, errors, control, title, prefix, setValue, forceRefresh }: AddressSelectorProps) => {
   // Helper function to determine if a field should be required based on send_to value
   const isFieldRequired = (_fieldName: string) => {
     // All address fields are required regardless of send_to value
@@ -91,6 +92,13 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
       setFilteredAddresses(filtered)
     }
   }, [searchQuery, addresses])
+
+  // Watch for forceRefresh prop changes to trigger form re-render
+  useEffect(() => {
+    if (forceRefresh !== undefined && forceRefresh > 0) {
+      setFormKey(prev => prev + 1)
+    }
+  }, [forceRefresh])
 
   const handleSelectFromAddresses = () => {
     if (addresses.length === 0) {
@@ -235,6 +243,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             key={`${formKey}_${prefix}_email`}
           />
           <Controller
+            key={`${formKey}_${prefix}_country`}
             name={`${prefix}_country`}
             control={control}
             rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
@@ -291,6 +300,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             placeholder="Enter state"
             errorMessage={errors[`${prefix}_state`]?.message}
             isInvalid={!!errors[`${prefix}_state`]}
+            key={`${formKey}_${prefix}_state`}
           />
 
           <Input
@@ -299,6 +309,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             placeholder="Enter postal code"
             errorMessage={errors[`${prefix}_postal_code`]?.message}
             isInvalid={!!errors[`${prefix}_postal_code`]}
+            key={`${formKey}_${prefix}_postal_code`}
           />
 
           <Textarea
@@ -308,6 +319,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             errorMessage={errors[`${prefix}_street1`]?.message}
             isInvalid={!!errors[`${prefix}_street1`]}
             minRows={1}
+            key={`${formKey}_${prefix}_street1`}
           />
 
           <Textarea
@@ -317,6 +329,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             errorMessage={errors[`${prefix}_street2`]?.message}
             isInvalid={!!errors[`${prefix}_street2`]}
             minRows={1}
+            key={`${formKey}_${prefix}_street2`}
           />
           <Input
             {...register(`${prefix}_tax_id`)}
@@ -324,6 +337,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue }:
             placeholder="Enter tax ID"
             errorMessage={errors[`${prefix}_tax_id`]?.message}
             isInvalid={!!errors[`${prefix}_tax_id`]}
+            key={`${formKey}_${prefix}_tax_id`}
           />
           </div>
         </CardBody>

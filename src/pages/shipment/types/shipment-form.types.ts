@@ -48,23 +48,6 @@ export interface Rate {
   detailed_charges: string
 }
 
-interface ShippingAddress {
-  country: string
-  contact_name: string
-  phone: string
-  fax: string | null
-  email: string
-  company_name: string
-  company_url: string | null
-  street1: string
-  street2: string | null
-  street3: string | null
-  city: string
-  state: string
-  postal_code: string
-  tax_id: string | null
-}
-
 export interface ShipmentFormData {
   shipmentRequestID: number
   shipment_scope: string
@@ -83,10 +66,6 @@ export interface ShipmentFormData {
   po_date: string
   send_to: string
 
-  // Ship to and Ship from as nested objects
-  ship_to: ShippingAddress
-  ship_from: ShippingAddress
-
   // Flattened ship_from properties
   ship_from_contact_name: string
   ship_from_company_name: string
@@ -99,6 +78,7 @@ export interface ShipmentFormData {
   ship_from_country: string
   ship_from_phone: string
   ship_from_email: string
+  ship_from_tax_id: string
 
   // Flattened ship_to properties
   ship_to_contact_name: string
@@ -112,6 +92,7 @@ export interface ShipmentFormData {
   ship_to_country: string
   ship_to_phone: string
   ship_to_email: string
+  ship_to_tax_id: string
   
   // Dynamic arrays
   parcels: Parcel[]

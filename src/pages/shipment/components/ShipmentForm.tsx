@@ -49,6 +49,7 @@ const ShipmentForm = () => {
     message: '',
     details: []
   })
+  const [refreshCounter, setRefreshCounter] = useState(0)
 
   const calculateRates = async (formData: ShipmentFormData) => {
     try {
@@ -529,13 +530,59 @@ const ShipmentForm = () => {
               </div>
             </div>
             <div className="py-1 px-4">
-              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" />
+              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" forceRefresh={refreshCounter} />
               <div className="pt-2 px-1">
                 <hr />
               </div>
             </div>
             <div className="py-1 px-4">
-              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" />
+              <div className="flex items-center justify-left mb-4">                
+                <Button
+                  size="sm"
+                  variant="bordered"
+                  color="primary"
+                  startContent={<Icon icon="solar:refresh-bold" />}
+                  onPress={() => {
+                    const currentValues = getValues();
+
+                    const swappedValues = {
+                      ...currentValues,
+                      ship_from_company_name: currentValues.ship_to_company_name,
+                      ship_from_contact_name: currentValues.ship_to_contact_name,
+                      ship_from_phone: currentValues.ship_to_phone,
+                      ship_from_email: currentValues.ship_to_email,
+                      ship_from_country: currentValues.ship_to_country,
+                      ship_from_city: currentValues.ship_to_city,
+                      ship_from_state: currentValues.ship_to_state,
+                      ship_from_postal_code: currentValues.ship_to_postal_code,
+                      ship_from_street1: currentValues.ship_to_street1,
+                      ship_from_street2: currentValues.ship_to_street2,
+                      ship_from_tax_id: currentValues.ship_to_tax_id,
+
+                      ship_to_company_name: currentValues.ship_from_company_name,
+                      ship_to_contact_name: currentValues.ship_from_contact_name,
+                      ship_to_phone: currentValues.ship_from_phone,
+                      ship_to_email: currentValues.ship_from_email,
+                      ship_to_country: currentValues.ship_from_country,
+                      ship_to_city: currentValues.ship_from_city,
+                      ship_to_state: currentValues.ship_from_state,
+                      ship_to_postal_code: currentValues.ship_from_postal_code,
+                      ship_to_street1: currentValues.ship_from_street1,
+                      ship_to_street2: currentValues.ship_from_street2,
+                      ship_to_tax_id: currentValues.ship_from_tax_id,
+                    };
+
+                    reset(swappedValues); // replaces all at once
+                    setCalculatedRates([]);
+                    setSelectedRateId('');
+                    setRefreshCounter(prev => prev + 1); // Force AddressSelector components to re-render
+                  }}
+
+                >
+                  Swap Addresses
+                </Button>
+              </div>
+              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" forceRefresh={refreshCounter} />
               <div className="pt-2 px-1">
                 <hr />
               </div>
