@@ -73,7 +73,6 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   customs_terms_of_trade: 'exw',
   
   parcels: [{
-    box_type: '',
     box_type_name: '',
     width: 0,
     height: 0,
@@ -140,7 +139,6 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
 }
 
 export const DEFAULT_PARCEL = {
-  box_type: '',
   box_type_name: '',
   width: 0,
   height: 0,

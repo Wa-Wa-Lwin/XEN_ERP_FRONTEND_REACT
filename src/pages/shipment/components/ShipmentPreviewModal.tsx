@@ -125,7 +125,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                     <TableRow key={idx}>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{parcel.description || 'N/A'}</TableCell>
-                      <TableCell>{parcel.box_type_name || parcel.box_type || 'N/A'}</TableCell>
+                      <TableCell>{parcel.box_type_name || 'N/A'}</TableCell>
                       <TableCell>{Math.floor(parcel.width)} × {Math.floor(parcel.height)} × {Math.floor(parcel.depth)}</TableCell>
                       <TableCell>{parcel.parcel_weight_value || parcel.weight_value}</TableCell>
                       <TableCell>

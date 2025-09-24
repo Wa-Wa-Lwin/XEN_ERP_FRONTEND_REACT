@@ -138,7 +138,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
 
         if (selectedBoxType) {
             // Set form values with shouldValidate and shouldDirty options
-            setValue(`parcels.${parcelIndex}.box_type`, selectedBoxType.box_type_name, { shouldValidate: true, shouldDirty: true })
             setValue(`parcels.${parcelIndex}.box_type_name`, selectedBoxType.box_type_name, {
                 shouldValidate: true,
                 shouldDirty: true

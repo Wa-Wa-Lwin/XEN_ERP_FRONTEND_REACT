@@ -1,11 +1,11 @@
 import { Button, Textarea, Select, SelectItem, Input, Autocomplete, AutocompleteItem } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import type { ShipmentData } from './types';
+import type { ShipmentGETData } from './types';
 import { INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults';
 import { COUNTRIES } from '../../constants/countries';
 
 interface ActionSectionsProps {
-  shipment: ShipmentData;
+  shipment: ShipmentGETData;
   msLoginUser?: any;
   remark: string;
   setRemark: (remark: string) => void;

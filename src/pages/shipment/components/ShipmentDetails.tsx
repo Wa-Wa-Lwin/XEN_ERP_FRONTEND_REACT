@@ -352,7 +352,6 @@ const ShipmentDetails = () => {
 
       // Parcels data
       parcels: shipment.parcels?.map(parcel => ({
-        box_type: parcel.box_type || '',
         box_type_name: parcel.box_type_name || '',
         width: parseFloat(String(parcel.width)) || 0,
         height: parseFloat(String(parcel.height)) || 0,

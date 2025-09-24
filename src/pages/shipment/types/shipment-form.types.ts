@@ -13,7 +13,6 @@ export interface ParcelItem {
 }
 
 export interface Parcel {
-  box_type: string
   box_type_name: string
   width: number
   height: number
@@ -93,23 +92,53 @@ export interface ShipmentFormData {
   ship_to_phone: string
   ship_to_email: string
   ship_to_tax_id: string
-  
+
+  ship_from?: {
+    contact_name: string
+    company_name: string
+    street1: string
+    street2?: string
+    street3?: string
+    city: string
+    state: string
+    postal_code: string
+    country: string
+    phone: string
+    email: string
+    tax_id: string
+  }
+
+  ship_to?: {
+    contact_name: string
+    company_name: string
+    street1: string
+    street2?: string
+    street3?: string
+    city: string
+    state: string
+    postal_code: string
+    country: string
+    phone: string
+    email: string
+    tax_id: string
+  }
+
   // Dynamic arrays
   parcels: Parcel[]
   rates: Rate[]
-  
+
   // Pickup info
   pick_up_status: boolean
   pick_up_date: string
   pick_up_start_time: string
   pick_up_end_time: string
   pick_up_instructions: string
-  
+
   // Insurance
   insurance_enabled: boolean
   insurance_insured_value_amount: number
   insurance_insured_value_currency: string
-  
+
   // Customs
   customs_purpose: string
   customs_terms_of_trade: string

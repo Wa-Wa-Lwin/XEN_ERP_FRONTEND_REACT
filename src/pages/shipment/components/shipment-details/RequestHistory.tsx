@@ -1,10 +1,10 @@
 import { Button, Chip } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import type { ShipmentData } from './types';
+import type { ShipmentGETData } from './types';
 import { formatDateTime, getDisplayStatusHistory } from './utils';
 
 interface RequestHistoryProps {
-  shipment: ShipmentData;
+  shipment: ShipmentGETData;
   showHistory: boolean;
   setShowHistory: (show: boolean) => void;
 }

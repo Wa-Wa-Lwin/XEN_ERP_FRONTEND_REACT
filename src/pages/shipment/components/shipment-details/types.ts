@@ -113,7 +113,6 @@ export interface ShipmentGETData {
   }>
   parcels?: Array<{
     description: string
-    box_type: string
     box_type_name: string
     width: string
     height: string

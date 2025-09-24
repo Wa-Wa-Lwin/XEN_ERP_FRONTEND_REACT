@@ -1,9 +1,9 @@
 import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import type { ShipmentData } from './types';
+import type { ShipmentGETData } from './types';
 
 interface RatesSectionProps {
-  shipment: ShipmentData;
+  shipment: ShipmentGETData;
   showAllRates: boolean;
   setShowAllRates: (show: boolean) => void;
 }

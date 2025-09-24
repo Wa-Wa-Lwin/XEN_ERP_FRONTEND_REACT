@@ -1,8 +1,8 @@
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider } from '@heroui/react';
-import type { ShipmentData } from './types';
+import type { ShipmentGETData } from './types';
 
 interface ParcelsSectionProps {
-  shipment: ShipmentData;
+  shipment: ShipmentGETData;
 }
 
 const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
@@ -30,7 +30,7 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
               <TableRow key={idx}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{parcel.description}</TableCell>
-                <TableCell>{parcel.box_type_name || parcel.box_type || 'N/A'}</TableCell>
+                <TableCell>{parcel.box_type_name || 'N/A'}</TableCell>
                 <TableCell>{Math.floor(parseFloat(parcel.width) || 0)} × {Math.floor(parseFloat(parcel.height) || 0)} × {Math.floor(parseFloat(parcel.depth) || 0)}</TableCell>
                 <TableCell>{parseFloat(parcel.weight_value) || 0}</TableCell>
                 <TableCell>

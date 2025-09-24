@@ -1,11 +1,11 @@
 import { Button, Chip } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import DetailRow from './DetailRow';
-import type { ShipmentData } from './types';
+import type { ShipmentGETData } from './types';
 import { formatDateTime, getDisplayStatus, getIncotermDisplay } from './utils';
 
 interface BasicInformationProps {
-  shipment: ShipmentData;
+  shipment: ShipmentGETData;
   showHistory: boolean;
   setShowHistory: (show: boolean) => void;
   msLoginUser?: any;
