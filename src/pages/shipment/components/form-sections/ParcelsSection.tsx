@@ -260,8 +260,8 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
         <Card className="p-2">
             {/* <Card shadow="none"> */}
             {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-            <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
-                <h2 className="text-lg font-semibold">Parcels and Items</h2>
+            <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left">
+                <h2 className="text-lg font-semibold pr-3">Parcels and Items</h2>
                 <Button
                     type="button"
                     color="primary"
@@ -275,8 +275,8 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
             <CardBody className="px-0 pt-0 pb-0 space-y-3">
                 {parcelFields.map((parcel, parcelIndex) => (
                     <Card key={parcel.id} shadow="none" className="p-0 m-0">
-                        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-between">
-                            <h3 className="text-base font-medium">
+                        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left">
+                            <h3 className="text-base font-medium pr-3">
                                 Parcel {parcelIndex + 1}
                             </h3>
 

@@ -91,6 +91,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
             rules={{ required: 'Send To is required' }}
             render={({ field }) => (
               <Select
+                // color={errors.send_to ? "warning" : "default"} 
                 {...field}
                 label={<span>Send To {true && <span className="text-red-500">*</span>}</span>}
                 placeholder="Select"
@@ -120,6 +121,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
               rules={{ required: isFieldRequired() ? 'Topic is required' : false }}
               render={({ field }) => (
                 <Select
+                // color={errors.topic ? "warning" : "default"} 
                   {...field}
                   label={<span>Topic {isFieldRequired() && <span className="text-red-500">*</span>}</span>}
                   placeholder="Select"

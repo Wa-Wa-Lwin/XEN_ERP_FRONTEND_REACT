@@ -275,19 +275,21 @@ const ShipmentTable = () => {
     <div className="w-full">
       <div className="mb-4 space-y-4">
         <div className="flex justify-between items-center">
-          <div className="p-0">
-            {/* <Button
+          <div className="p-0 flex items-center">
+            
+            <h2 className="text-l font-semibold pr-3">Shipment Requests</h2>
+            <Button
               size="md"
-              variant="bordered"
+              // variant="bordered"
               color="primary"
               onPress={() => {
                 setStatusFilter('all')
                 setPage(1)
               }}
+              startContent={<Icon icon="solar:add-circle-bold" />}
             >
               Add Request
-            </Button> */}
-            <h2 className="text-l font-semibold">Shipment Requests</h2>
+            </Button>
           </div>
 
           {/* Filter Toggle Buttons */}
