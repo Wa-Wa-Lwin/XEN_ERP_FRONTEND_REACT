@@ -73,7 +73,8 @@ export default function MicrosoftLogin() {
 
         console.log('Login successful (client-side):', userData);
         login(userData);
-        navigate('/overview');
+        // navigate('/overview');
+        navigate('/shipment');
 
       }
     } catch (error: unknown) {
