@@ -30,7 +30,6 @@ export interface ShipmentData {
   label_status?: string
   files_label_url?: string
   tracking_numbers?: string
-  pick_up_date?: string
   pick_up_created_status?: string
   pickup_confirmation_numbers?: string
   invoice_no?: string
@@ -39,24 +38,41 @@ export interface ShipmentData {
   invoice_due_date?: string
   files_packing_slip?: string
   error_msg?: string
-  ship_from?: {
-    company_name: string
-    contact_name: string
-    street1: string
-    city: string
-    country: string
-    phone: string
-    email: string
-  }
-  ship_to?: {
-    company_name: string
-    contact_name: string
-    street1: string
-    city: string
-    country: string
-    phone: string
-    email: string
-  }
+  // Flattened ship_from properties
+  ship_from_contact_name: string
+  ship_from_company_name: string
+  ship_from_street1: string
+  ship_from_street2?: string
+  ship_from_street3?: string
+  ship_from_city: string
+  ship_from_state: string
+  ship_from_postal_code: string
+  ship_from_country: string
+  ship_from_phone: string
+  ship_from_email: string
+  ship_from_tax_id: string
+
+  // Flattened ship_to properties
+  ship_to_contact_name: string
+  ship_to_company_name: string
+  ship_to_street1: string
+  ship_to_street2?: string
+  ship_to_street3?: string
+  ship_to_city: string
+  ship_to_state: string
+  ship_to_postal_code: string
+  ship_to_country: string
+  ship_to_phone: string
+  ship_to_email: string
+  ship_to_tax_id: string
+
+  // Pickup info
+  pick_up_status: boolean
+  pick_up_date: string
+  pick_up_start_time: string
+  pick_up_end_time: string
+  pick_up_instructions: string
+
   rates?: Array<{
     chosen: number
     shipper_account_description: string
@@ -68,6 +84,7 @@ export interface ShipmentData {
   parcels?: Array<{
     description: string
     box_type: string
+    box_type_name: string
     width: string
     height: string
     depth: string
@@ -76,7 +93,7 @@ export interface ShipmentData {
     weight_unit: string
     items?: Array<{
       description: string
-      quantity: string
+      quantity: string      
       price_currency: string
       price_amount: string
       weight_value: string
@@ -85,6 +102,7 @@ export interface ShipmentData {
       hs_code: string
       origin_country: string
       parcelItemID: string
+      item_id: string
     }>
   }>
   shipment_request_histories?: Array<{
