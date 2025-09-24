@@ -293,8 +293,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   }
 
   // Generate unique rate ID for selection (should match the one in ShipmentForm)
-  const getRateUniqueId = (rate: RateResponse, index: number) => {
-    return `${rate.shipper_account.id}-${rate.service_type}-${index}`
+  const getRateUniqueId = (rate: RateResponse, _index: number) => {
+    return `${rate.shipper_account.id}-${rate.service_type}`
   }
 
   // Auto-select the cheapest rate when service option is "normal"

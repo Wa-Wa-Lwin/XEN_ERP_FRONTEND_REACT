@@ -150,8 +150,8 @@ const ShipmentForm = () => {
       const apiRates = response.data?.data?.rates || []
 
       // Helper function to generate unique rate ID
-      const getRateUniqueId = (rate: any, index: number) => {
-        return `${rate.shipper_account.id}-${rate.service_type}-${index}`
+      const getRateUniqueId = (rate: any, _index: number) => {
+        return `${rate.shipper_account.id}-${rate.service_type}`
       }
 
       // Transform API rates to match our interface
@@ -391,9 +391,9 @@ const ShipmentForm = () => {
       formDataWithRates = await calculateRates(formData)
     } else {
       // Helper function to generate unique rate ID (same as in calculateRates)
-      const getRateUniqueId = (rate: any, index: number) => {
+      const getRateUniqueId = (rate: any, _index: number) => {
         const shipperAccountId = rate.shipper_account?.id || rate.shipper_account_id
-        return `${shipperAccountId}-${rate.service_type}-${index}`
+        return `${shipperAccountId}-${rate.service_type}`
       }
 
       // Use existing rates data
