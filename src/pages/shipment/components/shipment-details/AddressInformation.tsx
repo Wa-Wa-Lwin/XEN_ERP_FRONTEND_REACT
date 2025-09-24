@@ -1,8 +1,8 @@
 import DetailRow from './DetailRow';
-import type { ShipmentData } from './types';
+import type { ShipmentGETData } from './types';
 
 interface AddressInformationProps {
-  shipment: ShipmentData;
+  shipment: ShipmentGETData;
 }
 
 const AddressInformation = ({ shipment }: AddressInformationProps) => {

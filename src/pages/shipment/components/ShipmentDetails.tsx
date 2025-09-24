@@ -11,13 +11,13 @@ import {
   ParcelsSection,
   RequestHistory,
   ActionSections,
-  type ShipmentData
+  type ShipmentGETData
 } from "./shipment-details";
 
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
   const navigate = useNavigate();
-  const [shipment, setShipment] = useState<ShipmentData | null>(null);
+  const [shipment, setShipment] = useState<ShipmentGETData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [remark, setRemark] = useState("");
@@ -354,24 +354,24 @@ const ShipmentDetails = () => {
       parcels: shipment.parcels?.map(parcel => ({
         box_type: parcel.box_type || '',
         box_type_name: parcel.box_type_name || '',
-        width: parcel.width || 0,
-        height: parcel.height || 0,
-        depth: parcel.depth || 0,
+        width: parseFloat(String(parcel.width)) || 0,
+        height: parseFloat(String(parcel.height)) || 0,
+        depth: parseFloat(String(parcel.depth)) || 0,
         dimension_unit: parcel.dimension_unit || 'cm',
-        weight_value: parcel.weight_value || 0,
+        weight_value: parseFloat(String(parcel.weight_value)) || 0,
         weight_unit: parcel.weight_unit || 'kg',
         description: parcel.description || '',
         parcel_items: parcel.items?.map(item => ({
           description: item.description || '',
-          quantity: item.quantity || 1,
-          price_amount: item.price_amount || 0,
+          quantity: parseInt(String(item.quantity)) || 1,
+          price_amount: parseFloat(String(item.price_amount)) || 0,
           price_currency: item.price_currency || 'THB',
-          weight_value: item.weight_value || 0,
+          weight_value: parseFloat(String(item.weight_value)) || 0,
           weight_unit: item.weight_unit || 'kg',
           origin_country: item.origin_country || '',
           sku: item.sku || '',
           hs_code: item.hs_code || '',
-          item_id: item.item_id || ''
+          item_id: item.item_id || item.parcelItemID || ''
         })) || []
       })) || [],
 

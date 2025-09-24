@@ -30,15 +30,15 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
               <TableRow key={idx}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{parcel.description}</TableCell>
-                <TableCell>{parcel.box_type}</TableCell>
-                <TableCell>{Math.floor(parcel.width)} × {Math.floor(parcel.height)} × {Math.floor(parcel.depth)}</TableCell>
-                <TableCell>{parcel.weight_value}</TableCell>
+                <TableCell>{parcel.box_type_name || parcel.box_type || 'N/A'}</TableCell>
+                <TableCell>{Math.floor(parseFloat(parcel.width) || 0)} × {Math.floor(parseFloat(parcel.height) || 0)} × {Math.floor(parseFloat(parcel.depth) || 0)}</TableCell>
+                <TableCell>{parseFloat(parcel.weight_value) || 0}</TableCell>
                 <TableCell>
                   {parcel.items?.length > 0 ? (
                     <ul className="list-disc list-inside text-sm space-y-1">
                       {parcel.items.map((item: any, i: number) => (
                         <li key={i}>
-                          <strong>SKU:</strong> {item.sku || 'N/A'} | <strong>Description:</strong> {item.description} | <strong>Price:</strong> {parseFloat(item.price_amount)} {item.price_currency} | <strong>Qty:</strong> {item.quantity} pcs | <strong>Weight:</strong> {parseFloat(item.weight_value).toFixed(1)} {item.weight_unit} | <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country}
+                          <strong>SKU:</strong> {item.sku || 'N/A'} | <strong>Description:</strong> {item.description} | <strong>Price:</strong> {parseFloat(item.price_amount) || 0} {item.price_currency} | <strong>Qty:</strong> {parseInt(item.quantity) || 1} pcs | <strong>Weight:</strong> {(parseFloat(item.weight_value) || 0).toFixed(1)} {item.weight_unit} | <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country}
                         </li>
                       ))}
                     </ul>

@@ -3,7 +3,7 @@ export interface DetailRowProps {
   value: React.ReactNode | null | undefined
 }
 
-export interface ShipmentData {
+export interface ShipmentGETData {
   send_to?: string
   due_date?: string 
   shipmentRequestID: number
@@ -65,6 +65,36 @@ export interface ShipmentData {
   ship_to_phone: string
   ship_to_email: string
   ship_to_tax_id: string
+
+  ship_from?: {
+  contact_name: string
+  company_name: string
+  street1: string
+  street2?: string
+  street3?: string
+  city: string
+  state: string
+  postal_code: string
+  country: string
+  phone: string
+  email: string
+  tax_id: string
+  }
+
+  ship_to?: {
+  contact_name: string
+  company_name: string
+  street1: string
+  street2?: string
+  street3?: string
+  city: string
+  state: string
+  postal_code: string
+  country: string
+  phone: string
+  email: string
+  tax_id: string
+  }  
 
   // Pickup info
   pick_up_status: boolean
