@@ -370,7 +370,7 @@ const ShipmentDetails = () => {
           origin_country: item.origin_country || '',
           sku: item.sku || '',
           hs_code: item.hs_code || '',
-          item_id: item.item_id || item.parcelItemID || ''
+          item_id: item.item_id || ''
         })) || []
       })) || [],
 
