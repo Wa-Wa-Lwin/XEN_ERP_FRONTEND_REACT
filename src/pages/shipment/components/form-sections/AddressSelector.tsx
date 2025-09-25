@@ -208,8 +208,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           )}
           <div key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <Textarea
-            {...register(`${prefix}_company_name`, { required: isFieldRequired('company_name') ? 'Company name is required' : false })}
-            label={<span>Company Name {isFieldRequired('company_name') && <span className="text-red-500">*</span>}</span>}
+            {...register(`${prefix}_company_name`)}
+            isRequired={isFieldRequired('company_name')}
+            label={<span>Company Name</span>}
             placeholder="Enter company name"
             errorMessage={errors[`${prefix}_company_name`]?.message}
             isInvalid={!!errors[`${prefix}_company_name`]}
@@ -218,8 +219,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             minRows={1}
           />
           <Textarea
-            {...register(`${prefix}_contact_name`, { required: isFieldRequired('contact_name') ? 'Contact name is required' : false })}
-            label={<span>Contact Name {isFieldRequired('contact_name') && <span className="text-red-500">*</span>}</span>}
+            {...register(`${prefix}_contact_name`)}
+            isRequired={isFieldRequired('contact_name')}
+            label={<span>Contact Name</span>}
             placeholder="Enter contact name"
             errorMessage={errors[`${prefix}_contact_name`]?.message}
             isInvalid={!!errors[`${prefix}_contact_name`]}
@@ -229,8 +231,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_phone`, { required: isFieldRequired('phone') ? 'Phone is required' : false })}
-            label={<span>Phone {isFieldRequired('phone') && <span className="text-red-500">*</span>}</span>}
+            {...register(`${prefix}_phone`)}
+            isRequired={isFieldRequired('phone')}
+            label={<span>Phone</span>}
             placeholder="Enter phone"
             errorMessage={errors[`${prefix}_phone`]?.message}
             isInvalid={!!errors[`${prefix}_phone`]}
@@ -240,9 +243,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_email`, { required: isFieldRequired('email') ? 'Email is required' : false })}
+            {...register(`${prefix}_email`)}
+            isRequired={isFieldRequired('email')}
             type="email"
-            label={<span>Email {isFieldRequired('email') && <span className="text-red-500">*</span>}</span>}
+            label={<span>Email</span>}
             placeholder="Enter email"
             errorMessage={errors[`${prefix}_email`]?.message}
             isInvalid={!!errors[`${prefix}_email`]}
@@ -254,14 +258,15 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             key={`${formKey}_${prefix}_country`}
             name={`${prefix}_country`}
             control={control}
-            rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
+            // rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
             render={({ field }) => (
               <Autocomplete
+                isRequired={isFieldRequired('country')}
                 {...field}
                 defaultItems={COUNTRIES}
                 label={
                   <span>
-                    Country {isFieldRequired('country') && <span className="text-red-500">*</span>}
+                    Country
                   </span>
                 }
                 placeholder="Search or select a country"
@@ -295,8 +300,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_city`, { required: isFieldRequired('city') ? 'City is required' : false })}
-            label={<span>City {isFieldRequired('city') && <span className="text-red-500">*</span>}</span>}
+            {...register(`${prefix}_city`)}
+            isRequired={isFieldRequired('city')}
+            label={<span>City</span>}
             placeholder="Enter city"
             errorMessage={errors[`${prefix}_city`]?.message}
             isInvalid={!!errors[`${prefix}_city`]}
@@ -306,8 +312,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_state`, { required: isFieldRequired('state') ? 'State is required' : false })}
-            label={<span>State {isFieldRequired('state') && <span className="text-red-500">*</span>}</span>}
+            {...register(`${prefix}_state`)}
+            isRequired={isFieldRequired('state')}
+            label={<span>State</span>}
             placeholder="Enter state"
             errorMessage={errors[`${prefix}_state`]?.message}
             isInvalid={!!errors[`${prefix}_state`]}
@@ -317,8 +324,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_postal_code`, { required: isFieldRequired('postal_code') ? 'Postal code is required' : false })}
-            label={<span>Postal Code {isFieldRequired('postal_code') && <span className="text-red-500">*</span>}</span>}
+            {...register(`${prefix}_postal_code`)}
+            isRequired={isFieldRequired('postal_code')}
+            label={<span>Postal Code</span>}
             placeholder="Enter postal code"
             errorMessage={errors[`${prefix}_postal_code`]?.message}
             isInvalid={!!errors[`${prefix}_postal_code`]}
@@ -328,8 +336,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_street1`, { required: isFieldRequired('street1') ? 'Street 1 is required' : false })}
-            label={<span>Street 1 {isFieldRequired('street1') && <span className="text-red-500">*</span>}</span>}
+            isRequired={isFieldRequired('street1')}
+            {...register(`${prefix}_street1`)}
+            label={<span>Street 1</span>}
             placeholder="Enter street line 1"
             errorMessage={errors[`${prefix}_street1`]?.message}
             isInvalid={!!errors[`${prefix}_street1`]}

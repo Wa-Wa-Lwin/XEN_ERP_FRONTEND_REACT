@@ -381,13 +381,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         <Controller
                                             name={`parcels.${parcelIndex}.width`}
                                             control={control}
-                                            rules={{ required: isFieldRequired('width') ? 'Width is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
+                                                    isRequired={isFieldRequired('width')}
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Width (cm) {isFieldRequired('width') && <span className="text-red-500">*</span>}</span>}
+                                                    label={<span>Width (cm)</span>}
                                                     placeholder="Enter width"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.width?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.width}
@@ -409,13 +409,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         <Controller
                                             name={`parcels.${parcelIndex}.height`}
                                             control={control}
-                                            rules={{ required: isFieldRequired('height') ? 'Height is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
+                                                    isRequired={isFieldRequired('height')}
                                                     {...field}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Height (cm) {isFieldRequired('height') && <span className="text-red-500">*</span>}</span>}
+                                                    label={<span>Height (cm)</span>}
                                                     placeholder="Enter height"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.height?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.height}
@@ -437,13 +437,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         <Controller
                                             name={`parcels.${parcelIndex}.depth`}
                                             control={control}
-                                            rules={{ required: isFieldRequired('depth') ? 'Depth is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
+                                                    isRequired={isFieldRequired('depth')}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Depth (cm) {isFieldRequired('depth') && <span className="text-red-500">*</span>}</span>}
+                                                    label={<span>Depth (cm)</span>}
                                                     placeholder="Enter depth"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
@@ -464,12 +464,12 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     <Controller
                                         name={`parcels.${parcelIndex}.dimension_unit`}
                                         control={control}
-                                        rules={{ required: isFieldRequired('dimension_unit') ? 'Dimension unit is required' : false }}
                                         defaultValue="cm"
                                         render={({ field }) => (
                                             <Select
                                                 {...field}
-                                                label={<span>Dimension Unit {isFieldRequired('dimension_unit') && <span className="text-red-500">*</span>}</span>}
+                                                isRequired={isFieldRequired('dimension_unit')}
+                                                label={<span>Dimension Unit</span>}
                                                 defaultSelectedKeys={['cm']}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.dimension_unit?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.dimension_unit}
@@ -494,13 +494,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         <Controller
                                             name={`parcels.${parcelIndex}.parcel_weight_value`}
                                             control={control}
-                                            rules={{ required: isFieldRequired('parcel_weight_value') ? 'Parcel weight is required' : false, min: 0 }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
+                                                    isRequired={isFieldRequired('parcel_weight_value')}
                                                     type="number"
                                                     step="0.01"
-                                                    label={<span>Parcel Weight (kg) {isFieldRequired('parcel_weight_value') && <span className="text-red-500">*</span>}</span>}
+                                                    label={<span>Parcel Weight (kg)</span>}
                                                     placeholder="Enter parcel weight"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_weight_value}
@@ -561,7 +561,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     <Controller
                                         name={`parcels.${parcelIndex}.description`}
                                         control={control}
-                                        // rules={{ required: isFieldRequired('description') ? 'Description is required' : false }}
                                         render={({ field }) => (
                                             <Textarea
                                                 isRequired={isFieldRequired('description')}
@@ -569,9 +568,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                 label={
                                                     <span>
                                                         Parcel Description {!manualDescriptionParcels.has(parcelIndex) && '(Auto-generated)'}
-                                                        {/* {isFieldRequired('description') && (
-                                                            <span className="text-red-500">*</span>
-                                                        )} */}
                                                     </span>}
                                                 placeholder={manualDescriptionParcels.has(parcelIndex) ? "Enter parcel description manually" : "Auto-generated from item descriptions"}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
@@ -599,7 +595,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     <Controller
                                         name={`parcels.${parcelIndex}.net_weight_value`}
                                         control={control}
-                                        rules={{ required: isFieldRequired('net_weight_value') ? 'Net weight is required' : false, min: 0 }}
                                         render={({ field }) => (
                                             <Input
                                             isRequired = {isFieldRequired('net_weight_value')}
@@ -622,6 +617,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                         <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
                                                     </>
                                                 }
+                                                min={1}
                                             />
                                         )}
                                     />
@@ -630,13 +626,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     <Controller
                                         name={`parcels.${parcelIndex}.weight_value`}
                                         control={control}
-                                        rules={{ required: isFieldRequired('weight_value') ? 'Weight is required' : false, min: 0 }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
+                                                isRequired={isFieldRequired('weight_value')}
                                                 type="number"
                                                 step="0.01"
-                                                label={<span>Gross Weight (kg) {isFieldRequired('weight_value') && <span className="text-red-500">*</span>}</span>}
+                                                label={<span>Gross Weight (kg)</span>}
                                                 placeholder="Auto-calculated"
                                                 errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
@@ -649,6 +645,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                         <Icon icon="solar:lock-keyhole-minimalistic-bold" className="text-gray-400" />
                                                     </>
                                                 }
+                                                min={1}
                                             />
                                         )}
                                     />
@@ -656,12 +653,12 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                 <Controller
                                     name={`parcels.${parcelIndex}.weight_unit`}
                                     control={control}
-                                    rules={{ required: isFieldRequired('weight_unit') ? 'Weight unit is required' : false }}
                                     defaultValue="kg"
                                     render={({ field }) => (
                                         <Select
                                             {...field}
-                                            label={<span>Weight Unit {isFieldRequired('weight_unit') && <span className="text-red-500">*</span>}</span>}
+                                            isRequired={isFieldRequired('weight_unit')}
+                                            label={<span>Weight Unit</span>}
                                             defaultSelectedKeys={['kg']}
                                             errorMessage={errors.parcels?.[parcelIndex]?.weight_unit?.message}
                                             isInvalid={!!errors.parcels?.[parcelIndex]?.weight_unit}

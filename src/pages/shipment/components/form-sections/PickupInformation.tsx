@@ -58,12 +58,12 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <>
           <Input
-            {...register('pick_up_date', {
-              required: 'Pickup/Due date is required',
+            {...register('pick_up_date', {              
               onChange: handleDateChange
             })}
+            isRequired
             type="date"
-            label={<span>Pickup Date <span className="text-red-500">*</span></span>}
+            label={<span>Pickup Date</span>}
             placeholder="Select pickup and due date"
             errorMessage={errors.pick_up_date?.message || errors.due_date?.message}
             isInvalid={!!errors.pick_up_date || !!errors.due_date}
@@ -83,12 +83,12 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
             <Controller
               name="pick_up_start_time"
               control={control}
-              rules={{ required: 'Start time is required' }}
               render={({ field }) => (
                 <Input
+                  isRequired
                   {...field}
                   type="time"
-                  label={<span>Start Time <span className="text-red-500">*</span></span>}
+                  label={<span>Start Time</span>}
                   errorMessage={errors.pick_up_start_time?.message}
                   isInvalid={!!errors.pick_up_start_time}
                   value={field.value || pickupStartTime || getStartTimeForDate(pickupDate || defaultPickupDate)}
@@ -100,12 +100,12 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
             <Controller
               name="pick_up_end_time"
               control={control}
-              rules={{ required: 'End time is required' }}
               render={({ field }) => (
                 <Input
                   {...field}
+                  isRequired
                   type="time"
-                  label={<span>End Time <span className="text-red-500">*</span></span>}
+                  label={<span>End Time</span>}
                   errorMessage={errors.pick_up_end_time?.message}
                   isInvalid={!!errors.pick_up_end_time}
                   value={field.value || pickupEndTime || '17:00'}
