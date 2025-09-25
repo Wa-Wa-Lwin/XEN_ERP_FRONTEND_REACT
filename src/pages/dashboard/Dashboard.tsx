@@ -31,6 +31,7 @@ interface ApiResponse {
     domestic: CategoryData
     export: CategoryData
     import: CategoryData
+    international: CategoryData
     all: CategoryData
   }
 }
@@ -79,7 +80,8 @@ const Dashboard: React.FC = () => {
     const domesticTotal = parseInt(data.data.domestic.yearly.all_status_count)
     const exportTotal = parseInt(data.data.export.yearly.all_status_count)
     const importTotal = parseInt(data.data.import.yearly.all_status_count)
-    const total = domesticTotal + exportTotal + importTotal
+    const internationalTotal = parseInt(data.data.international.yearly.all_status_count)
+    const total = domesticTotal + exportTotal + importTotal + internationalTotal
 
     // Calculate approved/waiting/rejected counts
     const domesticApproved = parseInt(data.data.domestic.yearly.approver_approved_count)
@@ -99,6 +101,12 @@ const Dashboard: React.FC = () => {
     const importRequested = parseInt(data.data.import.yearly.requestor_requested_count)
     const importRejected = parseInt(data.data.import.yearly.approver_rejected_count)
     const importWaiting = importRequested + importLogisticUpdated
+
+    const internationalApproved = parseInt(data.data.international.yearly.approver_approved_count)
+    const internationalLogisticUpdated = parseInt(data.data.international.yearly.logistic_updated_count)
+    const internationalRequested = parseInt(data.data.international.yearly.requestor_requested_count)
+    const internationalRejected = parseInt(data.data.international.yearly.approver_rejected_count)
+    const internationalWaiting = internationalRequested + internationalLogisticUpdated
 
     const overallApproved = parseInt(data.data.all.yearly.approver_approved_count)
     const overallLogisticUpdated = parseInt(data.data.all.yearly.logistic_updated_count)
@@ -129,6 +137,13 @@ const Dashboard: React.FC = () => {
         waiting: importWaiting,
         rejected: importRejected
       },
+      international: {
+        count: internationalTotal,
+        percentage: total > 0 ? (internationalTotal / total) * 100 : 0,
+        approved: internationalApproved,
+        waiting: internationalWaiting,
+        rejected: internationalRejected
+      },
       overall: {
         total: overallTotal,
         approved: overallApproved,
@@ -147,7 +162,8 @@ const Dashboard: React.FC = () => {
       month: index + 1,
       domestic: 0,
       export: 0,
-      import: 0
+      import: 0,
+      international: 0
     }))
 
     // Fill in domestic monthly data
@@ -174,6 +190,14 @@ const Dashboard: React.FC = () => {
       }
     })
 
+    // Fill in import monthly data
+    data.data.international.monthly.forEach(monthData => {
+      const monthIndex = parseInt(monthData.month) - 1
+      if (monthIndex >= 0 && monthIndex < 12) {
+        yearData[monthIndex].international = parseInt(monthData.all_status_count)
+      }
+    })
+
     return yearData
   }, [data])
 
@@ -186,7 +210,7 @@ const Dashboard: React.FC = () => {
   const maxValue = useMemo(() => {
     if (!monthlyData || monthlyData.length === 0) return 100
     return Math.max(
-      ...monthlyData.flatMap(month => [month.domestic, month.export, month.import])
+      ...monthlyData.flatMap(month => [month.domestic, month.export, month.import, month.international])
     )
   }, [monthlyData])
 
@@ -340,6 +364,7 @@ const Dashboard: React.FC = () => {
     const domesticData = yearData.map(d => d.domestic)
     const exportData = yearData.map(d => d.export)
     const importData = yearData.map(d => d.import)
+    const internationalData = yearData.map(d => d.international)
 
     return (
       <div className="w-full overflow-x-auto">
@@ -418,6 +443,14 @@ const Dashboard: React.FC = () => {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
+          <path
+            d={createPath(internationalData)}
+            fill="none"
+            stroke="#8b5cf6"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
 
           {/* Data points */}
           {yearData.map((data, index) => {
@@ -425,12 +458,14 @@ const Dashboard: React.FC = () => {
             const domesticY = chartHeight - padding - ((data.domestic / maxValue) * (chartHeight - 2 * padding))
             const exportY = chartHeight - padding - ((data.export / maxValue) * (chartHeight - 2 * padding))
             const importY = chartHeight - padding - ((data.import / maxValue) * (chartHeight - 2 * padding))
+            const internationalY = chartHeight - padding - ((data.international / maxValue) * (chartHeight - 2 * padding))
 
             return (
               <g key={index}>
                 <circle cx={x} cy={domesticY} r="4" fill="#3b82f6" />
                 <circle cx={x} cy={exportY} r="4" fill="#10b981" />
                 <circle cx={x} cy={importY} r="4" fill="#f59e0b" />
+                <circle cx={x} cy={internationalY} r="4" fill="#8b5cf6" />
               </g>
             )
           })}
@@ -526,6 +561,12 @@ const Dashboard: React.FC = () => {
               label="Import"
               value={stats.import.count}
             />
+            <CircleChart
+              percentage={stats.international.percentage}
+              color="#8b5cf6"
+              label="International"
+              value={stats.international.count}
+            />
           </div>
         </CardBody>
       </Card>
@@ -543,7 +584,8 @@ const Dashboard: React.FC = () => {
                 data={[
                   { label: 'Domestic', value: stats.domestic.approved, color: '#3b82f6' },
                   { label: 'Export', value: stats.export.approved, color: '#10b981' },
-                  { label: 'Import', value: stats.import.approved, color: '#f59e0b' }
+                  { label: 'Import', value: stats.import.approved, color: '#f59e0b' },
+                  { label: 'International', value: stats.international.approved, color: '#8b5cf6' }
                 ]}
                 size={140}
               />
@@ -571,6 +613,10 @@ const Dashboard: React.FC = () => {
                   <span>Import:</span>
                   <span>{stats.import.waiting}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span>International:</span>
+                  <span>{stats.international.waiting}</span>
+                </div>
               </div>
             </div>
           </CardBody>
@@ -595,6 +641,10 @@ const Dashboard: React.FC = () => {
                 <div className="flex justify-between">
                   <span>Import:</span>
                   <span>{stats.import.rejected}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>International:</span>
+                  <span>{stats.international.rejected}</span>
                 </div>
               </div>
             </div>
@@ -627,6 +677,10 @@ const Dashboard: React.FC = () => {
                 <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                 <span>Import</span>
               </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <span>International</span>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -639,7 +693,7 @@ const Dashboard: React.FC = () => {
       </Card>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardBody className="text-center">
             <div className="text-3xl font-bold text-blue-600">{stats.domestic.count.toLocaleString()}</div>
@@ -659,6 +713,13 @@ const Dashboard: React.FC = () => {
             <div className="text-3xl font-bold text-yellow-600">{stats.import.count.toLocaleString()}</div>
             <div className="text-sm text-gray-600">Total Import Shipments</div>
             <div className="text-xs text-gray-500 mt-1">{stats.import.percentage.toFixed(1)}% of all requests</div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody className="text-center">
+            <div className="text-3xl font-bold text-purple-600">{stats.international.count.toLocaleString()}</div>
+            <div className="text-sm text-gray-600">Total International Shipments</div>
+            <div className="text-xs text-gray-500 mt-1">{stats.international.percentage.toFixed(1)}% of all requests</div>
           </CardBody>
         </Card>
       </div>
