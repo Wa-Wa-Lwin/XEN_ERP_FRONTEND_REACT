@@ -15,9 +15,7 @@ import {
   TableCell,
   Chip,
   Spinner,
-  Pagination,
-  Select,
-  SelectItem
+  Pagination
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useParcelItemsCache } from '@hooks/useParcelItemsCache'

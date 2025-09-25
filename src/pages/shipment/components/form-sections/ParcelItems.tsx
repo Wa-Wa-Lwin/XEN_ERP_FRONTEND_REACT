@@ -261,7 +261,8 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`}
                                         control={control}
-                                        rules={{ required: isItemFieldRequired('hs_code') ? 'HS CODE is required' : false }}
+                                        // isRequired
+                                        rules={{ required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false }}
                                         render={({ field }) => (
                                             <Textarea
                                                 {...field}
@@ -280,21 +281,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         )}
                                     />
                                 </TableCell>
-                                {/* <TableCell>
-                                    <Input
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hscode`, { required: isItemFieldRequired('hscode') ? 'HS Code is required' : false })}
-                                        placeholder="HS Code"
-                                        variant="flat"
-                                        size="sm"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hscode}
-                                        classNames={{
-                                            input: "text-sm",
-                                            inputWrapper: "min-h-unit-8 h-unit-8"
-                                        }}
-                                        
-                                    />
-                                </TableCell> */}
                                 <TableCell>
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`}

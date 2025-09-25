@@ -50,7 +50,7 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
 
   const filteredBoxTypes = BOX_TYPES.filter(boxType => {
     const matchesSearch = boxType.box_type_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (boxType.remark && boxType.remark.toLowerCase().includes(searchQuery.toLowerCase()))
+      (boxType.remark && boxType.remark.toLowerCase().includes(searchQuery.toLowerCase()))
     const matchesCategory = selectedCategory === 'ALL' || boxType.type === selectedCategory
     return matchesSearch && matchesCategory
   })
@@ -74,13 +74,14 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
   }
 
   return (
+
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="4xl"
       scrollBehavior="inside"
       classNames={{
-        base: "max-h-[90vh]"
+        base: "max-w-full w-full h-[90vh]", // full width, nearly full height
+        wrapper: "w-full m-0 p-0",          // remove margins
       }}
     >
       <ModalContent>
@@ -144,7 +145,7 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
           )}
 
           {/* Box Types Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {filteredBoxTypes.map((boxType) => {
               const isSelected = selectedBoxType?.id === boxType.id
 
@@ -153,9 +154,8 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
                   key={boxType.id}
                   isPressable
                   isHoverable
-                  className={`transition-all ${
-                    isSelected ? 'ring-2 ring-primary bg-primary-50' : ''
-                  }`}
+                  className={`transition-all ${isSelected ? 'ring-2 ring-primary bg-primary-50' : ''
+                    }`}
                   onPress={() => handleSelect(boxType)}
                 >
                   <CardBody className="p-4">
@@ -178,17 +178,16 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
                           )}
                         </div>
 
-                        <div className="mb-2">
+                        <div className="mb-2 flex gap-2">
                           <Chip size="sm" color="secondary" variant="flat" className="text-xs">
                             {boxType.type}
                           </Chip>
+                          {boxType.remark && (
+                            <p className="text-xs text-default-600 mb-3">
+                              {boxType.remark}
+                            </p>
+                          )}
                         </div>
-
-                        {boxType.remark && (
-                          <p className="text-xs text-default-600 mb-3">
-                            {boxType.remark}
-                          </p>
-                        )}
 
                         <Divider className="my-2" />
 
@@ -207,22 +206,6 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
                             </span>
                           </div>
                         </div>
-
-                        <Button
-                          size="sm"
-                          color={isSelected ? "success" : "primary"}
-                          variant={isSelected ? "solid" : "flat"}
-                          className="mt-3 w-full"
-                          startContent={
-                            <Icon
-                              icon={isSelected ? "solar:check-circle-bold" : "solar:arrow-right-linear"}
-                              width={16}
-                            />
-                          }
-                          onPress={() => handleSelect(boxType)}
-                        >
-                          {isSelected ? 'Selected' : 'Select This Type'}
-                        </Button>
                       </div>
                     </div>
                   </CardBody>
@@ -240,18 +223,6 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
           >
             Cancel
           </Button>
-          {selectedBoxType && (
-            <Button
-              color="warning"
-              variant="light"
-              onPress={() => {
-                // Clear selection logic
-                onClose()
-              }}
-            >
-              Clear Selection
-            </Button>
-          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

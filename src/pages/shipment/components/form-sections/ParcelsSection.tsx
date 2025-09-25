@@ -7,6 +7,7 @@ import { DIMENSION_UNITS, WEIGHT_UNITS } from '../../constants/form-defaults'
 import ParcelItems from './ParcelItems'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { PARCEL_BOX_TYPES } from '@pages/shipment/constants/parcel_box_types'
+import { ParcelBoxTypeSelectModal } from '@components/ParcelBoxTypeSelectModal'
 
 const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSectionProps & { watch: any }) => {
     // Watch the send_to field to conditionally apply validation
@@ -34,6 +35,10 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
     const [autoFilledParcels, setAutoFilledParcels] = useState<Set<number>>(new Set())
     const [manualEditParcels, setManualEditParcels] = useState<Set<number>>(new Set())
     const [manualDescriptionParcels, setManualDescriptionParcels] = useState<Set<number>>(new Set())
+    const [modalState, setModalState] = useState<{ isOpen: boolean; parcelIndex: number | null }>({
+        isOpen: false,
+        parcelIndex: null
+    })
 
     // Watch all parcel data for weight calculations
     const watchedParcels = watch('parcels')
@@ -131,50 +136,55 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
         }
     }, [watchedParcels, updateWeights])
 
-    const handleBoxTypeChange = (parcelIndex: number, selectedBoxTypeName: string) => {
-        const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.box_type_name === selectedBoxTypeName)
+    const handleBoxTypeSelect = (boxType: any) => {
+        const parcelIndex = modalState.parcelIndex
+        if (parcelIndex === null) return
 
-        console.log('handleBoxTypeChange called with:', { parcelIndex, selectedBoxTypeName, selectedBoxType })
+        console.log('handleBoxTypeSelect called with:', { parcelIndex, boxType })
 
-        if (selectedBoxType) {
-            // Set form values with shouldValidate and shouldDirty options
-            setValue(`parcels.${parcelIndex}.box_type_name`, selectedBoxType.box_type_name, {
-                shouldValidate: true,
-                shouldDirty: true
-            })
-            setValue(`parcels.${parcelIndex}.width`, selectedBoxType.width, { shouldValidate: true, shouldDirty: true })
-            setValue(`parcels.${parcelIndex}.height`, selectedBoxType.height, { shouldValidate: true, shouldDirty: true })
-            setValue(`parcels.${parcelIndex}.depth`, selectedBoxType.depth, { shouldValidate: true, shouldDirty: true })
-            setValue(`parcels.${parcelIndex}.dimension_unit`, selectedBoxType.dimension_unit, {
-                shouldValidate: true,
-                shouldDirty: true
-            })
-            setValue(`parcels.${parcelIndex}.parcel_weight_value`, selectedBoxType.parcel_weight, {
-                shouldValidate: true,
-                shouldDirty: true
-            })
-            setValue(`parcels.${parcelIndex}.weight_unit`, selectedBoxType.weight_unit, {
-                shouldValidate: true,
-                shouldDirty: true
-            })
+        // Set form values with shouldValidate and shouldDirty options
+        setValue(`parcels.${parcelIndex}.box_type_name`, boxType.box_type_name, {
+            shouldValidate: true,
+            shouldDirty: true
+        })
+        setValue(`parcels.${parcelIndex}.width`, boxType.width, { shouldValidate: true, shouldDirty: true })
+        setValue(`parcels.${parcelIndex}.height`, boxType.height, { shouldValidate: true, shouldDirty: true })
+        setValue(`parcels.${parcelIndex}.depth`, boxType.depth, { shouldValidate: true, shouldDirty: true })
+        setValue(`parcels.${parcelIndex}.dimension_unit`, boxType.dimension_unit, {
+            shouldValidate: true,
+            shouldDirty: true
+        })
+        setValue(`parcels.${parcelIndex}.parcel_weight_value`, boxType.parcel_weight, {
+            shouldValidate: true,
+            shouldDirty: true
+        })
+        setValue(`parcels.${parcelIndex}.weight_unit`, boxType.weight_unit, {
+            shouldValidate: true,
+            shouldDirty: true
+        })
 
-            console.log("selectedBoxType.width ", selectedBoxType.width)
-            console.log('Form values set for parcel:', parcelIndex)
+        console.log("selectedBoxType.width ", boxType.width)
+        console.log('Form values set for parcel:', parcelIndex)
 
-            // Mark this parcel as auto-filled
-            setAutoFilledParcels(prev => new Set(prev).add(parcelIndex))
-            // Remove from manual edit if it was there
-            setManualEditParcels(prev => {
-                const updated = new Set(prev)
-                updated.delete(parcelIndex)
-                return updated
-            })
+        // Mark this parcel as auto-filled
+        setAutoFilledParcels(prev => new Set(prev).add(parcelIndex))
+        // Remove from manual edit if it was there
+        setManualEditParcels(prev => {
+            const updated = new Set(prev)
+            updated.delete(parcelIndex)
+            return updated
+        })
 
-            // Trigger weight recalculation after parcel weight is set
-            setTimeout(() => updateWeights(parcelIndex), 100)
-        } else {
-            console.log('No box type found for name:', selectedBoxTypeName)
-        }
+        // Trigger weight recalculation after parcel weight is set
+        setTimeout(() => updateWeights(parcelIndex), 100)
+    }
+
+    const openBoxTypeModal = (parcelIndex: number) => {
+        setModalState({ isOpen: true, parcelIndex })
+    }
+
+    const closeBoxTypeModal = () => {
+        setModalState({ isOpen: false, parcelIndex: null })
     }
 
     const handleToggleManualEdit = (parcelIndex: number) => {
@@ -333,38 +343,26 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                             control={control}
                                             rules={{ required: isFieldRequired('box_type_name') ? 'Box type is required' : false }}
                                             render={({ field }) => (
-                                                <Select
-                                                    {...field}
-                                                    label={
-                                                        <span>
-                                                            Box Type{' '}
-                                                            {isFieldRequired('box_type_name') && (
-                                                                <span className="text-red-500">*</span>
-                                                            )}
+                                                <div className="space-y-2">                                                    
+                                                    <Button
+                                                        type="button"
+                                                        variant="bordered"
+                                                        color={!field.value ? "warning" : "default"}
+                                                        className="w-full justify-between h-14"
+                                                        startContent={<Icon icon="solar:box-linear" />}
+                                                        endContent={<Icon icon="solar:alt-arrow-down-linear" />}
+                                                        onPress={() => openBoxTypeModal(parcelIndex)}
+                                                    >
+                                                        <span className="truncate">
+                                                            Select : {field.value || "box type"}
                                                         </span>
-                                                    }
-                                                    placeholder="Select box type"
-                                                    errorMessage={errors.parcels?.[parcelIndex]?.box_type_name?.message}
-                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.box_type_name}
-
-                                                    color={!watch(`parcels.${parcelIndex}.box_type_name`) ? "warning" : "default"}
-                                                    onSelectionChange={(keys) => {
-                                                        const selectedKey = Array.from(keys)[0] as string
-                                                        if (selectedKey) {
-                                                            const selectedBoxType = PARCEL_BOX_TYPES.find(box => box.box_type_name === selectedKey)
-                                                            if (selectedBoxType) {
-                                                                field.onChange(selectedBoxType.box_type_name)
-                                                                handleBoxTypeChange(parcelIndex, selectedKey)
-                                                            }
-                                                        }
-                                                    }}
-                                                >
-                                                    {PARCEL_BOX_TYPES.map((boxType) => (
-                                                        <SelectItem key={boxType.box_type_name} value={boxType.box_type_name}>
-                                                            {boxType.box_type_name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </Select>
+                                                    </Button>
+                                                    {errors.parcels?.[parcelIndex]?.box_type_name && (
+                                                        <p className="text-xs text-red-500">
+                                                            {errors.parcels?.[parcelIndex]?.box_type_name?.message}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             )}
                                         />
                                     </div>
@@ -673,6 +671,17 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                     </Card>
                 ))}
             </CardBody>
+
+            <ParcelBoxTypeSelectModal
+                isOpen={modalState.isOpen}
+                onClose={closeBoxTypeModal}
+                onSelect={handleBoxTypeSelect}
+                selectedBoxType={modalState.parcelIndex !== null ?
+                    PARCEL_BOX_TYPES.find(boxType =>
+                        boxType.box_type_name === watch(`parcels.${modalState.parcelIndex}.box_type_name`)
+                    ) : null
+                }
+            />
         </Card>
     )
 }

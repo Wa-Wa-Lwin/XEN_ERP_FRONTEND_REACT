@@ -243,18 +243,6 @@ export const AddressSelectModal: React.FC<AddressSelectModalProps> = ({
           >
             Cancel
           </Button>
-          {selectedAddress && (
-            <Button
-              color="warning"
-              variant="light"
-              onPress={() => {
-                // Clear selection logic could be implemented here
-                onClose()
-              }}
-            >
-              Clear Selection
-            </Button>
-          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

@@ -8,10 +8,10 @@ import { ParcelsForm } from './components/ParcelsForm'
 import { RatesTable } from './components/RatesTable'
 import { ErrorModal } from './components/ErrorModal'
 import { AddressSelectModal } from './components/AddressSelectModal'
-import { ParcelBoxTypeSelectModal } from './components/ParcelBoxTypeSelectModal'
 import { ItemsSelectModal } from './components/ItemsSelectModal'
 import type { RateCalculatorFormData } from './types/rate-calculator.types'
 import type { AddressData } from '@pages/addresses/types'
+import { ParcelBoxTypeSelectModal } from '@components/ParcelBoxTypeSelectModal'
 
 const DEFAULT_FORM_VALUES: RateCalculatorFormData = {
   // Ship From Address
