@@ -49,7 +49,6 @@ export interface Rate {
 
 export interface ShipmentFormData {
   shipmentRequestID: number
-  shipment_scope: string
   shipment_scope_type: string
 
   // Basic shipment info

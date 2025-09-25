@@ -430,8 +430,7 @@ const ShipmentTable = () => {
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {
-                    // request.shipment_scope_type?.toUpperCase() ? request.shipment_scope_type?.toUpperCase() : request.shipment_scope?.toUpperCase()
-                    request.shipment_scope?.toUpperCase()
+                    request.shipment_scope_type?.toUpperCase()
                   }
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">

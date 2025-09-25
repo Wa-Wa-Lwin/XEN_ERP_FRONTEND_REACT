@@ -1,77 +1,181 @@
-import React, { useState, useMemo } from 'react'
-import { Card, CardHeader, CardBody, Select, SelectItem } from '@heroui/react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { Card, CardHeader, CardBody, Select, SelectItem, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import axios from 'axios'
 
-interface ShipmentData {
-  month: number
-  domestic: number
-  export: number
-  import: number
+interface MonthlyData {
+  month: string
+  all_status_count: string
+  approver_approved_count: string
+  approver_rejected_count: string
+  logistic_updated_count: string
+  requestor_requested_count: string
 }
 
 interface YearlyData {
-  [year: number]: ShipmentData[]
+  all_status_count: string
+  approver_approved_count: string
+  approver_rejected_count: string
+  logistic_updated_count: string
+  requestor_requested_count: string
+}
+
+interface CategoryData {
+  yearly: YearlyData
+  monthly: MonthlyData[]
+}
+
+interface ApiResponse {
+  year: number
+  data: {
+    domestic: CategoryData
+    export: CategoryData
+    import: CategoryData
+    all: CategoryData
+  }
 }
 
 const Dashboard: React.FC = () => {
   const currentYear = new Date().getFullYear()
   const [selectedYear, setSelectedYear] = useState<number>(currentYear)
+  const [data, setData] = useState<ApiResponse | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // Mock data for demonstration
-  const mockData: YearlyData = {
-    2024: [
-      { month: 1, domestic: 150, export: 80, import: 120 },
-      { month: 2, domestic: 170, export: 95, import: 135 },
-      { month: 3, domestic: 160, export: 110, import: 140 },
-      { month: 4, domestic: 180, export: 125, import: 145 },
-      { month: 5, domestic: 200, export: 140, import: 160 },
-      { month: 6, domestic: 190, export: 130, import: 155 },
-      { month: 7, domestic: 210, export: 150, import: 170 },
-      { month: 8, domestic: 220, export: 160, import: 180 },
-      { month: 9, domestic: 195, export: 145, import: 165 },
-      { month: 10, domestic: 185, export: 135, import: 150 },
-      { month: 11, domestic: 175, export: 120, import: 140 },
-      { month: 12, domestic: 165, export: 110, import: 130 }
-    ],
-    2023: [
-      { month: 1, domestic: 130, export: 70, import: 100 },
-      { month: 2, domestic: 140, export: 85, import: 115 },
-      { month: 3, domestic: 145, export: 90, import: 125 },
-      { month: 4, domestic: 155, export: 100, import: 130 },
-      { month: 5, domestic: 165, export: 115, import: 140 },
-      { month: 6, domestic: 160, export: 110, import: 135 },
-      { month: 7, domestic: 170, export: 125, import: 145 },
-      { month: 8, domestic: 180, export: 135, import: 155 },
-      { month: 9, domestic: 175, export: 130, import: 150 },
-      { month: 10, domestic: 165, export: 120, import: 140 },
-      { month: 11, domestic: 155, export: 105, import: 125 },
-      { month: 12, domestic: 145, export: 95, import: 115 }
-    ]
+  // Fetch data from API
+  const fetchData = async (year: number) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await axios.post(import.meta.env.VITE_APP_GET_REQUESTS_PER_YEAR, {
+        year: year
+      })
+      setData(response.data)
+    } catch (err) {
+      setError('Failed to fetch data')
+      console.error('API Error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const availableYears = Object.keys(mockData).map(Number).sort((a, b) => b - a)
+  useEffect(() => {
+    fetchData(selectedYear)
+  }, [selectedYear])
 
-  // Calculate yearly totals and percentages
-  const yearlyStats = useMemo(() => {
-    const yearData = mockData[selectedYear] || []
-    const totals = yearData.reduce(
-      (acc, month) => ({
-        domestic: acc.domestic + month.domestic,
-        export: acc.export + month.export,
-        import: acc.import + month.import
-      }),
-      { domestic: 0, export: 0, import: 0 }
-    )
-
-    const total = totals.domestic + totals.export + totals.import
-    const percentages = {
-      domestic: total > 0 ? (totals.domestic / total) * 100 : 0,
-      export: total > 0 ? (totals.export / total) * 100 : 0,
-      import: total > 0 ? (totals.import / total) * 100 : 0
+  // Generate available years (current year and previous 4 years)
+  const availableYears = useMemo(() => {
+    const years = []
+    for (let i = 0; i < 5; i++) {
+      years.push(currentYear - i)
     }
+    return years
+  }, [currentYear])
 
-    return { totals, percentages }
-  }, [selectedYear, mockData])
+  // Calculate percentages for domestic/export/import
+  const stats = useMemo(() => {
+    if (!data) return null
+
+    const domesticTotal = parseInt(data.data.domestic.yearly.all_status_count)
+    const exportTotal = parseInt(data.data.export.yearly.all_status_count)
+    const importTotal = parseInt(data.data.import.yearly.all_status_count)
+    const total = domesticTotal + exportTotal + importTotal
+
+    // Calculate approved/waiting/rejected counts
+    const domesticApproved = parseInt(data.data.domestic.yearly.approver_approved_count)
+    const domesticLogisticUpdated = parseInt(data.data.domestic.yearly.logistic_updated_count)
+    const domesticRequested = parseInt(data.data.domestic.yearly.requestor_requested_count)
+    const domesticRejected = parseInt(data.data.domestic.yearly.approver_rejected_count)
+    const domesticWaiting = domesticRequested + domesticLogisticUpdated
+
+    const exportApproved = parseInt(data.data.export.yearly.approver_approved_count)
+    const exportLogisticUpdated = parseInt(data.data.export.yearly.logistic_updated_count)
+    const exportRequested = parseInt(data.data.export.yearly.requestor_requested_count)
+    const exportRejected = parseInt(data.data.export.yearly.approver_rejected_count)
+    const exportWaiting = exportRequested + exportLogisticUpdated
+
+    const importApproved = parseInt(data.data.import.yearly.approver_approved_count)
+    const importLogisticUpdated = parseInt(data.data.import.yearly.logistic_updated_count)
+    const importRequested = parseInt(data.data.import.yearly.requestor_requested_count)
+    const importRejected = parseInt(data.data.import.yearly.approver_rejected_count)
+    const importWaiting = importRequested + importLogisticUpdated
+
+    const overallApproved = parseInt(data.data.all.yearly.approver_approved_count)
+    const overallLogisticUpdated = parseInt(data.data.all.yearly.logistic_updated_count)
+    const overallRequested = parseInt(data.data.all.yearly.requestor_requested_count)
+    const overallRejected = parseInt(data.data.all.yearly.approver_rejected_count)
+    const overallWaiting = overallRequested + overallLogisticUpdated
+    const overallTotal = parseInt(data.data.all.yearly.all_status_count)
+
+    return {
+      domestic: {
+        count: domesticTotal,
+        percentage: total > 0 ? (domesticTotal / total) * 100 : 0,
+        approved: domesticApproved,
+        waiting: domesticWaiting,
+        rejected: domesticRejected
+      },
+      export: {
+        count: exportTotal,
+        percentage: total > 0 ? (exportTotal / total) * 100 : 0,
+        approved: exportApproved,
+        waiting: exportWaiting,
+        rejected: exportRejected
+      },
+      import: {
+        count: importTotal,
+        percentage: total > 0 ? (importTotal / total) * 100 : 0,
+        approved: importApproved,
+        waiting: importWaiting,
+        rejected: importRejected
+      },
+      overall: {
+        total: overallTotal,
+        approved: overallApproved,
+        waiting: overallWaiting,
+        rejected: overallRejected
+      }
+    }
+  }, [data])
+
+  // Process real monthly data from API
+  const monthlyData = useMemo(() => {
+    if (!data) return []
+
+    // Create array for all 12 months initialized with zeros
+    const yearData = Array.from({ length: 12 }, (_, index) => ({
+      month: index + 1,
+      domestic: 0,
+      export: 0,
+      import: 0
+    }))
+
+    // Fill in domestic monthly data
+    data.data.domestic.monthly.forEach(monthData => {
+      const monthIndex = parseInt(monthData.month) - 1
+      if (monthIndex >= 0 && monthIndex < 12) {
+        yearData[monthIndex].domestic = parseInt(monthData.all_status_count)
+      }
+    })
+
+    // Fill in export monthly data
+    data.data.export.monthly.forEach(monthData => {
+      const monthIndex = parseInt(monthData.month) - 1
+      if (monthIndex >= 0 && monthIndex < 12) {
+        yearData[monthIndex].export = parseInt(monthData.all_status_count)
+      }
+    })
+
+    // Fill in import monthly data
+    data.data.import.monthly.forEach(monthData => {
+      const monthIndex = parseInt(monthData.month) - 1
+      if (monthIndex >= 0 && monthIndex < 12) {
+        yearData[monthIndex].import = parseInt(monthData.all_status_count)
+      }
+    })
+
+    return yearData
+  }, [data])
 
   const monthNames = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -80,11 +184,11 @@ const Dashboard: React.FC = () => {
 
   // Calculate max value for chart scaling
   const maxValue = useMemo(() => {
-    const yearData = mockData[selectedYear] || []
+    if (!monthlyData || monthlyData.length === 0) return 100
     return Math.max(
-      ...yearData.flatMap(month => [month.domestic, month.export, month.import])
+      ...monthlyData.flatMap(month => [month.domestic, month.export, month.import])
     )
-  }, [selectedYear, mockData])
+  }, [monthlyData])
 
   // SVG Circle Chart Component
   const CircleChart: React.FC<{ percentage: number; color: string; label: string; value: number }> = ({
@@ -131,14 +235,96 @@ const Dashboard: React.FC = () => {
     )
   }
 
+  // SVG Pie Chart Component
+  const PieChart: React.FC<{
+    data: { label: string; value: number; color: string }[]
+    size?: number
+  }> = ({ data, size = 120 }) => {
+    const radius = size / 2 - 10
+    const centerX = size / 2
+    const centerY = size / 2
+
+    const total = data.reduce((sum, item) => sum + item.value, 0)
+
+    if (total === 0) {
+      return (
+        <div className="flex items-center justify-center" style={{ width: size, height: size }}>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gray-200 rounded-full mb-2"></div>
+            <p className="text-xs text-gray-500">No data</p>
+          </div>
+        </div>
+      )
+    }
+
+    let cumulativeAngle = 0
+    const paths = data.map((item, index) => {
+      const angle = (item.value / total) * 360
+      const startAngle = cumulativeAngle
+      const endAngle = cumulativeAngle + angle
+
+      cumulativeAngle += angle
+
+      // Convert angles to radians
+      const startAngleRad = (startAngle * Math.PI) / 180
+      const endAngleRad = (endAngle * Math.PI) / 180
+
+      // Calculate start and end points
+      const x1 = centerX + radius * Math.cos(startAngleRad)
+      const y1 = centerY + radius * Math.sin(startAngleRad)
+      const x2 = centerX + radius * Math.cos(endAngleRad)
+      const y2 = centerY + radius * Math.sin(endAngleRad)
+
+      // Large arc flag
+      const largeArcFlag = angle > 180 ? 1 : 0
+
+      // Create path
+      const pathData = [
+        `M ${centerX} ${centerY}`, // Move to center
+        `L ${x1} ${y1}`, // Line to start point
+        `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`, // Arc
+        'Z' // Close path
+      ].join(' ')
+
+      return (
+        <path
+          key={index}
+          d={pathData}
+          fill={item.color}
+          className="transition-all duration-500 hover:opacity-80"
+        />
+      )
+    })
+
+    return (
+      <div className="flex items-center gap-4">
+        <svg width={size} height={size} className="transform -rotate-90">
+          {paths}
+        </svg>
+        <div className="space-y-1">
+          {data.map((item, index) => (
+            <div key={index} className="flex items-center gap-2 text-xs">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: item.color }}
+              ></div>
+              <span className="text-gray-600">
+                {item.label}: {item.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   // SVG Line Chart Component
   const LineChart: React.FC = () => {
-    const yearData = mockData[selectedYear] || []
+    const yearData = monthlyData || []
     const chartWidth = 800
     const chartHeight = 300
     const padding = 40
 
-    // const createPath = (data: number[], color: string) => {
     const createPath = (data: number[]) => {
       if (data.length === 0) return ''
 
@@ -253,6 +439,43 @@ const Dashboard: React.FC = () => {
     )
   }
 
+  if (loading) {
+    return (
+      <div className="p-6 flex justify-center items-center min-h-96">
+        <div className="flex flex-col items-center gap-4">
+          <Spinner size="lg" />
+          <p className="text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 flex justify-center items-center min-h-96">
+        <div className="text-center">
+          <Icon icon="solar:danger-circle-bold" className="text-red-500 text-6xl mb-4" />
+          <p className="text-red-600 text-lg mb-2">Failed to load dashboard data</p>
+          <p className="text-gray-600">{error}</p>
+          <button
+            onClick={() => fetchData(selectedYear)}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!stats) {
+    return (
+      <div className="p-6 flex justify-center items-center min-h-96">
+        <p className="text-gray-600">No data available</p>
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -274,7 +497,8 @@ const Dashboard: React.FC = () => {
         </Select>
       </div>
 
-      {/* Circle Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Circle Charts */}
       <Card>
         <CardHeader>
           <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -285,26 +509,102 @@ const Dashboard: React.FC = () => {
         <CardBody>
           <div className="flex justify-around items-center py-4">
             <CircleChart
-              percentage={yearlyStats.percentages.domestic}
+              percentage={stats.domestic.percentage}
               color="#3b82f6"
               label="Domestic"
-              value={yearlyStats.totals.domestic}
+              value={stats.domestic.count}
             />
             <CircleChart
-              percentage={yearlyStats.percentages.export}
+              percentage={stats.export.percentage}
               color="#10b981"
               label="Export"
-              value={yearlyStats.totals.export}
+              value={stats.export.count}
             />
             <CircleChart
-              percentage={yearlyStats.percentages.import}
+              percentage={stats.import.percentage}
               color="#f59e0b"
               label="Import"
-              value={yearlyStats.totals.import}
+              value={stats.import.count}
             />
           </div>
         </CardBody>
       </Card>
+
+      {/* Status Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold text-green-600">Approved</h3>
+          </CardHeader>
+          <CardBody>
+            <div className="space-y-4">
+              <div className="text-2xl font-bold text-green-600 text-center">{stats.overall.approved.toLocaleString()}</div>
+              <PieChart
+                data={[
+                  { label: 'Domestic', value: stats.domestic.approved, color: '#3b82f6' },
+                  { label: 'Export', value: stats.export.approved, color: '#10b981' },
+                  { label: 'Import', value: stats.import.approved, color: '#f59e0b' }
+                ]}
+                size={140}
+              />
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold text-yellow-600">Waiting</h3>
+          </CardHeader>
+          <CardBody>
+            <div className="space-y-2">
+              <div className="text-2xl font-bold text-yellow-600">{stats.overall.waiting.toLocaleString()}</div>
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span>Domestic:</span>
+                  <span>{stats.domestic.waiting}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Export:</span>
+                  <span>{stats.export.waiting}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Import:</span>
+                  <span>{stats.import.waiting}</span>
+                </div>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold text-red-600">Rejected</h3>
+          </CardHeader>
+          <CardBody>
+            <div className="space-y-2">
+              <div className="text-2xl font-bold text-red-600">{stats.overall.rejected.toLocaleString()}</div>
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span>Domestic:</span>
+                  <span>{stats.domestic.rejected}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Export:</span>
+                  <span>{stats.export.rejected}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Import:</span>
+                  <span>{stats.import.rejected}</span>
+                </div>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      </div>
+
+
 
       {/* Line Chart */}
       <Card>
@@ -332,6 +632,9 @@ const Dashboard: React.FC = () => {
         </CardHeader>
         <CardBody>
           <LineChart />
+          <p className="text-xs text-gray-500 mt-2">
+            * Monthly data shows actual shipment requests by category
+          </p>
         </CardBody>
       </Card>
 
@@ -339,20 +642,23 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardBody className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{yearlyStats.totals.domestic.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-blue-600">{stats.domestic.count.toLocaleString()}</div>
             <div className="text-sm text-gray-600">Total Domestic Shipments</div>
+            <div className="text-xs text-gray-500 mt-1">{stats.domestic.percentage.toFixed(1)}% of all requests</div>
           </CardBody>
         </Card>
         <Card>
           <CardBody className="text-center">
-            <div className="text-2xl font-bold text-green-600">{yearlyStats.totals.export.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-green-600">{stats.export.count.toLocaleString()}</div>
             <div className="text-sm text-gray-600">Total Export Shipments</div>
+            <div className="text-xs text-gray-500 mt-1">{stats.export.percentage.toFixed(1)}% of all requests</div>
           </CardBody>
         </Card>
         <Card>
           <CardBody className="text-center">
-            <div className="text-2xl font-bold text-yellow-600">{yearlyStats.totals.import.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-yellow-600">{stats.import.count.toLocaleString()}</div>
             <div className="text-sm text-gray-600">Total Import Shipments</div>
+            <div className="text-xs text-gray-500 mt-1">{stats.import.percentage.toFixed(1)}% of all requests</div>
           </CardBody>
         </Card>
       </div>
