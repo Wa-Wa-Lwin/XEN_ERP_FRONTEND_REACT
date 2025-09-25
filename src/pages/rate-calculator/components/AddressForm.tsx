@@ -4,86 +4,125 @@ import { Controller } from 'react-hook-form'
 import { countries } from '@utils/countries'
 
 interface AddressFormProps {
-  register: any
   control: any
   errors: any
   prefix: 'ship_from' | 'ship_to'
-  watch?: any
-  setValue?: any
 }
 
 export const AddressForm: React.FC<AddressFormProps> = ({
-  register,
   control,
   errors,
   prefix
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Input
-        label="Company Name"
-        placeholder="Enter company name"
-        isInvalid={!!errors[`${prefix}_company_name`]}
-        errorMessage={errors[`${prefix}_company_name`]?.message}
-        {...register(`${prefix}_company_name`, {
-          required: 'Company name is required'
-        })}
+      <Controller
+        name={`${prefix}_company_name`}
+        control={control}
+        rules={{ required: 'Company name is required' }}
+        render={({ field }) => (
+          <Input
+            label="Company Name"
+            placeholder="Enter company name"
+            value={field.value || ''}
+            onChange={field.onChange}
+            isInvalid={!!errors[`${prefix}_company_name`]}
+            errorMessage={errors[`${prefix}_company_name`]?.message}
+          />
+        )}
       />
 
-      <Input
-        label="Contact Name"
-        placeholder="Enter contact name"
-        isInvalid={!!errors[`${prefix}_contact_name`]}
-        errorMessage={errors[`${prefix}_contact_name`]?.message}
-        {...register(`${prefix}_contact_name`, {
-          required: 'Contact name is required'
-        })}
+      <Controller
+        name={`${prefix}_contact_name`}
+        control={control}
+        rules={{ required: 'Contact name is required' }}
+        render={({ field }) => (
+          <Input
+            label="Contact Name"
+            placeholder="Enter contact name"
+            value={field.value || ''}
+            onChange={field.onChange}
+            isInvalid={!!errors[`${prefix}_contact_name`]}
+            errorMessage={errors[`${prefix}_contact_name`]?.message}
+          />
+        )}
       />
 
-      <Input
-        label="Street Address"
-        placeholder="Enter street address"
-        isInvalid={!!errors[`${prefix}_street1`]}
-        errorMessage={errors[`${prefix}_street1`]?.message}
-        {...register(`${prefix}_street1`, {
-          required: 'Street address is required'
-        })}
+      <Controller
+        name={`${prefix}_street1`}
+        control={control}
+        rules={{ required: 'Street address is required' }}
+        render={({ field }) => (
+          <Input
+            label="Street Address"
+            placeholder="Enter street address"
+            value={field.value || ''}
+            onChange={field.onChange}
+            isInvalid={!!errors[`${prefix}_street1`]}
+            errorMessage={errors[`${prefix}_street1`]?.message}
+          />
+        )}
       />
 
-      <Input
-        label="Street Address 2"
-        placeholder="Apartment, suite, etc. (optional)"
-        {...register(`${prefix}_street2`)}
+      <Controller
+        name={`${prefix}_street2`}
+        control={control}
+        render={({ field }) => (
+          <Input
+            label="Street Address 2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value={field.value || ''}
+            onChange={field.onChange}
+          />
+        )}
       />
 
-      <Input
-        label="City"
-        placeholder="Enter city"
-        isInvalid={!!errors[`${prefix}_city`]}
-        errorMessage={errors[`${prefix}_city`]?.message}
-        {...register(`${prefix}_city`, {
-          required: 'City is required'
-        })}
+      <Controller
+        name={`${prefix}_city`}
+        control={control}
+        rules={{ required: 'City is required' }}
+        render={({ field }) => (
+          <Input
+            label="City"
+            placeholder="Enter city"
+            value={field.value || ''}
+            onChange={field.onChange}
+            isInvalid={!!errors[`${prefix}_city`]}
+            errorMessage={errors[`${prefix}_city`]?.message}
+          />
+        )}
       />
 
-      <Input
-        label="State/Province"
-        placeholder="Enter state or province"
-        isInvalid={!!errors[`${prefix}_state`]}
-        errorMessage={errors[`${prefix}_state`]?.message}
-        {...register(`${prefix}_state`, {
-          required: 'State/Province is required'
-        })}
+      <Controller
+        name={`${prefix}_state`}
+        control={control}
+        rules={{ required: 'State/Province is required' }}
+        render={({ field }) => (
+          <Input
+            label="State/Province"
+            placeholder="Enter state or province"
+            value={field.value || ''}
+            onChange={field.onChange}
+            isInvalid={!!errors[`${prefix}_state`]}
+            errorMessage={errors[`${prefix}_state`]?.message}
+          />
+        )}
       />
 
-      <Input
-        label="Postal Code"
-        placeholder="Enter postal code"
-        isInvalid={!!errors[`${prefix}_postal_code`]}
-        errorMessage={errors[`${prefix}_postal_code`]?.message}
-        {...register(`${prefix}_postal_code`, {
-          required: 'Postal code is required'
-        })}
+      <Controller
+        name={`${prefix}_postal_code`}
+        control={control}
+        rules={{ required: 'Postal code is required' }}
+        render={({ field }) => (
+          <Input
+            label="Postal Code"
+            placeholder="Enter postal code"
+            value={field.value || ''}
+            onChange={field.onChange}
+            isInvalid={!!errors[`${prefix}_postal_code`]}
+            errorMessage={errors[`${prefix}_postal_code`]?.message}
+          />
+        )}
       />
 
       <Controller
@@ -111,29 +150,43 @@ export const AddressForm: React.FC<AddressFormProps> = ({
         )}
       />
 
-      <Input
-        label="Phone"
-        placeholder="Enter phone number"
-        isInvalid={!!errors[`${prefix}_phone`]}
-        errorMessage={errors[`${prefix}_phone`]?.message}
-        {...register(`${prefix}_phone`, {
-          required: 'Phone number is required'
-        })}
+      <Controller
+        name={`${prefix}_phone`}
+        control={control}
+        rules={{ required: 'Phone number is required' }}
+        render={({ field }) => (
+          <Input
+            label="Phone"
+            placeholder="Enter phone number"
+            value={field.value || ''}
+            onChange={field.onChange}
+            isInvalid={!!errors[`${prefix}_phone`]}
+            errorMessage={errors[`${prefix}_phone`]?.message}
+          />
+        )}
       />
 
-      <Input
-        label="Email"
-        type="email"
-        placeholder="Enter email address"
-        isInvalid={!!errors[`${prefix}_email`]}
-        errorMessage={errors[`${prefix}_email`]?.message}
-        {...register(`${prefix}_email`, {
+      <Controller
+        name={`${prefix}_email`}
+        control={control}
+        rules={{
           required: 'Email is required',
           pattern: {
             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
             message: 'Invalid email address'
           }
-        })}
+        }}
+        render={({ field }) => (
+          <Input
+            label="Email"
+            type="email"
+            placeholder="Enter email address"
+            value={field.value || ''}
+            onChange={field.onChange}
+            isInvalid={!!errors[`${prefix}_email`]}
+            errorMessage={errors[`${prefix}_email`]?.message}
+          />
+        )}
       />
     </div>
   )

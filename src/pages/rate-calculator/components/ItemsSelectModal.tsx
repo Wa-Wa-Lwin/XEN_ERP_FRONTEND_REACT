@@ -51,14 +51,10 @@ export const ItemsSelectModal: React.FC<ItemsSelectModalProps> = ({
   const { materials, isLoading, fetchParcelItems } = useParcelItemsCache()
   const [filteredMaterials, setFilteredMaterials] = useState<MaterialData[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedType, setSelectedType] = useState<string>('All')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  // Get unique type names for filtering
-  const typeNames = ['All', ...Array.from(new Set(materials.map(item => item.type_name).filter(Boolean)))]
-
-  // Filter materials based on search and type
+  // Filter materials based on search only
   useEffect(() => {
     let filtered = materials
 
@@ -75,14 +71,9 @@ export const ItemsSelectModal: React.FC<ItemsSelectModalProps> = ({
       )
     }
 
-    // Filter by type
-    if (selectedType !== 'All') {
-      filtered = filtered.filter(item => item.type_name === selectedType)
-    }
-
     setFilteredMaterials(filtered)
     setCurrentPage(1) // Reset to first page when filters change
-  }, [materials, searchQuery, selectedType])
+  }, [materials, searchQuery])
 
   // Load materials when modal opens
   useEffect(() => {
@@ -122,10 +113,10 @@ export const ItemsSelectModal: React.FC<ItemsSelectModalProps> = ({
         </ModalHeader>
 
         <ModalBody className="py-4">
-          {/* Search and Filter Controls */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          {/* Search Controls */}
+          <div className="flex gap-3 mb-4">
             <Input
-              placeholder="Search by code, description, SKU, part number..."
+              placeholder="Search by code, description, SKU, part number, supplier..."
               value={searchQuery}
               onValueChange={setSearchQuery}
               startContent={<Icon icon="solar:magnifer-linear" width={20} />}
@@ -133,23 +124,6 @@ export const ItemsSelectModal: React.FC<ItemsSelectModalProps> = ({
               onClear={() => setSearchQuery('')}
               className="flex-1"
             />
-
-            <Select
-              label="Filter by Type"
-              placeholder="All Types"
-              selectedKeys={selectedType ? [selectedType] : []}
-              onSelectionChange={(keys) => {
-                const selectedKey = Array.from(keys)[0] as string
-                setSelectedType(selectedKey || 'All')
-              }}
-              className="min-w-48"
-            >
-              {typeNames.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </Select>
 
             <Button
               variant="bordered"
@@ -191,7 +165,7 @@ export const ItemsSelectModal: React.FC<ItemsSelectModalProps> = ({
               <Icon icon="solar:inbox-linear" width={48} className="text-default-300 mb-4" />
               <p className="text-default-500">No items found</p>
               <p className="text-default-400 text-sm">
-                {searchQuery || selectedType !== 'All' ? 'Try adjusting your search terms or filters' : 'No materials available'}
+                {searchQuery ? 'Try adjusting your search terms' : 'No materials available'}
               </p>
             </div>
           )}
@@ -212,20 +186,28 @@ export const ItemsSelectModal: React.FC<ItemsSelectModalProps> = ({
                   <TableColumn>SKU / PART NO</TableColumn>
                   <TableColumn>HS CODE</TableColumn>
                   <TableColumn>SUPPLIER</TableColumn>
-                  <TableColumn>ACTION</TableColumn>
                 </TableHeader>
                 <TableBody>
                   {currentMaterials.map((item) => {
                     const isSelected = isItemSelected(item)
 
                     return (
-                      <TableRow key={item.material_code}>
+                      <TableRow
+                        key={item.material_code}
+                        className={`cursor-pointer hover:bg-default-100 ${isSelected ? 'bg-primary-50' : ''}`}
+                        onClick={() => handleSelect(item)}
+                      >
                         <TableCell>
-                          <div className="flex flex-col">
-                            <p className="font-semibold text-sm">{item.material_code}</p>
-                            {item.part_revision && (
-                              <p className="text-xs text-default-400">Rev: {item.part_revision}</p>
+                          <div className="flex items-center gap-2">
+                            {isSelected && (
+                              <Icon icon="solar:check-circle-bold" width={16} className="text-success" />
                             )}
+                            <div className="flex flex-col">
+                              <p className="font-semibold text-sm">{item.material_code}</p>
+                              {item.part_revision && (
+                                <p className="text-xs text-default-400">Rev: {item.part_revision}</p>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
 
@@ -269,23 +251,6 @@ export const ItemsSelectModal: React.FC<ItemsSelectModalProps> = ({
                           <p className="text-xs max-w-24 truncate" title={item.supplier_name}>
                             {item.supplier_name || 'N/A'}
                           </p>
-                        </TableCell>
-
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            color={isSelected ? "success" : "primary"}
-                            variant={isSelected ? "solid" : "flat"}
-                            onPress={() => handleSelect(item)}
-                            startContent={
-                              <Icon
-                                icon={isSelected ? "solar:check-circle-bold" : "solar:arrow-right-linear"}
-                                width={16}
-                              />
-                            }
-                          >
-                            {isSelected ? 'Selected' : 'Select'}
-                          </Button>
                         </TableCell>
                       </TableRow>
                     )

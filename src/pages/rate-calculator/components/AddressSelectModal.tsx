@@ -76,7 +76,7 @@ export const AddressSelectModal: React.FC<AddressSelectModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="4xl"
+      size="5xl"
       scrollBehavior="inside"
       classNames={{
         base: "max-h-[90vh]"
@@ -159,7 +159,6 @@ export const AddressSelectModal: React.FC<AddressSelectModalProps> = ({
                   <TableColumn>TYPE</TableColumn>
                   <TableColumn>CONTACT</TableColumn>
                   <TableColumn>ADDRESS</TableColumn>
-                  <TableColumn>ACTION</TableColumn>
                 </TableHeader>
                 <TableBody>
                   {currentAddresses.map((address) => {
@@ -167,11 +166,20 @@ export const AddressSelectModal: React.FC<AddressSelectModalProps> = ({
                     const isSelected = selectedAddress?.CardCode === address.CardCode
 
                     return (
-                      <TableRow key={address.CardCode}>
+                      <TableRow
+                        key={address.CardCode}
+                        className={`cursor-pointer hover:bg-default-100 ${isSelected ? 'bg-primary-50' : ''}`}
+                        onClick={() => handleSelect(address)}
+                      >
                         <TableCell>
-                          <div className="flex flex-col">
-                            <p className="font-semibold text-sm">{address.CardName}</p>
-                            <p className="text-xs text-default-400">{address.CardCode}</p>
+                          <div className="flex items-center gap-2">
+                            {isSelected && (
+                              <Icon icon="solar:check-circle-bold" width={16} className="text-success" />
+                            )}
+                            <div className="flex flex-col">
+                              <p className="font-semibold text-sm">{address.CardName}</p>
+                              <p className="text-xs text-default-400">{address.CardCode}</p>
+                            </div>
                           </div>
                         </TableCell>
 
@@ -204,23 +212,6 @@ export const AddressSelectModal: React.FC<AddressSelectModalProps> = ({
                           <p className="text-sm max-w-xs truncate" title={formatAddress(address)}>
                             {formatAddress(address) || 'No address provided'}
                           </p>
-                        </TableCell>
-
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            color={isSelected ? "success" : "primary"}
-                            variant={isSelected ? "solid" : "flat"}
-                            onPress={() => handleSelect(address)}
-                            startContent={
-                              <Icon
-                                icon={isSelected ? "solar:check-circle-bold" : "solar:arrow-right-linear"}
-                                width={16}
-                              />
-                            }
-                          >
-                            {isSelected ? 'Selected' : 'Select'}
-                          </Button>
                         </TableCell>
                       </TableRow>
                     )

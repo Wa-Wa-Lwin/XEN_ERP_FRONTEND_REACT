@@ -1,6 +1,7 @@
 export const PARCEL_BOX_TYPES = [
   {
     id: 1,
+    type:'HARD BOX',
     box_type_name: 'HARD BOX - BLACK XSOS (DEMONSTRATION)',
     depth: 80,
     width: 60,
@@ -12,6 +13,7 @@ export const PARCEL_BOX_TYPES = [
   },
   {
     id: 2,
+    type:'HARD BOX',
     box_type_name: 'HARD BOX - BLACK CSOS (DEMONSTRATION)',
     depth: 70,
     width: 65,
@@ -23,6 +25,7 @@ export const PARCEL_BOX_TYPES = [
   },
   {
     id: 3,
+    type:'HARD BOX',
     box_type_name: 'HARD BOX - BLACK MMU (DEMONSTRATION)',
     depth: 65,
     width: 50,
@@ -34,6 +37,7 @@ export const PARCEL_BOX_TYPES = [
   },
   {
     id: 4,
+    type:'HARD BOX',
     box_type_name: 'HARD BOX - GREEN XSOS (DEMONSTRATION)',
     depth: 65,
     width: 62,
@@ -45,6 +49,7 @@ export const PARCEL_BOX_TYPES = [
   },
   {
     id: 5,
+    type:'HARD BOX',
     box_type_name: 'HARD BOX - GREEN IT & EQUIPMENT',
     depth: 78,
     width: 60,
@@ -56,6 +61,7 @@ export const PARCEL_BOX_TYPES = [
   },
   {
     id: 6,
+    type:'PALLET BOX',
     box_type_name: 'PALLET (With cardboard box) XSOS (For Sales)',
     depth: 68,
     width: 60,
@@ -67,6 +73,7 @@ export const PARCEL_BOX_TYPES = [
   },
   {
     id: 7,
+    type:'WOODEN BOX',
     box_type_name: 'WOODEN BOX (Old version) CHASSIS',
     depth: 55,
     width: 55,
@@ -78,6 +85,7 @@ export const PARCEL_BOX_TYPES = [
   },
   {
     id: 8,
+    type:'WOODEN BOX',
     box_type_name: 'WOODEN BOX (New version) CHASSIS',
     depth: 57,
     width: 56,
@@ -89,6 +97,7 @@ export const PARCEL_BOX_TYPES = [
   },
   {
     id: 9,
+    type:'OTHER BOX',
     box_type_name: 'CARDBOARD BOX PARTS AND OTHER',
     depth: 0,
     width: 0,

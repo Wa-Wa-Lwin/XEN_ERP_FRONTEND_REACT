@@ -13,24 +13,19 @@ import {
   Divider
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { PARCEL_BOX_TYPES } from '@pages/shipment/constants/parcel_box_types'
 
 interface BoxType {
-  id: string
-  name: string
-  category: string
-  dimensions: {
-    length: number
-    width: number
-    height: number
-    unit: string
-  }
-  maxWeight: {
-    value: number
-    unit: string
-  }
-  description: string
-  icon: string
-  color: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'default'
+  id: number
+  type: string
+  box_type_name: string
+  depth: number
+  width: number
+  height: number
+  dimension_unit: string
+  parcel_weight: number
+  weight_unit: string
+  remark: string | null
 }
 
 interface ParcelBoxTypeSelectModalProps {
@@ -40,68 +35,7 @@ interface ParcelBoxTypeSelectModalProps {
   selectedBoxType?: BoxType | null
 }
 
-const BOX_TYPES: BoxType[] = [
-  {
-    id: 'small_box',
-    name: 'Small Box',
-    category: 'Standard',
-    dimensions: { length: 20, width: 15, height: 10, unit: 'cm' },
-    maxWeight: { value: 2, unit: 'kg' },
-    description: 'Ideal for small items like electronics, jewelry, or documents',
-    icon: 'solar:box-linear',
-    color: 'primary'
-  },
-  {
-    id: 'medium_box',
-    name: 'Medium Box',
-    category: 'Standard',
-    dimensions: { length: 30, width: 25, height: 20, unit: 'cm' },
-    maxWeight: { value: 5, unit: 'kg' },
-    description: 'Perfect for clothing, books, or medium-sized items',
-    icon: 'solar:box-linear',
-    color: 'secondary'
-  },
-  {
-    id: 'large_box',
-    name: 'Large Box',
-    category: 'Standard',
-    dimensions: { length: 40, width: 30, height: 25, unit: 'cm' },
-    maxWeight: { value: 10, unit: 'kg' },
-    description: 'Great for multiple items or larger single items',
-    icon: 'solar:box-linear',
-    color: 'success'
-  },
-  {
-    id: 'envelope',
-    name: 'Envelope',
-    category: 'Document',
-    dimensions: { length: 35, width: 25, height: 2, unit: 'cm' },
-    maxWeight: { value: 0.5, unit: 'kg' },
-    description: 'For documents, photos, or thin flat items',
-    icon: 'solar:document-linear',
-    color: 'warning'
-  },
-  {
-    id: 'tube',
-    name: 'Tube',
-    category: 'Specialty',
-    dimensions: { length: 60, width: 10, height: 10, unit: 'cm' },
-    maxWeight: { value: 3, unit: 'kg' },
-    description: 'For posters, blueprints, or cylindrical items',
-    icon: 'solar:pipe-linear',
-    color: 'danger'
-  },
-  {
-    id: 'custom',
-    name: 'Custom Box',
-    category: 'Custom',
-    dimensions: { length: 0, width: 0, height: 0, unit: 'cm' },
-    maxWeight: { value: 0, unit: 'kg' },
-    description: 'Define your own dimensions and specifications',
-    icon: 'solar:settings-linear',
-    color: 'default'
-  }
-]
+const BOX_TYPES: BoxType[] = PARCEL_BOX_TYPES
 
 export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> = ({
   isOpen,
@@ -110,14 +44,14 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
   selectedBoxType
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('All')
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
 
-  const categories = ['All', ...Array.from(new Set(BOX_TYPES.map(box => box.category)))]
+  const categories = ['ALL', ...Array.from(new Set(BOX_TYPES.map(boxType => boxType.type)))]
 
   const filteredBoxTypes = BOX_TYPES.filter(boxType => {
-    const matchesSearch = boxType.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         boxType.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === 'All' || boxType.category === selectedCategory
+    const matchesSearch = boxType.box_type_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (boxType.remark && boxType.remark.toLowerCase().includes(searchQuery.toLowerCase()))
+    const matchesCategory = selectedCategory === 'ALL' || boxType.type === selectedCategory
     return matchesSearch && matchesCategory
   })
 
@@ -126,16 +60,17 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
     onClose()
   }
 
-  const formatDimensions = (dimensions: BoxType['dimensions']) => {
-    if (dimensions.length === 0 && dimensions.width === 0 && dimensions.height === 0) {
+  const formatDimensions = (boxType: BoxType) => {
+    if (boxType.depth === 0 && boxType.width === 0 && boxType.height === 0) {
       return 'Custom dimensions'
     }
-    return `${dimensions.length} × ${dimensions.width} × ${dimensions.height} ${dimensions.unit}`
+    return `${boxType.depth} × ${boxType.width} × ${boxType.height} ${boxType.dimension_unit}`
   }
 
-  const formatWeight = (weight: BoxType['maxWeight']) => {
-    if (weight.value === 0) return 'Custom weight'
-    return `Max ${weight.value} ${weight.unit}`
+  const formatWeight = (boxType: BoxType) => {
+    if (boxType.parcel_weight === 0) return 'Custom weight'
+    // return `Max ${boxType.parcel_weight} ${boxType.weight_unit}`
+    return `${boxType.parcel_weight} ${boxType.weight_unit}`
   }
 
   return (
@@ -155,10 +90,10 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
         </ModalHeader>
 
         <ModalBody className="py-4">
-          {/* Search and Filter */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          {/* Search and Category Filter */}
+          <div className="flex gap-3 mb-4">
             <Input
-              placeholder="Search box types..."
+              placeholder="Search box types by name or remark..."
               value={searchQuery}
               onValueChange={setSearchQuery}
               startContent={<Icon icon="solar:magnifer-linear" width={20} />}
@@ -166,20 +101,22 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
               onClear={() => setSearchQuery('')}
               className="flex-1"
             />
+          </div>
 
-            <div className="flex gap-2 flex-wrap">
-              {categories.map(category => (
-                <Chip
-                  key={category}
-                  variant={selectedCategory === category ? "solid" : "bordered"}
-                  color={selectedCategory === category ? "primary" : "default"}
-                  className="cursor-pointer"
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </Chip>
-              ))}
-            </div>
+          {/* Category Chips */}
+          <div className="flex gap-2 mb-4 flex-wrap">
+            {categories.map((category) => (
+              <Chip
+                key={category}
+                size="sm"
+                variant={selectedCategory === category ? "solid" : "flat"}
+                color={selectedCategory === category ? "primary" : "default"}
+                className="cursor-pointer"
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </Chip>
+            ))}
           </div>
 
           {/* Results Info */}
@@ -192,7 +129,7 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
             </p>
             {selectedBoxType && (
               <Chip size="sm" color="success" variant="flat">
-                Current: {selectedBoxType.name}
+                Current: {selectedBoxType.box_type_name}
               </Chip>
             )}
           </div>
@@ -223,20 +160,17 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
                 >
                   <CardBody className="p-4">
                     <div className="flex items-start gap-3">
-                      <div className={`p-3 rounded-lg bg-${boxType.color}-100`}>
+                      <div className="p-3 rounded-lg bg-primary-100">
                         <Icon
-                          icon={boxType.icon}
+                          icon="solar:box-linear"
                           width={24}
-                          className={`text-${boxType.color}-600`}
+                          className="text-primary-600"
                         />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-sm">{boxType.name}</h3>
-                          <Chip size="sm" color={boxType.color} variant="flat">
-                            {boxType.category}
-                          </Chip>
+                          <h3 className="font-semibold text-sm">{boxType.box_type_name}</h3>
                           {isSelected && (
                             <Chip size="sm" color="success" variant="solid">
                               <Icon icon="solar:check-circle-bold" width={14} />
@@ -244,9 +178,17 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
                           )}
                         </div>
 
-                        <p className="text-xs text-default-600 mb-3">
-                          {boxType.description}
-                        </p>
+                        <div className="mb-2">
+                          <Chip size="sm" color="secondary" variant="flat" className="text-xs">
+                            {boxType.type}
+                          </Chip>
+                        </div>
+
+                        {boxType.remark && (
+                          <p className="text-xs text-default-600 mb-3">
+                            {boxType.remark}
+                          </p>
+                        )}
 
                         <Divider className="my-2" />
 
@@ -254,14 +196,14 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
                           <div className="flex items-center gap-2">
                             <Icon icon="solar:ruler-linear" width={14} className="text-default-400" />
                             <span className="text-xs text-default-600">
-                              {formatDimensions(boxType.dimensions)}
+                              {formatDimensions(boxType)}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2">
                             <Icon icon="solar:scale-linear" width={14} className="text-default-400" />
                             <span className="text-xs text-default-600">
-                              {formatWeight(boxType.maxWeight)}
+                              {formatWeight(boxType)}
                             </span>
                           </div>
                         </div>

@@ -137,13 +137,13 @@ const RateCalculator = () => {
   const handleSelectBoxType = (boxType: any) => {
     const parcelIndex = boxTypeModal.parcelIndex
 
-    // Update parcel dimensions based on box type
-    if (boxType.id !== 'custom') {
-      setValue(`parcels.${parcelIndex}.width`, boxType.dimensions.length)
-      setValue(`parcels.${parcelIndex}.height`, boxType.dimensions.width)
-      setValue(`parcels.${parcelIndex}.depth`, boxType.dimensions.height)
-      setValue(`parcels.${parcelIndex}.dimension_unit`, boxType.dimensions.unit)
-      setValue(`parcels.${parcelIndex}.description`, boxType.name)
+    // Update parcel dimensions based on box type (skip if custom box with 0 dimensions)
+    if (!(boxType.depth === 0 && boxType.width === 0 && boxType.height === 0)) {
+      setValue(`parcels.${parcelIndex}.width`, boxType.width)
+      setValue(`parcels.${parcelIndex}.height`, boxType.height)
+      setValue(`parcels.${parcelIndex}.depth`, boxType.depth)
+      setValue(`parcels.${parcelIndex}.dimension_unit`, boxType.dimension_unit)
+      setValue(`parcels.${parcelIndex}.description`, boxType.box_type_name)
     }
   }
 
@@ -199,12 +199,9 @@ const RateCalculator = () => {
                 </Button>
               </div>
               <AddressForm
-                register={register}
                 control={control}
                 errors={errors}
                 prefix="ship_from"
-                watch={watch}
-                setValue={setValue}
               />
             </CardBody>
           </Card>
@@ -229,12 +226,9 @@ const RateCalculator = () => {
                 </Button>
               </div>
               <AddressForm
-                register={register}
                 control={control}
                 errors={errors}
                 prefix="ship_to"
-                watch={watch}
-                setValue={setValue}
               />
             </CardBody>
           </Card>
