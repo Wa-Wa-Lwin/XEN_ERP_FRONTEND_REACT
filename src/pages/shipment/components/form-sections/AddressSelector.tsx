@@ -4,10 +4,9 @@ import {
   Card,
   CardHeader,
   CardBody,
-  Input,
+  Textarea,
   Autocomplete,
   AutocompleteItem,
-  Textarea,
   Button,
   Modal,
   ModalContent,
@@ -208,7 +207,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             </div>
           )}
           <div key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Input
+          <Textarea
             {...register(`${prefix}_company_name`, { required: isFieldRequired('company_name') ? 'Company name is required' : false })}
             label={<span>Company Name {isFieldRequired('company_name') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter company name"
@@ -216,8 +215,9 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_company_name`]}
             key={`${formKey}_${prefix}_company_name`}
             color={!watch(`${prefix}_company_name`) ? "warning" : "default"}
+            minRows={1}
           />
-          <Input
+          <Textarea
             {...register(`${prefix}_contact_name`, { required: isFieldRequired('contact_name') ? 'Contact name is required' : false })}
             label={<span>Contact Name {isFieldRequired('contact_name') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter contact name"
@@ -225,9 +225,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_contact_name`]}
             key={`${formKey}_${prefix}_contact_name`}
             color={!watch(`${prefix}_contact_name`) ? "warning" : "default"}
+            minRows={1}
           />
 
-          <Input
+          <Textarea
             {...register(`${prefix}_phone`, { required: isFieldRequired('phone') ? 'Phone is required' : false })}
             label={<span>Phone {isFieldRequired('phone') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter phone"
@@ -235,9 +236,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_phone`]}
             key={`${formKey}_${prefix}_phone`}
             color={!watch(`${prefix}_phone`) ? "warning" : "default"}
+            minRows={1}
           />
 
-          <Input
+          <Textarea
             {...register(`${prefix}_email`, { required: isFieldRequired('email') ? 'Email is required' : false })}
             type="email"
             label={<span>Email {isFieldRequired('email') && <span className="text-red-500">*</span>}</span>}
@@ -246,6 +248,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_email`]}
             key={`${formKey}_${prefix}_email`}
             color={!watch(`${prefix}_email`) ? "warning" : "default"}
+            minRows={1}
           />
           <Controller
             key={`${formKey}_${prefix}_country`}
@@ -291,7 +294,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             )}
           />
 
-          <Input
+          <Textarea
             {...register(`${prefix}_city`, { required: isFieldRequired('city') ? 'City is required' : false })}
             label={<span>City {isFieldRequired('city') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter city"
@@ -299,9 +302,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_city`]}
             key={`${formKey}_${prefix}_city`}
             color={!watch(`${prefix}_city`) ? "warning" : "default"}
+            minRows={1}
           />
 
-          <Input
+          <Textarea
             {...register(`${prefix}_state`, { required: isFieldRequired('state') ? 'State is required' : false })}
             label={<span>State {isFieldRequired('state') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter state"
@@ -309,9 +313,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_state`]}
             key={`${formKey}_${prefix}_state`}
             color={!watch(`${prefix}_state`) ? "warning" : "default"}
+            minRows={1}
           />
 
-          <Input
+          <Textarea
             {...register(`${prefix}_postal_code`, { required: isFieldRequired('postal_code') ? 'Postal code is required' : false })}
             label={<span>Postal Code {isFieldRequired('postal_code') && <span className="text-red-500">*</span>}</span>}
             placeholder="Enter postal code"
@@ -319,6 +324,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_postal_code`]}
             key={`${formKey}_${prefix}_postal_code`}
             color={!watch(`${prefix}_postal_code`) ? "warning" : "default"}
+            minRows={1}
           />
 
           <Textarea
@@ -340,16 +346,17 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_street2`]}
             minRows={1}
             key={`${formKey}_${prefix}_street2`}
-            color={!watch(`${prefix}_street2`) ? "warning" : "default"}
+            // color={!watch(`${prefix}_street2`) ? "warning" : "default"}
           />
-          <Input
+          <Textarea
             {...register(`${prefix}_tax_id`)}
             label="Tax ID"
             placeholder="Enter tax ID"
             errorMessage={errors[`${prefix}_tax_id`]?.message}
             isInvalid={!!errors[`${prefix}_tax_id`]}
             key={`${formKey}_${prefix}_tax_id`}
-            color={!watch(`${prefix}_tax_id`) ? "warning" : "default"}
+            // color={!watch(`${prefix}_tax_id`) ? "warning" : "default"}
+            minRows={1}
           />
           </div>
         </CardBody>
@@ -377,7 +384,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                     <p className="text-small text-default-600">Choose an address to auto-fill the form</p>
                   </div>
                 </div>
-                <Input
+                <Textarea
                   placeholder="Search by name, code, city..."
                   value={searchQuery}
                   onValueChange={setSearchQuery}
@@ -386,6 +393,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                   className="mt-2"
                   isClearable
                   onClear={() => setSearchQuery('')}
+                  minRows={1}
                 />
               </ModalHeader>
               <ModalBody>

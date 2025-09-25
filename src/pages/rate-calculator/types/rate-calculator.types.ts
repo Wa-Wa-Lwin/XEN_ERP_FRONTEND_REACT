@@ -25,11 +25,14 @@ export interface RateCalculatorFormData {
 
   // Parcels
   parcels: Array<{
+    box_type_name: string
     width: number
     height: number
     depth: number
     dimension_unit: string
     weight_value: number
+    net_weight_value: number
+    parcel_weight_value: number
     weight_unit: string
     description: string
     parcel_items: Array<{

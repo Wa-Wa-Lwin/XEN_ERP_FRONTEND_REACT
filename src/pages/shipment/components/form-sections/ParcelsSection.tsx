@@ -9,16 +9,27 @@ import type { FormSectionProps } from '../../types/shipment-form.types'
 import { PARCEL_BOX_TYPES } from '@pages/shipment/constants/parcel_box_types'
 import { ParcelBoxTypeSelectModal } from '@components/ParcelBoxTypeSelectModal'
 
-const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSectionProps & { watch: any }) => {
-    // Watch the send_to field to conditionally apply validation
-    const sendTo = watch('send_to');
+interface ParcelsSectionProps extends FormSectionProps {
+    watch: any
+    validationMode?: 'shipment' | 'rate-calculator'
+}
 
-    // Watch ship from and ship to countries for conditional validation
-    const shipFromCountry = watch('ship_from_country');
-    const shipToCountry = watch('ship_to_country');
+const ParcelsSection = ({ register, errors, control, setValue, watch, validationMode = 'shipment' }: ParcelsSectionProps) => {
+    // Watch the send_to field to conditionally apply validation (only for shipment mode)
+    const sendTo = validationMode === 'shipment' ? watch('send_to') : null;
 
-    // Helper function to determine if a field should be required based on send_to value
+    // Watch ship from and ship to countries for conditional validation (only for shipment mode)
+    const shipFromCountry = validationMode === 'shipment' ? watch('ship_from_country') : null;
+    const shipToCountry = validationMode === 'shipment' ? watch('ship_to_country') : null;
+
+    // Helper function to determine if a field should be required based on validation mode
     const isFieldRequired = (fieldName: string) => {
+        if (validationMode === 'rate-calculator') {
+            // For rate calculator, only parcel dimensions and weight are required
+            const rateCalculatorRequiredFields = ['width', 'height', 'depth', 'parcel_weight_value'];
+            return rateCalculatorRequiredFields.includes(fieldName);
+        }
+
         if (sendTo === 'Logistic') {
             // For logistics, only specific parcel fields are required
             const logisticRequiredFields = ['box_type_name', 'width', 'height', 'depth', 'parcel_weight_value'];
@@ -517,7 +528,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                             {/* Parcel Items */}
                             <ParcelItems parcelIndex={parcelIndex} control={control} register={register} errors={errors}
                                 setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} sendTo={sendTo}
-                                shipFromCountry={shipFromCountry} shipToCountry={shipToCountry} />
+                                shipFromCountry={shipFromCountry} shipToCountry={shipToCountry} validationMode={validationMode} />
                             {/* Dimensions Row */}
                             <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-3">
                                 <div className='col-span-4 flex gap-3'>
@@ -550,16 +561,17 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                     <Controller
                                         name={`parcels.${parcelIndex}.description`}
                                         control={control}
-                                        rules={{ required: isFieldRequired('description') ? 'Description is required' : false }}
+                                        // rules={{ required: isFieldRequired('description') ? 'Description is required' : false }}
                                         render={({ field }) => (
                                             <Textarea
+                                                isRequired={isFieldRequired('description')}
                                                 {...field}
                                                 label={
                                                     <span>
                                                         Parcel Description {!manualDescriptionParcels.has(parcelIndex) && '(Auto-generated)'}
-                                                        {isFieldRequired('description') && (
+                                                        {/* {isFieldRequired('description') && (
                                                             <span className="text-red-500">*</span>
-                                                        )}
+                                                        )} */}
                                                     </span>}
                                                 placeholder={manualDescriptionParcels.has(parcelIndex) ? "Enter parcel description manually" : "Auto-generated from item descriptions"}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
@@ -590,10 +602,14 @@ const ParcelsSection = ({ register, errors, control, setValue, watch }: FormSect
                                         rules={{ required: isFieldRequired('net_weight_value') ? 'Net weight is required' : false, min: 0 }}
                                         render={({ field }) => (
                                             <Input
+                                            isRequired = {isFieldRequired('net_weight_value')}
                                                 {...field}
                                                 type="number"
                                                 step="0.01"
-                                                label={<span>Net Weight (kg) {isFieldRequired('net_weight_value') && <span className="text-red-500">*</span>}</span>}
+                                                label={
+                                                <span>
+                                                    Net Weight (kg) 
+                                                </span>}
                                                 placeholder="Auto-calculated"
                                                 errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}

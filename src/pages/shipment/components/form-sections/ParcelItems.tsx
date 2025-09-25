@@ -28,9 +28,22 @@ interface MaterialData {
 
 const DEBOUNCE_MS = 200
 
-const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange, sendTo, shipFromCountry, shipToCountry }: ParcelItemsProps & { sendTo?: string, shipFromCountry?: string, shipToCountry?: string }) => {
-    // Helper function to determine if item fields should be required based on send_to value and countries
+interface ExtendedParcelItemsProps extends ParcelItemsProps {
+    sendTo?: string
+    shipFromCountry?: string
+    shipToCountry?: string
+    validationMode?: 'shipment' | 'rate-calculator'
+}
+
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange, sendTo, shipFromCountry, shipToCountry, validationMode = 'shipment' }: ExtendedParcelItemsProps) => {
+    // Helper function to determine if item fields should be required based on validation mode
     const isItemFieldRequired = (fieldName: string) => {
+        if (validationMode === 'rate-calculator') {
+            // For rate calculator, only quantity and weight are required
+            const rateCalculatorRequiredFields = ['quantity', 'weight_value'];
+            return rateCalculatorRequiredFields.includes(fieldName);
+        }
+
         if (sendTo === 'Logistic') {
             // For logistics, HS code and origin country are not required
             const logisticNotRequiredFields = ['hs_code', 'origin_country'];
@@ -262,9 +275,10 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`}
                                         control={control}
                                         // isRequired
-                                        rules={{ required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false }}
+                                        // rules={{ required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false }}
                                         render={({ field }) => (
                                             <Textarea
+                                                isRequired={isItemFieldRequired('hs_code')}
                                                 {...field}
                                                 placeholder="HS CODE"
                                                 variant="flat"
@@ -285,9 +299,10 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`}
                                         control={control}
-                                        rules={{ required: isItemFieldRequired('origin_country') ? 'Origin country is required' : false }}
+                                        // rules={{ required: isItemFieldRequired('origin_country') ? 'Origin country is required' : false }}
                                         render={({ field }) => (
                                             <Autocomplete
+                                                isRequired={isItemFieldRequired('origin_country')}
                                                 {...field}
                                                 defaultItems={COUNTRIES}
                                                 placeholder="country"

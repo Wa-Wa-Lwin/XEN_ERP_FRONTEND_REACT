@@ -4,14 +4,12 @@ import { useForm } from 'react-hook-form'
 import { Icon } from '@iconify/react'
 import { useRateCalculator } from './hooks/useRateCalculator'
 import { AddressForm } from './components/AddressForm'
-import { ParcelsForm } from './components/ParcelsForm'
+import ParcelsSection from '@pages/shipment/components/form-sections/ParcelsSection'
 import { RatesTable } from './components/RatesTable'
 import { ErrorModal } from './components/ErrorModal'
 import { AddressSelectModal } from './components/AddressSelectModal'
-import { ItemsSelectModal } from './components/ItemsSelectModal'
 import type { RateCalculatorFormData } from './types/rate-calculator.types'
 import type { AddressData } from '@pages/addresses/types'
-import { ParcelBoxTypeSelectModal } from '@components/ParcelBoxTypeSelectModal'
 
 const DEFAULT_FORM_VALUES: RateCalculatorFormData = {
   // Ship From Address
@@ -40,11 +38,14 @@ const DEFAULT_FORM_VALUES: RateCalculatorFormData = {
 
   // Parcels
   parcels: [{
+    box_type_name: '',
     width: 0,
     height: 0,
     depth: 0,
     dimension_unit: 'cm',
     weight_value: 0,
+    net_weight_value: 0,
+    parcel_weight_value: 0,
     weight_unit: 'kg',
     description: '',
     parcel_items: [{
@@ -72,18 +73,8 @@ const RateCalculator = () => {
     title: string
   }>({ isOpen: false, type: 'ship_from', title: '' })
 
-  const [boxTypeModal, setBoxTypeModal] = useState<{
-    isOpen: boolean
-    parcelIndex: number
-  }>({ isOpen: false, parcelIndex: 0 })
 
-  const [itemsModal, setItemsModal] = useState<{
-    isOpen: boolean
-    parcelIndex: number
-    itemIndex: number
-  }>({ isOpen: false, parcelIndex: 0, itemIndex: 0 })
-
-  const { register, control, handleSubmit, watch, setValue, getValues, formState: { errors } } = useForm<RateCalculatorFormData>({
+  const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm<RateCalculatorFormData>({
     defaultValues: DEFAULT_FORM_VALUES
   })
 
@@ -125,44 +116,6 @@ const RateCalculator = () => {
     setValue(`${prefix}_state`, address.County || address.MailCounty || '')
     setValue(`${prefix}_postal_code`, address.ZipCode || address.MailZipCod || '')
     setValue(`${prefix}_country`, address.Country || address.MailCountr || '')
-  }
-
-  const handleOpenBoxTypeModal = (parcelIndex: number) => {
-    setBoxTypeModal({
-      isOpen: true,
-      parcelIndex
-    })
-  }
-
-  const handleSelectBoxType = (boxType: any) => {
-    const parcelIndex = boxTypeModal.parcelIndex
-
-    // Update parcel dimensions based on box type (skip if custom box with 0 dimensions)
-    if (!(boxType.depth === 0 && boxType.width === 0 && boxType.height === 0)) {
-      setValue(`parcels.${parcelIndex}.width`, boxType.width)
-      setValue(`parcels.${parcelIndex}.height`, boxType.height)
-      setValue(`parcels.${parcelIndex}.depth`, boxType.depth)
-      setValue(`parcels.${parcelIndex}.dimension_unit`, boxType.dimension_unit)
-      setValue(`parcels.${parcelIndex}.description`, boxType.box_type_name)
-    }
-  }
-
-  const handleOpenItemsModal = (parcelIndex: number, itemIndex: number) => {
-    setItemsModal({
-      isOpen: true,
-      parcelIndex,
-      itemIndex
-    })
-  }
-
-  const handleSelectItem = (item: any) => {
-    const { parcelIndex, itemIndex } = itemsModal
-
-    // Update item data based on selected material
-    setValue(`parcels.${parcelIndex}.parcel_items.${itemIndex}.description`, item.description)
-    setValue(`parcels.${parcelIndex}.parcel_items.${itemIndex}.item_id`, item.material_code)
-    setValue(`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`, item.sku || '')
-    setValue(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`, item.hscode || '')
   }
 
   return (
@@ -243,15 +196,13 @@ const RateCalculator = () => {
           </CardHeader>
           <Divider />
           <CardBody>
-            <ParcelsForm
+            <ParcelsSection
               register={register}
               control={control}
               errors={errors}
-              watch={watch}
               setValue={setValue}
-              getValues={getValues}
-              onOpenBoxTypeModal={handleOpenBoxTypeModal}
-              onOpenItemsModal={handleOpenItemsModal}
+              watch={watch}
+              validationMode="rate-calculator"
             />
           </CardBody>
         </Card>
@@ -313,19 +264,6 @@ const RateCalculator = () => {
         title={addressModal.title}
       />
 
-      {/* Box Type Selection Modal */}
-      <ParcelBoxTypeSelectModal
-        isOpen={boxTypeModal.isOpen}
-        onClose={() => setBoxTypeModal({ ...boxTypeModal, isOpen: false })}
-        onSelect={handleSelectBoxType}
-      />
-
-      {/* Items Selection Modal */}
-      <ItemsSelectModal
-        isOpen={itemsModal.isOpen}
-        onClose={() => setItemsModal({ ...itemsModal, isOpen: false })}
-        onSelect={handleSelectItem}
-      />
     </div>
   )
 }

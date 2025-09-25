@@ -125,7 +125,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
               rows={1}
               className="resize-none"
               minRows={1}
-              color={!watch('pick_up_instructions') ? "warning" : "default"}
+              // color={!watch('pick_up_instructions') ? "warning" : "default"}
             />
           </div>
         </>

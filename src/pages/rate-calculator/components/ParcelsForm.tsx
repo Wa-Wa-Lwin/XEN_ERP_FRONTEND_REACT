@@ -393,6 +393,34 @@ const ParcelItems: React.FC<ParcelItemsProps> = ({
             />
 
             <Controller
+              name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`}
+              control={control}
+              rules={{
+                required: 'Item weight is required',
+                min: { value: 0.01, message: 'Must be greater than 0' }
+              }}
+              render={({ field }) => (
+                <Input
+                  type="number"
+                  label="Weight (kg)"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  value={field.value?.toString() || ''}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value}
+                  errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value?.message}
+                />
+              )}
+            />
+
+            <input
+              type="hidden"
+              {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_unit`)}
+              value="kg"
+            />
+
+            <Controller
               name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`}
               control={control}
               render={({ field }) => (

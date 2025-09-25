@@ -3,6 +3,7 @@ import { Button, Card, CardBody } from '@heroui/react'
 import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
 import { useNotification } from '@context/NotificationContext'
+import { calculateAndTransformRates, calculateShippingRates, type RateCalculationFormData } from '@services/rateCalculationService'
 // import { DEFAULT_FORM_VALUES } from '../constants/form-defaults'
 import {
   BasicInformation,
@@ -55,130 +56,36 @@ const ShipmentForm = () => {
     try {
       setIsCalculatingRate(true)
 
-      // Transform form data to match the backend API format
-      const shipment = {
-        ship_from: {
-          contact_name: formData.ship_from_contact_name,
-          company_name: formData.ship_from_company_name,
-          street1: formData.ship_from_street1,
-          city: formData.ship_from_city,
-          state: formData.ship_from_state,
-          postal_code: formData.ship_from_postal_code,
-          country: formData.ship_from_country,
-          phone: formData.ship_from_phone,
-          email: formData.ship_from_email
-        },
-        ship_to: {
-          contact_name: formData.ship_to_contact_name,
-          company_name: formData.ship_to_company_name,
-          street1: formData.ship_to_street1,
-          city: formData.ship_to_city,
-          state: formData.ship_to_state,
-          postal_code: formData.ship_to_postal_code,
-          country: formData.ship_to_country,
-          phone: formData.ship_to_phone,
-          email: formData.ship_to_email
-        },
-        parcels: formData.parcels?.map(parcel => ({
-          box_type: "custom",
-          dimension: {
-            width: parseFloat(String(parcel.width)) || 0,
-            height: parseFloat(String(parcel.height)) || 0,
-            depth: parseFloat(String(parcel.depth)) || 0,
-            unit: parcel.dimension_unit
-          },
-          items: parcel.parcel_items?.map(item => ({
-            description: item.description,
-            quantity: parseInt(String(item.quantity)) || 1,
-            price: {
-              currency: item.price_currency,
-              amount: parseFloat(String(item.price_amount)) || 0,
-            },
-            item_id: item.item_id,
-            origin_country: item.origin_country,
-            weight: {
-              unit: item.weight_unit,
-              value: parseFloat(String(item.weight_value)) || 0,
-            },
-            sku: item.sku,
-            hs_code: item.hs_code
-          })),
-          description: parcel.description,
-          weight: {
-            unit: parcel.weight_unit,
-            value: parseFloat(String(parcel.weight_value)) || 0
-          }
-        })),
-        delivery_instructions: "handle with care"
+      // Convert ShipmentFormData to RateCalculationFormData
+      const serviceFormData: RateCalculationFormData = {
+        ship_from_contact_name: formData.ship_from_contact_name,
+        ship_from_company_name: formData.ship_from_company_name,
+        ship_from_street1: formData.ship_from_street1,
+        ship_from_city: formData.ship_from_city,
+        ship_from_state: formData.ship_from_state,
+        ship_from_postal_code: formData.ship_from_postal_code,
+        ship_from_country: formData.ship_from_country,
+        ship_from_phone: formData.ship_from_phone,
+        ship_from_email: formData.ship_from_email,
+        ship_to_contact_name: formData.ship_to_contact_name,
+        ship_to_company_name: formData.ship_to_company_name,
+        ship_to_street1: formData.ship_to_street1,
+        ship_to_city: formData.ship_to_city,
+        ship_to_state: formData.ship_to_state,
+        ship_to_postal_code: formData.ship_to_postal_code,
+        ship_to_country: formData.ship_to_country,
+        ship_to_phone: formData.ship_to_phone,
+        ship_to_email: formData.ship_to_email,
+        parcels: formData.parcels
       }
 
-      // Determine type based on countries (you can modify this logic as needed)
-      // const type = formData.ship_from_country === formData.ship_to_country ? "domestic" : "export"
-      let type: string;
+      // Use the shared rate calculation service to get both original and transformed rates
+      const originalRates = await calculateShippingRates(serviceFormData)
+      const transformedRates = await calculateAndTransformRates(serviceFormData)
 
-      if (formData.ship_from_country === "THA" && formData.ship_to_country === "THA") {
-        type = "domestic";
-      } else if (formData.ship_to_country === "THA" && formData.ship_from_country !== "THA") {
-        type = "import";
-      } else if (formData.ship_from_country === "THA" && formData.ship_to_country !== "THA") {
-        type = "export";
-      } else {
-        type = "cross-border"; // neither side is THA
-      }
-
-
-      // Backend API payload structure
-      const backendPayload = {
-        preparedata: {
-          shipment: shipment
-        },
-        type: type
-      }
-
-      const response = await axios.post(
-        import.meta.env.VITE_APP_CALCULATE_RATE,
-        backendPayload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          }
-        }
-      )
-
-      // Extract rates from the API response
-      const apiRates = response.data?.data?.rates || []
-
-      // Helper function to generate unique rate ID
-      const getRateUniqueId = (rate: any, _index: number) => {
-        return `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time || 'null'}-${rate.total_charge?.amount || 0}-${rate.total_charge?.currency || 'null'}`
-      }
-
-      // Transform API rates to match our interface
-      const transformedRates = apiRates.map((rate: any, index: number) => ({
-        shipper_account_id: rate.shipper_account.id,
-        shipper_account_slug: rate.shipper_account.slug,
-        shipper_account_description: rate.shipper_account.description,
-        service_type: rate.service_type,
-        service_name: rate.service_name,
-        pickup_deadline: rate.pickup_deadline,
-        booking_cut_off: rate.booking_cut_off,
-        delivery_date: rate.delivery_date,
-        transit_time: rate.transit_time?.toString() || '',
-        error_message: rate.error_message || '',
-        info_message: rate.info_message || '',
-        charge_weight_value: rate.charge_weight?.value || 0,
-        charge_weight_unit: rate.charge_weight?.unit || '',
-        total_charge_amount: rate.total_charge?.amount || 0,
-        total_charge_currency: rate.total_charge?.currency || '',
-        unique_id: getRateUniqueId(rate, index), // Add unique ID for selection
-        chosen: false,
-        detailed_charges: JSON.stringify(rate.detailed_charges) || ''
-      }))
-
-      // Store rates in component state
-      console.log('Setting calculated rates:', apiRates)
-      setCalculatedRates(apiRates) // Keep original for display
+      // Store original rates in component state for display
+      console.log('Setting calculated rates:', originalRates)
+      setCalculatedRates(originalRates) // Keep original for RatesSection display
 
       // Store the rates in the form data
       const updatedFormData = {
@@ -390,36 +297,30 @@ const ShipmentForm = () => {
     if (calculatedRates.length === 0) {
       formDataWithRates = await calculateRates(formData)
     } else {
-      // Helper function to generate unique rate ID (same as in calculateRates)
-      const getRateUniqueId = (rate: any, _index: number) => {
-        const shipperAccountId = rate.shipper_account?.id || rate.shipper_account_id
-        const totalChargeAmount = rate.total_charge?.amount || rate.total_charge_amount || 0
-        const totalChargeCurrency = rate.total_charge?.currency || rate.total_charge_currency || 'null'
-        return `${shipperAccountId}-${rate.service_type}-${rate.transit_time || 'null'}-${totalChargeAmount}-${totalChargeCurrency}`
+      // Transform existing original rates for form data
+      const serviceFormData: RateCalculationFormData = {
+        ship_from_contact_name: formData.ship_from_contact_name,
+        ship_from_company_name: formData.ship_from_company_name,
+        ship_from_street1: formData.ship_from_street1,
+        ship_from_city: formData.ship_from_city,
+        ship_from_state: formData.ship_from_state,
+        ship_from_postal_code: formData.ship_from_postal_code,
+        ship_from_country: formData.ship_from_country,
+        ship_from_phone: formData.ship_from_phone,
+        ship_from_email: formData.ship_from_email,
+        ship_to_contact_name: formData.ship_to_contact_name,
+        ship_to_company_name: formData.ship_to_company_name,
+        ship_to_street1: formData.ship_to_street1,
+        ship_to_city: formData.ship_to_city,
+        ship_to_state: formData.ship_to_state,
+        ship_to_postal_code: formData.ship_to_postal_code,
+        ship_to_country: formData.ship_to_country,
+        ship_to_phone: formData.ship_to_phone,
+        ship_to_email: formData.ship_to_email,
+        parcels: formData.parcels
       }
 
-      // Use existing rates data
-      const transformedRates = calculatedRates.map((rate: any, index: number) => ({
-        shipper_account_id: rate.shipper_account?.id || rate.shipper_account_id,
-        shipper_account_slug: rate.shipper_account?.slug || rate.shipper_account_slug,
-        shipper_account_description: rate.shipper_account?.description || rate.shipper_account_description,
-        service_type: rate.service_type,
-        service_name: rate.service_name,
-        pickup_deadline: rate.pickup_deadline,
-        booking_cut_off: rate.booking_cut_off,
-        delivery_date: rate.delivery_date,
-        transit_time: rate.transit_time?.toString() || '',
-        error_message: rate.error_message || '',
-        info_message: rate.info_message || '',
-        charge_weight_value: rate.charge_weight?.value || rate.charge_weight_value || 0,
-        charge_weight_unit: rate.charge_weight?.unit || rate.charge_weight_unit || '',
-        total_charge_amount: rate.total_charge?.amount || rate.total_charge_amount || 0,
-        total_charge_currency: rate.total_charge?.currency || rate.total_charge_currency || '',
-        unique_id: getRateUniqueId(rate, index), // Add unique ID for selection
-        chosen: false,
-        detailed_charges: typeof rate.detailed_charges === 'string' ? rate.detailed_charges : JSON.stringify(rate.detailed_charges) || ''
-      }))
-
+      const transformedRates = await calculateAndTransformRates(serviceFormData)
       formDataWithRates = {
         ...formData,
         rates: transformedRates
@@ -531,19 +432,14 @@ const ShipmentForm = () => {
                 <hr />
               </div>
             </div>
-            <div className="py-1 px-4">
-              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" forceRefresh={refreshCounter} watch={watch} />
-              <div className="pt-2 px-1">
-                <hr />
-              </div>
-            </div>
-            <div className="py-1 px-4">
-              <div className="flex items-center justify-left mb-4">                
+            {/* Addresses Section  */}
+            <div className="flex grid grid-cols-1 md:grid-cols-2 gap-3 py-1 px-4">
+              <div className="flex gap-2 items-center">
+                <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" forceRefresh={refreshCounter} watch={watch} />
                 <Button
                   size="sm"
                   variant="bordered"
                   color="primary"
-                  startContent={<Icon icon="solar:refresh-bold" />}
                   onPress={() => {
                     const currentValues = getValues();
 
@@ -581,20 +477,26 @@ const ShipmentForm = () => {
                   }}
 
                 >
-                  Swap Addresses
+                  <Icon icon="solar:refresh-bold" />
+                  
                 </Button>
               </div>
-              <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" forceRefresh={refreshCounter} watch={watch} />
-              <div className="pt-2 px-1">
-                <hr />
+
+              <div className="">
+                <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" forceRefresh={refreshCounter} watch={watch} />
               </div>
             </div>
+            <div className="pt-2 px-1">
+              <hr />
+            </div>
+
             <div className="py-1 px-4">
               <PickupInformation register={register} control={control} errors={errors} today={today} setValue={setValue} watch={watch} />
               <div className="pt-2 px-1">
                 <hr />
               </div>
             </div>
+
 
             <div className="py-1 px-4">
               <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} watch={watch} />
