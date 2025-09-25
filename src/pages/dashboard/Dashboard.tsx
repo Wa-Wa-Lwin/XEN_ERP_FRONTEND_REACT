@@ -34,6 +34,7 @@ interface ApiResponse {
     international: CategoryData
     all: CategoryData
   }
+  year_list: string[]
 }
 
 const Dashboard: React.FC = () => {
@@ -64,14 +65,11 @@ const Dashboard: React.FC = () => {
     fetchData(selectedYear)
   }, [selectedYear])
 
-  // Generate available years (current year and previous 4 years)
+  // Use years from API response
   const availableYears = useMemo(() => {
-    const years = []
-    for (let i = 0; i < 5; i++) {
-      years.push(currentYear - i)
-    }
-    return years
-  }, [currentYear])
+    if (!data?.year_list) return [currentYear]
+    return data.year_list.map(year => parseInt(year)).sort((a, b) => b - a)
+  }, [data?.year_list, currentYear])
 
   // Calculate percentages for domestic/export/import
   const stats = useMemo(() => {
