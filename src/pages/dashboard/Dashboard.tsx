@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Card, CardHeader, CardBody, Select, SelectItem, Spinner } from '@heroui/react'
+import { Card, CardHeader, CardBody, Autocomplete, AutocompleteItem, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
 
@@ -34,7 +34,7 @@ interface ApiResponse {
     international: CategoryData
     all: CategoryData
   }
-  year_list: string[]
+  year_list: { year: string }[]
 }
 
 const Dashboard: React.FC = () => {
@@ -65,10 +65,20 @@ const Dashboard: React.FC = () => {
     fetchData(selectedYear)
   }, [selectedYear])
 
+  // Update selectedYear when data is loaded to ensure it matches available years
+  useEffect(() => {
+    if (data?.year_list && data.year_list.length > 0) {
+      const availableYears = data.year_list.map(item => parseInt(item.year)).sort((a, b) => b - a)
+      if (!availableYears.includes(selectedYear)) {
+        setSelectedYear(availableYears[0])
+      }
+    }
+  }, [data?.year_list, selectedYear])
+
   // Use years from API response
   const availableYears = useMemo(() => {
     if (!data?.year_list) return [currentYear]
-    return data.year_list.map(year => parseInt(year)).sort((a, b) => b - a)
+    return data.year_list.map(item => parseInt(item.year)).sort((a, b) => b - a)
   }, [data?.year_list, currentYear])
 
   // Calculate percentages for domestic/export/import
@@ -513,142 +523,143 @@ const Dashboard: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Shipment Dashboard</h1>
-        <Select
+        <Autocomplete
           label="Select Year"
-          selectedKeys={[selectedYear.toString()]}
+          selectedKey={availableYears.includes(selectedYear) ? selectedYear.toString() : ""}
           className="w-40"
-          onSelectionChange={(keys) => {
-            const year = parseInt(Array.from(keys)[0] as string)
-            setSelectedYear(year)
+          onSelectionChange={(key) => {
+            if (key) {
+              setSelectedYear(parseInt(key as string))
+            }
           }}
         >
           {availableYears.map((year) => (
-            <SelectItem key={year.toString()} value={year.toString()}>
+            <AutocompleteItem key={year.toString()} value={year.toString()}>
               {year}
-            </SelectItem>
+            </AutocompleteItem>
           ))}
-        </Select>
+        </Autocomplete>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Circle Charts */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Icon icon="solar:pie-chart-bold" className="text-blue-500" />
-            Shipment Distribution for {selectedYear}
-          </h2>
-        </CardHeader>
-        <CardBody>
-          <div className="flex justify-around items-center py-4">
-            <CircleChart
-              percentage={stats.domestic.percentage}
-              color="#3b82f6"
-              label="Domestic"
-              value={stats.domestic.count}
-            />
-            <CircleChart
-              percentage={stats.export.percentage}
-              color="#10b981"
-              label="Export"
-              value={stats.export.count}
-            />
-            <CircleChart
-              percentage={stats.import.percentage}
-              color="#f59e0b"
-              label="Import"
-              value={stats.import.count}
-            />
-            <CircleChart
-              percentage={stats.international.percentage}
-              color="#8b5cf6"
-              label="International"
-              value={stats.international.count}
-            />
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Circle Charts */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-semibold text-green-600">Approved</h3>
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Icon icon="solar:pie-chart-bold" className="text-blue-500" />
+              Shipment Distribution for {selectedYear}
+            </h2>
           </CardHeader>
           <CardBody>
-            <div className="space-y-4">
-              <div className="text-2xl font-bold text-green-600 text-center">{stats.overall.approved.toLocaleString()}</div>
-              <PieChart
-                data={[
-                  { label: 'Domestic', value: stats.domestic.approved, color: '#3b82f6' },
-                  { label: 'Export', value: stats.export.approved, color: '#10b981' },
-                  { label: 'Import', value: stats.import.approved, color: '#f59e0b' },
-                  { label: 'International', value: stats.international.approved, color: '#8b5cf6' }
-                ]}
-                size={140}
+            <div className="flex justify-around items-center py-4">
+              <CircleChart
+                percentage={stats.domestic.percentage}
+                color="#3b82f6"
+                label="Domestic"
+                value={stats.domestic.count}
+              />
+              <CircleChart
+                percentage={stats.export.percentage}
+                color="#10b981"
+                label="Export"
+                value={stats.export.count}
+              />
+              <CircleChart
+                percentage={stats.import.percentage}
+                color="#f59e0b"
+                label="Import"
+                value={stats.import.count}
+              />
+              <CircleChart
+                percentage={stats.international.percentage}
+                color="#8b5cf6"
+                label="International"
+                value={stats.international.count}
               />
             </div>
           </CardBody>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold text-yellow-600">Waiting</h3>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-yellow-600">{stats.overall.waiting.toLocaleString()}</div>
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span>Domestic:</span>
-                  <span>{stats.domestic.waiting}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Export:</span>
-                  <span>{stats.export.waiting}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Import:</span>
-                  <span>{stats.import.waiting}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>International:</span>
-                  <span>{stats.international.waiting}</span>
-                </div>
+        {/* Status Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold text-green-600">Approved</h3>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-4">
+                <div className="text-2xl font-bold text-green-600 text-center">{stats.overall.approved.toLocaleString()}</div>
+                <PieChart
+                  data={[
+                    { label: 'Domestic', value: stats.domestic.approved, color: '#3b82f6' },
+                    { label: 'Export', value: stats.export.approved, color: '#10b981' },
+                    { label: 'Import', value: stats.import.approved, color: '#f59e0b' },
+                    { label: 'International', value: stats.international.approved, color: '#8b5cf6' }
+                  ]}
+                  size={140}
+                />
               </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold text-red-600">Rejected</h3>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-red-600">{stats.overall.rejected.toLocaleString()}</div>
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span>Domestic:</span>
-                  <span>{stats.domestic.rejected}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Export:</span>
-                  <span>{stats.export.rejected}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Import:</span>
-                  <span>{stats.import.rejected}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>International:</span>
-                  <span>{stats.international.rejected}</span>
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold text-yellow-600">Waiting</h3>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-2">
+                <div className="text-2xl font-bold text-yellow-600">{stats.overall.waiting.toLocaleString()}</div>
+                <div className="text-sm space-y-1">
+                  <div className="flex justify-between">
+                    <span>Domestic:</span>
+                    <span>{stats.domestic.waiting}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Export:</span>
+                    <span>{stats.export.waiting}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Import:</span>
+                    <span>{stats.import.waiting}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>International:</span>
+                    <span>{stats.international.waiting}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold text-red-600">Rejected</h3>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-2">
+                <div className="text-2xl font-bold text-red-600">{stats.overall.rejected.toLocaleString()}</div>
+                <div className="text-sm space-y-1">
+                  <div className="flex justify-between">
+                    <span>Domestic:</span>
+                    <span>{stats.domestic.rejected}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Export:</span>
+                    <span>{stats.export.rejected}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Import:</span>
+                    <span>{stats.import.rejected}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>International:</span>
+                    <span>{stats.international.rejected}</span>
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
 
       </div>
 
