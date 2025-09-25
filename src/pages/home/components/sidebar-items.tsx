@@ -179,6 +179,19 @@ export const sectionItems: SidebarItem[] = [
       },      
     ],
   },
+  {
+    key: "dashboard",
+    title: "Dashboard",
+    to: "/dashboard",
+    items: [
+      {
+        key: "dashboard",
+        to: "/dashboard",
+        icon: "majesticons:home",
+        title: "Dashboard",
+      },      
+    ],
+  },
 ];
 
 export const sectionItemsWithTeams: SidebarItem[] = [

@@ -13,6 +13,7 @@ import ProtectedRoute from "@components/common/ProtectedRoute";
 import Items from "@pages/items/Items";
 import Addresses from "@pages/addresses/Addresses";
 import RateCalculator from "@pages/rate-calculator/RateCalculator";
+import Dashboard from "@pages/dashboard/Dashboard";
 
 
 export const routes = [
@@ -66,6 +67,15 @@ export const routes = [
           {
             path: "",
             element: <RateCalculator />,
+          },
+        ]
+      },
+      { path: "dashboard",
+        handle: { breadcrumb: "Dashboard" },
+        children:[
+          {
+            path: "",
+            element: <Dashboard />,
           },
         ]
       },

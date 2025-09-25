@@ -209,7 +209,7 @@ const Dashboard: React.FC = () => {
 
           {/* Lines */}
           <path
-            d={createPath(domesticData, '#3b82f6')}
+            d={createPath(domesticData)}
             fill="none"
             stroke="#3b82f6"
             strokeWidth="3"
@@ -217,7 +217,7 @@ const Dashboard: React.FC = () => {
             strokeLinejoin="round"
           />
           <path
-            d={createPath(exportData, '#10b981')}
+            d={createPath(exportData)}
             fill="none"
             stroke="#10b981"
             strokeWidth="3"
@@ -225,7 +225,7 @@ const Dashboard: React.FC = () => {
             strokeLinejoin="round"
           />
           <path
-            d={createPath(importData, '#f59e0b')}
+            d={createPath(importData)}
             fill="none"
             stroke="#f59e0b"
             strokeWidth="3"
