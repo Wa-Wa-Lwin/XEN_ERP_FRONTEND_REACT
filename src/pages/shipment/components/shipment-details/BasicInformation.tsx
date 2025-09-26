@@ -30,20 +30,26 @@ const BasicInformation = ({
 }: BasicInformationProps) => {
 
   let labelData = null;
+  // Extract Invoice link (just the URL string)
+  const to_invoice = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
+  const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
+
   if (shipment.approver_approved_date_time && shipment.label_status === "created") {
     labelData = <>
       <DetailRow label="Label ID" value={shipment.label_id} />
       <DetailRow label="Label Status" value={shipment.label_status} />
       <DetailRow label="Label" value={shipment.files_label_url} />
       <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
+      <hr />
       <DetailRow label="Pick Up Date" value={shipment.pick_up_date} />
       <DetailRow label="Pick Up Created Status" value={shipment.pick_up_created_status} />
       <DetailRow label="Pickup Confirmation Numbers" value={shipment.pickup_confirmation_numbers} />
+      <hr />
       <DetailRow label="Invoice No" value={shipment.invoice_no} />
-      <DetailRow label="Invoice" value={import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_AND_PACKING_SLIP_URL`${shipment.shipmentRequestID}`} />
+      <DetailRow label="Invoice" value={to_invoice} />
       <DetailRow label="Invoice Date" value={shipment.invoice_date} />
       <DetailRow label="Invoice Due Date" value={shipment.invoice_due_date} />
-      <DetailRow label="Packing Slip" value={import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_AND_PACKING_SLIP_URL`${shipment.shipmentRequestID}`} />
+      <DetailRow label="Packing Slip" value={to_packing_slip} />
       <DetailRow label="Approved Date" value={formatDateTime(shipment.approver_approved_date_time)} />
     </>;
   }
