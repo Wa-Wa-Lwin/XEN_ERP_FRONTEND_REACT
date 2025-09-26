@@ -60,61 +60,64 @@ const NotificationContainer: React.FC = () => {
   if (notifications.length === 0) return null
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2 max-w-md">
-      {notifications.map((notification) => {
-        const config = getNotificationConfig(notification.type)
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-5xl space-y-4">
+        {notifications.map((notification) => {
+          const config = getNotificationConfig(notification.type)
 
-        return (
-          <Card
-            key={notification.id}
-            className={`${config.bgColor} ${config.borderColor} border-l-4 shadow-lg animate-in slide-in-from-right duration-300`}
-            shadow="sm"
-          >
-            <CardBody className="p-4">
-              <div className="flex items-start space-x-3">
-                {/* Icon */}
-                <div className={`${config.iconColor} flex-shrink-0 mt-0.5`}>
-                  <Icon icon={config.icon} className="w-5 h-5" />
+          return (
+            <Card
+              key={notification.id}
+              className={`${config.bgColor} ${config.borderColor} border-4 shadow-2xl w-full h-64 animate-in fade-in duration-300`}
+              shadow="none"
+            >
+              <CardBody className="p-8 flex flex-col justify-center">
+                <div className="flex items-start space-x-6">
+                  {/* Icon */}
+                  <div className={`${config.iconColor} flex-shrink-0`}>
+                    <Icon icon={config.icon} className="w-10 h-10" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    {notification.title && (
+                      <h4 className={`text-2xl font-bold ${config.titleColor} mb-3`}>
+                        {notification.title}
+                      </h4>
+                    )}
+                    <p
+                      className={`text-lg ${config.messageColor} whitespace-pre-line break-words leading-relaxed`}
+                    >
+                      {notification.message}
+                    </p>
+
+                    {notification.action && (
+                      <div className="mt-6">
+                        <Button
+                          size="lg"
+                          variant="solid"
+                          color={notification.type === 'error' ? 'danger' : 'primary'}
+                          onPress={notification.action.onClick}
+                        >
+                          {notification.action.label}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Close Button */}
+                  <button
+                    onClick={() => hideNotification(notification.id)}
+                    className={`${config.iconColor} hover:opacity-70 flex-shrink-0 transition-opacity`}
+                  >
+                    <Icon icon="solar:close-square-bold" className="w-8 h-8" />
+                  </button>
                 </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  {notification.title && (
-                    <h4 className={`text-sm font-medium ${config.titleColor} mb-1`}>
-                      {notification.title}
-                    </h4>
-                  )}
-                  <p className={`text-sm ${config.messageColor} whitespace-pre-line`}>
-                    {notification.message}
-                  </p>
-
-                  {/* Action Button */}
-                  {notification.action && (
-                    <div className="mt-3">
-                      <Button
-                        size="sm"
-                        variant="flat"
-                        color={notification.type === 'error' ? 'danger' : 'primary'}
-                        onPress={notification.action.onClick}
-                      >
-                        {notification.action.label}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Close Button */}
-                <button
-                  onClick={() => hideNotification(notification.id)}
-                  className={`${config.iconColor} hover:opacity-70 flex-shrink-0 transition-opacity`}
-                >
-                  <Icon icon="solar:close-square-bold" className="w-4 h-4" />
-                </button>
-              </div>
-            </CardBody>
-          </Card>
-        )
-      })}
+              </CardBody>
+            </Card>
+          )
+        })}
+      </div>
     </div>
   )
 }
