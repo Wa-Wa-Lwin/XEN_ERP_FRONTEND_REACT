@@ -397,7 +397,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             inputWrapper: "min-h-unit-8 h-unit-8"
                                         }}
                                         color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`) ? "warning" : "default"}
-                                        onChange={(e) => {
+                                        onChange={() => {
                                             // register automatically handles the field change
                                             // Clear rates since price changed
                                             if (onClearRates) {
@@ -408,58 +408,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         min={0}
                                     />
 
-                                    {/* <Textarea
-                                        {...register(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`, { required: isItemFieldRequired('price_amount') ? 'Price is required' : false, min: 0 })}
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        variant="flat"
-                                        size="sm"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount}
-                                        classNames={{
-                                            input: "text-sm",
-                                            inputWrapper: "min-h-unit-8 h-unit-8"
-                                        }}
-                                        min={0}
-                                        minRows={1}
-                                    /> */}
                                 </TableCell>
-                                {/* <TableCell>
-                                    <Controller
-                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
-                                        control={control}
-                                        rules={{ required: isItemFieldRequired('price_currency') ? 'Currency is required' : false }}
-                                        defaultValue="THB"
-                                        render={({ field }) => (
-                                            <Select
-                                                {...field}
-                                                placeholder="THB"
-                                                variant="flat"
-                                                size="sm"
-                                                defaultSelectedKeys={['THB']}
-                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}
-                                                classNames={{
-                                                    trigger: "min-h-unit-8 h-unit-8",
-                                                    value: "text-sm"
-                                                }}
-                                                onSelectionChange={(keys) => {
-                                                    const selectedKey = Array.from(keys)[0] as string
-                                                    if (selectedKey) {
-                                                        field.onChange(selectedKey)
-                                                    }
-                                                }}
-                                            >
-                                                {CURRENCIES.map((currency) => (
-                                                    <SelectItem key={currency.key} value={currency.value}>
-                                                        {currency.key}
-                                                    </SelectItem>
-                                                ))}
-                                            </Select>
-                                        )}
-                                    />
-                                </TableCell> */}
                                 <TableCell>
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
@@ -509,8 +458,8 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             <Input
                                                 {...field}
                                                 type="number"
-                                                step="0.01"
-                                                placeholder="0.00"
+                                                step="0.00001"   // ✅ allow up to 5 decimals
+                                                placeholder="0.00000"
                                                 variant="flat"
                                                 size="sm"
                                                 errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value?.message}
@@ -521,13 +470,20 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                 }}
                                                 color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`) ? "warning" : "default"}
                                                 onChange={(e) => {
-                                                    field.onChange(e)
+                                                    let val = e.target.value;
+                                                    // ✅ force max 5 decimals
+                                                    if (val && val.includes(".")) {
+                                                        val = parseFloat(val).toFixed(5);
+                                                    }
+                                                    field.onChange(val);
+
                                                     if (onWeightChange) {
-                                                        setTimeout(onWeightChange, 100)
+                                                        setTimeout(onWeightChange, 100);
                                                     }
                                                 }}
                                                 min={0}
                                             />
+
                                         )}
                                     />
                                 </TableCell>

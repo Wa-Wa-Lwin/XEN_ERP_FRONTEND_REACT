@@ -36,9 +36,10 @@ interface AddressSelectorProps extends FormSectionProps {
   prefix: 'ship_from' | 'ship_to'
   forceRefresh?: number
   watch: (name?: string) => any
+  onClearRates?: () => void
 }
 
-const AddressSelector = ({ register, errors, control, title, prefix, setValue, forceRefresh, watch }: AddressSelectorProps) => {
+const AddressSelector = ({ register, errors, control, title, prefix, setValue, forceRefresh, watch, onClearRates }: AddressSelectorProps) => {
   // Helper function to determine if a field should be required based on send_to value
   const isFieldRequired = (_fieldName: string) => {
     // All address fields are required regardless of send_to value
@@ -108,6 +109,12 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
   }
 
   const handleAddressSelect = (address: AddressData) => {
+    // Clear rates since address is changing
+    if (onClearRates) {
+      console.log(`${prefix} address selected, clearing rates...`)
+      onClearRates()
+    }
+
     // Fill form fields with selected address data
     if (setValue) {
       // Use setValue with shouldDirty and shouldTouch options to trigger form updates
@@ -216,6 +223,13 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_company_name`]}
             key={`${formKey}_${prefix}_company_name`}
             color={!watch(`${prefix}_company_name`) ? "warning" : "default"}
+            onChange={() => {
+              // Clear rates since company name changed
+              if (onClearRates) {
+                console.log(`${prefix} company name changed, clearing rates...`)
+                onClearRates()
+              }
+            }}
             minRows={1}
           />
           <Textarea
@@ -277,6 +291,11 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                   console.log('Country selected:', key);
                   if (key) {
                     field.onChange(key)
+                    // Clear rates since country changed
+                    if (onClearRates) {
+                      console.log(`${prefix} country changed, clearing rates...`)
+                      onClearRates()
+                    }
                   }
                 }}
                 listboxProps={{
@@ -308,6 +327,13 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_city`]}
             key={`${formKey}_${prefix}_city`}
             color={!watch(`${prefix}_city`) ? "warning" : "default"}
+            onChange={() => {
+              // Clear rates since city changed
+              if (onClearRates) {
+                console.log(`${prefix} city changed, clearing rates...`)
+                onClearRates()
+              }
+            }}
             minRows={1}
           />
 
@@ -320,6 +346,13 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_state`]}
             key={`${formKey}_${prefix}_state`}
             color={!watch(`${prefix}_state`) ? "warning" : "default"}
+            onChange={() => {
+              // Clear rates since state changed
+              if (onClearRates) {
+                console.log(`${prefix} state changed, clearing rates...`)
+                onClearRates()
+              }
+            }}
             minRows={1}
           />
 
@@ -332,6 +365,13 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_postal_code`]}
             key={`${formKey}_${prefix}_postal_code`}
             color={!watch(`${prefix}_postal_code`) ? "warning" : "default"}
+            onChange={() => {
+              // Clear rates since postal code changed
+              if (onClearRates) {
+                console.log(`${prefix} postal code changed, clearing rates...`)
+                onClearRates()
+              }
+            }}
             minRows={1}
           />
 
@@ -345,6 +385,13 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             minRows={1}
             key={`${formKey}_${prefix}_street1`}
             color={!watch(`${prefix}_street1`) ? "warning" : "default"}
+            onChange={() => {
+              // Clear rates since street address changed
+              if (onClearRates) {
+                console.log(`${prefix} street address changed, clearing rates...`)
+                onClearRates()
+              }
+            }}
           />
 
           <Textarea

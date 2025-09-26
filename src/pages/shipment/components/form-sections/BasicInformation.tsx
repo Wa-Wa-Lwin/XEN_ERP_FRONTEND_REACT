@@ -6,9 +6,10 @@ import { useState, useEffect } from 'react'
 
 interface BasicInformationProps extends FormSectionProps {
   watch: (name?: string) => any
+  onClearRates?: () => void
 }
 
-const BasicInformation = ({ register, errors, control, watch, setValue }: BasicInformationProps) => {
+const BasicInformation = ({ register, errors, control, watch, setValue, onClearRates }: BasicInformationProps) => {
 
   const [selectedTopic, setSelectedTopic] = useState<Set<string>>(new Set());
   const [selectedServiceOptions, setSelectedServiceOptions] = useState<Set<string>>(new Set());
@@ -208,6 +209,11 @@ const BasicInformation = ({ register, errors, control, watch, setValue }: BasicI
                     if (selectedKey) {
                       field.onChange(selectedKey)
                       setSelectedServiceOptions(new Set([selectedKey]))
+                      // Clear rates since service option changed
+                      if (onClearRates) {
+                        console.log('Service option changed, clearing rates...')
+                        onClearRates()
+                      }
                     }
                   }}
                   color={!watch('service_options') ? "warning" : "default"}
