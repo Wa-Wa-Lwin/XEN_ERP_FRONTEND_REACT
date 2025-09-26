@@ -33,9 +33,10 @@ interface ExtendedParcelItemsProps extends ParcelItemsProps {
     shipFromCountry?: string
     shipToCountry?: string
     validationMode?: 'shipment' | 'rate-calculator'
+    onClearRates?: () => void
 }
 
-const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange, sendTo, shipFromCountry, shipToCountry, validationMode = 'shipment' }: ExtendedParcelItemsProps) => {
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange, sendTo, shipFromCountry, shipToCountry, validationMode = 'shipment', onClearRates }: ExtendedParcelItemsProps) => {
     // Helper function to determine if item fields should be required based on validation mode
     const isItemFieldRequired = (fieldName: string) => {
         if (validationMode === 'rate-calculator') {
@@ -136,6 +137,12 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
 
     const handleMaterialSelect = (selectedMaterial: MaterialData) => {
         if (currentItemIndex !== null) {
+            // Clear rates since material selection changes multiple fields
+            if (onClearRates) {
+                console.log('Material selected for item, clearing rates...')
+                onClearRates()
+            }
+
             const basePath = `parcels.${parcelIndex}.parcel_items.${currentItemIndex}`
             setValue(`${basePath}.description`, selectedMaterial.description || '', { shouldValidate: true, shouldDirty: true })
             setValue(`${basePath}.sku`, selectedMaterial.sku || '', { shouldValidate: true, shouldDirty: true })
@@ -156,6 +163,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                     variant="bordered"
                     startContent={<Icon icon="solar:add-circle-bold" />}
                     onPress={() => {
+                        // Clear rates since new item is being added
+                        if (onClearRates) {
+                            console.log('New item added to parcel, clearing rates...')
+                            onClearRates()
+                        }
                         appendItem(DEFAULT_PARCEL_ITEM)
                         if (onWeightChange) {
                             setTimeout(onWeightChange, 100)
@@ -235,6 +247,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                     minRows={1}
                                                     onChange={(e) => {
                                                         field.onChange(e)
+                                                        // Clear rates since item description changed
+                                                        if (onClearRates) {
+                                                            console.log('Item description changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
                                                         if (onWeightChange) {
                                                             setTimeout(onWeightChange, 100)
                                                         }
@@ -264,6 +281,14 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                     inputWrapper: "min-h-unit-8 h-unit-8"
                                                 }}
                                                 color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.sku`) ? "warning" : "default"}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    // Clear rates since SKU changed
+                                                    if (onClearRates) {
+                                                        console.log('Item SKU changed, clearing rates...')
+                                                        onClearRates()
+                                                    }
+                                                }}
                                                 minRows={1}
                                             />
                                         )}
@@ -290,6 +315,14 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                     inputWrapper: "min-h-unit-8 h-unit-8"
                                                 }}
                                                 color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`) ? "warning" : "default"}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    // Clear rates since HS code changed
+                                                    if (onClearRates) {
+                                                        console.log('Item HS code changed, clearing rates...')
+                                                        onClearRates()
+                                                    }
+                                                }}
                                                 minRows={1}
                                             />
                                         )}
@@ -314,6 +347,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                 onSelectionChange={(key) => {
                                                     if (key) {
                                                         field.onChange(key)
+                                                        // Clear rates since origin country changed
+                                                        if (onClearRates) {
+                                                            console.log('Item origin country changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
                                                     }
                                                 }}
                                                 listboxProps={{
@@ -359,6 +397,14 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             inputWrapper: "min-h-unit-8 h-unit-8"
                                         }}
                                         color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`) ? "warning" : "default"}
+                                        onChange={(e) => {
+                                            // register automatically handles the field change
+                                            // Clear rates since price changed
+                                            if (onClearRates) {
+                                                console.log('Item price changed, clearing rates...')
+                                                onClearRates()
+                                            }
+                                        }}
                                         min={0}
                                     />
 
@@ -433,6 +479,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                 onSelectionChange={(key) => {
                                                     if (key) {
                                                         field.onChange(key.toString());
+                                                        // Clear rates since currency changed
+                                                        if (onClearRates) {
+                                                            console.log('Item currency changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
                                                     } else {
                                                         field.onChange("THB");
                                                     }
@@ -518,6 +569,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             variant="light"
                                             isIconOnly
                                             onPress={() => {
+                                                // Clear rates since item is being removed
+                                                if (onClearRates) {
+                                                    console.log('Item removed from parcel, clearing rates...')
+                                                    onClearRates()
+                                                }
                                                 removeItem(itemIndex)
                                                 if (onWeightChange) {
                                                     setTimeout(onWeightChange, 100)

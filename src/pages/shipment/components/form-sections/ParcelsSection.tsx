@@ -12,9 +12,10 @@ import { ParcelBoxTypeSelectModal } from '@components/ParcelBoxTypeSelectModal'
 interface ParcelsSectionProps extends FormSectionProps {
     watch: any
     validationMode?: 'shipment' | 'rate-calculator'
+    onClearRates?: () => void
 }
 
-const ParcelsSection = ({ register, errors, control, setValue, watch, validationMode = 'shipment' }: ParcelsSectionProps) => {
+const ParcelsSection = ({ register, errors, control, setValue, watch, validationMode = 'shipment', onClearRates }: ParcelsSectionProps) => {
     // Watch the send_to field to conditionally apply validation (only for shipment mode)
     const sendTo = validationMode === 'shipment' ? watch('send_to') : null;
 
@@ -153,6 +154,12 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
 
         console.log('handleBoxTypeSelect called with:', { parcelIndex, boxType })
 
+        // Clear rates since parcel dimensions/weight are changing
+        if (onClearRates) {
+            console.log('Parcel box type changed, clearing rates...')
+            onClearRates()
+        }
+
         // Set form values with shouldValidate and shouldDirty options
         setValue(`parcels.${parcelIndex}.box_type_name`, boxType.box_type_name, {
             shouldValidate: true,
@@ -237,6 +244,12 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
     }
 
     const handleRemoveParcel = (parcelIndex: number) => {
+        // Clear rates since parcels are being removed
+        if (onClearRates) {
+            console.log('Parcel removed, clearing rates...')
+            onClearRates()
+        }
+
         removeParcel(parcelIndex)
         // Clean up state for removed parcel
         // @ts-expect-error - no type
@@ -288,7 +301,14 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                     color="primary"
                     size="sm"
                     startContent={<Icon icon="solar:add-circle-bold" />}
-                    onPress={() => appendParcel(DEFAULT_PARCEL)}
+                    onPress={() => {
+                        // Clear rates since new parcel is being added
+                        if (onClearRates) {
+                            console.log('New parcel added, clearing rates...')
+                            onClearRates()
+                        }
+                        appendParcel(DEFAULT_PARCEL)
+                    }}
                 >
                     Add Parcel
                 </Button>
@@ -400,6 +420,14 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                                 className="text-gray-400" />
                                                         )
                                                     }
+                                                    onChange={(e) => {
+                                                        field.onChange(e)
+                                                        // Clear rates since parcel dimensions are changing
+                                                        if (onClearRates) {
+                                                            console.log('Parcel width changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
+                                                    }}
                                                     min={1}
                                                 />
                                             )}
@@ -428,6 +456,14 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                                 className="text-gray-400" />
                                                         )
                                                     }
+                                                    onChange={(e) => {
+                                                        field.onChange(e)
+                                                        // Clear rates since parcel dimensions are changing
+                                                        if (onClearRates) {
+                                                            console.log('Parcel height changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
+                                                    }}
                                                     min={1}
                                                 />
                                             )}
@@ -456,6 +492,14 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                                 className="text-gray-400" />
                                                         )
                                                     }
+                                                    onChange={(e) => {
+                                                        field.onChange(e)
+                                                        // Clear rates since parcel dimensions are changing
+                                                        if (onClearRates) {
+                                                            console.log('Parcel depth changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
+                                                    }}
                                                     min={1}
                                                 />
                                             )}
@@ -515,6 +559,11 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                     }
                                                     onChange={(e) => {
                                                         field.onChange(e)
+                                                        // Clear rates since parcel weight is changing
+                                                        if (onClearRates) {
+                                                            console.log('Parcel weight changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
                                                         // Trigger weight recalculation when parcel weight changes
                                                         setTimeout(() => updateWeights(parcelIndex), 100)
                                                     }}
@@ -528,7 +577,8 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                             {/* Parcel Items */}
                             <ParcelItems parcelIndex={parcelIndex} control={control} register={register} errors={errors}
                                 setValue={setValue} watch={watch} onWeightChange={() => updateWeights(parcelIndex)} sendTo={sendTo}
-                                shipFromCountry={shipFromCountry} shipToCountry={shipToCountry} validationMode={validationMode} />
+                                shipFromCountry={shipFromCountry} shipToCountry={shipToCountry} validationMode={validationMode}
+                                onClearRates={onClearRates} />
                             {/* Dimensions Row */}
                             <div className="grid grid-cols-1 md:grid-cols-6 sm:grid-cols-3 gap-3">
                                 <div className='col-span-4 flex gap-3'>

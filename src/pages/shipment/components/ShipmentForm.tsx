@@ -30,16 +30,31 @@ const ShipmentForm = () => {
 
   // Watch for changes in critical fields that affect rates
   const watchedFields = watch([
-    'ship_from_country', 'ship_from_postal_code', 'ship_from_city',
-    'ship_to_country', 'ship_to_postal_code', 'ship_to_city',
+    'ship_from_country', 'ship_from_postal_code', 'ship_from_city', 'ship_from_state', 'ship_from_street1', 'ship_from_company_name',
+    'ship_to_country', 'ship_to_postal_code', 'ship_to_city', 'ship_to_state', 'ship_to_street1', 'ship_to_company_name',
     'parcels'
   ])
 
   // Store the form data snapshot when rates were calculated
-  const [setRateCalculationSnapshot] = React.useState<any>(null)
+  const [rateCalculationSnapshot, setRateCalculationSnapshot] = React.useState<any>(null)
   const handleRateSelection = (rateId: string) => {
     setSelectedRateId(rateId)
   }
+
+  // Effect to clear rates when critical form data changes
+  React.useEffect(() => {
+    if (rateCalculationSnapshot && calculatedRates.length > 0) {
+      // Check if any critical field has changed since rates were calculated
+      const hasChanged = JSON.stringify(watchedFields) !== JSON.stringify(rateCalculationSnapshot)
+
+      if (hasChanged) {
+        console.log('Critical form data changed, clearing rates...')
+        console.log('Previous:', rateCalculationSnapshot)
+        console.log('Current:', watchedFields)
+        handleClearRates()
+      }
+    }
+  }, [watchedFields, rateCalculationSnapshot, calculatedRates.length])
   const [errorModal, setErrorModal] = useState<{
     isOpen: boolean
     title: string
@@ -328,12 +343,16 @@ const ShipmentForm = () => {
     }
   }
 
-  const handleClearForm = () => {
-    // Clear calculated rates and selected rate first
+  const handleClearRates = () => {
     setCalculatedRates([])
     setTransformedRates([])
     setSelectedRateId('')
     setRateCalculationSnapshot(null)
+  }
+
+  const handleClearForm = () => {
+    // Clear calculated rates and selected rate first
+    handleClearRates()
     // Close any open modals
     setIsPreviewOpen(false)
     setErrorModal({
@@ -480,7 +499,7 @@ const ShipmentForm = () => {
 
 
             <div className="py-1 px-4">
-              <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} watch={watch} />
+              <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} watch={watch} onClearRates={handleClearRates} />
               <div className="pt-2 px-1">
                 <hr />
               </div>

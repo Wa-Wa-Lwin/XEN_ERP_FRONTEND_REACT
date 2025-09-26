@@ -377,7 +377,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Select</TableColumn>
               <TableColumn>Carrier</TableColumn>
               <TableColumn>Service</TableColumn>
-              {/* <TableColumn className='text-right'>Estimated THB</TableColumn> */}
               <TableColumn className="text-right flex items-center gap-1">
                 Estimated THB
                 <Button
@@ -471,7 +470,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                       {convertToTHB(
                         rate.total_charge?.amount ?? null,
                         rate.total_charge?.currency ?? null
-                      )}
+                      )} THB
                     </TableCell>
                     <TableCell>
                       {formatCurrency(
