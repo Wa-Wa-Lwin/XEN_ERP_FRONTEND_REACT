@@ -271,11 +271,11 @@ const ShipmentDetails = () => {
         headers: { "Content-Type": "application/json" },
       });
 
-      if (response.status === 200) {
+      if (response.status === 200 && response.data?.$create_label_response_body?.meta?.code === 200) {
         success('Label created successfully!', 'Success');
         window.location.reload();
       } else {
-        showNotificationError(`Failed to create label (HTTP ${response.status}).`, 'Label Creation Failed');
+        showNotificationError(`Failed to create label (HTTP ${response.data?.$create_label_response_body?.meta?.code}).`, 'Label Creation Failed');
       }
     } catch (error) {
       console.error("Error creating label:", error);

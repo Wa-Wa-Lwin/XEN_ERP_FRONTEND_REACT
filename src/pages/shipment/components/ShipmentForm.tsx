@@ -25,6 +25,7 @@ const ShipmentForm = () => {
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
   const [isCalculatingRate, setIsCalculatingRate] = useState(false)
   const [calculatedRates, setCalculatedRates] = useState<any[]>([])
+  const [transformedRates, setTransformedRates] = useState<any[]>([])
   const [selectedRateId, setSelectedRateId] = useState<string>('')
 
   // Watch for changes in critical fields that affect rates
@@ -86,6 +87,7 @@ const ShipmentForm = () => {
       // Store original rates in component state for display
       console.log('Setting calculated rates:', originalRates)
       setCalculatedRates(originalRates) // Keep original for RatesSection display
+      setTransformedRates(transformedRates) // Store transformed rates to avoid recalculation
 
       // Store the rates in the form data
       const updatedFormData = {
@@ -297,30 +299,7 @@ const ShipmentForm = () => {
     if (calculatedRates.length === 0) {
       formDataWithRates = await calculateRates(formData)
     } else {
-      // Transform existing original rates for form data
-      const serviceFormData: RateCalculationFormData = {
-        ship_from_contact_name: formData.ship_from_contact_name,
-        ship_from_company_name: formData.ship_from_company_name,
-        ship_from_street1: formData.ship_from_street1,
-        ship_from_city: formData.ship_from_city,
-        ship_from_state: formData.ship_from_state,
-        ship_from_postal_code: formData.ship_from_postal_code,
-        ship_from_country: formData.ship_from_country,
-        ship_from_phone: formData.ship_from_phone,
-        ship_from_email: formData.ship_from_email,
-        ship_to_contact_name: formData.ship_to_contact_name,
-        ship_to_company_name: formData.ship_to_company_name,
-        ship_to_street1: formData.ship_to_street1,
-        ship_to_city: formData.ship_to_city,
-        ship_to_state: formData.ship_to_state,
-        ship_to_postal_code: formData.ship_to_postal_code,
-        ship_to_country: formData.ship_to_country,
-        ship_to_phone: formData.ship_to_phone,
-        ship_to_email: formData.ship_to_email,
-        parcels: formData.parcels
-      }
-
-      const transformedRates = await calculateAndTransformRates(serviceFormData)
+      // Use already stored transformed rates to avoid recalculation
       formDataWithRates = {
         ...formData,
         rates: transformedRates
@@ -352,6 +331,7 @@ const ShipmentForm = () => {
   const handleClearForm = () => {
     // Clear calculated rates and selected rate first
     setCalculatedRates([])
+    setTransformedRates([])
     setSelectedRateId('')
     setRateCalculationSnapshot(null)
     // Close any open modals
@@ -472,6 +452,7 @@ const ShipmentForm = () => {
 
                     reset(swappedValues); // replaces all at once
                     setCalculatedRates([]);
+                    setTransformedRates([]);
                     setSelectedRateId('');
                     setRefreshCounter(prev => prev + 1); // Force AddressSelector components to re-render
                   }}

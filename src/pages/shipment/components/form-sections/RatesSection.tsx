@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 
@@ -46,6 +46,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   const [isLoadingRates, setIsLoadingRates] = useState(false)
   const [ratesError, setRatesError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+
+  // Inside RatesSection component, add sorting state
+  const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>(null)
+  const [sortAsc, setSortAsc] = useState(true)
 
   // Cache keys
   const CACHE_KEY = 'exchange_rates_thb'
@@ -178,7 +182,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
     if (amount == null || !currency) return 'N/A'; // covers null and undefined
-    return `${amount.toLocaleString()} ${currency}`;
+    return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
   };
 
   const convertToTHB = (amount: number | undefined | null, currency: string | null) => {
@@ -187,11 +191,11 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     const rate = exchangeRates[currency.toUpperCase()];
     if (!rate) {
       console.log('Exchange rate not found for:', currency, 'Available rates:', Object.keys(exchangeRates));
-      return `${amount.toLocaleString()} ${currency} (Rate N/A)`;
+      return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency} (Rate N/A)`;
     }
 
     const thbAmount = amount * rate;
-    return `${thbAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    return `${thbAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   const convertWeightToKg = (weight: { value: number; unit: string } | null) => {
@@ -292,50 +296,72 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     }
   }, [rates, serviceOption, exchangeRates, selectedRateId, onSelectRate])
 
+
+  // Sorted rates using useMemo
+  const sortedRates = useMemo(() => {
+    const ratesToSort = getAvailableUniqueRates(rates).map(rate => ({
+      ...rate,
+      thbAmount: rate.total_charge
+        ? rate.total_charge.amount * (exchangeRates[rate.total_charge.currency?.toUpperCase()] || 1)
+        : 0
+    }))
+
+    if (sortBy === 'thb') {
+      return ratesToSort.sort((a, b) => sortAsc ? a.thbAmount - b.thbAmount : b.thbAmount - a.thbAmount)
+    } else if (sortBy === 'transit') {
+      return ratesToSort.sort((a, b) => {
+        const aTime = a.transit_time ?? Infinity
+        const bTime = b.transit_time ?? Infinity
+        return sortAsc ? aTime - bTime : bTime - aTime
+      })
+    }
+    return ratesToSort
+  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption])
+
   return (
     <Card shadow="none">
-    {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+      {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
       <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left gap-3 w-full">
         <div className="flex flex-col">
           <h2 className="text-lg font-semibold">Shipping Rates</h2>
-            {ratesError && (
-              <p className="text-red-500 text-sm mt-1">
-                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
-                {ratesError} - Using fallback rates
-              </p>
-            )}
-            {lastUpdated && !ratesError && (
-              <p className="text-gray-500 text-xs mt-1">
-                <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
-                Exchange rates updated: {lastUpdated}
-              </p>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="light"
-              size="sm"
-              startContent={<Icon icon="solar:refresh-bold" />}
-              onPress={() => fetchExchangeRates(true)}
-              isLoading={isLoadingRates}
-              disabled={isLoadingRates}
-              title="Force refresh exchange rates"
-              className='hidden'
-            >
-              {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
-            </Button>
-            <Button
-              type="button"
-              color="primary"
-              size="sm"
-              startContent={<Icon icon="solar:calculator-bold" />}
-              onPress={onCalculateRates}
-              isLoading={isCalculating}
-              disabled={isCalculating}
-            >
-              {isCalculating ? 'Calculating...' : 'Calculate Rates'}
-            </Button>
+          {ratesError && (
+            <p className="text-red-500 text-sm mt-1">
+              <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+              {ratesError} - Using fallback rates
+            </p>
+          )}
+          {lastUpdated && !ratesError && (
+            <p className="text-gray-500 text-xs mt-1">
+              <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
+              Exchange rates updated: {lastUpdated}
+            </p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="light"
+            size="sm"
+            startContent={<Icon icon="solar:refresh-bold" />}
+            onPress={() => fetchExchangeRates(true)}
+            isLoading={isLoadingRates}
+            disabled={isLoadingRates}
+            title="Force refresh exchange rates"
+            className='hidden'
+          >
+            {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
+          </Button>
+          <Button
+            type="button"
+            color="primary"
+            size="sm"
+            startContent={<Icon icon="solar:calculator-bold" />}
+            onPress={onCalculateRates}
+            isLoading={isCalculating}
+            disabled={isCalculating}
+          >
+            {isCalculating ? 'Calculating...' : 'Calculate Rates'}
+          </Button>
         </div>
       </CardHeader>
 
@@ -351,75 +377,100 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Select</TableColumn>
               <TableColumn>Carrier</TableColumn>
               <TableColumn>Service</TableColumn>
-              <TableColumn className='text-right'>Estimated THB</TableColumn>
+              {/* <TableColumn className='text-right'>Estimated THB</TableColumn> */}
+              <TableColumn className="text-right flex items-center gap-1">
+                Estimated THB
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={() => {
+                    if (sortBy === 'thb') setSortAsc(!sortAsc)
+                    else { setSortBy('thb'); setSortAsc(true) }
+                  }}
+                  startContent={<Icon icon="solar:arrow-up-bold" />}
+                />
+              </TableColumn>
               <TableColumn>Total Charge</TableColumn>
               <TableColumn>Charge Weight (kg)</TableColumn>
-              <TableColumn>Transit Time</TableColumn>
+              {/* <TableColumn>Transit Time</TableColumn> */}
+              <TableColumn className="flex items-center gap-1">
+                Transit Time
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={() => {
+                    if (sortBy === 'transit') setSortAsc(!sortAsc)
+                    else { setSortBy('transit'); setSortAsc(true) }
+                  }}
+                  startContent={<Icon icon="solar:arrow-up-bold" />}
+                />
+              </TableColumn>
               <TableColumn>Delivery Date</TableColumn>
               <TableColumn>Pickup Deadline</TableColumn>
               <TableColumn>Booking Cutoff</TableColumn>
             </TableHeader>
             <TableBody emptyContent="No available rates found.">
-              {getAvailableUniqueRates(rates).map((rate, index) => {
+              {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
+              {sortedRates.map((rate, index) => {
                 const rateUniqueId = getRateUniqueId(rate, index)
                 const isSelected = selectedRateId === rateUniqueId
                 return (
-                <TableRow
-                  key={rateUniqueId}
-                  className={isSelected ? 'bg-green-50 border-green-200' : ''}
-                >
-                  <TableCell>
-                    {isSelected ? (
-                      <Button
-                        size="sm"
-                        color="success"
-                        variant="solid"
-                        disabled
-                        startContent={<Icon icon="solar:check-circle-bold" />}
-                      >
-                        {serviceOption === 'Normal' ? 'Cheapest' : 'Selected'}
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        color="primary"
-                        variant="flat"
-                        onPress={() => {
-                          onSelectRate(rateUniqueId)
-                        }}
-                        disabled={!!rate.error_message || !rate.total_charge?.amount}
-                        startContent={<Icon icon="solar:check-circle-line-duotone" />}
-                      >
-                        Select
-                      </Button>
-                    )}
-                  </TableCell>
-                  <TableCell>{rate.shipper_account.description}</TableCell>
-                  <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
-                  <TableCell className="text-right">
-                    {convertToTHB(
-                      rate.total_charge?.amount ?? null,
-                      rate.total_charge?.currency ?? null
-                    )}
-                    {/* {convertToTHB(
+                  <TableRow
+                    key={rateUniqueId}
+                    className={isSelected ? 'bg-green-50 border-green-200' : ''}
+                  >
+                    <TableCell>
+                      {isSelected ? (
+                        <Button
+                          size="sm"
+                          color="success"
+                          variant="solid"
+                          disabled
+                          startContent={<Icon icon="solar:check-circle-bold" />}
+                        >
+                          {serviceOption === 'Normal' ? 'Cheapest' : 'Selected'}
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          color="primary"
+                          variant="flat"
+                          onPress={() => {
+                            onSelectRate(rateUniqueId)
+                          }}
+                          disabled={!!rate.error_message || !rate.total_charge?.amount}
+                          startContent={<Icon icon="solar:check-circle-line-duotone" />}
+                        >
+                          Select
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell>{rate.shipper_account.description}</TableCell>
+                    <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
+                    <TableCell className="text-right">
+                      {convertToTHB(
+                        rate.total_charge?.amount ?? null,
+                        rate.total_charge?.currency ?? null
+                      )}
+                      {/* {convertToTHB(
                       rate.total_charge?.amount ?? null,
                       rate.total_charge?.currency ?? null
                     )} */}
-                  </TableCell>
-                  <TableCell>
-                    {formatCurrency(
-                      rate.total_charge?.amount ?? null,
-                      rate.total_charge?.currency ?? null
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {convertWeightToKg(rate.charge_weight)}
-                  </TableCell>
-                  <TableCell>{rate.transit_time ? `${rate.transit_time} day(s)` : '-'}</TableCell>
-                  <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
-                  <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
-                  <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
-                </TableRow>
+                    </TableCell>
+                    <TableCell>
+                      {formatCurrency(
+                        rate.total_charge?.amount ?? null,
+                        rate.total_charge?.currency ?? null
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {convertWeightToKg(rate.charge_weight)}
+                    </TableCell>
+                    <TableCell>{rate.transit_time ? `${rate.transit_time} day(s)` : '-'}</TableCell>
+                    <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
+                    <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
+                    <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
+                  </TableRow>
                 )
               })}
             </TableBody>
