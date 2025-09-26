@@ -38,7 +38,7 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
                     <ul className="list-disc list-inside text-sm space-y-1">
                       {parcel.items.map((item: any, i: number) => (
                         <li key={i}>
-                          <strong>SKU:</strong> {item.sku || 'N/A'} | <strong>Description:</strong> {item.description} | <strong>Price:</strong> {parseFloat(item.price_amount) || 0} {item.price_currency} | <strong>Qty:</strong> {parseInt(item.quantity) || 1} pcs | <strong>Weight:</strong> {(parseFloat(item.weight_value) || 0).toFixed(1)} {item.weight_unit} | <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country}
+                          <strong>SKU:</strong> {item.sku || 'N/A'} | <strong>Description:</strong> {item.description} | <strong>Price:</strong> {parseFloat(item.price_amount) || 0} {item.price_currency} | <strong>Qty:</strong> {parseInt(item.quantity) || 1} pcs | <strong>Weight:</strong> {(parseFloat(item.weight_value) || 0).toFixed(5)} {item.weight_unit} | <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country}
                         </li>
                       ))}
                     </ul>

@@ -117,11 +117,11 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
         const netWeight = calculateNetWeight(parcelIndex)
         const grossWeight = calculateGrossWeight(parcelIndex)
 
-        setValue(`parcels.${parcelIndex}.net_weight_value`, netWeight.toFixed(2), {
+        setValue(`parcels.${parcelIndex}.net_weight_value`, netWeight.toFixed(5), {
             shouldValidate: true,
             shouldDirty: true
         })
-        setValue(`parcels.${parcelIndex}.weight_value`, grossWeight.toFixed(2), {
+        setValue(`parcels.${parcelIndex}.weight_value`, grossWeight.toFixed(5), {
             shouldValidate: true,
             shouldDirty: true
         })
@@ -543,9 +543,9 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                     {...field}
                                                     isRequired={isFieldRequired('parcel_weight_value')}
                                                     type="number"
-                                                    step="0.01"
+                                                    step="0.00001"
                                                     label={<span>Parcel Weight (kg)</span>}
-                                                    placeholder="Enter parcel weight"
+                                                    placeholder="0.00000"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_weight_value}
                                                     isReadOnly={isAutoFilled(parcelIndex)}
@@ -650,12 +650,12 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                             isRequired = {isFieldRequired('net_weight_value')}
                                                 {...field}
                                                 type="number"
-                                                step="0.01"
+                                                step="0.00001"
                                                 label={
                                                 <span>
-                                                    Net Weight (kg) 
+                                                    Net Weight (kg)
                                                 </span>}
-                                                placeholder="Auto-calculated"
+                                                placeholder="0.00000"
                                                 errorMessage={errors.parcels?.[parcelIndex]?.net_weight_value?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.net_weight_value}
                                                 isReadOnly={true}
@@ -681,9 +681,9 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                 {...field}
                                                 isRequired={isFieldRequired('weight_value')}
                                                 type="number"
-                                                step="0.01"
+                                                step="0.00001"
                                                 label={<span>Gross Weight (kg)</span>}
-                                                placeholder="Auto-calculated"
+                                                placeholder="0.00000"
                                                 errorMessage={errors.parcels?.[parcelIndex]?.weight_value?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.weight_value}
                                                 isReadOnly={true}

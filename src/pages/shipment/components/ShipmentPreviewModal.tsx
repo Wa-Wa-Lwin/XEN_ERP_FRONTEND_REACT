@@ -136,7 +136,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                                 
                                 <strong>Description:</strong> {item.description} | <strong>SKU:</strong> {item.sku || 'N/A'} | <br/> 
                                 <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country || 'N/A'} | <br/> 
-                                <strong>Price:</strong> {parseFloat(String(item.price_amount))} {item.price_currency} | <strong>Qty:</strong> {item.quantity} pcs | <strong>Weight:</strong> {parseFloat(String(item.weight_value)).toFixed(1)} {item.weight_unit} | 
+                                <strong>Price:</strong> {parseFloat(String(item.price_amount))} {item.price_currency} | <strong>Qty:</strong> {item.quantity} pcs | <strong>Weight:</strong> {parseFloat(String(item.weight_value)).toFixed(5)} {item.weight_unit} | 
                                 
                               </li>
                             ))}
