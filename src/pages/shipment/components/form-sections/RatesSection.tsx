@@ -104,17 +104,13 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     }
 
     try {
-      // Using exchangerate-api.com free tier (1500 requests/month)
-      const response = await axios.get<ExchangeRateResponse>(
-        'https://api.exchangerate-api.com/v4/latest/THB'
-      )
+      // Using local API endpoint for exchange rates
+      const apiUrl = import.meta.env.VITE_APP_CONVERT_RATES_TO_THB
+      const response = await axios.get<ExchangeRateResponse>(apiUrl)
 
-      // Convert from THB-based rates to rates TO THB
-      const thbRates: Record<string, number> = {}
-      Object.entries(response.data.conversion_rates).forEach(([currency, rate]) => {
-        thbRates[currency] = 1 / rate // Invert to get rate TO THB
-      })
-      thbRates.THB = 1.0 // THB to THB is always 1
+      // The API response already contains rates TO THB, so use them directly
+      const thbRates: Record<string, number> = response.data.conversion_rates
+      thbRates.THB = 1.0 // Ensure THB to THB is always 1
 
       const timestamp = Date.now()
 
@@ -123,6 +119,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       setExchangeRates(thbRates)
       setLastUpdated(new Date(timestamp).toLocaleString())
       setRatesError(null)
+      console.log('Exchange rates updated:', Object.keys(thbRates))
     } catch (error) {
       console.error('Failed to fetch exchange rates:', error)
 
@@ -144,6 +141,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
           CNY: 4.9,
           SGD: 26.1,
           MYR: 7.8,
+          HKD: 4.13, // 1 HKD = 4.13 THB (approximate)
           THB: 1.0
         })
         // Only show error if we're forcing a refresh, not on initial load
@@ -188,6 +186,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
     const rate = exchangeRates[currency.toUpperCase()];
     if (!rate) {
+      console.log('Exchange rate not found for:', currency, 'Available rates:', Object.keys(exchangeRates));
       return `${amount.toLocaleString()} ${currency} (Rate N/A)`;
     }
 
