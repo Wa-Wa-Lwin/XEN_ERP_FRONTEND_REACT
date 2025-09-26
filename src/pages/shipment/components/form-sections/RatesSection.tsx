@@ -48,7 +48,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
 
   // Inside RatesSection component, add sorting state
-  const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>(null)
+  const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>('thb')
   const [sortAsc, setSortAsc] = useState(true)
 
   // Cache keys
@@ -381,14 +381,24 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn className="text-right flex items-center gap-1">
                 Estimated THB
                 <Button
-                  size="sm"
-                  variant="flat"
+                  className="h-5 w-5 min-w-0"
+                  variant="light"
+                  isIconOnly
                   onPress={() => {
                     if (sortBy === 'thb') setSortAsc(!sortAsc)
                     else { setSortBy('thb'); setSortAsc(true) }
                   }}
-                  startContent={<Icon icon="solar:arrow-up-bold" />}
-                />
+                >
+                  <Icon
+                    icon={sortBy === 'thb'
+                      ? sortAsc
+                        ? "solar:arrow-up-bold"   // lowest → highest
+                        : "solar:arrow-down-bold" // highest → lowest
+                      : "solar:arrow-up-bold" // default when not sorting by THB
+                    }
+                    className="w-3 h-3"
+                  />
+                </Button>
               </TableColumn>
               <TableColumn>Total Charge</TableColumn>
               <TableColumn>Charge Weight (kg)</TableColumn>
@@ -396,14 +406,24 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn className="flex items-center gap-1">
                 Transit Time
                 <Button
-                  size="sm"
-                  variant="flat"
+                  className="h-5 w-5 min-w-0"
+                  variant="light"
+                  isIconOnly
                   onPress={() => {
                     if (sortBy === 'transit') setSortAsc(!sortAsc)
                     else { setSortBy('transit'); setSortAsc(true) }
                   }}
-                  startContent={<Icon icon="solar:arrow-up-bold" />}
-                />
+                >
+                  <Icon
+                    icon={sortBy === 'transit'
+                      ? sortAsc
+                        ? "solar:arrow-up-bold"
+                        : "solar:arrow-down-bold"
+                      : "solar:arrow-up-bold"
+                    }
+                    className="w-3 h-3"
+                  />
+                </Button>
               </TableColumn>
               <TableColumn>Delivery Date</TableColumn>
               <TableColumn>Pickup Deadline</TableColumn>
@@ -452,10 +472,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                         rate.total_charge?.amount ?? null,
                         rate.total_charge?.currency ?? null
                       )}
-                      {/* {convertToTHB(
-                      rate.total_charge?.amount ?? null,
-                      rate.total_charge?.currency ?? null
-                    )} */}
                     </TableCell>
                     <TableCell>
                       {formatCurrency(
