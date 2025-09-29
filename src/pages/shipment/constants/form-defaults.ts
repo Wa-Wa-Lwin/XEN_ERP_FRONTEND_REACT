@@ -39,6 +39,9 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   po_date: new Date().toISOString().split('T')[0], // today
   send_to: 'Approver',
 
+  label_status:'',
+  pick_up_created_status: '', 
+
   // Flattened ship_from properties
   ship_from_country: 'THA',
   ship_from_contact_name: 'Ms. Sasipimol',
