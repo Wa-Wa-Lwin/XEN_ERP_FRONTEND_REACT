@@ -16,7 +16,10 @@ interface BasicInformationProps {
   showError: boolean;
   setShowError: (show: boolean) => void;
   onCreateLabel: () => void;
+  onCreatePickup: () => void;
   formattedError: string;
+  formattedLabelError: string;
+  formattedPickupError: string;
 }
 
 const BasicInformation = ({
@@ -26,8 +29,57 @@ const BasicInformation = ({
   showError,
   setShowError,
   onCreateLabel,
-  formattedError
+  onCreatePickup,
+  formattedError,
+  formattedLabelError,
+  formattedPickupError
+
 }: BasicInformationProps) => {
+
+  let pickupData = null;
+
+  if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success") {
+    pickupData = <>
+      <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
+      <DetailRow label="No" value={shipment.pickup_confirmation_numbers} />
+      <DetailRow label="Status" value={shipment.pick_up_created_status} />
+      <DetailRow label="Date" value={shipment.pick_up_date} />
+      <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
+    </>;
+  }
+  else if (shipment.pick_up_status && shipment.pick_up_created_status === "created_failed") {
+    pickupData = <>
+      <h2 className="text-lg font-semibold">Pickup Information</h2>
+      <div className="my-1 flex gap-2 items-center">
+        <p className="text-red-600 font-semibold">
+          ⚠️ Pickup creation failed
+        </p>
+        <Button
+          color="primary"
+          size="sm"
+          onPress={onCreatePickup}
+          className="px-2 py-0 text-[11px] h-auto min-h-0"
+        >
+          Retry Create Pickup
+        </Button>
+
+      </div>
+      <Button
+        size="sm"
+        color="warning"
+        onPress={() => setShowError(!showError)}
+        className="px-2 py-0 text-[11px] h-auto min-h-0 mb-1"
+      >
+        {showError ? "Hide Error Details" : "Show Error Details"}
+      </Button>
+      {showError && (
+        <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
+
+          <b>Details:</b> {formattedPickupError}
+        </div>
+      )}
+    </>;
+  }
 
   let labelData = null;
   // Extract Invoice link (just the URL string)
@@ -36,21 +88,41 @@ const BasicInformation = ({
 
   if (shipment.approver_approved_date_time && shipment.label_status === "created") {
     labelData = <>
-      <DetailRow label="Label ID" value={shipment.label_id} />
-      <DetailRow label="Label Status" value={shipment.label_status} />
-      <DetailRow label="Label" value={shipment.files_label_url} />
-      <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
-      <hr />
-      <DetailRow label="Pick Up Date" value={shipment.pick_up_date} />
-      <DetailRow label="Pick Up Created Status" value={shipment.pick_up_created_status} />
-      <DetailRow label="Pickup Confirmation Numbers" value={shipment.pickup_confirmation_numbers} />
-      <hr />
-      <DetailRow label="Invoice No" value={shipment.invoice_no} />
-      <DetailRow label="Invoice" value={to_invoice} />
-      <DetailRow label="Invoice Date" value={shipment.invoice_date} />
-      <DetailRow label="Invoice Due Date" value={shipment.invoice_due_date} />
-      <DetailRow label="Packing Slip" value={to_packing_slip} />
-      <DetailRow label="Approved Date" value={formatDateTime(shipment.approver_approved_date_time)} />
+      <h2 className="text-lg font-semibold">Invoice Information</h2>
+      <div className='flex gap-2'>
+        <Button
+          color="secondary"
+          size="sm"
+          onPress={() => window.open(to_invoice, "_blank")}
+          className="px-2 py-0 text-[11px] h-auto min-h-0"
+        >
+          View Invoice
+        </Button>
+        <Button
+          color="secondary"
+          size="sm"
+          onPress={() => window.open(to_packing_slip, "_blank")}
+          className="px-2 py-0 text-[11px] h-auto min-h-0"
+        >
+          View Packing Slip
+        </Button>
+      </div>
+      <DetailRow label="No" value={shipment.invoice_no} />
+      <DetailRow label="Date" value={shipment.invoice_date} />
+      <DetailRow label="Due Date" value={shipment.invoice_due_date} />      
+      <h2 className="text-lg font-semibold mt-1">Label Information</h2>
+      <Button
+        color="secondary"
+        size="sm"
+        onPress={() => window.open(shipment.files_label_url, "_blank")}
+        className="px-2 py-0 text-[11px] h-auto min-h-0"
+      >
+        View Label
+      </Button>
+      <DetailRow label="ID" value={shipment.label_id} />
+      <DetailRow label="Status" value={shipment.label_status} />
+      <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />      
+      {pickupData}
     </>;
   }
   else if (shipment.approver_approved_date_time && shipment.label_status !== "created") {
@@ -70,7 +142,7 @@ const BasicInformation = ({
 
         {showError && (
           <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
-            <b>Details:</b> {formattedError}
+            <b>Details:</b> {formattedError} {formattedLabelError} 
           </div>
         )}
 
@@ -78,11 +150,12 @@ const BasicInformation = ({
           color="primary"
           size="sm"
           onPress={onCreateLabel}
-          startContent={<Icon icon="solar:refresh-bold" />}
+          className="px-2 py-0 text-[11px] h-auto min-h-0"
         >
           Retry Create Label
         </Button>
       </div>
+      {pickupData}
     </>;
   };
 

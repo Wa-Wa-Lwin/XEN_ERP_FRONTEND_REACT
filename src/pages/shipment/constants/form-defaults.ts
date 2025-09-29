@@ -116,7 +116,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     unique_id:'',
     detailed_charges: ''
   }],
-  pick_up_status: false,
+  pick_up_status: true,
   pick_up_date: defaultPickupValues.pickupDate,
   pick_up_start_time: defaultPickupValues.startTime,
   pick_up_end_time: defaultPickupValues.endTime,

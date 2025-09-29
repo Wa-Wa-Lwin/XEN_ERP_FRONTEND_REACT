@@ -276,7 +276,7 @@ const ShipmentTable = () => {
       <div className="mb-4 space-y-4">
         <div className="flex justify-between items-center">
           <div className="p-0 flex items-center">
-            
+
             <h2 className="text-l font-semibold pr-3">Shipment Requests</h2>
             <Button
               size="md"
@@ -387,8 +387,8 @@ const ShipmentTable = () => {
                   <Icon
                     icon={
                       sortDirection === null ? "solar:sort-bold" :
-                      sortDirection === 'desc' ? "solar:sort-from-top-to-bottom-bold" :
-                      "solar:sort-from-bottom-to-top-bold"
+                        sortDirection === 'desc' ? "solar:sort-from-top-to-bottom-bold" :
+                          "solar:sort-from-bottom-to-top-bold"
                     }
                     className="w-3 h-3"
                   />
@@ -405,6 +405,7 @@ const ShipmentTable = () => {
             <TableColumn>Approver</TableColumn>
             <TableColumn>Request Date</TableColumn>
             <TableColumn>Pickup Date</TableColumn>
+            <TableColumn>Label</TableColumn>
             <TableColumn className="text-center">
               {/* {activeButton !== "Request" ? "Actions" : "\u00A0" } */}
               {hide_column ? "Actions" : "\u00A0" /* non-breaking space */}
@@ -521,6 +522,25 @@ const ShipmentTable = () => {
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.created_date_time)}</TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.due_date)}</TableCell>
+
+                <TableCell>
+                  {request.request_status === 'approver_approved' && (
+                    <>
+                      <div>
+                        <p className={`font-medium text-xs ${request.label_status === 'created' ? 'text-green-500' : 'text-red-500'}`}>
+                          Label111: {request.label_status}
+                        </p>
+                        <p className="text-xs">
+                          Pickup:{' '}
+                          <span className={request.pick_up_created_status === 'created_success' ? 'text-green-500' : 'text-red-500'}>
+                            {request.pick_up_created_status === 'created_success' ? 'created' : 'failed'}
+                          </span>
+                        </p>
+                      </div>
+
+                    </>
+                  )}
+                </TableCell>
 
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700 w-auto">
                   {/* {activeButton !== "Request" ? renderActionButtons() : null} */}

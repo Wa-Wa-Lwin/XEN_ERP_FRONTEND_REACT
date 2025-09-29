@@ -152,6 +152,9 @@ export interface ShipmentFormData {
   approver_user_mail: string | null;
   approver_approved_date_time: string | null;
   approver_rejected_date_time: string | null;
+
+  label_status: string | null;
+  pick_up_created_status: string | null;
 }
 
 export interface FormSectionProps {

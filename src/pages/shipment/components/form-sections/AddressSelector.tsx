@@ -130,7 +130,21 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
       const fieldMappings = [
         { field: `${prefix}_company_name`, value: address.CardName || '' },
         { field: `${prefix}_contact_name`, value: address.CntctPrsn || '' },
-        { field: `${prefix}_phone`, value: address.Phone1 || '' },
+        { field: `${prefix}_phone`, value: (() => {
+          let phone = address.Phone1 || '';
+          // Remove all non-digit and non-plus characters
+          phone = phone.replace(/[^0-9+]/g, "");
+          // Ensure only one + and it's at the beginning
+          const plusCount = (phone.match(/\+/g) || []).length;
+          if (plusCount > 1) {
+            const firstPlusIndex = phone.indexOf('+');
+            phone = phone.charAt(firstPlusIndex) + phone.replace(/\+/g, '');
+          }
+          if (phone.includes('+') && !phone.startsWith('+')) {
+            phone = '+' + phone.replace(/\+/g, '');
+          }
+          return phone.slice(0, 15);
+        })() },
         { field: `${prefix}_email`, value: address.E_Mail || '' },
         // { field: `${prefix}_country`, value: address.Country || address.MailCountr || '' },
         { field: `${prefix}_country`, value: countryISO3 },   // use ISO3
@@ -246,9 +260,34 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
 
           <Textarea
             {...register(`${prefix}_phone`)}
-            isRequired={isFieldRequired('phone')}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+              // Allow only numbers and one + at the beginning
+              let sanitized = e.target.value;
+
+              // Remove all non-digit and non-plus characters
+              sanitized = sanitized.replace(/[^0-9+]/g, "");
+
+              // Ensure only one + and it's at the beginning
+              const plusCount = (sanitized.match(/\+/g) || []).length;
+              if (plusCount > 1) {
+                // Keep only the first +
+                const firstPlusIndex = sanitized.indexOf('+');
+                sanitized = sanitized.charAt(firstPlusIndex) + sanitized.replace(/\+/g, '');
+              }
+
+              // If + exists, it must be at the beginning
+              if (sanitized.includes('+') && !sanitized.startsWith('+')) {
+                sanitized = '+' + sanitized.replace(/\+/g, '');
+              }
+
+              // Limit to 15 characters
+              sanitized = sanitized.slice(0, 15);
+
+              setValue(`${prefix}_phone`, sanitized, { shouldValidate: true });
+            }}
+            isRequired={isFieldRequired("phone")}
             label={<span>Phone</span>}
-            placeholder="Enter phone"
+            placeholder="Enter phone (e.g. +1234567890)"
             errorMessage={errors[`${prefix}_phone`]?.message}
             isInvalid={!!errors[`${prefix}_phone`]}
             key={`${formKey}_${prefix}_phone`}
@@ -257,7 +296,12 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_email`)}
+            {...register(`${prefix}_email`, {
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Please enter a valid email address"
+              }
+            })}
             isRequired={isFieldRequired('email')}
             type="email"
             label={<span>Email</span>}

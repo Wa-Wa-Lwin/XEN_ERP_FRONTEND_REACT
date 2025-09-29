@@ -38,6 +38,8 @@ export interface ShipmentGETData {
   invoice_due_date?: string
   files_packing_slip?: string
   error_msg?: string
+  label_error_msg?: string
+  pick_up_error_msg?: string
   // Flattened ship_from properties
   ship_from_contact_name: string
   ship_from_company_name: string

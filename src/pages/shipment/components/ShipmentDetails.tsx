@@ -301,6 +301,51 @@ const ShipmentDetails = () => {
     }
   };
 
+  const handleCreatePickup = async () => {
+    if (!shipmentId) return;
+
+    try {
+      const baseUrl = import.meta.env.VITE_APP_CREATE_PICKUP;
+      if (!baseUrl) {
+        throw new Error("Create Pickup API URL not configured");
+      }
+
+      const apiUrl = `${baseUrl}${shipmentId}`;
+
+      const response = await axios.post(apiUrl, null, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.status === 200 && response.data?.$data_body?.meta?.code === 200) {
+        success('Pickup created successfully!', 'Success');
+        window.location.reload();
+      } else {
+        showNotificationError(`Failed to create pickup (HTTP ${response.data?.$data_body?.meta?.code}).`, 'Pickup Creation Failed');
+      }
+    } catch (error) {
+      console.error("Error creating pickup:", error);
+
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data;
+        const meta = errorData?.$data_body?.meta;
+        const details = meta?.details;
+
+        let msg = errorData?.message || meta?.message || "Unknown error";
+
+        if (Array.isArray(details) && details.length > 0) {
+          const formattedDetails = details
+            .map((d: any) => `• ${d.path}: ${d.info}`)
+            .join("\n");
+          msg += `\n\nDetails:\n${formattedDetails}`;
+        }
+
+        showNotificationError(`Failed to create pickup:\n${msg}`, 'Label Creation Failed');
+      } else {
+        showNotificationError('Failed to create pickup. Please check your connection.', 'Connection Error');
+      }
+    }
+  };
+
   const handleDuplicateShipment = () => {
     if (!shipment) return;
 
@@ -385,7 +430,9 @@ const ShipmentDetails = () => {
     success('Shipment data prepared for duplication. Please review and submit the new shipment request.', 'Duplicate Created');
   };
 
+  const formattedLabelError = shipment?.label_error_msg ? shipment.label_error_msg.replace(/\|/g, '\n|') : "";
   const formattedError = shipment?.error_msg ? shipment.error_msg.replace(/\|/g, '\n|') : "";
+  const formattedPickupError = shipment?.pick_up_error_msg ? shipment.pick_up_error_msg.replace(/\|/g, '\n|') : "";
 
   if (loading) {
     return (
@@ -428,7 +475,10 @@ const ShipmentDetails = () => {
         showError={showError}
         setShowError={setShowError}
         onCreateLabel={handleCreateLabel}
+        onCreatePickup={handleCreatePickup}
         formattedError={formattedError}
+        formattedLabelError={formattedLabelError}
+        formattedPickupError={formattedPickupError}
       />
 
       <AddressInformation shipment={shipment} />
