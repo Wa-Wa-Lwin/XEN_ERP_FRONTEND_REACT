@@ -34,51 +34,51 @@ const ShipmentDetails = () => {
   const { user, msLoginUser } = useAuth();
   const { success, error: showNotificationError } = useNotification();
 
-  useEffect(() => {
-    const fetchShipment = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchShipment = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        if (!shipmentId) {
-          throw new Error("Invalid shipment ID");
-        }
+      if (!shipmentId) {
+        throw new Error("Invalid shipment ID");
+      }
 
-        const baseUrl = import.meta.env.VITE_APP_GET_SHIPMENT_REQUEST_BY_ID;
-        if (!baseUrl) {
-          throw new Error("API URL for Shipment Details not configured");
-        }
+      const baseUrl = import.meta.env.VITE_APP_GET_SHIPMENT_REQUEST_BY_ID;
+      if (!baseUrl) {
+        throw new Error("API URL for Shipment Details not configured");
+      }
 
-        const apiUrl = `${baseUrl}${shipmentId}`;
-        const response = await axios.get(apiUrl);
+      const apiUrl = `${baseUrl}${shipmentId}`;
+      const response = await axios.get(apiUrl);
 
-        const shipmentData = response.data.shipment_request;
-        setShipment(shipmentData);
+      const shipmentData = response.data.shipment_request;
+      setShipment(shipmentData);
 
-        setEditCustomsPurpose(shipmentData.customs_purpose || "");
-        setEditCustomsTermsOfTrade(shipmentData.customs_terms_of_trade || "");
+      setEditCustomsPurpose(shipmentData.customs_purpose || "");
+      setEditCustomsTermsOfTrade(shipmentData.customs_terms_of_trade || "");
 
-        const allItems: any[] = [];
-        shipmentData.parcels?.forEach((parcel: any, parcelIndex: number) => {
-          parcel.items?.forEach((item: any, itemIndex: number) => {
-            allItems.push({
-              ...item,
-              parcelIndex,
-              itemIndex,
-              id: `${parcelIndex}-${itemIndex}`,
-              parcelItemID: item.parcelItemID
-            });
+      const allItems: any[] = [];
+      shipmentData.parcels?.forEach((parcel: any, parcelIndex: number) => {
+        parcel.items?.forEach((item: any, itemIndex: number) => {
+          allItems.push({
+            ...item,
+            parcelIndex,
+            itemIndex,
+            id: `${parcelIndex}-${itemIndex}`,
+            parcelItemID: item.parcelItemID
           });
         });
-        setEditedParcelItems(allItems);
-      } catch (err) {
-        console.error("Error fetching shipment details:", err);
-        setError(err instanceof Error ? err.message : "Failed to load details");
-      } finally {
-        setLoading(false);
-      }
-    };
+      });
+      setEditedParcelItems(allItems);
+    } catch (err) {
+      console.error("Error fetching shipment details:", err);
+      setError(err instanceof Error ? err.message : "Failed to load details");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchShipment();
   }, [shipmentId]);
 
@@ -273,9 +273,11 @@ const ShipmentDetails = () => {
 
       if (response.status === 200 && response.data?.$create_label_response_body?.meta?.code === 200) {
         success('Label created successfully!', 'Success');
-        window.location.reload();
+        // window.location.reload();
+        await fetchShipment();
       } else {
         showNotificationError(`Failed to create label (HTTP ${response.data?.$create_label_response_body?.meta?.code}).`, 'Label Creation Failed');
+        await fetchShipment();
       }
     } catch (error) {
       console.error("Error creating label:", error);
@@ -318,9 +320,11 @@ const ShipmentDetails = () => {
 
       if (response.status === 200 && response.data?.$data_body?.meta?.code === 200) {
         success('Pickup created successfully!', 'Success');
-        window.location.reload();
+        // window.location.reload();
+        await fetchShipment();
       } else {
         showNotificationError(`Failed to create pickup (HTTP ${response.data?.$data_body?.meta?.code}).`, 'Pickup Creation Failed');
+        await fetchShipment();
       }
     } catch (error) {
       console.error("Error creating pickup:", error);

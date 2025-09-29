@@ -127,25 +127,11 @@ const BasicInformation = ({
   }
   else if (shipment.approver_approved_date_time && shipment.label_status !== "created") {
     labelData = <>
-      <div className="mb-3">
-        <p className="text-red-600 font-semibold mb-2">
+    <h2 className="text-lg font-semibold">Label Information</h2>
+      <div className="my-1 flex gap-2 items-center">
+        <p className="text-red-600 font-semibold">
           ⚠️ Label creation failed
-          <Button
-            size="sm"
-            color="warning"
-            onPress={() => setShowError(!showError)}
-            className="ml-2"
-          >
-            {showError ? "Hide Error Details" : "Show Error Details"}
-          </Button>
         </p>
-
-        {showError && (
-          <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
-            <b>Details:</b> {formattedError} {formattedLabelError} 
-          </div>
-        )}
-
         <Button
           color="primary"
           size="sm"
@@ -154,7 +140,23 @@ const BasicInformation = ({
         >
           Retry Create Label
         </Button>
+
       </div>
+      <Button
+        size="sm"
+        color="warning"
+        onPress={() => setShowError(!showError)}
+        className="px-2 py-0 text-[11px] h-auto min-h-0 mb-1"
+      >
+        {showError ? "Hide Error Details" : "Show Error Details"}
+      </Button>
+      {showError && (
+        <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
+
+          <b>Details:</b> {formattedLabelError} {formattedError}
+        </div>
+      )}
+      
       {pickupData}
     </>;
   };
