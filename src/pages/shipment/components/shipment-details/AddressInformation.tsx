@@ -7,8 +7,8 @@ interface AddressInformationProps {
 
 const AddressInformation = ({ shipment }: AddressInformationProps) => {
   return (
-    <section className="grid md:grid-cols-3 gap-6">
-      <div className="space-y-0">
+    <section className="grid grid-cols-1 md:grid-cols-2  gap-6">
+      <div className="space-y-0 border-r border-gray-200 pr-4">
         <h2 className="text-base font-semibold">Ship From</h2>
         <DetailRow label="Company" value={shipment.ship_from?.company_name} />
         <DetailRow label="Address" value={`${shipment.ship_from?.street1}, ${shipment.ship_from?.city}, ${shipment.ship_from?.country}`} />

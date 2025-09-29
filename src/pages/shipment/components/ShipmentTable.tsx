@@ -406,12 +406,6 @@ const ShipmentTable = () => {
             <TableColumn>Request Date</TableColumn>
             <TableColumn>Pickup Date</TableColumn>
             <TableColumn>Label</TableColumn>
-            <TableColumn className="text-center">
-              {/* {activeButton !== "Request" ? "Actions" : "\u00A0" } */}
-              {hide_column ? "Actions" : "\u00A0" /* non-breaking space */}
-              {/* hide this column for now */}
-            </TableColumn>
-
           </TableHeader>
           <TableBody>
             {paginatedData.map((request) => (
@@ -435,9 +429,6 @@ const ShipmentTable = () => {
                   }
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  {/* {request.service_options === 'Urgent' && (
-                    <span className="text-red-500 ml-1">* </span>
-                  )} */}
                   {request.topic} ({request.po_number})
                   {/* DONT_DELETE_YET */}
                   {/* {request.topic === 'Others' && request.other_topic ? <p className="text-xs text-gray-500">
@@ -524,11 +515,11 @@ const ShipmentTable = () => {
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.due_date)}</TableCell>
 
                 <TableCell>
-                  {request.request_status === 'approver_approved' && (
+                  {request.request_status === 'approver_approved' ? (
                     <>
                       <div>
-                        <p className={`font-medium text-xs ${request.label_status === 'created' ? 'text-green-500' : 'text-red-500'}`}>
-                          Label111: {request.label_status}
+                        <p className={`font-medium text-xs`}>
+                          Label: <span className={`${request.label_status === 'created' ? 'text-green-500' : 'text-red-500'}`}>{request.label_status}</span> 
                         </p>
                         <p className="text-xs">
                           Pickup:{' '}
@@ -539,14 +530,14 @@ const ShipmentTable = () => {
                       </div>
 
                     </>
+                  ):
+                  (
+                    <>
+                      <p className='font-medium text-xs text-gray-500'>Waiting</p>                    
+                    </>                    
                   )}
-                </TableCell>
-
-                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700 w-auto">
-                  {/* {activeButton !== "Request" ? renderActionButtons() : null} */}
                   {hide_column ? renderActionButtons() : null}
                 </TableCell>
-
               </TableRow>
             ))}
           </TableBody>

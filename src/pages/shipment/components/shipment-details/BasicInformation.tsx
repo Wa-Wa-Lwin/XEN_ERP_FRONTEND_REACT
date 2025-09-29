@@ -41,7 +41,7 @@ const BasicInformation = ({
   if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success") {
     pickupData = <>
       <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
-      <DetailRow label="No" value={shipment.pickup_confirmation_numbers} />
+      <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
       <DetailRow label="Status" value={shipment.pick_up_created_status} />
       <DetailRow label="Date" value={shipment.pick_up_date} />
       <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
@@ -91,7 +91,7 @@ const BasicInformation = ({
       <h2 className="text-lg font-semibold">Invoice Information</h2>
       <div className='flex gap-2'>
         <Button
-          color="secondary"
+          color="primary"
           size="sm"
           onPress={() => window.open(to_invoice, "_blank")}
           className="px-2 py-0 text-[11px] h-auto min-h-0"
@@ -99,7 +99,7 @@ const BasicInformation = ({
           View Invoice
         </Button>
         <Button
-          color="secondary"
+          color="primary"
           size="sm"
           onPress={() => window.open(to_packing_slip, "_blank")}
           className="px-2 py-0 text-[11px] h-auto min-h-0"
@@ -112,7 +112,7 @@ const BasicInformation = ({
       <DetailRow label="Due Date" value={shipment.invoice_due_date} />      
       <h2 className="text-lg font-semibold mt-1">Label Information</h2>
       <Button
-        color="secondary"
+        color="primary"
         size="sm"
         onPress={() => window.open(shipment.files_label_url, "_blank")}
         className="px-2 py-0 text-[11px] h-auto min-h-0"
@@ -120,7 +120,7 @@ const BasicInformation = ({
         View Label
       </Button>
       <DetailRow label="ID" value={shipment.label_id} />
-      <DetailRow label="Status" value={shipment.label_status} />
+      {/* <DetailRow label="Status" value={shipment.label_status} /> */}
       <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />      
       {pickupData}
     </>;
@@ -204,9 +204,12 @@ const BasicInformation = ({
           <DetailRow label="Requestor" value={`${shipment.created_user_name}`} />
           <DetailRow label="Approver" value={`${shipment.approver_user_name}`} />
           {shipment.remark && <DetailRow label="Remark" value={shipment.remark} />}
-          <DetailRow label="Request Created Date" value={formatDateTime(shipment.created_date_time)} />
+          <DetailRow label="Created" value={formatDateTime(shipment.created_date_time)} />
           {shipment.approver_rejected_date_time && (
-            <DetailRow label="Rejected Date" value={formatDateTime(shipment.approver_rejected_date_time)} />
+            <DetailRow label="Rejected" value={formatDateTime(shipment.approver_rejected_date_time)} />
+          )}
+          {shipment.approver_approved_date_time && (
+            <DetailRow label="Approved" value={formatDateTime(shipment.approver_approved_date_time)} />
           )}
         </div>
 
