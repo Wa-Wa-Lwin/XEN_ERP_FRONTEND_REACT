@@ -95,6 +95,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
       weight_unit: 'kg',
       weight_value: 0,
       sku: '',
+      material_code:'',
       hs_code: '',
       return_reason: ''
     }]
