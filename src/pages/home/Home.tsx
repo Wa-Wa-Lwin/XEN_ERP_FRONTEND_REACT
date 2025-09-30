@@ -16,7 +16,7 @@ import {sectionItemsWithTeams} from "./components/sidebar-items";
 import {useParcelItemsCache} from '@hooks/useParcelItemsCache';
 
 export default function Component() {
-    const [isCollapsed, setIsCollapsed] = React.useState(false);
+    const [isCollapsed, setIsCollapsed] = React.useState(true);
     const isMobile = useMediaQuery("(max-width: 768px)");
     const {logout, user, hasDbData, msLoginUser} = useAuth();
     const {fetchParcelItems} = useParcelItemsCache();
