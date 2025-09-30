@@ -613,6 +613,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         control={control}
                                         render={({ field }) => (
                                             <Textarea
+                                                maxLength={255}
                                                 isRequired={isFieldRequired('description')}
                                                 {...field}
                                                 label={

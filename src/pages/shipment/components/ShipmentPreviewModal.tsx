@@ -44,7 +44,11 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             <b>Topic - </b> {formData.topic || 'Not specified'} <br />
             <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
             <b>Due Date - </b> {formData.due_date || 'Not specified'} <br />
-            <b>Sales Person - </b> {formData.sales_person || 'Not specified'} <br />
+            {formData.topic === 'For Sales' && (
+              <>
+                <b>Sales Person - </b> {formData.sales_person || 'Not specified'} <br />
+              </>
+            )}
             {/* <b>Remark - </b> {formData.remark || 'Not specified'} <br /> */}
           </p>
           <hr />

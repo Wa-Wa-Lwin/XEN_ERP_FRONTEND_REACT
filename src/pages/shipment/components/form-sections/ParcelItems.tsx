@@ -237,6 +237,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             render={({ field }) => (
                                                 <Textarea
                                                     {...field}                     // makes it controlled + subscribed
+                                                    maxLength={255}
                                                     placeholder="Enter item description"
                                                     variant="flat"
                                                     size="sm"
@@ -274,6 +275,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         render={({ field }) => (
                                             <Textarea
                                                 {...field}
+                                                maxLength={255}
                                                 placeholder="Material Code"
                                                 variant="flat"
                                                 size="sm"
@@ -307,6 +309,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         render={({ field }) => (
                                             <Textarea
                                                 {...field}
+                                                maxLength={255}
                                                 placeholder="SKU"
                                                 variant="flat"
                                                 size="sm"
