@@ -237,6 +237,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_company_name`]}
             key={`${formKey}_${prefix}_company_name`}
             color={!watch(`${prefix}_company_name`) ? "warning" : "default"}
+            maxLength={255}
             onChange={() => {
               // Clear rates since company name changed
               if (onClearRates) {
@@ -255,6 +256,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_contact_name`]}
             key={`${formKey}_${prefix}_contact_name`}
             color={!watch(`${prefix}_contact_name`) ? "warning" : "default"}
+            maxLength={100}
             minRows={1}
           />
 
@@ -310,6 +312,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_email`]}
             key={`${formKey}_${prefix}_email`}
             color={!watch(`${prefix}_email`) ? "warning" : "default"}
+            maxLength={255}
             minRows={1}
           />
           <Controller
@@ -371,6 +374,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_city`]}
             key={`${formKey}_${prefix}_city`}
             color={!watch(`${prefix}_city`) ? "warning" : "default"}
+            maxLength={100}
             onChange={() => {
               // Clear rates since city changed
               if (onClearRates) {
@@ -390,6 +394,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_state`]}
             key={`${formKey}_${prefix}_state`}
             color={!watch(`${prefix}_state`) ? "warning" : "default"}
+            maxLength={100}
             onChange={() => {
               // Clear rates since state changed
               if (onClearRates) {
@@ -409,6 +414,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_postal_code`]}
             key={`${formKey}_${prefix}_postal_code`}
             color={!watch(`${prefix}_postal_code`) ? "warning" : "default"}
+            maxLength={255}
             onChange={() => {
               // Clear rates since postal code changed
               if (onClearRates) {
@@ -429,6 +435,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             minRows={1}
             key={`${formKey}_${prefix}_street1`}
             color={!watch(`${prefix}_street1`) ? "warning" : "default"}
+            maxLength={45}
             onChange={() => {
               // Clear rates since street address changed
               if (onClearRates) {
@@ -446,6 +453,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             isInvalid={!!errors[`${prefix}_street2`]}
             minRows={1}
             key={`${formKey}_${prefix}_street2`}
+            maxLength={45}
             // color={!watch(`${prefix}_street2`) ? "warning" : "default"}
           />
           <Textarea
@@ -455,6 +463,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             errorMessage={errors[`${prefix}_tax_id`]?.message}
             isInvalid={!!errors[`${prefix}_tax_id`]}
             key={`${formKey}_${prefix}_tax_id`}
+            maxLength={255}
             // color={!watch(`${prefix}_tax_id`) ? "warning" : "default"}
             minRows={1}
           />

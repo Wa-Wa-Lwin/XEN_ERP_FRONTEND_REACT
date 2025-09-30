@@ -14,6 +14,7 @@ import Items from "@pages/items/Items";
 import Addresses from "@pages/addresses/Addresses";
 import RateCalculator from "@pages/rate-calculator/RateCalculator";
 import Dashboard from "@pages/dashboard/Dashboard";
+import TestingData from "@features/testingdata/TestingData";
 
 
 export const routes = [
@@ -24,6 +25,7 @@ export const routes = [
     element: <ProtectedRoute><Home /></ProtectedRoute>,
     children: [
       { path: "overview", element: <Overview />, handle: { breadcrumb: "Overview" } },
+      { path: "testing-data", element: <TestingData />, handle: { breadcrumb: "Testing Data" } },
       { path: "logistics/:category?", element: <Logistics />, handle: { breadcrumb: "Logistics" } },
       { path: "shipment", 
         handle: { breadcrumb: "Shipment" },

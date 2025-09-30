@@ -44,7 +44,11 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             <b>Topic - </b> {formData.topic || 'Not specified'} <br />
             <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
             <b>Due Date - </b> {formData.due_date || 'Not specified'} <br />
-            <b>Sales Person - </b> {formData.sales_person || 'Not specified'} <br />
+            {formData.topic === 'For Sales' && (
+              <>
+                <b>Sales Person - </b> {formData.sales_person || 'Not specified'} <br />
+              </>
+            )}
             {/* <b>Remark - </b> {formData.remark || 'Not specified'} <br /> */}
           </p>
           <hr />
@@ -134,7 +138,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                             {parcel.parcel_items.map((item, i) => (
                               <li key={i}>
                                 
-                                <strong>Description:</strong> {item.description} | <strong>SKU:</strong> {item.sku || 'N/A'} | <br/> 
+                                <strong>Description:</strong> {item.description} | <strong>Mat Code:</strong> {item.material_code} | <strong>SKU:</strong> {item.sku || 'N/A'} | <br/> 
                                 <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country || 'N/A'} | <br/> 
                                 <strong>Price:</strong> {parseFloat(String(item.price_amount))} {item.price_currency} | <strong>Qty:</strong> {item.quantity} pcs | <strong>Weight:</strong> {parseFloat(String(item.weight_value)).toFixed(5)} {item.weight_unit} | 
                                 

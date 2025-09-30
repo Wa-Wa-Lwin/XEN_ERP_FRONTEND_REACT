@@ -103,6 +103,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
             m.type_name?.toLowerCase().includes(q) ||
             m.supplier_name?.toLowerCase().includes(q) ||
             m.sku?.toLowerCase().includes(q) ||
+            m.material_code?.toLowerCase().includes(q) ||
             m.part_no?.toLowerCase().includes(q) ||
             m.hscode?.toLowerCase().includes(q)
         )
@@ -146,6 +147,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
             const basePath = `parcels.${parcelIndex}.parcel_items.${currentItemIndex}`
             setValue(`${basePath}.description`, selectedMaterial.description || '', { shouldValidate: true, shouldDirty: true })
             setValue(`${basePath}.sku`, selectedMaterial.sku || '', { shouldValidate: true, shouldDirty: true })
+            setValue(`${basePath}.material_code`, selectedMaterial.material_code || '', { shouldValidate: true, shouldDirty: true })
             setValue(`${basePath}.hs_code`, selectedMaterial.hscode || '', { shouldValidate: true, shouldDirty: true })
         }
         setIsModalOpen(false)
@@ -191,6 +193,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                     <TableHeader>
                         <TableColumn className="w-12">#</TableColumn>
                         <TableColumn className="w-48 min-w-[80px]">DESCRIPTION {isItemFieldRequired('description') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-36">Mat Code {isItemFieldRequired('material_code') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-36">SKU {isItemFieldRequired('sku') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-24">HS CODE {isItemFieldRequired('hs_code') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-28">ORIGIN {isItemFieldRequired('origin_country') && <span className="text-red-500">*</span>}</TableColumn>
@@ -234,6 +237,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             render={({ field }) => (
                                                 <Textarea
                                                     {...field}                     // makes it controlled + subscribed
+                                                    maxLength={255}
                                                     placeholder="Enter item description"
                                                     variant="flat"
                                                     size="sm"
@@ -262,6 +266,40 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                     </div>
                                 </TableCell>
 
+                                {/* Material Code cell */}
+                                <TableCell>
+                                    <Controller
+                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.material_code`}
+                                        control={control}
+                                        rules={{ required: isItemFieldRequired('material_code') ? 'Material Code is required' : false }}
+                                        render={({ field }) => (
+                                            <Textarea
+                                                {...field}
+                                                maxLength={255}
+                                                placeholder="Material Code"
+                                                variant="flat"
+                                                size="sm"
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.material_code?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.material_code}
+                                                classNames={{
+                                                    input: "text-sm",
+                                                    inputWrapper: "min-h-unit-8 h-unit-8"
+                                                }}
+                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.material_code`) ? "warning" : "default"}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    // Clear rates since material_code changed
+                                                    if (onClearRates) {
+                                                        console.log('Item Material Code changed, clearing rates...')
+                                                        onClearRates()
+                                                    }
+                                                }}
+                                                minRows={1}
+                                            />
+                                        )}
+                                    />
+                                </TableCell>
+
                                 {/* SKU cell */}
                                 <TableCell>
                                     <Controller
@@ -271,6 +309,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         render={({ field }) => (
                                             <Textarea
                                                 {...field}
+                                                maxLength={255}
                                                 placeholder="SKU"
                                                 variant="flat"
                                                 size="sm"
@@ -294,6 +333,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         )}
                                     />
                                 </TableCell>
+                                
                                 {/* HS CODE cell */}
                                 <TableCell>
                                     <Controller

@@ -83,18 +83,17 @@ export const items: SidebarItem[] = [
 
 export const sectionItems: SidebarItem[] = [
   {
-    key: "overview",
-    to: "/overview",
-    icon: "solar:home-2-linear",
-    title: "",
+    key: "dashboard",
+    title: "Dashboard",
+    to: "/dashboard",
     items: [
       {
-        key: "overview",
-        to: "/overview",
-        icon: "solar:home-2-linear",
-        title: "Overview",
-      },
-    ]
+        key: "dashboard",
+        to: "/dashboard",
+        icon: "majesticons:home",
+        title: "Dashboard",
+      },      
+    ],
   },
   // {
   //   key: "logistics",
@@ -131,12 +130,12 @@ export const sectionItems: SidebarItem[] = [
         to: "/shipment/request-form",
         icon: "codicon:request-changes",
         title: "Request Form",
-        endContent: (
-          // <Chip size="sm" variant="flat">
-          //   3
-          // </Chip>
-          <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-        ),
+        // endContent: (
+        //   // <Chip size="sm" variant="flat">
+        //   //   3
+        //   // </Chip>
+        //   // <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
+        // ),
       },
     ],
   },
@@ -167,31 +166,33 @@ export const sectionItems: SidebarItem[] = [
     ],
   },
   {
-    key: "rate-calculator",
-    title: "Rate Calculator",
-    to: "/rate-calculator",
+    key: "testing-data",
+    to: "/testing-data",
+    icon: "solar:home-2-linear",
+    title: "Testing Only",
     items: [
       {
-        key: "rate-calculator",
-        to: "/rate-calculator",
-        icon: "majesticons:calculator",
-        title: "Rate Calculator",
-      },      
-    ],
+        key: "testing-data",
+        to: "/testing-data",
+        icon: "solar:home-2-linear",
+        title: "Testing Data",
+      },
+    ]
   },
-  {
-    key: "dashboard",
-    title: "Dashboard",
-    to: "/dashboard",
-    items: [
-      {
-        key: "dashboard",
-        to: "/dashboard",
-        icon: "majesticons:home",
-        title: "Dashboard",
-      },      
-    ],
-  },
+  // {
+  //   key: "rate-calculator",
+  //   title: "Rate Calculator",
+  //   to: "/rate-calculator",
+  //   items: [
+  //     {
+  //       key: "rate-calculator",
+  //       to: "/rate-calculator",
+  //       icon: "majesticons:calculator",
+  //       title: "Rate Calculator",
+  //     },      
+  //   ],
+  // },
+  
 ];
 
 export const sectionItemsWithTeams: SidebarItem[] = [

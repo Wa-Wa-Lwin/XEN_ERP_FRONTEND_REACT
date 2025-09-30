@@ -45,6 +45,7 @@ export interface RateCalculatorFormData {
       weight_unit: string
       weight_value: number
       sku: string
+      material_code : string
       hs_code: string
     }>
   }>

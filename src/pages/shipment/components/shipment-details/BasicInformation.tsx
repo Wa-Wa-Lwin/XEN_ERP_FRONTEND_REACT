@@ -84,7 +84,7 @@ const BasicInformation = ({
   let labelData = null;
   // Extract Invoice link (just the URL string)
   const to_invoice = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
-  const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
+  const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_PACKING_SLIP_URL}${shipment.shipmentRequestID}`;
 
   if (shipment.approver_approved_date_time && shipment.label_status === "created") {
     labelData = <>
@@ -216,13 +216,13 @@ const BasicInformation = ({
         </div>
 
         <div>
-          <DetailRow label="Shipment Scope Type" value={shipment.shipment_scope_type.toUpperCase()} />
+          <DetailRow label="Scope" value={shipment.shipment_scope_type.toUpperCase()} />
           <DetailRow label="Service Options" value={shipment.service_options} />
           {shipment.service_options === 'Urgent' && (
             <DetailRow label="Urgent Reason" value={shipment.urgent_reason} />
           )}
           <DetailRow label="Customs Purpose" value={shipment.customs_purpose.toUpperCase()} />
-          <DetailRow label="Customs Terms of Trade" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
+          <DetailRow label="Incoterms" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
         </div>
 
         <div>
