@@ -283,8 +283,7 @@ const ShipmentTable = () => {
               // variant="bordered"
               color="primary"
               onPress={() => {
-                setStatusFilter('all')
-                setPage(1)
+                navigate('/shipment/request-form')
               }}
               startContent={<Icon icon="solar:add-circle-bold" />}
             >
