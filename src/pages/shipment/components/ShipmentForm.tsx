@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Card, CardBody } from '@heroui/react'
+import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner } from '@heroui/react'
 import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
 import { useNotification } from '@context/NotificationContext'
@@ -578,6 +578,31 @@ const ShipmentForm = () => {
         message={errorModal.message}
         details={errorModal.details}
       />
+
+      {/* Loading Modal */}
+      <Modal
+        isOpen={isSubmitting}
+        hideCloseButton
+        isDismissable={false}
+        size="sm"
+        backdrop="blur"
+      >
+        <ModalContent>
+          <ModalBody className="flex flex-col items-center justify-center py-8 space-y-4">
+            <Spinner
+              size="lg"
+              color="success"
+              label="Submitting shipment..."
+              labelColor="success"
+            />
+            <div className="text-center space-y-1">
+              <p className="text-sm text-gray-600">
+                Please wait while we process your request...
+              </p>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   )
 }
