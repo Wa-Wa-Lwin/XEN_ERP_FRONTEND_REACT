@@ -84,7 +84,7 @@ const BasicInformation = ({
   let labelData = null;
   // Extract Invoice link (just the URL string)
   const to_invoice = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
-  const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
+  const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_PACKING_SLIP_URL}${shipment.shipmentRequestID}`;
 
   if (shipment.approver_approved_date_time && shipment.label_status === "created") {
     labelData = <>

@@ -29,7 +29,7 @@ const ShipmentTable = () => {
 
   // Filter states
   const [filterType, setFilterType] = useState<'all' | 'mine'>('mine')
-  const [statusFilter, setStatusFilter] = useState<string>('waiting')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
 
   // Sort states
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
