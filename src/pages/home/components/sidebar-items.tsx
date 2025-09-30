@@ -169,7 +169,7 @@ export const sectionItems: SidebarItem[] = [
     key: "testing-data",
     to: "/testing-data",
     icon: "solar:home-2-linear",
-    title: "",
+    title: "Testing Only",
     items: [
       {
         key: "testing-data",
