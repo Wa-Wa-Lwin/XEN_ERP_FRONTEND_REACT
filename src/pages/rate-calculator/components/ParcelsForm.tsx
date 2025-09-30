@@ -48,6 +48,7 @@ export const ParcelsForm: React.FC<ParcelsFormProps> = ({
         weight_unit: 'kg',
         weight_value: 0,
         sku: '',
+        material_code: '',
         hs_code: ''
       }]
     })
@@ -270,6 +271,7 @@ const ParcelItems: React.FC<ParcelItemsProps> = ({
       weight_unit: 'kg',
       weight_value: 0,
       sku: '',
+      material_code: '',
       hs_code: ''
     })
   }

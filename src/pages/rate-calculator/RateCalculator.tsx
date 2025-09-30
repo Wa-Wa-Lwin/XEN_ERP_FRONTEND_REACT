@@ -58,6 +58,7 @@ const DEFAULT_FORM_VALUES: RateCalculatorFormData = {
       weight_unit: 'kg',
       weight_value: 0,
       sku: '',
+      material_code: '',
       hs_code: ''
     }]
   }]

@@ -419,6 +419,7 @@ const ShipmentDetails = () => {
           weight_unit: item.weight_unit || 'kg',
           origin_country: item.origin_country || '',
           sku: item.sku || '',
+          material_code: item.material_code || '',
           hs_code: item.hs_code || '',
           item_id: item.item_id || ''
         })) || []

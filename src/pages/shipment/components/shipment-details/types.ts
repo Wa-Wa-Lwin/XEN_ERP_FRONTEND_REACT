@@ -130,6 +130,7 @@ export interface ShipmentGETData {
       weight_value: string
       weight_unit: string
       sku: string
+      material_code: string
       hs_code: string
       origin_country: string
       parcelItemID: string

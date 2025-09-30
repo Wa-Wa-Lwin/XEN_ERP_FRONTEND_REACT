@@ -130,12 +130,12 @@ export const sectionItems: SidebarItem[] = [
         to: "/shipment/request-form",
         icon: "codicon:request-changes",
         title: "Request Form",
-        endContent: (
-          // <Chip size="sm" variant="flat">
-          //   3
-          // </Chip>
-          <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-        ),
+        // endContent: (
+        //   // <Chip size="sm" variant="flat">
+        //   //   3
+        //   // </Chip>
+        //   // <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
+        // ),
       },
     ],
   },
