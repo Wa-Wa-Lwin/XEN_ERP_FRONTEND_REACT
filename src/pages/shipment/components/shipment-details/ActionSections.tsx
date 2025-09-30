@@ -96,9 +96,6 @@ const ActionSections = ({
                 labelColor={isApproving ? "success" : "danger"}
               />
               <div className="text-center space-y-1">
-                <p className="text-lg font-semibold text-gray-800">
-                  {isApproving ? "Approving" : "Rejecting"} Shipment
-                </p>
                 <p className="text-sm text-gray-600">
                   Please wait while we process your request...
                 </p>
@@ -242,9 +239,6 @@ const ActionSections = ({
                 labelColor="primary"
               />
               <div className="text-center space-y-1">
-                <p className="text-lg font-semibold text-gray-800">
-                  Updating Logistics Information
-                </p>
                 <p className="text-sm text-gray-600">
                   Please wait while we save your changes...
                 </p>
