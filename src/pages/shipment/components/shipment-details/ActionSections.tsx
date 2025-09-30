@@ -107,7 +107,7 @@ const ActionSections = ({
             </Select>
 
             <Select
-              label="Customs Terms of Trade"
+              label="Incoterms"
               placeholder="Select terms of trade"
               selectedKeys={editCustomsTermsOfTrade ? [editCustomsTermsOfTrade] : []}
               onSelectionChange={(keys) => setEditCustomsTermsOfTrade(Array.from(keys)[0] as string)}

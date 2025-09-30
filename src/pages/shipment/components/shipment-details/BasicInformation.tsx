@@ -216,13 +216,13 @@ const BasicInformation = ({
         </div>
 
         <div>
-          <DetailRow label="Shipment Scope Type" value={shipment.shipment_scope_type.toUpperCase()} />
+          <DetailRow label="Scope" value={shipment.shipment_scope_type.toUpperCase()} />
           <DetailRow label="Service Options" value={shipment.service_options} />
           {shipment.service_options === 'Urgent' && (
             <DetailRow label="Urgent Reason" value={shipment.urgent_reason} />
           )}
           <DetailRow label="Customs Purpose" value={shipment.customs_purpose.toUpperCase()} />
-          <DetailRow label="Customs Terms of Trade" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
+          <DetailRow label="Incoterms" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
         </div>
 
         <div>
