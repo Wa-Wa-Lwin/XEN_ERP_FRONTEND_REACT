@@ -216,8 +216,8 @@ const ShipmentEditForm = () => {
 
         // Set rates and selected rate if they exist
         if (shipmentData.rates && shipmentData.rates.length > 0) {
-          // Transform rates to the format expected by RatesSection
-          const transformedRates = shipmentData.rates.map((rate: any) => ({
+          // Transform rates to the format expected by RatesSection (for display)
+          const ratesForDisplay = shipmentData.rates.map((rate: any) => ({
             shipper_account: {
               id: rate.shipper_account_id || '',
               slug: rate.shipper_account_slug || '',
@@ -242,13 +242,42 @@ const ShipmentEditForm = () => {
             detailed_charges: []
           }))
 
-          setCalculatedRates(transformedRates)
-          setTransformedRates(transformedRates)
+          // Keep rates in API format (for submission)
+          const ratesForAPI = shipmentData.rates.map((rate: any) => {
+            const transitTime = String(rate.transit_time || '')
+            const totalAmount = parseFloat(String(rate.total_charge_amount)) || 0
+            const totalCurrency = rate.total_charge_currency || 'THB'
+            const uniqueId = `${rate.shipper_account_id}-${rate.service_type}-${transitTime || 'null'}-${totalAmount}-${totalCurrency}`
+
+            return {
+              shipper_account_id: rate.shipper_account_id || '',
+              shipper_account_slug: rate.shipper_account_slug || '',
+              shipper_account_description: rate.shipper_account_description || '',
+              service_type: rate.service_type || '',
+              service_name: rate.service_name || '',
+              pickup_deadline: rate.pickup_deadline || '',
+              booking_cut_off: rate.booking_cut_off || '',
+              delivery_date: rate.delivery_date || '',
+              transit_time: transitTime,
+              error_message: rate.error_message || '',
+              info_message: rate.info_message || '',
+              charge_weight_value: parseFloat(String(rate.charge_weight_value)) || 0,
+              charge_weight_unit: rate.charge_weight_unit || '',
+              total_charge_amount: totalAmount,
+              total_charge_currency: totalCurrency,
+              unique_id: uniqueId,
+              chosen: rate.chosen === 1 || rate.chosen === true,
+              detailed_charges: rate.detailed_charges ? String(rate.detailed_charges).substring(0, 255) : ''
+            }
+          })
+
+          setCalculatedRates(ratesForDisplay)
+          setTransformedRates(ratesForAPI)
 
           // Find and set the chosen rate using the same unique ID format as RatesSection
           const chosenRateFromDB = shipmentData.rates.find((rate: any) => rate.chosen === 1 || rate.chosen === true)
           if (chosenRateFromDB) {
-            const chosenRate = transformedRates.find((rate: any) =>
+            const chosenRate = ratesForDisplay.find((rate: any) =>
               rate.shipper_account.id === chosenRateFromDB.shipper_account_id &&
               rate.service_type === chosenRateFromDB.service_type
             )
@@ -581,19 +610,38 @@ const ShipmentEditForm = () => {
         return ''
       }
 
+      // Determine send_status based on current request_status
+      let sendStatus: string
+      if (previewData.request_status === 'send_to_logistic') {
+        sendStatus = 'logistic_edited'
+      } else if (previewData.request_status === 'requestor_requested' || previewData.request_status === 'logistic_updated') {
+        sendStatus = 'approver_edited'
+      } else {
+        // Default fallback - determine based on user role
+        sendStatus = 'logistic_edited'
+      }
+
       const updatedRates = previewData.rates?.map(rate => ({
         ...rate,
+        // Ensure transit_time is a string
+        transit_time: String(rate.transit_time || ''),
+        // Truncate detailed_charges to 255 characters
+        detailed_charges: rate.detailed_charges ? String(rate.detailed_charges).substring(0, 255) : '',
         chosen: rate.unique_id === selectedRateId ? true : false
       })) || []
 
       const finalData = {
         ...previewData,
+        send_status: sendStatus,
+        login_user_id: user?.userID || 0,
+        login_user_name: msLoginUser.name,
+        login_user_mail: msLoginUser.email,
         rates: updatedRates,
         pick_up_start_time: formatTimeForAPI(previewData.pick_up_start_time || ''),
         pick_up_end_time: formatTimeForAPI(previewData.pick_up_end_time || ''),
       }
 
-      const editUrl = import.meta.env.VITE_APP_EDIT_SHIPMENT_REQUEST
+      const editUrl = import.meta.env.VITE_APP_ANYONE_EDIT_REQUEST
       if (!editUrl) {
         throw new Error('Edit API URL not configured')
       }
@@ -667,6 +715,9 @@ const ShipmentEditForm = () => {
       })
       return
     }
+
+    // Mark that we're done with initial load when user manually calculates rates
+    isInitialLoad.current = false
 
     const updatedFormData = await calculateRates(formData)
 
