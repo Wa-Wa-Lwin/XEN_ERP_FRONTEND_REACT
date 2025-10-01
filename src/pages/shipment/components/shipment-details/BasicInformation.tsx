@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react';
 import DetailRow from './DetailRow';
 import type { ShipmentGETData } from './types';
 import { formatDateTime, getDisplayStatus, getIncotermDisplay } from './utils';
+import { useNavigate } from 'react-router-dom';
 
 interface BasicInformationProps {
   shipment: ShipmentGETData;
@@ -35,6 +36,8 @@ const BasicInformation = ({
   formattedPickupError
 
 }: BasicInformationProps) => {
+
+  const navigate = useNavigate()
 
   let pickupData = null;
 
@@ -83,8 +86,8 @@ const BasicInformation = ({
 
   let labelData = null;
   // Extract Invoice link (just the URL string)
-  const to_invoice = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
-  const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_PACKING_SLIP_URL}${shipment.shipmentRequestID}`;
+  // const to_invoice = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
+  // const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_PACKING_SLIP_URL}${shipment.shipmentRequestID}`;
 
   if (shipment.approver_approved_date_time && shipment.label_status === "created") {
     labelData = <>
@@ -93,7 +96,10 @@ const BasicInformation = ({
         <Button
           color="primary"
           size="sm"
-          onPress={() => window.open(to_invoice, "_blank")}
+          // onPress={() => window.open(to_invoice, "_blank")}
+          onPress={() => {
+            navigate(`/shipment/invoice/${shipment.shipmentRequestID}`)
+          }}
           className="px-2 py-0 text-[11px] h-auto min-h-0"
         >
           View Invoice
@@ -101,7 +107,10 @@ const BasicInformation = ({
         <Button
           color="primary"
           size="sm"
-          onPress={() => window.open(to_packing_slip, "_blank")}
+          // onPress={() => window.open(to_packing_slip, "_blank")}
+          onPress={() => {
+            navigate(`/shipment/packing-slip/${shipment.shipmentRequestID}`)
+          }}
           className="px-2 py-0 text-[11px] h-auto min-h-0"
         >
           View Packing Slip
@@ -109,7 +118,7 @@ const BasicInformation = ({
       </div>
       <DetailRow label="No" value={shipment.invoice_no} />
       <DetailRow label="Date" value={shipment.invoice_date} />
-      <DetailRow label="Due Date" value={shipment.invoice_due_date} />      
+      <DetailRow label="Due Date" value={shipment.invoice_due_date} />
       <h2 className="text-lg font-semibold mt-1">Label Information</h2>
       <Button
         color="primary"
@@ -121,13 +130,13 @@ const BasicInformation = ({
       </Button>
       <DetailRow label="ID" value={shipment.label_id} />
       {/* <DetailRow label="Status" value={shipment.label_status} /> */}
-      <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />      
+      <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
       {pickupData}
     </>;
   }
   else if (shipment.approver_approved_date_time && shipment.label_status !== "created") {
     labelData = <>
-    <h2 className="text-lg font-semibold">Label Information</h2>
+      <h2 className="text-lg font-semibold">Label Information</h2>
       <div className="my-1 flex gap-2 items-center">
         <p className="text-red-600 font-semibold">
           ⚠️ Label creation failed
@@ -156,7 +165,7 @@ const BasicInformation = ({
           <b>Details:</b> {formattedLabelError} {formattedError}
         </div>
       )}
-      
+
       {pickupData}
     </>;
   };

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { Spinner, Button } from '@heroui/react'
 import { useReactToPrint } from 'react-to-print'
@@ -61,6 +61,7 @@ const InvoiceView = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const printRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchShipmentData = async () => {
@@ -155,23 +156,17 @@ const InvoiceView = () => {
   const isSample = shipment.customs_purpose?.toLowerCase() === 'sample'
   const currency = allItems[0]?.price_currency || 'THB'
 
-  // Chunk items for pagination - calculate based on available space
-  const ITEMS_PER_FIRST_PAGE = 8  // First page has address section
-  const ITEMS_PER_PAGE = 18  // Subsequent pages have more space
+  // Chunk items for pagination - 10 items per page
+  const ITEMS_PER_PAGE = 10
 
   const chunkItemsForPages = (items: ParcelItem[]) => {
     const pages: ParcelItem[][] = []
 
     if (items.length === 0) return [[]]
 
-    // First page
-    pages.push(items.slice(0, ITEMS_PER_FIRST_PAGE))
-
-    // Remaining pages
-    let currentIndex = ITEMS_PER_FIRST_PAGE
-    while (currentIndex < items.length) {
-      pages.push(items.slice(currentIndex, currentIndex + ITEMS_PER_PAGE))
-      currentIndex += ITEMS_PER_PAGE
+    // All pages - 10 items per page
+    for (let i = 0; i < items.length; i += ITEMS_PER_PAGE) {
+      pages.push(items.slice(i, i + ITEMS_PER_PAGE))
     }
 
     return pages
@@ -211,6 +206,64 @@ const InvoiceView = () => {
           )}
         </div>
       </div>
+      <div style={{ marginBottom: '15px' }}>
+        <div style={{ display: 'flex', gap: '10px', fontSize: '10px' }}>
+          {/* Shipper */}
+          <div style={{ flex: '2', padding: '8px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
+              Shipper / Exporter:
+            </div>
+            {isXenoptics(shipment.ship_from.company_name) ? (
+              <>
+                <strong>Xenoptics Limited.</strong><br />
+                195 Moo.3 Bypass Chiangmai-Hangdong<br />
+                T. Namphrae, A. Hang Dong, Chiang Mai 50230<br />
+                Thailand<br />
+                Tel: +66 52081400<br />
+                Email: info@xenoptics.com
+              </>
+            ) : (
+              <>
+                <strong>{shipment.ship_from.company_name}</strong><br />
+                {shipment.ship_from.street1}<br />
+                {shipment.ship_from.city}, {shipment.ship_from.state} {shipment.ship_from.postal_code}<br />
+                {shipment.ship_from.country}<br />
+                Tel: {shipment.ship_from.phone}<br />
+                Email: {shipment.ship_from.email}<br />
+                Contact: {shipment.ship_from.contact_name}
+              </>
+            )}
+          </div>
+
+          {/* Bill To */}
+          <div style={{ flex: '1.5', padding: '8px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
+              Bill To:
+            </div>
+            <strong>{shipment.ship_to.company_name}</strong><br />
+            {shipment.ship_to.street1}<br />
+            {shipment.ship_to.city}, {shipment.ship_to.state} {shipment.ship_to.postal_code}<br />
+            {shipment.ship_to.country}<br />
+            Tel: {shipment.ship_to.phone}<br />
+            Email: {shipment.ship_to.email}<br />
+            Contact: {shipment.ship_to.contact_name}
+          </div>
+
+          {/* Delivery To */}
+          <div style={{ flex: '1.5', padding: '8px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
+              Delivery To:
+            </div>
+            <strong>{shipment.ship_to.company_name}</strong><br />
+            {shipment.ship_to.street1}<br />
+            {shipment.ship_to.city}, {shipment.ship_to.state} {shipment.ship_to.postal_code}<br />
+            {shipment.ship_to.country}<br />
+            Tel: {shipment.ship_to.phone}<br />
+            Email: {shipment.ship_to.email}<br />
+            Contact: {shipment.ship_to.contact_name}
+          </div>
+        </div>
+      </div>
     </div>
   )
 
@@ -234,10 +287,19 @@ const InvoiceView = () => {
   return (
     <div>
       {/* Download Button - Not printed */}
-      <div className="no-print" style={{ padding: '20px', textAlign: 'center', background: '#f0f0f0' }}>
+      <div className="no-print flex gap-10 items-center justify-center" style={{ padding: '20px', textAlign: 'center', background: '#f0f0f0' }}>
+        <Button
+          color="default"
+          size="md"
+          onPress={() => navigate(-1)}
+          startContent={<Icon icon="solar:arrow-left-bold" />}
+        >
+          Back
+        </Button>
+        <h2 className="text-lg font-semibold">Shipment Request ID - {shipment.shipmentRequestID} | Invoice </h2>
         <Button
           color="primary"
-          size="lg"
+          size="md"
           onPress={() => handlePrint()}
           startContent={<Icon icon="solar:download-bold" />}
         >
@@ -280,16 +342,8 @@ const InvoiceView = () => {
         </style>
 
         {itemPages.map((pageItems, pageIndex) => {
-          const isFirstPage = pageIndex === 0
           const isLastPage = pageIndex === totalPages - 1
-          let startItemNumber = 0
-
-          // Calculate start item number
-          if (pageIndex === 0) {
-            startItemNumber = 0
-          } else {
-            startItemNumber = ITEMS_PER_FIRST_PAGE + (pageIndex - 1) * ITEMS_PER_PAGE
-          }
+          const startItemNumber = pageIndex * ITEMS_PER_PAGE
 
           return (
             <div
@@ -312,80 +366,18 @@ const InvoiceView = () => {
               {/* Header on every page */}
               <InvoiceHeader />
 
-              {/* Address Section - Only on first page */}
-              {isFirstPage && (
-                <div style={{ marginBottom: '15px' }}>
-                  <div style={{ display: 'flex', gap: '10px', fontSize: '10px' }}>
-                    {/* Shipper */}
-                    <div style={{ flex: '2', border: '1px solid #ccc', padding: '8px' }}>
-                      <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-                        Shipper / Exporter:
-                      </div>
-                      {isXenoptics(shipment.ship_from.company_name) ? (
-                        <>
-                          <strong>Xenoptics Limited.</strong><br />
-                          195 Moo.3 Bypass Chiangmai-Hangdong<br />
-                          T. Namphrae, A. Hang Dong, Chiang Mai 50230<br />
-                          Thailand<br />
-                          Tel: +66 52081400<br />
-                          Email: info@xenoptics.com
-                        </>
-                      ) : (
-                        <>
-                          <strong>{shipment.ship_from.company_name}</strong><br />
-                          {shipment.ship_from.street1}<br />
-                          {shipment.ship_from.city}, {shipment.ship_from.state} {shipment.ship_from.postal_code}<br />
-                          {shipment.ship_from.country}<br />
-                          Tel: {shipment.ship_from.phone}<br />
-                          Email: {shipment.ship_from.email}<br />
-                          Contact: {shipment.ship_from.contact_name}
-                        </>
-                      )}
-                    </div>
-
-                    {/* Bill To */}
-                    <div style={{ flex: '1.5', border: '1px solid #ccc', padding: '8px' }}>
-                      <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-                        Bill To:
-                      </div>
-                      <strong>{shipment.ship_to.company_name}</strong><br />
-                      {shipment.ship_to.street1}<br />
-                      {shipment.ship_to.city}, {shipment.ship_to.state} {shipment.ship_to.postal_code}<br />
-                      {shipment.ship_to.country}<br />
-                      Tel: {shipment.ship_to.phone}<br />
-                      Email: {shipment.ship_to.email}<br />
-                      Contact: {shipment.ship_to.contact_name}
-                    </div>
-
-                    {/* Delivery To */}
-                    <div style={{ flex: '1.5', border: '1px solid #ccc', padding: '8px' }}>
-                      <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-                        Delivery To:
-                      </div>
-                      <strong>{shipment.ship_to.company_name}</strong><br />
-                      {shipment.ship_to.street1}<br />
-                      {shipment.ship_to.city}, {shipment.ship_to.state} {shipment.ship_to.postal_code}<br />
-                      {shipment.ship_to.country}<br />
-                      Tel: {shipment.ship_to.phone}<br />
-                      Email: {shipment.ship_to.email}<br />
-                      Contact: {shipment.ship_to.contact_name}
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Items Table */}
               <div style={{ marginBottom: isLastPage ? '80px' : '60px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f0f0f0' }}>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '30px', textAlign: 'center' }}>No.</th>
-                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '80px' }}>Material Code</th>
+                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '125px' }}>Material Code</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px' }}>Description</th>
-                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '60px', textAlign: 'center' }}>HS Code</th>
+                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '70px', textAlign: 'center' }}>HS Code</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '35px', textAlign: 'center' }}>Qty</th>
-                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '60px', textAlign: 'right' }}>Unit Price<br/>({currency})</th>
-                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '70px', textAlign: 'right' }}>Amount<br/>({currency})</th>
+                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '60px', textAlign: 'right' }}>Unit Price<br />({currency})</th>
+                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '70px', textAlign: 'right' }}>Amount<br />({currency})</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -412,11 +404,22 @@ const InvoiceView = () => {
                     ))}
                   </tbody>
                 </table>
+
+                {/* To be continued or Last Page indicator */}
+                {totalPages > 1 && (
+                  <div style={{ marginTop: '10px', textAlign: 'right', fontSize: '12px', fontStyle: 'italic' }}>
+                    {isLastPage ? (
+                      <strong>Last Page</strong>
+                    ) : (
+                      'To be continued...'
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Summary and Terms - Only on last page */}
               {isLastPage && (
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '60px' }}>
+                <div style={{ display: 'flex', marginBottom: '60px' }}>
                   {/* Terms Section */}
                   <div style={{ flex: '2', border: '1px solid black', padding: '10px', fontSize: '10px' }}>
                     {isSample ? (

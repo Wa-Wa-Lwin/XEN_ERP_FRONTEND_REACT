@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { Spinner, Button } from '@heroui/react'
 import { useReactToPrint } from 'react-to-print'
@@ -64,6 +64,7 @@ const PackingSlipView = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const printRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchShipmentData = async () => {
@@ -92,7 +93,7 @@ const PackingSlipView = () => {
   // Set document title
   useEffect(() => {
     if (shipment) {
-      document.title = `Packing List - ${shipment.invoice_no}`
+      document.title = `Packing List - ${shipment.shipmentRequestID}`
     }
   }, [shipment])
 
@@ -137,17 +138,85 @@ const PackingSlipView = () => {
   )
   const weightUnit = shipment.parcels[0]?.weight_unit || 'kg'
 
-  // Chunk parcels into pages (5 parcels per page to avoid overflow)
-  const PARCELS_PER_PAGE = 5
-  const chunkParcels = (parcels: Parcel[]) => {
-    const chunks: Parcel[][] = []
-    for (let i = 0; i < parcels.length; i += PARCELS_PER_PAGE) {
-      chunks.push(parcels.slice(i, i + PARCELS_PER_PAGE))
-    }
-    return chunks.length > 0 ? chunks : [[]]
+  // Chunk parcels into pages based on item count (max 10 items per page)
+  // This will split parcels across pages if they have more than 10 items
+  const ITEMS_PER_PAGE = 10
+
+  interface ParcelWithMetadata extends Parcel {
+    originalParcelIndex: number
+    itemsSubset: ParcelItem[]
+    isPartial: boolean
+    showParcelInfo: boolean // Show package number, box info only on first occurrence
+    startItemIndex: number // Track the starting index of items in the original parcel
   }
 
-  const parcelPages = chunkParcels(shipment.parcels)
+  const chunkParcelsByItems = (parcels: Parcel[]) => {
+    const pages: ParcelWithMetadata[][] = []
+    let currentPage: ParcelWithMetadata[] = []
+    let currentItemCount = 0
+
+    parcels.forEach((parcel, parcelIndex) => {
+      const items = parcel.items || []
+
+      if (items.length === 0) {
+        // Handle parcel with no items
+        if (currentItemCount >= ITEMS_PER_PAGE && currentPage.length > 0) {
+          pages.push(currentPage)
+          currentPage = []
+          currentItemCount = 0
+        }
+        currentPage.push({
+          ...parcel,
+          originalParcelIndex: parcelIndex,
+          itemsSubset: [],
+          isPartial: false,
+          showParcelInfo: true,
+          startItemIndex: 0 // No items, so 0
+        })
+        currentItemCount += 1
+      } else {
+        // Split items across pages if needed
+        let itemIndex = 0
+        let isFirstChunk = true
+
+        while (itemIndex < items.length) {
+          const remainingSpace = ITEMS_PER_PAGE - currentItemCount
+          const itemsToTake = Math.min(remainingSpace, items.length - itemIndex)
+
+          if (itemsToTake > 0) {
+            const itemsSubset = items.slice(itemIndex, itemIndex + itemsToTake)
+            currentPage.push({
+              ...parcel,
+              originalParcelIndex: parcelIndex,
+              itemsSubset: itemsSubset,
+              isPartial: items.length > itemsToTake || itemIndex > 0,
+              showParcelInfo: isFirstChunk,
+              startItemIndex: itemIndex // Track where these items start in the original parcel
+            })
+            currentItemCount += itemsToTake
+            itemIndex += itemsToTake
+            isFirstChunk = false
+          }
+
+          // If page is full or we've processed all items, move to next page
+          if (currentItemCount >= ITEMS_PER_PAGE && itemIndex < items.length) {
+            pages.push(currentPage)
+            currentPage = []
+            currentItemCount = 0
+          }
+        }
+      }
+    })
+
+    // Add last page if not empty
+    if (currentPage.length > 0) {
+      pages.push(currentPage)
+    }
+
+    return pages.length > 0 ? pages : [[]]
+  }
+
+  const parcelPages = chunkParcelsByItems(shipment.parcels)
   const totalPages = parcelPages.length
 
   // Header component
@@ -175,7 +244,7 @@ const PackingSlipView = () => {
       <div style={{ marginTop: '15px' }}>
         <div style={{ display: 'flex', gap: '10px', fontSize: '10px' }}>
           {/* Shipper */}
-          <div style={{ flex: '2', border: '1px solid #ccc', padding: '8px' }}>
+          <div style={{ flex: '2', padding: '8px' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Shipper / Exporter:
             </div>
@@ -202,7 +271,7 @@ const PackingSlipView = () => {
           </div>
 
           {/* Bill To */}
-          <div style={{ flex: '1.5', border: '1px solid #ccc', padding: '8px' }}>
+          <div style={{ flex: '1.5', padding: '8px' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Bill To:
             </div>
@@ -216,7 +285,7 @@ const PackingSlipView = () => {
           </div>
 
           {/* Delivery To */}
-          <div style={{ flex: '1.5', border: '1px solid #ccc', padding: '8px' }}>
+          <div style={{ flex: '1.5', padding: '8px' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Delivery To:
             </div>
@@ -253,14 +322,23 @@ const PackingSlipView = () => {
   return (
     <div>
       {/* Download Button - Not printed */}
-      <div className="no-print" style={{ padding: '20px', textAlign: 'center', background: '#f0f0f0' }}>
+      <div className="no-print flex gap-10 items-center justify-center" style={{ padding: '20px', textAlign: 'center', background: '#f0f0f0' }}>
+        <Button
+          color="default"
+          size="md"
+          onPress={() => navigate(-1)}
+          startContent={<Icon icon="solar:arrow-left-bold" />}
+        >
+          Back
+        </Button>
+        <h2 className="text-lg font-semibold">Shipment Request ID - {shipment.shipmentRequestID} | Packing Slip</h2>
         <Button
           color="primary"
-          size="lg"
+          size="md"
           onPress={() => handlePrint()}
           startContent={<Icon icon="solar:download-bold" />}
         >
-          Download Packing Slip as PDF
+          Download as PDF
         </Button>
       </div>
 
@@ -308,7 +386,6 @@ const PackingSlipView = () => {
 
         {parcelPages.map((pageParcels, pageIndex) => {
           const isLastPage = pageIndex === totalPages - 1
-          const startParcelNumber = pageIndex * PARCELS_PER_PAGE
 
           return (
             <div
@@ -337,7 +414,7 @@ const PackingSlipView = () => {
                   <thead>
                     <tr style={{ backgroundColor: '#f0f0f0', textAlign: 'center' }}>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '60px' }}>Package No.</th>
-                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '100px' }}>Material Code</th>
+                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '120px' }}>Material Code</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px' }}>Description</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '40px' }}>Qty</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '120px' }}>Box Type</th>
@@ -347,80 +424,103 @@ const PackingSlipView = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {pageParcels.map((parcel, parcelIndex) => {
-                      const items = parcel.items || []
+                    {pageParcels.map((parcelData, parcelChunkIndex) => {
+                      const items = parcelData.itemsSubset
                       const rowspan = items.length || 1
-                      const packageNumber = startParcelNumber + parcelIndex + 1
+                      const packageNumber = parcelData.originalParcelIndex + 1
+                      const showParcelInfo = parcelData.showParcelInfo
+                      const startItemIndex = parcelData.startItemIndex
 
                       return items.length > 0 ? (
                         items.map((item, itemIndex) => (
-                          <tr key={`${parcelIndex}-${itemIndex}`}>
-                            {itemIndex === 0 && (
-                              <>
-                                <td
-                                  rowSpan={rowspan}
-                                  style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top' }}
-                                >
-                                  {packageNumber}
-                                </td>
-                              </>
+                          <tr key={`${parcelChunkIndex}-${itemIndex}`}>
+                            {itemIndex === 0 && showParcelInfo && (
+                              <td
+                                rowSpan={rowspan}
+                                style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top' }}
+                              >
+                                {packageNumber}
+                              </td>
                             )}
-                            <td style={{ border: '1px solid #ccc', padding: '6px' }}>{item.material_code}</td>
+                            {itemIndex === 0 && !showParcelInfo && (
+                              <td
+                                rowSpan={rowspan}
+                                style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top', fontStyle: 'italic', color: '#666' }}
+                              >
+                                {packageNumber}
+                                <br />
+                                (cont.)
+                              </td>
+                            )}
+                            <td style={{ border: '1px solid #ccc', padding: '6px' }}>
+                              {startItemIndex + itemIndex + 1} - {item.material_code}
+                            </td>
                             <td style={{ border: '1px solid #ccc', padding: '6px' }}>{item.sku}</td>
                             <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
                               {item.quantity || 1}
                             </td>
-                            {itemIndex === 0 && (
+                            {itemIndex === 0 && showParcelInfo && (
                               <>
                                 <td
                                   rowSpan={rowspan}
                                   style={{ border: '1px solid #ccc', padding: '6px', verticalAlign: 'top' }}
                                 >
-                                  {parcel.box_type_name}
+                                  {parcelData.box_type_name}
                                 </td>
                                 <td
                                   rowSpan={rowspan}
                                   style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top' }}
                                 >
-                                  {Math.round(parseFloat(parcel.width))} x{' '}
-                                  {Math.round(parseFloat(parcel.height))} x{' '}
-                                  {Math.round(parseFloat(parcel.depth))}
+                                  {Math.round(parseFloat(parcelData.width))} x{' '}
+                                  {Math.round(parseFloat(parcelData.height))} x{' '}
+                                  {Math.round(parseFloat(parcelData.depth))}
                                 </td>
                                 <td
                                   rowSpan={rowspan}
                                   style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top' }}
                                 >
-                                  {parseFloat(parcel.net_weight_value || parcel.weight_value || '0').toFixed(2)}
+                                  {parseFloat(parcelData.net_weight_value || parcelData.weight_value || '0').toFixed(2)}
                                 </td>
                                 <td
                                   rowSpan={rowspan}
                                   style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top' }}
                                 >
-                                  {parseFloat(parcel.weight_value || '0').toFixed(2)}
+                                  {parseFloat(parcelData.weight_value || '0').toFixed(2)}
+                                </td>
+                              </>
+                            )}
+                            {itemIndex === 0 && !showParcelInfo && (
+                              <>
+                                <td
+                                  rowSpan={rowspan}
+                                  colSpan={4}
+                                  style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top', fontStyle: 'italic', color: '#666' }}
+                                >
+                                  (Continued from previous page)
                                 </td>
                               </>
                             )}
                           </tr>
                         ))
                       ) : (
-                        <tr key={parcelIndex}>
+                        <tr key={parcelChunkIndex}>
                           <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
                             {packageNumber}
                           </td>
                           <td colSpan={3} style={{ border: '1px solid #ccc', padding: '6px' }}>
                             No items
                           </td>
-                          <td style={{ border: '1px solid #ccc', padding: '6px' }}>{parcel.box_type_name}</td>
+                          <td style={{ border: '1px solid #ccc', padding: '6px' }}>{parcelData.box_type_name}</td>
                           <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
-                            {Math.round(parseFloat(parcel.width))} x{' '}
-                            {Math.round(parseFloat(parcel.height))} x{' '}
-                            {Math.round(parseFloat(parcel.depth))}
+                            {Math.round(parseFloat(parcelData.width))} x{' '}
+                            {Math.round(parseFloat(parcelData.height))} x{' '}
+                            {Math.round(parseFloat(parcelData.depth))}
                           </td>
                           <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
-                            {parseFloat(parcel.net_weight_value || parcel.weight_value || '0').toFixed(2)}
+                            {parseFloat(parcelData.net_weight_value || parcelData.weight_value || '0').toFixed(2)}
                           </td>
                           <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
-                            {parseFloat(parcel.weight_value || '0').toFixed(2)}
+                            {parseFloat(parcelData.weight_value || '0').toFixed(2)}
                           </td>
                         </tr>
                       )

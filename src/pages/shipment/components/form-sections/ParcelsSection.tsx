@@ -315,6 +315,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
             </CardHeader>
             <CardBody className="px-0 pt-0 pb-0 space-y-3">
                 {parcelFields.map((parcel, parcelIndex) => (
+                    <>
                     <Card key={parcel.id} shadow="none" className="p-0 m-0">
                         <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left">
                             <h3 className="text-base font-medium pr-3">
@@ -733,6 +734,8 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                             </div>
                         </CardBody>
                     </Card>
+                    <hr />
+                    </>
                 ))}
             </CardBody>
 
