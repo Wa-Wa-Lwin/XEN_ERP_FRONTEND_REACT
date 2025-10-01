@@ -39,14 +39,38 @@ const BasicInformation = ({
 
   const navigate = useNavigate()
 
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: '2-digit', // 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    } catch {
+      return 'Invalid Date'
+    }
+  }
+
+  function formatTime(timeString: string) {
+    if (!timeString) return "";
+    // Take only HH:mm from HH:mm:ss.0000000
+    const [hours, minutes] = timeString.split(":");
+    return `${parseInt(hours, 10)}:${minutes}`;
+  }
+
   let pickupData = null;
+
+  let pickupDateTime = shipment.pick_up_date
+  ? `${formatDate(shipment.pick_up_date)} (${formatTime(shipment.pick_up_start_time)} - ${formatTime(shipment.pick_up_end_time)})`
+  : '';
+
 
   if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success") {
     pickupData = <>
       <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
       <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
       <DetailRow label="Status" value={shipment.pick_up_created_status} />
-      <DetailRow label="Date" value={shipment.pick_up_date} />
+      <DetailRow label="DateTime" value={pickupDateTime} />
       <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
     </>;
   }
