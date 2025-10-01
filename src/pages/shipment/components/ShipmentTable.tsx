@@ -30,6 +30,7 @@ const ShipmentTable = () => {
   // Filter states
   const [filterType, setFilterType] = useState<'all' | 'mine'>('mine')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [reviewFilter, setReviewFilter] = useState<'waiting' | 'all'>('waiting')
 
   // Sort states
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
@@ -78,10 +79,18 @@ const ShipmentTable = () => {
 
     // Different filtering logic based on active button
     if (activeButton === 'Review') {
-      // Review tab: only show send_to_logistic status
-      filtered = filtered.filter(request =>
-        request.request_status === 'send_to_logistic'
-      )
+      if (reviewFilter === 'waiting') {
+        filtered = filtered.filter(
+          request =>
+            request.request_status === 'send_to_logistic'
+        )
+      } else if (reviewFilter === 'all') {
+        filtered = filtered.filter(
+          request =>
+            request.request_status === 'send_to_logistic' 
+            || request.send_to === "Logistic"
+        )
+      }
     } else if (activeButton === 'Approval') {
       // Approval tab: only show requestor_requested and logistic_updated
       // AND approver_user_mail equals msLoginUser email
@@ -128,7 +137,7 @@ const ShipmentTable = () => {
     }
 
     return filtered
-  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection])
+  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection, reviewFilter])
 
   // Pagination logic
   const paginatedData = useMemo(() => {
@@ -339,6 +348,29 @@ const ShipmentTable = () => {
                 </div>
               </div>
             )}
+
+            {activeButton === 'Review' && (
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  variant={reviewFilter === 'waiting' ? 'solid' : 'bordered'}
+                  color={reviewFilter === 'waiting' ? 'primary' : 'default'}
+                  onPress={() => setReviewFilter('waiting')}
+                >
+                  Waiting
+                </Button>
+                <Button
+                  size="sm"
+                  variant={reviewFilter === 'all' ? 'solid' : 'bordered'}
+                  color={reviewFilter === 'all' ? 'primary' : 'default'}
+                  onPress={() => setReviewFilter('all')}
+                >
+                  All
+                </Button>
+              </div>
+            )}
+
+
             {/* Only show All/My Requests filter for Request tab */}
             {activeButton === 'Request' && (
               <div className="flex gap-1">
