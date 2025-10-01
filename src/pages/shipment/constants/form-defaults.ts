@@ -118,7 +118,9 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     total_charge_currency: '',
     chosen: false,
     unique_id:'',
-    detailed_charges: ''
+    detailed_charges: '',
+    past_chosen: true,
+    created_user_name: ''
   }],
   pick_up_status: true,
   pick_up_date: defaultPickupValues.pickupDate,

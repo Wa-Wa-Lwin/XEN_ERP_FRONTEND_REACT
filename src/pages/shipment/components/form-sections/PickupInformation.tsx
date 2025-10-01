@@ -41,11 +41,11 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
 
   // Effect to set initial start time when component mounts or pickup date changes
   useEffect(() => {
-    if (setValue && pickupDate) {
+    if (setValue && pickupDate && !pickupStartTime) {
       const startTime = getStartTimeForDate(pickupDate)
       setValue('pick_up_start_time', startTime, { shouldValidate: false, shouldDirty: false })
     }
-  }, [pickupDate, setValue])
+  }, [pickupDate, setValue, pickupStartTime])
 
   return (
     <Card shadow="none">

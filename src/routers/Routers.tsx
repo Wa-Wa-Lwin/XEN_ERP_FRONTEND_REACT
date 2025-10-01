@@ -7,6 +7,7 @@ import LoginPage from "@pages/login/Login"
 import Shipment from "@pages/shipment/Shipment"
 import ShipmentDetails from "@pages/shipment/components/ShipmentDetails"
 import ShipmentForm from "@pages/shipment/components/ShipmentForm"
+import ShipmentEditForm from "@pages/shipment/components/ShipmentEditForm"
 import InvoiceView from "@pages/shipment/components/InvoiceView"
 import PackingSlipView from "@pages/shipment/components/PackingSlipView"
 import Overview from "@features/overview/Overview"
@@ -40,6 +41,11 @@ export const routes = [
             path: "request-form",
             element: <ShipmentForm />,
             handle: { breadcrumb: "Request Form" },
+          },
+          {
+            path: "edit/:shipmentId",
+            element: <ShipmentEditForm />,
+            handle: { breadcrumb: "Edit" },
           },
           { path: ":shipmentId",
             element: <ShipmentDetails />,

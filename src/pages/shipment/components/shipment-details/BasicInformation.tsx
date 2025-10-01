@@ -199,6 +199,15 @@ const BasicInformation = ({
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">General Information</h2>
         <div className="flex gap-2">
+          <Button
+            color="primary"
+            size="sm"
+            variant="bordered"
+            startContent={<Icon icon="solar:pen-bold" />}
+            onPress={() => navigate(`/shipment/edit/${shipment.shipmentRequestID}`)}
+          >
+            Edit
+          </Button>
           {(msLoginUser?.email === 'wawa@xenoptics.com' ||
             msLoginUser?.email === 'susu@xenoptics.com' ||
             msLoginUser?.email === 'thinzar@xenoptics.com') && onDuplicateShipment && (

@@ -46,6 +46,8 @@ export interface Rate {
   unique_id: string // Unique identifier combining shipper_account_id and service_type
   chosen: boolean
   detailed_charges: string
+  past_chosen: boolean
+  created_user_name: string
 }
 
 export interface ShipmentFormData {

@@ -112,6 +112,8 @@ export interface ShipmentGETData {
     transit_time: string
     total_charge_amount: string
     total_charge_currency: string
+    active: number
+    created_user_name: string
   }>
   parcels?: Array<{
     description: string
