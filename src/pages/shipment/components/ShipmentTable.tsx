@@ -173,6 +173,13 @@ const ShipmentTable = () => {
     }
   }
 
+  function formatTime(timeString: string) {
+    if (!timeString) return "";
+    // Take only HH:mm from HH:mm:ss.0000000
+    const [hours, minutes] = timeString.split(":");
+    return `${parseInt(hours, 10)}:${minutes}`;
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'requestor_requested':
@@ -511,14 +518,18 @@ const ShipmentTable = () => {
                   </p>
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.created_date_time)}</TableCell>
-                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.due_date)}</TableCell>
+                <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
+                  <b>{formatDate(request.due_date)}</b>
+                  <br />
+                  {formatTime(request.pick_up_start_time)} - {formatTime(request.pick_up_end_time)}
+                </TableCell>
 
                 <TableCell>
                   {request.request_status === 'approver_approved' ? (
                     <>
                       <div>
                         <p className={`font-medium text-xs`}>
-                          Label: <span className={`${request.label_status === 'created' ? 'text-green-500' : 'text-red-500'}`}>{request.label_status}</span> 
+                          Label: <span className={`${request.label_status === 'created' ? 'text-green-500' : 'text-red-500'}`}>{request.label_status}</span>
                         </p>
                         <p className="text-xs">
                           Pickup:{' '}
@@ -529,12 +540,12 @@ const ShipmentTable = () => {
                       </div>
 
                     </>
-                  ):
-                  (
-                    <>
-                      <p className='font-medium text-xs text-gray-500'>Waiting</p>                    
-                    </>                    
-                  )}
+                  ) :
+                    (
+                      <>
+                        <p className='font-medium text-xs text-gray-500'>Waiting</p>
+                      </>
+                    )}
                   {hide_column ? renderActionButtons() : null}
                 </TableCell>
               </TableRow>
