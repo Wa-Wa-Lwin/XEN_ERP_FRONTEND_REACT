@@ -75,7 +75,7 @@ const PackingSlipView = () => {
           throw new Error('API URL not configured')
         }
 
-        const response = await axios.get<PackingSlipResponse>(`${apiUrl}/${shipmentId}`)
+        const response = await axios.get<PackingSlipResponse>(`${apiUrl}${shipmentId}`)
         setShipment(response.data.shipment_request)
       } catch (err) {
         console.error('Error fetching shipment:', err)
@@ -453,7 +453,7 @@ const PackingSlipView = () => {
                               </td>
                             )}
                             <td style={{ border: '1px solid #ccc', padding: '6px' }}>
-                              {startItemIndex + itemIndex + 1} - {item.material_code}
+                              {startItemIndex + itemIndex + 1} - {item.material_code || item.sku}
                             </td>
                             <td style={{ border: '1px solid #ccc', padding: '6px' }}>{item.sku}</td>
                             <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>

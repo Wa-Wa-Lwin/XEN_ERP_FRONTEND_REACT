@@ -199,7 +199,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                         <TableColumn className="w-28">ORIGIN {isItemFieldRequired('origin_country') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-20">PRICE {isItemFieldRequired('price_amount') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-28">CURRENCY {isItemFieldRequired('price_currency') && <span className="text-red-500">*</span>}</TableColumn>
-                        <TableColumn className="w-20">WEIGHT(kg) {isItemFieldRequired('weight_value') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-20">WEIGHT(kg) Per Unit {isItemFieldRequired('weight_value') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-16">QTY {isItemFieldRequired('quantity') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-16">ACTION</TableColumn>
                     </TableHeader>

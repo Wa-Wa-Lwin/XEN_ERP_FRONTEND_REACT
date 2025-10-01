@@ -72,7 +72,7 @@ const InvoiceView = () => {
           throw new Error('API URL not configured')
         }
 
-        const response = await axios.get<InvoiceResponse>(`${apiUrl}/${shipmentId}`)
+        const response = await axios.get<InvoiceResponse>(`${apiUrl}${shipmentId}`)
         setShipment(response.data.shipment_request)
       } catch (err) {
         console.error('Error fetching shipment:', err)
@@ -386,7 +386,7 @@ const InvoiceView = () => {
                         <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
                           {startItemNumber + idx + 1}
                         </td>
-                        <td style={{ border: '1px solid #ccc', padding: '6px' }}>{item.material_code}</td>
+                        <td style={{ border: '1px solid #ccc', padding: '6px' }}>{item.material_code || item.sku}</td>
                         <td style={{ border: '1px solid #ccc', padding: '6px' }}>{item.description}</td>
                         <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
                           {item.hs_code || '-'}
