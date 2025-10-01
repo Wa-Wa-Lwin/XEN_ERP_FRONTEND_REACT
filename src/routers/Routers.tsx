@@ -7,6 +7,8 @@ import LoginPage from "@pages/login/Login"
 import Shipment from "@pages/shipment/Shipment"
 import ShipmentDetails from "@pages/shipment/components/ShipmentDetails"
 import ShipmentForm from "@pages/shipment/components/ShipmentForm"
+import InvoiceView from "@pages/shipment/components/InvoiceView"
+import PackingSlipView from "@pages/shipment/components/PackingSlipView"
 import Overview from "@features/overview/Overview"
 import Logistics from "@features/logistics/Logistics"
 import ProtectedRoute from "@components/common/ProtectedRoute";
@@ -27,7 +29,7 @@ export const routes = [
       { path: "overview", element: <Overview />, handle: { breadcrumb: "Overview" } },
       { path: "testing-data", element: <TestingData />, handle: { breadcrumb: "Testing Data" } },
       { path: "logistics/:category?", element: <Logistics />, handle: { breadcrumb: "Logistics" } },
-      { path: "shipment", 
+      { path: "shipment",
         handle: { breadcrumb: "Shipment" },
         children:[
           {
@@ -42,6 +44,14 @@ export const routes = [
           { path: ":shipmentId",
             element: <ShipmentDetails />,
             handle: { breadcrumb: (match: any) => match.params.shipmentId }
+          },
+          { path: "invoice/:shipmentId",
+            element: <InvoiceView />,
+            handle: { breadcrumb: "Invoice" }
+          },
+          { path: "packing-slip/:shipmentId",
+            element: <PackingSlipView />,
+            handle: { breadcrumb: "Packing Slip" }
           },
         ]
       },
