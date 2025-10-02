@@ -242,6 +242,16 @@ const BasicInformation = ({
                 Developer Only: Duplicate Shipment Request
               </Button>
             )}
+
+            <Button
+                color="secondary"
+                size="sm"
+                variant="bordered"
+                startContent={<Icon icon="solar:copy-bold" />}
+                onPress={onDuplicateShipment}
+              >
+                Developer Only: Duplicate Shipment Request
+              </Button>
         </div>
       </div>
 
