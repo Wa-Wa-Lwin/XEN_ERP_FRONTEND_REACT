@@ -620,7 +620,7 @@ const ShipmentEditForm = () => {
       } else if(user?.logisticRole === "1" ) {
         sendStatus = 'logistic_edited'
       } else {
-        sendStatus = 'logistic_edited'
+        sendStatus = 'fallback_error'
       }
 
       const updatedRates = previewData.rates?.map(rate => ({

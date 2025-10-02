@@ -25,12 +25,14 @@ export const useShipmentDuplicateForm = () => {
   useEffect(() => {
     const fetchShipmentData = async () => {
       if (!shipmentId) {
+        console.error('No shipmentId provided')
         showError('Invalid shipment ID', 'Error')
         navigate('/shipment')
         return
       }
 
       try {
+        console.log('Starting to fetch shipment data for ID:', shipmentId)
         setIsLoading(true)
         const baseUrl = import.meta.env.VITE_APP_GET_SHIPMENT_REQUEST_BY_ID
         if (!baseUrl) {
@@ -38,7 +40,9 @@ export const useShipmentDuplicateForm = () => {
         }
 
         const apiUrl = `${baseUrl}${shipmentId}`
+        console.log('Fetching from URL:', apiUrl)
         const response = await axios.get(apiUrl)
+        console.log('API Response:', response.data)
         const shipmentData = response.data.shipment_request
 
         // Transform the API response to match form structure
@@ -143,7 +147,8 @@ export const useShipmentDuplicateForm = () => {
     }
 
     fetchShipmentData()
-  }, [shipmentId, reset, success, showError, navigate])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shipmentId])
 
   const onSubmit = async (data: ShipmentFormData) => {
     if (!msLoginUser) {

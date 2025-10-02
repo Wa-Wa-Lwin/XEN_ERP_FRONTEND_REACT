@@ -389,8 +389,9 @@ const ShipmentDuplicateForm = () => {
   // Show loading spinner while fetching data
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
+      <div className="flex flex-col justify-center items-center min-h-[400px] gap-4">
         <Spinner size="lg" label="Loading shipment data for duplication..." />
+        <p className="text-sm text-gray-600">Please wait...</p>
       </div>
     )
   }

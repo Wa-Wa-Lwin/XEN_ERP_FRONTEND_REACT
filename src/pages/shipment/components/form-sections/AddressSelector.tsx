@@ -427,10 +427,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
 
           <Textarea
             isRequired={isFieldRequired('street1')}
-            {...register(`${prefix}_street1`)}
+             {...register(`${prefix}_street1`, { required: "_street1 name is required." })}
             label={<span>Street 1</span>}
             placeholder="Enter street line 1"
-            errorMessage={errors[`${prefix}_street1`]?.message}
+            errorMessage={errors[`${prefix}_street1`]?.message || "Street 1 is required."}
             isInvalid={!!errors[`${prefix}_street1`]}
             minRows={1}
             key={`${formKey}_${prefix}_street1`}

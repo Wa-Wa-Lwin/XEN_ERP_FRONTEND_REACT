@@ -16,7 +16,7 @@ import Logistics from "@features/logistics/Logistics"
 import ProtectedRoute from "@components/common/ProtectedRoute";
 import Items from "@pages/items/Items";
 import Addresses from "@pages/addresses/Addresses";
-import RateCalculator from "@pages/rate-calculator/RateCalculator";
+// import RateCalculator from "@pages/rate-calculator/RateCalculator";
 import Dashboard from "@pages/dashboard/Dashboard";
 import TestingData from "@features/testingdata/TestingData";
 
@@ -85,15 +85,15 @@ export const routes = [
           },
         ]
       },
-      { path: "rate-calculator",
-        handle: { breadcrumb: "Rate Calculator" },
-        children:[
-          {
-            path: "",
-            element: <RateCalculator />,
-          },
-        ]
-      },
+      // { path: "rate-calculator",
+      //   handle: { breadcrumb: "Rate Calculator" },
+      //   children:[
+      //     {
+      //       path: "",
+      //       element: <RateCalculator />,
+      //     },
+      //   ]
+      // },
       { path: "dashboard",
         handle: { breadcrumb: "Dashboard" },
         children:[
