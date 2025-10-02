@@ -4,6 +4,7 @@ import DetailRow from './DetailRow';
 import type { ShipmentGETData } from './types';
 import { formatDateTime, getDisplayStatus, getIncotermDisplay } from './utils';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@context/AuthContext';
 
 interface BasicInformationProps {
   shipment: ShipmentGETData;
@@ -38,6 +39,7 @@ const BasicInformation = ({
 }: BasicInformationProps) => {
 
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const formatDate = (dateString: string) => {
     try {
@@ -61,8 +63,8 @@ const BasicInformation = ({
   let pickupData = null;
 
   let pickupDateTime = shipment.pick_up_date
-  ? `${formatDate(shipment.pick_up_date)} (${formatTime(shipment.pick_up_start_time)} - ${formatTime(shipment.pick_up_end_time)})`
-  : '';
+    ? `${formatDate(shipment.pick_up_date)} (${formatTime(shipment.pick_up_start_time)} - ${formatTime(shipment.pick_up_end_time)})`
+    : '';
 
 
   if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success") {
@@ -200,20 +202,33 @@ const BasicInformation = ({
     </>;
   };
 
+  const canEdit =
+    (user?.logisticRole === "1" &&
+      shipment.request_status !== "approver_approved" &&
+      shipment.request_status !== "approver_rejected") ||
+    (msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase() &&
+      (shipment.request_status === "requestor_requested" || shipment.request_status === "send_to_logistic")) ||
+    (msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase() &&
+      shipment.request_status !== "approver_approved" &&
+      shipment.request_status !== "approver_rejected");
+
   return (
     <section className="space-y-1">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">General Information</h2>
         <div className="flex gap-2">
-          <Button
-            color="primary"
-            size="sm"
-            variant="bordered"
-            startContent={<Icon icon="solar:pen-bold" />}
-            onPress={() => navigate(`/shipment/edit/${shipment.shipmentRequestID}`)}
-          >
-            Edit
-          </Button>
+
+          {canEdit && (
+            <Button
+              color="primary"
+              size="sm"
+              variant="bordered"
+              startContent={<Icon icon="solar:pen-bold" />}
+              onPress={() => navigate(`/shipment/edit/${shipment.shipmentRequestID}`)}
+            >
+              Edit
+            </Button>
+          )}
           {(msLoginUser?.email === 'wawa@xenoptics.com' ||
             msLoginUser?.email === 'susu@xenoptics.com' ||
             msLoginUser?.email === 'thinzar@xenoptics.com') && onDuplicateShipment && (
@@ -271,7 +286,7 @@ const BasicInformation = ({
           )}
           <DetailRow label="Customs Purpose" value={shipment.customs_purpose.toUpperCase()} />
           <DetailRow label="Incoterms" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
-          {pickupData} 
+          {pickupData}
         </div>
 
         <div>
