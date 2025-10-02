@@ -43,8 +43,8 @@ const ErrorModal = ({ isOpen, onClose, title, message, details }: ErrorModalProp
       }
       if (path.includes('depth')) {
         return {
-          field: 'Parcel Depth',
-          message: 'Parcel depth must be greater than 0',
+          field: 'Parcel Length',
+          message: 'Parcel length must be greater than 0',
           suggestion: 'Please enter a valid depth for your parcel dimensions'
         }
       }

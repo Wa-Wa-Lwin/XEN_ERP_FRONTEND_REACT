@@ -400,6 +400,42 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     </div>
                                     <div className="relative">
                                         <Controller
+                                            name={`parcels.${parcelIndex}.depth`}
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    isRequired={isFieldRequired('depth')}
+                                                    type="number"
+                                                    step="0.01"
+                                                    label={<span>Length (cm)</span>}
+                                                    placeholder="Enter length/depth"
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
+                                                    isReadOnly={isAutoFilled(parcelIndex)}
+                                                    color={!watch(`parcels.${parcelIndex}.depth`) ? "warning" : "default"}
+                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
+                                                    endContent={
+                                                        isAutoFilled(parcelIndex) && (
+                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
+                                                                className="text-gray-400" />
+                                                        )
+                                                    }
+                                                    onChange={(e) => {
+                                                        field.onChange(e)
+                                                        // Clear rates since parcel dimensions are changing
+                                                        if (onClearRates) {
+                                                            console.log('Parcel length/depth changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
+                                                    }}
+                                                    min={1}
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <Controller
                                             name={`parcels.${parcelIndex}.width`}
                                             control={control}
                                             render={({ field }) => (
@@ -469,43 +505,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                 />
                                             )}
                                         />
-                                    </div>
-                                    <div className="relative">
-                                        <Controller
-                                            name={`parcels.${parcelIndex}.depth`}
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Input
-                                                    {...field}
-                                                    isRequired={isFieldRequired('depth')}
-                                                    type="number"
-                                                    step="0.01"
-                                                    label={<span>Depth (cm)</span>}
-                                                    placeholder="Enter depth"
-                                                    errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
-                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
-                                                    color={!watch(`parcels.${parcelIndex}.depth`) ? "warning" : "default"}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
-                                                    endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
-                                                    }
-                                                    onChange={(e) => {
-                                                        field.onChange(e)
-                                                        // Clear rates since parcel dimensions are changing
-                                                        if (onClearRates) {
-                                                            console.log('Parcel depth changed, clearing rates...')
-                                                            onClearRates()
-                                                        }
-                                                    }}
-                                                    min={1}
-                                                />
-                                            )}
-                                        />
-                                    </div>
+                                    </div>                                    
                                     <Controller
                                         name={`parcels.${parcelIndex}.dimension_unit`}
                                         control={control}

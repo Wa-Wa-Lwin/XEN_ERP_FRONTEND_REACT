@@ -193,6 +193,9 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
 
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
+                            <span className="text-xs text-default-600">
+                              L x W x H
+                            </span>                            
                             <Icon icon="solar:ruler-linear" width={14} className="text-default-400" />
                             <span className="text-xs text-default-600">
                               {formatDimensions(boxType)}
@@ -200,6 +203,9 @@ export const ParcelBoxTypeSelectModal: React.FC<ParcelBoxTypeSelectModalProps> =
                           </div>
 
                           <div className="flex items-center gap-2">
+                            <span className="text-xs text-default-600">
+                              Weight
+                            </span>
                             <Icon icon="solar:scale-linear" width={14} className="text-default-400" />
                             <span className="text-xs text-default-600">
                               {formatWeight(boxType)}

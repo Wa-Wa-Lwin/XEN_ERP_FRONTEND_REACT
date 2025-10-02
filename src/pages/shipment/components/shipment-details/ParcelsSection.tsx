@@ -21,7 +21,7 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
             <TableColumn>No.</TableColumn>
             <TableColumn>Description</TableColumn>
             <TableColumn>Box Type</TableColumn>
-            <TableColumn>Dimensions ({shipment.parcels[0].dimension_unit})</TableColumn>
+            <TableColumn>Dimensions LWH ({shipment.parcels[0].dimension_unit})</TableColumn>
             <TableColumn>Weight ({shipment.parcels[0].weight_unit})</TableColumn>
             <TableColumn>Items</TableColumn>
           </TableHeader>
@@ -31,7 +31,7 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{parcel.description}</TableCell>
                 <TableCell>{parcel.box_type_name || 'N/A'}</TableCell>
-                <TableCell>{Math.floor(parseFloat(parcel.width) || 0)} × {Math.floor(parseFloat(parcel.height) || 0)} × {Math.floor(parseFloat(parcel.depth) || 0)}</TableCell>
+                <TableCell>{Math.floor(parseFloat(parcel.depth) || 0)} × {Math.floor(parseFloat(parcel.height) || 0)} × {Math.floor(parseFloat(parcel.width) || 0)}</TableCell>
                 <TableCell>{parseFloat(parcel.weight_value) || 0}</TableCell>
                 <TableCell>
                   {parcel.items?.length > 0 ? (

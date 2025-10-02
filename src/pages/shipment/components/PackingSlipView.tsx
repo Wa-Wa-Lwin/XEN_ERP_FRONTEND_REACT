@@ -418,7 +418,7 @@ const PackingSlipView = () => {
                       <th style={{ border: '1px solid #ccc', padding: '6px' }}>Description</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '40px' }}>Qty</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '120px' }}>Box Type</th>
-                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '80px' }}>Dimension<br />(cm)</th>
+                      <th style={{ border: '1px solid #ccc', padding: '6px', width: '80px' }}>Dimension<br />LxWxH<br />(cm)</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '70px' }}>Net Weight<br />(kg)</th>
                       <th style={{ border: '1px solid #ccc', padding: '6px', width: '70px' }}>Gross Weight<br />(kg)</th>
                     </tr>
@@ -471,9 +471,9 @@ const PackingSlipView = () => {
                                   rowSpan={rowspan}
                                   style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top' }}
                                 >
-                                  {Math.round(parseFloat(parcelData.width))} x{' '}
+                                  {Math.round(parseFloat(parcelData.depth))} x{' '}
                                   {Math.round(parseFloat(parcelData.height))} x{' '}
-                                  {Math.round(parseFloat(parcelData.depth))}
+                                  {Math.round(parseFloat(parcelData.width))}
                                 </td>
                                 <td
                                   rowSpan={rowspan}

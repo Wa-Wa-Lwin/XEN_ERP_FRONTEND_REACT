@@ -421,7 +421,14 @@ const InvoiceView = () => {
               {isLastPage && (
                 <div style={{ display: 'flex', marginBottom: '60px' }}>
                   {/* Terms Section */}
-                  <div style={{ flex: '2', border: '1px solid black', padding: '10px', fontSize: '10px' }}>
+                  <div style={{ 
+                    flex: '2', 
+                    borderTop: '1px solid black', 
+                    borderBottom: '1px solid black', 
+                    borderLeft: '1px solid black', 
+                    padding: '10px', 
+                    fontSize: '10px' 
+                    }}>
                     {isSample ? (
                       <>
                         <strong>Purpose of Shipment: Sample</strong><br /><br />
