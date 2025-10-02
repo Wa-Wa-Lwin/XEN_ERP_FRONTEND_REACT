@@ -106,6 +106,12 @@ const BasicInformation = ({
         </div>
       )}
     </>;
+  } else {
+    pickupData = <>
+      <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
+      <DetailRow label="DateTime" value={pickupDateTime} />
+      <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
+    </>;
   }
 
   let labelData = null;
@@ -155,7 +161,7 @@ const BasicInformation = ({
       <DetailRow label="ID" value={shipment.label_id} />
       {/* <DetailRow label="Status" value={shipment.label_status} /> */}
       <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
-      {pickupData}
+      {/* {pickupData} */}
     </>;
   }
   else if (shipment.approver_approved_date_time && shipment.label_status !== "created") {
@@ -190,7 +196,7 @@ const BasicInformation = ({
         </div>
       )}
 
-      {pickupData}
+      {/* {pickupData} */}
     </>;
   };
 
@@ -265,6 +271,7 @@ const BasicInformation = ({
           )}
           <DetailRow label="Customs Purpose" value={shipment.customs_purpose.toUpperCase()} />
           <DetailRow label="Incoterms" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
+          {pickupData} 
         </div>
 
         <div>

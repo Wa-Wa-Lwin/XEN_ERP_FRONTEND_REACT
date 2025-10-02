@@ -22,7 +22,7 @@ import { Icon } from '@iconify/react/dist/iconify.js'
 const ShipmentEditForm = () => {
   const { shipmentId } = useParams<{ shipmentId: string }>()
   const navigate = useNavigate()
-  const { user, approver, msLoginUser } = useAuth()
+  const { user, msLoginUser } = useAuth()
   const { success, error: showError } = useNotification()
 
   const [isLoading, setIsLoading] = useState(true)
@@ -40,7 +40,7 @@ const ShipmentEditForm = () => {
     defaultValues: DEFAULT_FORM_VALUES
   })
 
-  const { register, control, handleSubmit, watch, setValue, getValues, trigger, reset, formState: { errors } } = formMethods
+  const { register, control, handleSubmit, watch, setValue, getValues, reset, formState: { errors } } = formMethods
 
   // Watch for changes in critical fields that affect rates
   const watchedFields = watch([
@@ -611,13 +611,15 @@ const ShipmentEditForm = () => {
       }
 
       // Determine send_status based on current request_status
-      let sendStatus: string
-      if (previewData.request_status === 'send_to_logistic') {
-        sendStatus = 'logistic_edited'
-      } else if (previewData.request_status === 'requestor_requested' || previewData.request_status === 'logistic_updated') {
+      let sendStatus: string = ""
+
+      if(msLoginUser.email === previewData.created_user_mail) {
+        sendStatus = 'requestor_edited'
+      } else if(msLoginUser.email === previewData.approver_user_mail) {
         sendStatus = 'approver_edited'
+      } else if(user?.logisticRole === "1" ) {
+        sendStatus = 'logistic_edited'
       } else {
-        // Default fallback - determine based on user role
         sendStatus = 'logistic_edited'
       }
 
