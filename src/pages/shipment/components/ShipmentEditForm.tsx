@@ -523,15 +523,13 @@ const ShipmentEditForm = () => {
 
       // Determine send_status based on current request_status
       let sendStatus: string = ""
-
-      if(msLoginUser.email === previewData.created_user_mail.toLowerCase()) {
-        sendStatus = 'requestor_edited'
-      } else if(msLoginUser.email === previewData.approver_user_mail?.toLowerCase()) {
+        
+      if(msLoginUser.email === previewData.approver_user_mail?.toLowerCase()) {
         sendStatus = 'approver_edited'
       } else if(user?.logisticRole === "1" ) {
         sendStatus = 'logistic_edited'
       } else {
-        sendStatus = 'fallback_error'
+        sendStatus = 'logistic_edited' // 'fallback_error'
       }
 
       const updatedRates = previewData.rates?.map(rate => ({
