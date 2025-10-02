@@ -98,6 +98,7 @@ const ShipmentTable = () => {
 
       if (!msLoginUser?.email) return [];
 
+      //DONT DELETE YET { Later filter with approver role }
       filtered = filtered.filter(request =>
         request.approver_user_mail?.toLowerCase() === msLoginUser.email.toLowerCase()
       );
@@ -162,7 +163,7 @@ const ShipmentTable = () => {
     }
 
     return filtered
-  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection, reviewFilter])
+  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection, reviewFilter, approvalFilter])
 
   // Pagination logic
   const paginatedData = useMemo(() => {
