@@ -99,15 +99,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
               <b>Instructions - </b> {formData.pick_up_instructions || 'Not specified'}
             </p>
           )}
-
-          {/* Insurance Information */}
-          {formData.insurance_enabled && (
-            <p>
-              <h3 className="text-lg font-medium">Insurance Information</h3>
-              <b>Insured Value - </b>
-              {formData.insurance_insured_value_amount} {formData.insurance_insured_value_currency}
-            </p>
-          )}
+          
 
           {/* Parcels */}
           <div>
