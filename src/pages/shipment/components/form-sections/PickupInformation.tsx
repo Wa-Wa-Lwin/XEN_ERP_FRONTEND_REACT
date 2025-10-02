@@ -21,9 +21,24 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
   const pickupEndTime = watch ? watch('pick_up_end_time') : ''
   const todayDate = new Date().toISOString().split('T')[0]
 
+  const normalizeTime = (timeString?: string) => {
+    if (!timeString) return ""
+    return timeString.split(":").slice(0, 2).join(":") // take first 2 parts (HH:mm)
+  }
+
   // Determine start time based on pickup date
-  const getStartTimeForDate = (selectedDate: string) => {
+  const getPickUpStartTime = (selectedDate: string) => {
+    if (pickupStartTime) {
+      return normalizeTime(pickupStartTime)
+    }
     return selectedDate === todayDate ? '12:00' : '09:00'
+  }
+
+  const getPickUpEndTime = (): string => {
+    if (pickupStartTime) {
+      return normalizeTime(pickupEndTime)
+    }
+    return '17:00'
   }
 
   // Handler to sync both date fields when one is changed
@@ -34,7 +49,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
       setValue('due_date', dateValue, { shouldValidate: true, shouldDirty: true })
 
       // Update start time based on selected date
-      const newStartTime = getStartTimeForDate(dateValue)
+      const newStartTime = getPickUpStartTime(dateValue)
       setValue('pick_up_start_time', newStartTime, { shouldValidate: true, shouldDirty: true })
     }
   }
@@ -42,7 +57,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
   // Effect to set initial start time when component mounts or pickup date changes
   useEffect(() => {
     if (setValue && pickupDate && !pickupStartTime) {
-      const startTime = getStartTimeForDate(pickupDate)
+      const startTime = getPickUpStartTime(pickupDate)
       setValue('pick_up_start_time', startTime, { shouldValidate: false, shouldDirty: false })
     }
   }, [pickupDate, setValue, pickupStartTime])
@@ -91,7 +106,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
                   label={<span>Start Time</span>}
                   errorMessage={errors.pick_up_start_time?.message}
                   isInvalid={!!errors.pick_up_start_time}
-                  value={field.value || pickupStartTime || getStartTimeForDate(pickupDate || defaultPickupDate)}
+                  value={getPickUpStartTime(pickupDate || defaultPickupDate)}
                   onChange={(e) => field.onChange(e.target.value)}
                   color={!watch('pick_up_start_time') ? "warning" : "default"}
                 />
@@ -108,7 +123,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
                   label={<span>End Time</span>}
                   errorMessage={errors.pick_up_end_time?.message}
                   isInvalid={!!errors.pick_up_end_time}
-                  value={field.value || pickupEndTime || '17:00'}
+                  value={getPickUpEndTime()}
                   onChange={(e) => field.onChange(e.target.value)}
                   color={!watch('pick_up_end_time') ? "warning" : "default"}
                 />
