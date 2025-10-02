@@ -54,7 +54,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   ship_from_city: 'Hang Dong',
   ship_from_state: 'Chiang Mai',
   ship_from_postal_code: '50230',
-  ship_from_tax_id: '',
+  ship_from_tax_id: '0505559000723',
 
   // Flattened ship_to properties
   ship_to_country: '',
