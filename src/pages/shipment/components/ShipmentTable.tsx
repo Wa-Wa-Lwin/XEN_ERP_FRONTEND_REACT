@@ -99,9 +99,9 @@ const ShipmentTable = () => {
       if (!msLoginUser?.email) return [];
 
       //DONT DELETE YET { Later filter with approver role }
-      filtered = filtered.filter(request =>
-        request.approver_user_mail?.toLowerCase() === msLoginUser.email.toLowerCase()
-      );
+      // filtered = filtered.filter(request =>
+      //   request.approver_user_mail?.toLowerCase() === msLoginUser.email.toLowerCase()
+      // );
 
       switch (approvalFilter) {
         case 'waiting':
