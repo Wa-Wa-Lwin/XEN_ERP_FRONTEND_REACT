@@ -31,6 +31,7 @@ const ShipmentTable = () => {
   const [filterType, setFilterType] = useState<'all' | 'mine'>('mine')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [reviewFilter, setReviewFilter] = useState<'waiting' | 'all'>('waiting')
+  const [approvalFilter, setApprovalFilter] = useState<'waiting' | 'all' | 'approved' | 'rejected'>('waiting')
 
   // Sort states
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
@@ -87,18 +88,42 @@ const ShipmentTable = () => {
       } else if (reviewFilter === 'all') {
         filtered = filtered.filter(
           request =>
-            request.request_status === 'send_to_logistic' 
+            request.request_status === 'send_to_logistic'
             || request.send_to === "Logistic"
         )
       }
     } else if (activeButton === 'Approval') {
       // Approval tab: only show requestor_requested and logistic_updated
       // AND approver_user_mail equals msLoginUser email
+
+      if (!msLoginUser?.email) return [];
+
       filtered = filtered.filter(request =>
-        ['requestor_requested', 'logistic_updated'].includes(request.request_status) &&
-        msLoginUser?.email &&
         request.approver_user_mail?.toLowerCase() === msLoginUser.email.toLowerCase()
-      )
+      );
+
+      switch (approvalFilter) {
+        case 'waiting':
+          filtered = filtered.filter(request =>
+            ['requestor_requested', 'logistic_updated', 'logistic_edited', 'approver_edited'].includes(request.request_status)
+          );
+          break;
+        case 'all':
+          filtered = filtered.filter(request =>
+            ['requestor_requested', 'logistic_updated', 'logistic_edited', 'approver_edited', 'approver_approved', 'approver_rejected'].includes(request.request_status)
+          );
+          break;
+        case 'approved':
+          filtered = filtered.filter(request =>
+            request.request_status === 'approver_approved'
+          );
+          break;
+        case 'rejected':
+          filtered = filtered.filter(request =>
+            request.request_status === 'approver_rejected'
+          );
+          break;
+      }
     } else {
       // Request tab: use original filtering logic
       // Filter by user (mine vs all)
@@ -370,6 +395,43 @@ const ShipmentTable = () => {
               </div>
             )}
 
+            {activeButton === 'Approval' && (
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  variant={approvalFilter === 'all' ? 'solid' : 'bordered'}
+                  color={approvalFilter === 'all' ? 'primary' : 'default'}
+                  onPress={() => setApprovalFilter('all')}
+                >
+                  All
+                </Button>
+                <Button
+                  size="sm"
+                  variant={approvalFilter === 'waiting' ? 'solid' : 'bordered'}
+                  color={approvalFilter === 'waiting' ? 'primary' : 'default'}
+                  onPress={() => setApprovalFilter('waiting')}
+                >
+                  Waiting
+                </Button>
+                <Button
+                  size="sm"
+                  variant={approvalFilter === 'approved' ? 'solid' : 'bordered'}
+                  color={approvalFilter === 'approved' ? 'primary' : 'default'}
+                  onPress={() => setApprovalFilter('approved')}
+                >
+                  Approved
+                </Button>
+                <Button
+                  size="sm"
+                  variant={approvalFilter === 'rejected' ? 'solid' : 'bordered'}
+                  color={approvalFilter === 'rejected' ? 'primary' : 'default'}
+                  onPress={() => setApprovalFilter('rejected')}
+                >
+                  Reject
+                </Button>
+
+              </div>
+            )}
 
             {/* Only show All/My Requests filter for Request tab */}
             {activeButton === 'Request' && (
