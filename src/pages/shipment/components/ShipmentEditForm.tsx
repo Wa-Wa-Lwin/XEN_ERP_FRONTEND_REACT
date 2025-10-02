@@ -214,100 +214,11 @@ const ShipmentEditForm = () => {
 
         reset(formData)
 
-        // Set rates and selected rate if they exist
-        if (shipmentData.rates && shipmentData.rates.length > 0) {
-          // Transform rates to the format expected by RatesSection (for display)
-          const ratesForDisplay = shipmentData.rates.map((rate: any) => ({
-            shipper_account: {
-              id: rate.shipper_account_id || '',
-              slug: rate.shipper_account_slug || '',
-              description: rate.shipper_account_description || ''
-            },
-            service_type: rate.service_type || null,
-            service_name: rate.service_name || null,
-            pickup_deadline: rate.pickup_deadline || null,
-            booking_cut_off: rate.booking_cut_off || null,
-            delivery_date: rate.delivery_date || null,
-            transit_time: parseFloat(String(rate.transit_time)) || null,
-            error_message: rate.error_message || null,
-            info_message: rate.info_message || null,
-            charge_weight: {
-              value: parseFloat(String(rate.charge_weight_value)) || 0,
-              unit: rate.charge_weight_unit || 'kg'
-            },
-            total_charge: {
-              amount: parseFloat(String(rate.total_charge_amount)) || 0,
-              currency: rate.total_charge_currency || 'THB'
-            },
-            detailed_charges: []
-          }))
-
-          // Keep rates in API format (for submission)
-          const ratesForAPI = shipmentData.rates.map((rate: any) => {
-            const transitTime = String(rate.transit_time || '')
-            const totalAmount = parseFloat(String(rate.total_charge_amount)) || 0
-            const totalCurrency = rate.total_charge_currency || 'THB'
-            const uniqueId = `${rate.shipper_account_id}-${rate.service_type}-${transitTime || 'null'}-${totalAmount}-${totalCurrency}`
-
-            return {
-              shipper_account_id: rate.shipper_account_id || '',
-              shipper_account_slug: rate.shipper_account_slug || '',
-              shipper_account_description: rate.shipper_account_description || '',
-              service_type: rate.service_type || '',
-              service_name: rate.service_name || '',
-              pickup_deadline: rate.pickup_deadline || '',
-              booking_cut_off: rate.booking_cut_off || '',
-              delivery_date: rate.delivery_date || '',
-              transit_time: transitTime,
-              error_message: rate.error_message || '',
-              info_message: rate.info_message || '',
-              charge_weight_value: parseFloat(String(rate.charge_weight_value)) || 0,
-              charge_weight_unit: rate.charge_weight_unit || '',
-              total_charge_amount: totalAmount,
-              total_charge_currency: totalCurrency,
-              unique_id: uniqueId,
-              chosen: rate.chosen === 1 || rate.chosen === true,
-              detailed_charges: rate.detailed_charges ? String(rate.detailed_charges).substring(0, 255) : ''
-            }
-          })
-
-          setCalculatedRates(ratesForDisplay)
-          setTransformedRates(ratesForAPI)
-
-          // Find and set the chosen rate using the same unique ID format as RatesSection
-          const chosenRateFromDB = shipmentData.rates.find((rate: any) => rate.chosen === 1 || rate.chosen === true)
-          if (chosenRateFromDB) {
-            const chosenRate = ratesForDisplay.find((rate: any) =>
-              rate.shipper_account.id === chosenRateFromDB.shipper_account_id &&
-              rate.service_type === chosenRateFromDB.service_type
-            )
-            if (chosenRate) {
-              const rateUniqueId = `${chosenRate.shipper_account.id}-${chosenRate.service_type}-${chosenRate.transit_time || 'null'}-${chosenRate.total_charge?.amount || 0}-${chosenRate.total_charge?.currency || 'null'}`
-              setSelectedRateId(rateUniqueId)
-            }
-          }
-
-          // Set the snapshot to prevent clearing rates on initial load
-          // Use setTimeout to ensure the snapshot is set after the form has fully re-rendered
-          setTimeout(() => {
-            const currentWatchedFields = [
-              formData.ship_from_country,
-              formData.ship_from_postal_code,
-              formData.ship_from_city,
-              formData.ship_from_state,
-              formData.ship_from_street1,
-              formData.ship_from_company_name,
-              formData.ship_to_country,
-              formData.ship_to_postal_code,
-              formData.ship_to_city,
-              formData.ship_to_state,
-              formData.ship_to_street1,
-              formData.ship_to_company_name,
-              formData.parcels
-            ]
-            setRateCalculationSnapshot(currentWatchedFields)
-          }, 100)
-        }
+        // Don't load existing rates - force users to recalculate rates in edit mode
+        // This ensures rates are fresh and up-to-date when editing
+        setCalculatedRates([])
+        setTransformedRates([])
+        setSelectedRateId('')
       } catch (error) {
         console.error('Error fetching shipment:', error)
         showError('Failed to load shipment data', 'Loading Error')
@@ -613,9 +524,9 @@ const ShipmentEditForm = () => {
       // Determine send_status based on current request_status
       let sendStatus: string = ""
 
-      if(msLoginUser.email === previewData.created_user_mail) {
+      if(msLoginUser.email === previewData.created_user_mail.toLowerCase()) {
         sendStatus = 'requestor_edited'
-      } else if(msLoginUser.email === previewData.approver_user_mail) {
+      } else if(msLoginUser.email === previewData.approver_user_mail?.toLowerCase()) {
         sendStatus = 'approver_edited'
       } else if(user?.logisticRole === "1" ) {
         sendStatus = 'logistic_edited'
@@ -717,6 +628,12 @@ const ShipmentEditForm = () => {
       })
       return
     }
+
+    // Clear existing rates before calculating new ones
+    // This prevents doubling of rates when recalculating
+    setCalculatedRates([])
+    setTransformedRates([])
+    setSelectedRateId('')
 
     // Mark that we're done with initial load when user manually calculates rates
     isInitialLoad.current = false

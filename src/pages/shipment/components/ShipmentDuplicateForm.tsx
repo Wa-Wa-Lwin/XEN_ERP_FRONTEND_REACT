@@ -376,6 +376,12 @@ const ShipmentDuplicateForm = () => {
       return
     }
 
+    // Clear existing rates before calculating new ones
+    // This prevents doubling of rates when recalculating
+    setCalculatedRates([])
+    setTransformedRates([])
+    setSelectedRateId('')
+
     const updatedFormData = await calculateRates(formData)
 
     if (updatedFormData.rates && updatedFormData.rates.length > 0) {

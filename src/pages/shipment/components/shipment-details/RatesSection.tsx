@@ -172,13 +172,14 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
               <TableColumn className="min-w-[150px]">Pickup Deadline</TableColumn>
               <TableColumn className="min-w-[150px]">Booking Cut Off</TableColumn>
               <TableColumn className="min-w-[150px]">Delivery Date</TableColumn>
+              <TableColumn className="min-w-[150px]">Past Chosen</TableColumn>
               {/* <TableColumn className="min-w-[200px]">Error Message</TableColumn>
               <TableColumn className="min-w-[200px]">Info Message</TableColumn> */}
             </TableHeader>
             <TableBody>
               {(showAllRates ? shipment.rates : shipment.rates.filter((rate: any) => rate.chosen == 1))
                 .map((rate: any, idx: number) => (
-                  <TableRow key={idx} className={rate.chosen == 1 ? "bg-green-50" : ""}>
+                  <TableRow key={idx} className={rate.chosen == 1 ? "bg-green-100" : rate.past_chosen == 1 ? "bg-orange-100" : ""}>
                     <TableCell>
                       {rate.chosen == 1 ? <Icon icon="mdi:check-circle" className="text-green-600 w-5 h-5" /> : null}
                     </TableCell>
@@ -221,11 +222,11 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                       <span className="text-xs">
                         {rate.pickup_deadline
                           ? new Date(rate.pickup_deadline).toLocaleString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
                           : 'N/A'}
                       </span>
                     </TableCell>
@@ -233,11 +234,11 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                       <span className="text-xs">
                         {rate.booking_cut_off
                           ? new Date(rate.booking_cut_off).toLocaleString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
                           : 'N/A'}
                       </span>
                     </TableCell>
@@ -245,13 +246,23 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                       <span className="text-xs">
                         {rate.delivery_date
                           ? new Date(rate.delivery_date).toLocaleString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
                           : 'N/A'}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      {rate.past_chosen == 1 ?
+                        <>
+                          <span className="text-xs flex items-center gap-1">
+                            <Icon icon="mdi:check-circle" className="text-gray-600 w-4 h-4" />
+                            by {rate.created_user_name}
+                          </span>
+                        </> : null
+                      }
                     </TableCell>
                     {/* <TableCell>
                       {rate.error_message ? (
