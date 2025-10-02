@@ -243,7 +243,7 @@ const BasicInformation = ({
               </Button>
             )}
 
-            <Button
+            {/* <Button
                 color="secondary"
                 size="sm"
                 variant="bordered"
@@ -251,7 +251,7 @@ const BasicInformation = ({
                 onPress={onDuplicateShipment}
               >
                 Developer Only: Duplicate Shipment Request
-              </Button>
+              </Button> */}
         </div>
       </div>
 

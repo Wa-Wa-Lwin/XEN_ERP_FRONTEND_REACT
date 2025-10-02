@@ -97,7 +97,9 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
           {formData.pick_up_status && (
             <p>
               <h3 className="text-lg font-medium">Pickup Information</h3>
-              <b>Pickup Date - </b> {formData.pick_up_date || 'Not specified'} [{formData.pick_up_start_time || 'Not specified'} - {formData.pick_up_end_time || 'Not specified'}]
+              <b>Pickup Date - </b> {formData.pick_up_date || 'Not specified'} (
+              {formData.pick_up_start_time ? formData.pick_up_start_time.slice(0, 5) : 'Not specified'} -
+              {formData.pick_up_end_time ? formData.pick_up_end_time.slice(0, 5) : 'Not specified'})
               <br />
               <b>Instructions - </b> {formData.pick_up_instructions || 'Not specified'}
             </p>
