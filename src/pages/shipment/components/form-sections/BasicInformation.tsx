@@ -273,10 +273,10 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 placeholder="Select"
                 errorMessage={errors.customs_purpose?.message}
                 isInvalid={!!errors.customs_purpose}
-                selectedKeys={customsPurposeValue ? [customsPurposeValue] : ["sample"]}
+                selectedKeys={customsPurposeValue ? [customsPurposeValue]:""}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
-                  if (selectedKey) {
+                if (selectedKey) {
                     field.onChange(selectedKey)
                   }
                 }}
@@ -303,7 +303,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                   placeholder="Select"
                   errorMessage={errors.customs_terms_of_trade?.message}
                   isInvalid={!!errors.customs_terms_of_trade}
-                  selectedKeys={customsTermsValue ? [customsTermsValue] : ["exw"]}
+                  selectedKeys={customsTermsValue ? [customsTermsValue]:""}
                   onSelectionChange={(keys) => {
                     const selectedKey = Array.from(keys)[0] as string
                     if (selectedKey) {

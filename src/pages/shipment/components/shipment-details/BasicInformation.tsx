@@ -205,16 +205,21 @@ const BasicInformation = ({
   const canEdit =
     (user?.logisticRole === "1" &&
       shipment.request_status !== "approver_approved" &&
-      shipment.request_status !== "approver_rejected") 
-    || (msLoginUser?.email?.toLowerCase() === "vanchan@xenoptics.com")      
+      shipment.request_status !== "approver_rejected")
+      ||
+    (shipment.approver_user_mail?.toLowerCase === msLoginUser?.mail?.toLowerCase() &&
+      shipment.request_status !== "approver_approved" &&
+      shipment.request_status !== "approver_rejected")
+      ||
+    (shipment.approver_user_mail?.toLowerCase === msLoginUser?.mail?.toLowerCase() &&
+      shipment?.request_status === "approver_approved" &&
+      shipment?.label_status !== "created")
+      ||
+    (user?.logisticRole === "1" &&
+      shipment?.request_status === "approver_approved" &&
+      shipment?.label_status !== "created")
       ;
-    //    ||
-    // (msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase() &&
-    //   (shipment.request_status === "requestor_requested" || shipment.request_status === "send_to_logistic")) ||
-    // (msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase() &&
-    //   shipment.request_status !== "approver_approved" &&
-    //   shipment.request_status !== "approver_rejected");
-
+   
   return (
     <section className="space-y-1">
       <div className="flex justify-between items-center">
@@ -292,12 +297,12 @@ const BasicInformation = ({
         </div>
 
         <div>
-          <DetailRow label="Scope" value={shipment.shipment_scope_type.toUpperCase()} />
+          <DetailRow label="Scope" value={shipment.shipment_scope_type?.toUpperCase() ?? ''} />
           <DetailRow label="Service Options" value={shipment.service_options} />
           {shipment.service_options === 'Urgent' && (
             <DetailRow label="Urgent Reason" value={shipment.urgent_reason} />
           )}
-          <DetailRow label="Customs Purpose" value={shipment.customs_purpose.toUpperCase()} />
+          <DetailRow label="Customs Purpose" value={shipment.customs_purpose?.toUpperCase() ?? ''} />
           <DetailRow label="Incoterms" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
           {pickupData}
         </div>

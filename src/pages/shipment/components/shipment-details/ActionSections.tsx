@@ -39,6 +39,8 @@ const ActionSections = ({
   isUpdatingLogistics,
   onLogisticsUpdate
 }: ActionSectionsProps) => {
+  let shipment_approved_date_time = new Date(shipment.approver_approved_date_time ?? 0);
+
   // Approval Actions Section
   if ([
       "requestor_requested", 
@@ -46,6 +48,7 @@ const ActionSections = ({
       "logistic_edited",
       "approver_edited"
     ].includes(shipment.request_status) 
+    && shipment_approved_date_time.getTime() >= 0
     //  msLoginUser?.email.toLowerCase() === shipment.approver_user_mail.toLowerCase()    
     ) {
     return (
