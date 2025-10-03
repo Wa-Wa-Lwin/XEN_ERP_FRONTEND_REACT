@@ -169,8 +169,8 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
               <TableColumn className="min-w-[120px] text-right">Estimate THB</TableColumn>
               <TableColumn className="min-w-[120px]">Cost</TableColumn>
               <TableColumn className="min-w-[100px]">Charge Weight</TableColumn>
-              <TableColumn className="min-w-[150px]">Pickup Deadline</TableColumn>
-              <TableColumn className="min-w-[150px]">Booking Cut Off</TableColumn>
+              {/* <TableColumn className="min-w-[150px]">Pickup Deadline</TableColumn>
+              <TableColumn className="min-w-[150px]">Booking Cut Off</TableColumn> */}
               <TableColumn className="min-w-[150px]">Delivery Date</TableColumn>
               <TableColumn className="min-w-[150px]">Past Chosen</TableColumn>
               {/* <TableColumn className="min-w-[200px]">Error Message</TableColumn>
@@ -218,7 +218,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                           : 'N/A'}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <span className="text-xs">
                         {rate.pickup_deadline
                           ? new Date(rate.pickup_deadline).toLocaleString('en-US', {
@@ -241,7 +241,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                           })
                           : 'N/A'}
                       </span>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <span className="text-xs">
                         {rate.delivery_date

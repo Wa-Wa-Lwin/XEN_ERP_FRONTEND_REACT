@@ -425,8 +425,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 </Button>
               </TableColumn>
               <TableColumn>Delivery Date</TableColumn>
-              <TableColumn>Pickup Deadline</TableColumn>
-              <TableColumn>Booking Cutoff</TableColumn>
+              {/* <TableColumn>Pickup Deadline</TableColumn>
+              <TableColumn>Booking Cutoff</TableColumn> */}
             </TableHeader>
             <TableBody emptyContent="No available rates found.">
               {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
@@ -483,8 +483,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                     </TableCell>
                     <TableCell>{rate.transit_time ? `${rate.transit_time} day(s)` : '-'}</TableCell>
                     <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
-                    <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
-                    <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
+                    {/* <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
+                    <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell> */}
                   </TableRow>
                 )
               })}

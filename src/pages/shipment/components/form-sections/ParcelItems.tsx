@@ -343,7 +343,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false,
                                             minLength: {
                                                 value: 6,
-                                                message: 'HS Code must be at least 6 characters'
+                                                message: 'HS Code must be at least 6 and at most 12 characters'
+                                            },
+                                            maxLength: {
+                                                value: 12,
+                                                message: 'HS Code must be at least 6 and at most 12 characters'
                                             }
                                         }}
                                         render={({ field }) => (
