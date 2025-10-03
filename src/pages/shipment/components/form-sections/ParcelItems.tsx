@@ -339,8 +339,13 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`}
                                         control={control}
-                                        // isRequired
-                                        // rules={{ required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false }}
+                                        rules={{
+                                            required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false,
+                                            minLength: {
+                                                value: 6,
+                                                message: 'HS Code must be at least 6 characters'
+                                            }
+                                        }}
                                         render={({ field }) => (
                                             <Textarea
                                                 isRequired={isItemFieldRequired('hs_code')}
@@ -363,7 +368,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                         onClearRates()
                                                     }
                                                 }}
-                                                min={6}
                                                 minRows={1}
                                             />
                                         )}
