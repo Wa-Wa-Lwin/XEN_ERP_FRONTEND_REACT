@@ -93,6 +93,8 @@ const BasicInformation = ({
         </Button>
 
       </div>
+      <DetailRow label="DateTime" value={pickupDateTime} />
+      <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
       <Button
         size="sm"
         color="warning"
