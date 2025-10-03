@@ -212,14 +212,14 @@ const BasicInformation = ({
     (shipment.approver_user_mail?.toLowerCase === msLoginUser?.mail?.toLowerCase() &&
       shipment.request_status !== "approver_approved" &&
       shipment.request_status !== "approver_rejected")
-      ||
-    (shipment.approver_user_mail?.toLowerCase === msLoginUser?.mail?.toLowerCase() &&
-      shipment?.request_status === "approver_approved" &&
-      shipment?.label_status !== "created")
-      ||
-    (user?.logisticRole === "1" &&
-      shipment?.request_status === "approver_approved" &&
-      shipment?.label_status !== "created")
+    //   ||
+    // (shipment.approver_user_mail?.toLowerCase === msLoginUser?.mail?.toLowerCase() &&
+    //   shipment?.request_status === "approver_approved" &&
+    //   shipment?.label_status !== "created")
+    //   ||
+    // (user?.logisticRole === "1" &&
+    //   shipment?.request_status === "approver_approved" &&
+    //   shipment?.label_status !== "created")
       ;
    
   return (
