@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { 
-  Table, 
-  TableHeader, 
-  TableColumn, 
-  TableBody, 
-  TableRow, 
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
   TableCell,
   Input,
   Card,
@@ -48,6 +48,7 @@ interface AddressData {
   CntctPrsn?: string;
   BillToDef?: string;
   ShipToDef?: string;
+  TaxID?: string;
 }
 
 const Addresses = () => {
@@ -103,7 +104,8 @@ const Addresses = () => {
         address.Country?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         address.E_Mail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         address.CntctPrsn?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.Phone1?.toLowerCase().includes(searchQuery.toLowerCase())
+        address.Phone1?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        address.TaxID?.toLowerCase().includes(searchQuery.toLowerCase()) 
       )
       setFilteredAddresses(filtered)
     }
@@ -135,7 +137,7 @@ const Addresses = () => {
       address.City || address.MailCity,
       address.ZipCode || address.MailZipCod
     ].filter(Boolean)
-    
+
     return parts.length > 0 ? parts.join(', ') : 'No address available'
   }
 
@@ -196,7 +198,7 @@ const Addresses = () => {
             </div>
           ) : (
             <>
-              <Table 
+              <Table
                 aria-label="Addresses table"
                 classNames={{
                   wrapper: "min-h-[400px]",
@@ -221,7 +223,7 @@ const Addresses = () => {
                   {currentItems.map((address, index) => {
                     const typeInfo = getCardTypeInfo(address.CardType)
                     return (
-                      <TableRow 
+                      <TableRow
                         key={address.CardCode}
                         className="cursor-pointer hover:bg-default-100 transition-colors"
                         onClick={() => handleAddressClick(address)}
@@ -237,8 +239,8 @@ const Addresses = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Chip 
-                            size="sm" 
+                          <Chip
+                            size="sm"
                             variant="flat"
                             color={typeInfo.color}
                             startContent={<Icon icon={typeInfo.icon} width={14} />}
@@ -266,7 +268,7 @@ const Addresses = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">                            
+                          <div className="flex items-center gap-2">
                             <span className="text-sm text-default-600">
                               {address.Country || address.MailCountr || 'N/A'}
                             </span>
@@ -331,8 +333,8 @@ const Addresses = () => {
       </Card>
 
       {/* Address Detail Modal */}
-      <Modal 
-        isOpen={isDetailModalOpen} 
+      <Modal
+        isOpen={isDetailModalOpen}
         onOpenChange={setIsDetailModalOpen}
         size="4xl"
         scrollBehavior="inside"
@@ -374,8 +376,8 @@ const Addresses = () => {
                               {(() => {
                                 const typeInfo = getCardTypeInfo(selectedAddress.CardType)
                                 return (
-                                  <Chip 
-                                    size="sm" 
+                                  <Chip
+                                    size="sm"
                                     variant="flat"
                                     color={typeInfo.color}
                                     startContent={<Icon icon={typeInfo.icon} width={14} />}
@@ -575,6 +577,12 @@ const Addresses = () => {
                               {selectedAddress.ShipToDef || 'Not specified'}
                             </p>
                           </div>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-default-700">TaxID</label>
+                          <p className="text-sm text-default-600">
+                            {selectedAddress.TaxID || 'Not specified'}
+                          </p>
                         </div>
                       </CardBody>
                     </Card>

@@ -22,6 +22,7 @@ export interface AddressData {
   CntctPrsn?: string;
   BillToDef?: string;
   ShipToDef?: string;
+  TaxID?: string;
 }
 
 export interface CardTypeInfo {

@@ -146,7 +146,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               )}
             />
             {selectedTopic.has('Others') && (
-              <Input
+              <Textarea
                 {...register('other_topic')}
                 isRequired={selectedTopic.has('Others')}
                 label={<span>Other Topic</span>}
@@ -155,6 +155,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 isInvalid={!!errors.other_topic}
                 required
                 color={!watch('other_topic') ? "warning" : "default"}
+                minRows={1}
               />
             )}
             {selectedTopic.has('For Sales') && (

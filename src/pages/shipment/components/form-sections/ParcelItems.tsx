@@ -363,6 +363,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                         onClearRates()
                                                     }
                                                 }}
+                                                min={6}
                                                 minRows={1}
                                             />
                                         )}

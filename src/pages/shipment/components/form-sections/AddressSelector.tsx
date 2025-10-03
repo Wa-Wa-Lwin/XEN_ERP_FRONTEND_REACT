@@ -152,7 +152,8 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
         { field: `${prefix}_state`, value: address.County || address.MailCounty || '' },
         { field: `${prefix}_postal_code`, value: address.ZipCode || address.MailZipCod || '' },        
         { field: `${prefix}_street1`, value: address.MailStrNo || address.BillToDef || address.ShipToDef || '' },
-        { field: `${prefix}_street2`, value: address.Address || address.MailAddres || '' }
+        { field: `${prefix}_street2`, value: address.Address || address.MailAddres || '' },
+        { field: `${prefix}_tax_id`, value: address.TaxID || '' }
       ]
 
       // Set values using setValue
