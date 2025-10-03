@@ -49,7 +49,8 @@ const ActionSections = ({
       "approver_edited"
     ].includes(shipment.request_status) 
     // && shipment_approved_date_time.getTime() >= 0
-    && shipment?.label_status === ""
+    && shipment?.label_status !== "created" 
+    && shipment?.label_status !== "failed" 
     //  msLoginUser?.email.toLowerCase() === shipment.approver_user_mail.toLowerCase()    
     ) {
     return (
