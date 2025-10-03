@@ -205,12 +205,13 @@ const BasicInformation = ({
   const canEdit =
     (user?.logisticRole === "1" &&
       shipment.request_status !== "approver_approved" &&
-      shipment.request_status !== "approver_rejected") ||
-    (msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase() &&
-      (shipment.request_status === "requestor_requested" || shipment.request_status === "send_to_logistic")) ||
-    (msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase() &&
-      shipment.request_status !== "approver_approved" &&
       shipment.request_status !== "approver_rejected");
+    //    ||
+    // (msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase() &&
+    //   (shipment.request_status === "requestor_requested" || shipment.request_status === "send_to_logistic")) ||
+    // (msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase() &&
+    //   shipment.request_status !== "approver_approved" &&
+    //   shipment.request_status !== "approver_rejected");
 
   return (
     <section className="space-y-1">
