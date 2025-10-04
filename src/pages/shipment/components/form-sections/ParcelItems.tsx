@@ -333,7 +333,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         )}
                                     />
                                 </TableCell>
-                                
+
                                 {/* HS CODE cell */}
                                 <TableCell>
                                     <Controller
@@ -502,37 +502,52 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`}
                                         control={control}
-                                        rules={{ required: isItemFieldRequired('weight_value') ? 'Weight is required' : false, min: 0 }}
+                                        rules={{
+                                            required: isItemFieldRequired("weight_value") ? "Weight is required" : false,
+                                            min: 0,
+                                        }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
                                                 type="number"
-                                                step="0.00001"   // ✅ allow up to 5 decimals
+                                                step="0.00001" // allow up to 5 decimals
                                                 placeholder="0.00000"
                                                 variant="flat"
                                                 size="sm"
-                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value}
+                                                errorMessage={
+                                                    errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value?.message
+                                                }
+                                                isInvalid={
+                                                    !!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.weight_value
+                                                }
                                                 classNames={{
                                                     input: "text-sm",
-                                                    inputWrapper: "min-h-unit-8 h-unit-8"
+                                                    inputWrapper: "min-h-unit-8 h-unit-8",
                                                 }}
-                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`) ? "warning" : "default"}
+                                                color={
+                                                    !watch(
+                                                        `parcels.${parcelIndex}.parcel_items.${itemIndex}.weight_value`
+                                                    )
+                                                        ? "warning"
+                                                        : "default"
+                                                }
+                                                // let user type freely
                                                 onChange={(e) => {
+                                                    field.onChange(e.target.value);
+                                                }}
+                                                // only format when user leaves input
+                                                onBlur={(e) => {
                                                     let val = e.target.value;
-                                                    // ✅ force max 5 decimals
-                                                    if (val && val.includes(".")) {
-                                                        val = parseFloat(val).toFixed(5);
+                                                    if (val && !isNaN(Number(val))) {
+                                                        val = parseFloat(val).toFixed(5); // format to 5 decimals
+                                                        field.onChange(val);
                                                     }
-                                                    field.onChange(val);
-
                                                     if (onWeightChange) {
                                                         setTimeout(onWeightChange, 100);
                                                     }
                                                 }}
                                                 min={0}
                                             />
-
                                         )}
                                     />
                                 </TableCell>
