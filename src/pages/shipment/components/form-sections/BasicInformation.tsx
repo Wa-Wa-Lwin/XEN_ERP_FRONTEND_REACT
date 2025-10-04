@@ -97,7 +97,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 placeholder="Select"
                 errorMessage={errors.send_to?.message}
                 isInvalid={!!errors.send_to}
-                selectedKeys={sendToValue ? [sendToValue] : ["Approver"]}
+                selectedKeys={sendToValue ? [sendToValue] : field.value ? [field.value] : []}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {
@@ -204,7 +204,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                   placeholder="Select"
                   errorMessage={errors.service_options?.message}
                   isInvalid={!!errors.service_options}
-                  selectedKeys={serviceOptionsValue ? [serviceOptionsValue] : ["Normal"]}
+                  selectedKeys={serviceOptionsValue ? [serviceOptionsValue] : field.value ? [field.value] : []}
                   onSelectionChange={(keys) => {
                     const selectedKey = Array.from(keys)[0] as string
                     if (selectedKey) {
