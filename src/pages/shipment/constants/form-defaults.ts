@@ -1,7 +1,6 @@
 import type { ShipmentFormData } from '../types/shipment-form.types'
 
-// Calculate default pickup date based on current time
-// Calculate default pickup date based on current time
+// Calculate default pickup date time based on current time
 export const getDefaultPickupValues = () => {
   const now = new Date()
   const todayDate = new Date().toISOString().split("T")[0]
