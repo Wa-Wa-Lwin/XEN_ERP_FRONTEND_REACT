@@ -402,6 +402,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         <Controller
                                             name={`parcels.${parcelIndex}.depth`}
                                             control={control}
+                                            rules={{ required: isFieldRequired('depth') ? 'Length/depth is required' : false, min: { value: 1, message: 'Length must be at least 1' } }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
@@ -438,6 +439,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         <Controller
                                             name={`parcels.${parcelIndex}.width`}
                                             control={control}
+                                            rules={{ required: isFieldRequired('width') ? 'Width is required' : false, min: { value: 1, message: 'Width must be at least 1' } }}
                                             render={({ field }) => (
                                                 <Input
                                                     isRequired={isFieldRequired('width')}
@@ -474,6 +476,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         <Controller
                                             name={`parcels.${parcelIndex}.height`}
                                             control={control}
+                                            rules={{ required: isFieldRequired('height') ? 'Height is required' : false, min: { value: 1, message: 'Height must be at least 1' } }}
                                             render={({ field }) => (
                                                 <Input
                                                     isRequired={isFieldRequired('height')}
@@ -510,6 +513,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         name={`parcels.${parcelIndex}.dimension_unit`}
                                         control={control}
                                         defaultValue="cm"
+                                        rules={{ required: isFieldRequired('dimension_unit') ? 'Dimension unit is required' : false }}
                                         render={({ field }) => (
                                             <Select
                                                 {...field}
@@ -539,6 +543,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                         <Controller
                                             name={`parcels.${parcelIndex}.parcel_weight_value`}
                                             control={control}
+                                            rules={{ required: isFieldRequired('parcel_weight_value') ? 'Parcel weight is required' : false, min: { value: 0, message: 'Weight must be at least 0' } }}
                                             render={({ field }) => (
                                                 <Input
                                                     {...field}
@@ -612,6 +617,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     <Controller
                                         name={`parcels.${parcelIndex}.description`}
                                         control={control}
+                                        rules={{ required: isFieldRequired('description') ? 'Parcel description is required' : false }}
                                         render={({ field }) => (
                                             <Textarea
                                                 maxLength={255}
@@ -647,6 +653,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     <Controller
                                         name={`parcels.${parcelIndex}.net_weight_value`}
                                         control={control}
+                                        rules={{ required: isFieldRequired('net_weight_value') ? 'Net weight is required' : false }}
                                         render={({ field }) => (
                                             <Input
                                             isRequired = {isFieldRequired('net_weight_value')}
@@ -678,6 +685,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     <Controller
                                         name={`parcels.${parcelIndex}.weight_value`}
                                         control={control}
+                                        rules={{ required: isFieldRequired('weight_value') ? 'Gross weight is required' : false }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
@@ -706,6 +714,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     name={`parcels.${parcelIndex}.weight_unit`}
                                     control={control}
                                     defaultValue="kg"
+                                    rules={{ required: isFieldRequired('weight_unit') ? 'Weight unit is required' : false }}
                                     render={({ field }) => (
                                         <Select
                                             {...field}

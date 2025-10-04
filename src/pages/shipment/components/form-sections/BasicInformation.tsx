@@ -89,6 +89,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
           <Controller
             name="send_to"
             control={control}
+            rules={{ required: "Send to is required" }}
             render={({ field }) => (
               <Select
                 isRequired
@@ -119,6 +120,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             <Controller
               name="topic"
               control={control}
+              rules={{ required: "Topic is required" }}
               render={({ field }) => (
                 <Select
                   isRequired
@@ -147,7 +149,9 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             />
             {selectedTopic.has('Others') && (
               <Textarea
-                {...register('other_topic')}
+                {...register('other_topic', {
+                  required: selectedTopic.has('Others') ? "Other topic is required" : false
+                })}
                 isRequired={selectedTopic.has('Others')}
                 label={<span>Other Topic</span>}
                 placeholder="Enter"
@@ -162,6 +166,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               <Controller
                 name="sales_person"
                 control={control}
+                rules={selectedTopic.has('For Sales') ? { required: "Sales person is required" } : undefined}
                 render={({ field }) => (
                   <Select
                     {...field}
@@ -196,6 +201,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               name="service_options"
               control={control}
               defaultValue="Normal"
+              rules={{ required: "Service option is required" }}
               render={({ field }) => (
                 <Select
                   {...field}
@@ -230,7 +236,9 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             {selectedServiceOptions.has('Urgent') && (
               <Input
                 isRequired={selectedServiceOptions.has('Urgent')}
-                {...register('urgent_reason')}
+                {...register('urgent_reason', {
+                  required: selectedServiceOptions.has('Urgent') ? "Urgent reason is required" : false
+                })}
                 label={<span>Urgent Reason</span>}
                 placeholder="Enter"
                 errorMessage={errors.urgent_reason?.message}
@@ -241,7 +249,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
           </div>
 
           <Input
-            {...register('po_number')}
+            {...register('po_number', { required: "PO number is required" })}
             isRequired
             label={<span>PO Number</span>}
             placeholder="Enter"
@@ -250,7 +258,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             color={!watch('po_number') ? "warning" : "default"}
           />
           <Input
-            {...register('po_date')}
+            {...register('po_date', { required: "PO date is required" })}
             isRequired
             type="date"
             label={<span>PO Date</span>}
@@ -265,6 +273,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             name="customs_purpose"
             control={control}
             defaultValue="sample"
+            rules={isFieldRequired('customs_purpose') ? { required: "Customs purpose is required" } : undefined}
             render={({ field }) => (
               <Select
                 isRequired={isFieldRequired('customs_purpose') }
@@ -296,6 +305,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               name="customs_terms_of_trade"
               control={control}
               defaultValue="exw"
+              rules={isFieldRequired('customs_terms_of_trade') ? { required: "Incoterms is required" } : undefined}
               render={({ field }) => (
                 <Select
                   isRequired={isFieldRequired('customs_terms_of_trade')}
@@ -326,7 +336,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
           </div>
 
           <Textarea
-            {...register('remark')}
+            {...register('remark', { required: false })}
             label={<span>Remark</span>}
             placeholder="Enter remark"
             errorMessage={errors.remark?.message}

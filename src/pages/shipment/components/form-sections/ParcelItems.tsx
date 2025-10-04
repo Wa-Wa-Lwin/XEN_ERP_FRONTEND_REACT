@@ -381,7 +381,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`}
                                         control={control}
-                                        // rules={{ required: isItemFieldRequired('origin_country') ? 'Origin country is required' : false }}
+                                        rules={{ required: isItemFieldRequired('origin_country') ? 'Origin country is required' : false }}
                                         render={({ field }) => (
                                             <Autocomplete
                                                 isRequired={isItemFieldRequired('origin_country')}

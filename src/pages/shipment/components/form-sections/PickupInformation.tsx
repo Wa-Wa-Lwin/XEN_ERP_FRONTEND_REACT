@@ -73,7 +73,8 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <>
           <Input
-            {...register('pick_up_date', {              
+            {...register('pick_up_date', {
+              required: 'Pickup date is required',
               onChange: handleDateChange
             })}
             isRequired
@@ -98,6 +99,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
             <Controller
               name="pick_up_start_time"
               control={control}
+              rules={{ required: 'Pickup start time is required' }}
               render={({ field }) => (
                 <Input
                   isRequired
@@ -115,6 +117,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
             <Controller
               name="pick_up_end_time"
               control={control}
+              rules={{ required: 'Pickup end time is required' }}
               render={({ field }) => (
                 <Input
                   {...field}

@@ -230,7 +230,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           )}
           <div key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <Textarea
-            {...register(`${prefix}_company_name`)}
+            {...register(`${prefix}_company_name`, { required: isFieldRequired('company_name') ? 'Company name is required' : false })}
             isRequired={isFieldRequired('company_name')}
             label={<span>Company Name</span>}
             placeholder="Enter company name"
@@ -249,7 +249,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             minRows={1}
           />
           <Textarea
-            {...register(`${prefix}_contact_name`)}
+            {...register(`${prefix}_contact_name`, { required: isFieldRequired('contact_name') ? 'Contact name is required' : false })}
             isRequired={isFieldRequired('contact_name')}
             label={<span>Contact Name</span>}
             placeholder="Enter contact name"
@@ -262,7 +262,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_phone`)}
+            {...register(`${prefix}_phone`, { required: isFieldRequired('phone') ? 'Phone is required' : false })}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
               // Allow only numbers and one + at the beginning
               let sanitized = e.target.value;
@@ -300,6 +300,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
 
           <Textarea
             {...register(`${prefix}_email`, {
+              required: isFieldRequired('email') ? 'Email is required' : false,
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                 message: "Please enter a valid email address"
@@ -320,7 +321,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             key={`${formKey}_${prefix}_country`}
             name={`${prefix}_country`}
             control={control}
-            // rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
+            rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
             render={({ field }) => (
               <Autocomplete
                 isRequired={isFieldRequired('country')}
@@ -367,7 +368,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_city`)}
+            {...register(`${prefix}_city`, { required: isFieldRequired('city') ? 'City is required' : false })}
             isRequired={isFieldRequired('city')}
             label={<span>City</span>}
             placeholder="Enter city"
@@ -387,7 +388,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_state`)}
+            {...register(`${prefix}_state`, { required: isFieldRequired('state') ? 'State is required' : false })}
             isRequired={isFieldRequired('state')}
             label={<span>State</span>}
             placeholder="Enter state"
@@ -407,7 +408,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
           />
 
           <Textarea
-            {...register(`${prefix}_postal_code`)}
+            {...register(`${prefix}_postal_code`, { required: isFieldRequired('postal_code') ? 'Postal code is required' : false })}
             isRequired={isFieldRequired('postal_code')}
             label={<span>Postal Code</span>}
             placeholder="Enter postal code"
@@ -428,10 +429,10 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
 
           <Textarea
             isRequired={isFieldRequired('street1')}
-             {...register(`${prefix}_street1`, { required: "_street1 name is required." })}
+             {...register(`${prefix}_street1`, { required: isFieldRequired('street1') ? "Street 1 is required" : false })}
             label={<span>Street 1</span>}
             placeholder="Enter street line 1"
-            errorMessage={errors[`${prefix}_street1`]?.message || "Street 1 is required."}
+            errorMessage={errors[`${prefix}_street1`]?.message}
             isInvalid={!!errors[`${prefix}_street1`]}
             minRows={1}
             key={`${formKey}_${prefix}_street1`}
