@@ -19,6 +19,8 @@ export interface RateCalculationFormData {
   ship_to_country: string
   ship_to_phone: string
   ship_to_email: string
+  pick_up_date: string
+  expected_delivery_date?: string
   parcels?: Array<{
     width: number | string
     height: number | string
@@ -201,7 +203,9 @@ export const calculateShippingRates = async (
   // Backend API payload structure
   const backendPayload = {
     preparedata: {
-      shipment: shipment
+      shipment: shipment,
+      pick_up_date: formData.pick_up_date,
+      expected_delivery_date: formData.expected_delivery_date 
     },
     type: type
   }

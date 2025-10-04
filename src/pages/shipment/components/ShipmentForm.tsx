@@ -92,7 +92,9 @@ const ShipmentForm = () => {
         ship_to_country: formData.ship_to_country,
         ship_to_phone: formData.ship_to_phone,
         ship_to_email: formData.ship_to_email,
-        parcels: formData.parcels
+        parcels: formData.parcels,
+        pick_up_date: formData.pick_up_date,
+        expected_delivery_date: formData.due_date
       }
 
       // Use the shared rate calculation service to get both original and transformed rates
