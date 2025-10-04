@@ -1,24 +1,31 @@
 import type { ShipmentFormData } from '../types/shipment-form.types'
 
 // Calculate default pickup date based on current time
+// Calculate default pickup date based on current time
 export const getDefaultPickupValues = () => {
   const now = new Date()
+  const todayDate = new Date().toISOString().split("T")[0]
   const currentHour = now.getHours()
-  const isBeforeCutoff = currentHour < 10 // Before 10 AM
-  const todayDate = new Date().toISOString().split('T')[0]
 
-  const defaultPickupDate = isBeforeCutoff
-    ? todayDate // Today if before 10 AM
-    : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Tomorrow if after 10 AM
+  const defaultPickupDate = todayDate
 
-  // Start time depends on pickup date: 12 PM for today, 9 AM for tomorrow+
-  const defaultStartTime = defaultPickupDate === todayDate ? '12:00' : '09:00'
+  // Format as HH:MM
+  const todayStartTime = String(currentHour + 1).padStart(2, "0") + ":00"
+
+  let startTime = defaultPickupDate === todayDate ? todayStartTime : "09:00"
+
+  // If startTime is 17:00 or later → auto set endTime = startTime + 2 hours
+  const [hour, minute] = startTime.split(":").map(Number)
+  let endHour = hour >= 17 ? hour + 2 : 17
+  if (endHour > 23) endHour = 23 // cap at 23:59
+
+  const endTime = String(endHour).padStart(2, "0") + ":" + String(minute).padStart(2, "0")
 
   return {
     pickupDate: defaultPickupDate,
-    startTime: defaultStartTime,
-    endTime: '17:00',   // 5 PM
-    minDate: defaultPickupDate // Minimum selectable date
+    startTime,
+    endTime,
+    minDate: defaultPickupDate,
   }
 }
 
