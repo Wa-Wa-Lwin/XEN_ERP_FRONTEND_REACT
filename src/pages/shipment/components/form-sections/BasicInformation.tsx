@@ -121,7 +121,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               control={control}
               render={({ field }) => (
                 <Select
-                  isRequired 
+                  isRequired
                   {...field}
                   label={<span>Topic</span>}
                   placeholder="Select"
@@ -199,7 +199,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               render={({ field }) => (
                 <Select
                   {...field}
-                  isRequired 
+                  isRequired
                   label={<span>Service Options</span>}
                   placeholder="Select"
                   errorMessage={errors.service_options?.message}
@@ -273,7 +273,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 placeholder="Select"
                 errorMessage={errors.customs_purpose?.message}
                 isInvalid={!!errors.customs_purpose}
-                selectedKeys={customsPurposeValue ? [customsPurposeValue]:""}
+                selectedKeys={customsPurposeValue ? [customsPurposeValue] : field.value ? [field.value] : []}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                 if (selectedKey) {
@@ -290,6 +290,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               </Select>
             )}
           />
+
           <div className="col-span-2">
             <Controller
               name="customs_terms_of_trade"
@@ -303,7 +304,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                   placeholder="Select"
                   errorMessage={errors.customs_terms_of_trade?.message}
                   isInvalid={!!errors.customs_terms_of_trade}
-                  selectedKeys={customsTermsValue ? [customsTermsValue]:""}
+                  selectedKeys={customsTermsValue ? [customsTermsValue] : field.value ? [field.value] : []}
                   onSelectionChange={(keys) => {
                     const selectedKey = Array.from(keys)[0] as string
                     if (selectedKey) {

@@ -45,7 +45,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             <b>Topic - </b> {formData.topic || 'Not specified'} <br />
             <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
             {/* <b>Pickup Date - </b> {formData.due_date || 'Not specified'} <br /> */}
-            <b>Pickup Date - </b> {formData.due_date ? formData.due_date.slice(0, 10) : 'Not specified'} <br />
+            <b>Pickup Date - </b> {formData.pick_up_date ? formData.pick_up_date.slice(0, 10) : 'Not specified'} <br />
 
             {formData.topic === 'For Sales' && (
               <>
@@ -168,7 +168,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                 <b>Transit Time - </b> {selectedRate.transit_time} (days) <br />
                 {selectedRate.delivery_date && (
                   <>
-                    <b>Delivery Date - </b> {selectedRate.delivery_date} <br />
+                    <b>Delivery Date - </b> {selectedRate.delivery_date ? selectedRate.delivery_date.slice(0,10) : 'Not specified' } <br />
                   </>
                 )}
                 {selectedRate.charge_weight_value && (
