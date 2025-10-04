@@ -19,6 +19,7 @@ import Addresses from "@pages/addresses/Addresses";
 // import RateCalculator from "@pages/rate-calculator/RateCalculator";
 import Dashboard from "@pages/dashboard/Dashboard";
 import TestingData from "@features/testingdata/TestingData";
+import AddressList from "@pages/address-list/AddressList";
 
 
 export const routes = [
@@ -94,6 +95,15 @@ export const routes = [
       //     },
       //   ]
       // },
+      { path: "address-list",
+        handle: { breadcrumb: "Address List" },
+        children:[
+          {
+            path: "",
+            element: <AddressList />,
+          },
+        ]
+      },
       { path: "dashboard",
         handle: { breadcrumb: "Dashboard" },
         children:[

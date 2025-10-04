@@ -179,6 +179,20 @@ export const sectionItems: SidebarItem[] = [
       },
     ]
   },
+  {
+    key: "address-list",
+    to: "/address-list",
+    icon: "tabler:address-book",
+    title: "Address List New",
+    items: [
+      {
+        key: "address-list",
+        to: "/address-list",
+        icon: "tabler:address-book",
+        title: "Address List New",
+      },      
+    ]
+  },
   // {
   //   key: "rate-calculator",
   //   title: "Rate Calculator",
