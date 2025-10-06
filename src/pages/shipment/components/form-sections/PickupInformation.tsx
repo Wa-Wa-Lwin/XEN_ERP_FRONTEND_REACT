@@ -42,17 +42,19 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
   }
 
   // Handler to sync both date fields when one is changed
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const dateValue = e.target.value
-    if (setValue) {
-      setValue('pick_up_date', dateValue, { shouldValidate: true, shouldDirty: true })
-      setValue('due_date', dateValue, { shouldValidate: true, shouldDirty: true })
+  const handleDateChange = (fieldName: "pick_up_date" | "due_date") =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const dateValue = e.target.value
+      if (setValue) {
+        setValue(fieldName, dateValue, { shouldValidate: true, shouldDirty: true })
 
-      // Update start time based on selected date
-      const newStartTime = getPickUpStartTime(dateValue)
-      setValue('pick_up_start_time', newStartTime, { shouldValidate: true, shouldDirty: true })
+        if (fieldName === "pick_up_date") {
+          // Only adjust pickup times if pickup date is changed
+          const newStartTime = getPickUpStartTime(dateValue)
+          setValue('pick_up_start_time', newStartTime, { shouldValidate: true, shouldDirty: true })
+        }
+      }
     }
-  }
 
   // Effect to set initial start time when component mounts or pickup date changes
   useEffect(() => {
@@ -64,38 +66,43 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
 
   return (
     <Card shadow="none">
-    {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+      {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
       <CardHeader className="px-0 pt-0 pb-1">
         <h2 className="text-lg font-semibold">Pickup Information</h2>
       </CardHeader>
 
       <CardBody className="px-0 pt-0 pb-0">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <>
-          <Input
-            {...register('pick_up_date', {
-              required: 'Pickup date is required',
-              onChange: handleDateChange
-            })}
-            isRequired
-            type="date"
-            label={<span>Pickup Date</span>}
-            placeholder="Select pickup and due date"
-            errorMessage={errors.pick_up_date?.message || errors.due_date?.message}
-            isInvalid={!!errors.pick_up_date || !!errors.due_date}
-            min={minDate}
-            value={pickupDate || defaultPickupDate}
-            onChange={handleDateChange}
-            color={!watch('pick_up_date') ? "warning" : "default"}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
+          <>
+            <Input
+              {...register('pick_up_date', {
+                required: 'Pickup date is required',
+                onChange: handleDateChange('pick_up_date')
+              })}
+              isRequired
+              type="date"
+              label={<span>Pickup Date</span>}
+              min={minDate}
+              value={pickupDate || defaultPickupDate}
+              onChange={handleDateChange('pick_up_date')}
+              errorMessage={errors.pick_up_date?.message}
+              isInvalid={!!errors.pick_up_date}
+            />
 
-          {/* Hidden field to sync due_date with pick_up_date */}
-          <input
-            {...register('due_date')}
-            type="hidden"
-            defaultValue={defaultPickupDate}
-          />
-          <div className="flex gap-2">
+            <Input
+              {...register('due_date', {
+                required: 'Expected delivery date is required',
+                onChange: handleDateChange('due_date')
+              })}
+              isRequired
+              type="date"
+              label={<span>Expected Delivery Date</span>}
+              min={minDate}
+              onChange={handleDateChange('due_date')}
+              errorMessage={errors.due_date?.message}
+              isInvalid={!!errors.due_date}
+            />
+
             <Controller
               name="pick_up_start_time"
               control={control}
@@ -132,21 +139,20 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
                 />
               )}
             />
-          </div>
-          <div className="col-span-2">
-            <Textarea
-              {...register('pick_up_instructions')}
-              label={<span>Pickup Instructions</span>}
-              placeholder="Enter pickup instructions"
-              errorMessage={errors.pick_up_instructions?.message}
-              isInvalid={!!errors.pick_up_instructions}
-              rows={1}
-              className="resize-none"
-              minRows={1}
+            <div className="col-span-4">
+              <Textarea
+                {...register('pick_up_instructions')}
+                label={<span>Pickup Instructions</span>}
+                placeholder="Enter pickup instructions"
+                errorMessage={errors.pick_up_instructions?.message}
+                isInvalid={!!errors.pick_up_instructions}
+                rows={1}
+                className="resize-none"
+                minRows={1}
               // color={!watch('pick_up_instructions') ? "warning" : "default"}
-            />
-          </div>
-        </>
+              />
+            </div>
+          </>
         </div>
       </CardBody>
     </Card>

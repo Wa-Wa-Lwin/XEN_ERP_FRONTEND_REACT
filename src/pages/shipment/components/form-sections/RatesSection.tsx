@@ -231,7 +231,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   };
 
   const formatDateTime = (dateTime: string | null) => {
-    if (!dateTime) return 'N/A'
+    if (!dateTime) return '-'
     return new Date(dateTime).toLocaleString()
   }
 
@@ -425,10 +425,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 </Button>
               </TableColumn>
               <TableColumn>Delivery Date</TableColumn>
-              {/* <TableColumn>Pickup Deadline</TableColumn>
-              <TableColumn>Booking Cutoff</TableColumn> */}
+              <TableColumn>Pickup Deadline</TableColumn>
+              <TableColumn>Booking Cutoff</TableColumn>
             </TableHeader>
-            <TableBody emptyContent="No available rates found.">
+            <TableBody emptyContent="No available rates found. Check or change your pick up date and expected delivery date.">
               {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
               {sortedRates.map((rate, index) => {
                 const rateUniqueId = getRateUniqueId(rate, index)
@@ -483,8 +483,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                     </TableCell>
                     <TableCell>{rate.transit_time ? `${rate.transit_time} day(s)` : '-'}</TableCell>
                     <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
-                    {/* <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
-                    <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell> */}
+                    <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
+                    <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
                   </TableRow>
                 )
               })}

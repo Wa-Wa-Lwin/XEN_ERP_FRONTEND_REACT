@@ -354,6 +354,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             <Textarea
                                                 isRequired={isItemFieldRequired('hs_code')}
                                                 {...field}
+                                                maxLength={12}
                                                 placeholder="HS CODE"
                                                 variant="flat"
                                                 size="sm"

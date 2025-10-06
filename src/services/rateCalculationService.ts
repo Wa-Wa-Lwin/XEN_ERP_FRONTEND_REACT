@@ -20,7 +20,7 @@ export interface RateCalculationFormData {
   ship_to_phone: string
   ship_to_email: string
   pick_up_date: string
-  expected_delivery_date?: string
+  expected_delivery_date: string
   parcels?: Array<{
     width: number | string
     height: number | string
