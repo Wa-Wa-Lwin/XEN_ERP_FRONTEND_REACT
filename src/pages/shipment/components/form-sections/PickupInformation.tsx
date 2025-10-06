@@ -8,9 +8,10 @@ interface PickupInformationProps extends FormSectionProps {
   today: string
   setValue?: any
   watch?: any
+  onClearRates?: () => void
 }
 
-const PickupInformation = ({ register, errors, control, setValue, watch }: PickupInformationProps) => {
+const PickupInformation = ({ register, errors, control, setValue, watch, onClearRates }: PickupInformationProps) => {
 
   // Get default pickup values based on current time
   const { pickupDate: defaultPickupDate, minDate } = getDefaultPickupValues()
@@ -53,6 +54,12 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
           const newStartTime = getPickUpStartTime(dateValue)
           setValue('pick_up_start_time', newStartTime, { shouldValidate: true, shouldDirty: true })
         }
+      }
+
+      // Clear rates when pickup or delivery date changes
+      if (onClearRates) {
+        console.log(`${fieldName} changed, clearing rates...`)
+        onClearRates()
       }
     }
 
@@ -109,18 +116,25 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
               rules={{ required: 'Pickup start time is required' }}
               render={({ field }) => (
                 <Input
-                  isRequired
                   {...field}
+                  isRequired
                   type="time"
                   label={<span>Start Time</span>}
                   errorMessage={errors.pick_up_start_time?.message}
                   isInvalid={!!errors.pick_up_start_time}
-                  value={getPickUpStartTime(pickupDate || defaultPickupDate)}
-                  onChange={(e) => field.onChange(e.target.value)}
+                  value={field.value || getPickUpStartTime(pickupDate || defaultPickupDate)}
+                  onChange={(e) => {
+                    field.onChange(e.target.value) // updates RHF
+                    if (onClearRates) {
+                      console.log('Pickup start time changed, clearing rates...')
+                      onClearRates()
+                    }
+                  }}
                   color={!watch('pick_up_start_time') ? "warning" : "default"}
                 />
               )}
             />
+
             <Controller
               name="pick_up_end_time"
               control={control}
@@ -133,8 +147,15 @@ const PickupInformation = ({ register, errors, control, setValue, watch }: Picku
                   label={<span>End Time</span>}
                   errorMessage={errors.pick_up_end_time?.message}
                   isInvalid={!!errors.pick_up_end_time}
-                  value={getPickUpEndTime()}
-                  onChange={(e) => field.onChange(e.target.value)}
+                  value={field.value || getPickUpEndTime()}
+                  onChange={(e) => {
+                    field.onChange(e.target.value)
+                    // Clear rates when pickup end time changes
+                    if (onClearRates) {
+                      console.log('Pickup end time changed, clearing rates...')
+                      onClearRates()
+                    }
+                  }}
                   color={!watch('pick_up_end_time') ? "warning" : "default"}
                 />
               )}
