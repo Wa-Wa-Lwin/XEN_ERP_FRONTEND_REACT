@@ -8,7 +8,7 @@ export const getDefaultPickupValues = () => {
 
   const defaultPickupDate = todayDate
 
-  const defaultExpectedDeliveryDate = new Date().toISOString().split("T")[0] + 10
+  const defaultExpectedDeliveryDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
 
   // Format as HH:MM
   const todayStartTime = String(currentHour + 1).padStart(2, "0") + ":00"
@@ -43,7 +43,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   topic: '',
   po_number: '',
   other_topic: '',
-  due_date: defaultPickupValues.pickupDate, // Same as pickup date
+  due_date: defaultPickupValues.expectedDeliveryDate, // Not Same as pickup date . It is expectedDeliveryDate
   sales_person: '',
   po_date: new Date().toISOString().split('T')[0], // today
   send_to: 'Approver',
