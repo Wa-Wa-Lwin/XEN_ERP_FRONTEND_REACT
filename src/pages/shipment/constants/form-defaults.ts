@@ -8,6 +8,8 @@ export const getDefaultPickupValues = () => {
 
   const defaultPickupDate = todayDate
 
+  const defaultExpectedDeliveryDate = new Date().toISOString().split("T")[0] + 10
+
   // Format as HH:MM
   const todayStartTime = String(currentHour + 1).padStart(2, "0") + ":00"
 
@@ -24,7 +26,8 @@ export const getDefaultPickupValues = () => {
     pickupDate: defaultPickupDate,
     startTime,
     endTime,
-    minDate: defaultPickupDate,
+    minDate: todayDate,
+    expectedDeliveryDate: defaultExpectedDeliveryDate,
   }
 }
 

@@ -14,10 +14,11 @@ interface PickupInformationProps extends FormSectionProps {
 const PickupInformation = ({ register, errors, control, setValue, watch, onClearRates }: PickupInformationProps) => {
 
   // Get default pickup values based on current time
-  const { pickupDate: defaultPickupDate, minDate } = getDefaultPickupValues()
+  const { pickupDate: defaultPickupDate, minDate, expectedDeliveryDate: defaultExpectedDeliveryDate } = getDefaultPickupValues()
 
   // Watch pickup date to adjust start time
   const pickupDate = watch ? watch('pick_up_date') : defaultPickupDate
+  const expectedDeliveryDate = watch ? watch('due_date') : defaultExpectedDeliveryDate
   const pickupStartTime = watch ? watch('pick_up_start_time') : ''
   const pickupEndTime = watch ? watch('pick_up_end_time') : ''
   const todayDate = new Date().toISOString().split('T')[0]
@@ -105,6 +106,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
               type="date"
               label={<span>Expected Delivery Date</span>}
               min={minDate}
+              value={expectedDeliveryDate}
               onChange={handleDateChange('due_date')}
               errorMessage={errors.due_date?.message}
               isInvalid={!!errors.due_date}
@@ -122,7 +124,8 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
                   label={<span>Start Time</span>}
                   errorMessage={errors.pick_up_start_time?.message}
                   isInvalid={!!errors.pick_up_start_time}
-                  value={field.value || getPickUpStartTime(pickupDate || defaultPickupDate)}
+                  value={getPickUpStartTime(pickupDate || defaultPickupDate)}
+                  // value={field.value || getPickUpStartTime(pickupDate || defaultPickupDate)}
                   onChange={(e) => {
                     field.onChange(e.target.value) // updates RHF
                     if (onClearRates) {
@@ -147,7 +150,8 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
                   label={<span>End Time</span>}
                   errorMessage={errors.pick_up_end_time?.message}
                   isInvalid={!!errors.pick_up_end_time}
-                  value={field.value || getPickUpEndTime()}
+                  value={getPickUpEndTime()}
+                  // value={field.value || getPickUpEndTime()}
                   onChange={(e) => {
                     field.onChange(e.target.value)
                     // Clear rates when pickup end time changes
