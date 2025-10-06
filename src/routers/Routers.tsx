@@ -95,7 +95,16 @@ export const routes = [
       //     },
       //   ]
       // },
-      { path: "address-list",
+      { path: "local/address-list",
+        handle: { breadcrumb: "Address List" },
+        children:[
+          {
+            path: "",
+            element: <AddressList />,
+          },
+        ]
+      },
+      { path: "local/packaging-list",
         handle: { breadcrumb: "Address List" },
         children:[
           {

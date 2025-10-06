@@ -180,17 +180,22 @@ export const sectionItems: SidebarItem[] = [
     ]
   },
   {
-    key: "address-list",
-    to: "/address-list",
-    icon: "tabler:address-book",
-    title: "Address List New",
+    key: "local",
+    to: "/local",
+    title: "Local",
     items: [
       {
         key: "address-list",
-        to: "/address-list",
+        to: "/local/address-list",
         icon: "tabler:address-book",
         title: "Address List New",
-      },      
+      },     
+      {
+        key: "packaging-list",
+        to: "/local/packaging-list",
+        icon: "tabler:address-book",
+        title: "Packaging List",
+      },     
     ]
   },
   // {

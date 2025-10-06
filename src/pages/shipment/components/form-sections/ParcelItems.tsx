@@ -341,19 +341,24 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         control={control}
                                         rules={{
                                             required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false,
-                                            minLength: {
-                                                value: 6,
-                                                message: 'HS Code must be at least 6 and at most 12 characters'
+                                            pattern: {
+                                                value: /^[\d.]+$/,
+                                                message: 'HS Code must contain only numbers and dots'
                                             },
-                                            maxLength: {
-                                                value: 12,
-                                                message: 'HS Code must be at least 6 and at most 12 characters'
+                                            validate: (value) => {
+                                                if (!value) return true;
+                                                const digitsOnly = value.replace(/\./g, '');
+                                                if (digitsOnly.length < 6) return 'HS Code must have at least 6 digits';
+                                                if (digitsOnly.length > 12) return 'HS Code must have at most 12 digits';
+                                                return true;
                                             }
                                         }}
-                                        render={({ field }) => (
-                                            <Textarea
+                                        render={({ field: { onChange, value, ...restField } }) => (
+                                            <Input
                                                 isRequired={isItemFieldRequired('hs_code')}
-                                                {...field}
+                                                {...restField}
+                                                value={value || ''}
+                                                type="text"
                                                 maxLength={12}
                                                 placeholder="HS CODE"
                                                 variant="flat"
@@ -366,14 +371,15 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                 }}
                                                 color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`) ? "warning" : "default"}
                                                 onChange={(e) => {
-                                                    field.onChange(e)
+                                                    // Only allow numeric input and dots
+                                                    const cleanValue = e.target.value.replace(/[^\d.]/g, '')
+                                                    onChange(cleanValue)
                                                     // Clear rates since HS code changed
                                                     if (onClearRates) {
                                                         console.log('Item HS code changed, clearing rates...')
                                                         onClearRates()
                                                     }
                                                 }}
-                                                minRows={1}
                                             />
                                         )}
                                     />
@@ -437,7 +443,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         )}
                                         type="number"
                                         step="0.01"
-                                        placeholder="0.00"
+                                        placeholder="1"
                                         variant="flat"
                                         size="sm"
                                         errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
@@ -455,7 +461,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                 onClearRates()
                                             }
                                         }}
-                                        min={0}
+                                        min={1}
                                     />
 
                                 </TableCell>
