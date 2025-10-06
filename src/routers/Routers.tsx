@@ -20,6 +20,8 @@ import Addresses from "@pages/addresses/Addresses";
 import Dashboard from "@pages/dashboard/Dashboard";
 import TestingData from "@features/testingdata/TestingData";
 import AddressList from "@pages/address-list/AddressList";
+import Packaging from "@pages/packaging/Packaging";
+import PackagingDetail from "@pages/packaging/PackagingDetail";
 
 
 export const routes = [
@@ -109,7 +111,12 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <AddressList />,
+            element: <Packaging />,
+          },
+          {
+            path: ":id",
+            element: <PackagingDetail />,
+            handle: { breadcrumb: (match: any) => match.params.id }
           },
         ]
       },

@@ -193,7 +193,7 @@ export const sectionItems: SidebarItem[] = [
       {
         key: "packaging-list",
         to: "/local/packaging-list",
-        icon: "tabler:address-book",
+        icon: "arcticons:parcel-tracker",
         title: "Packaging List",
       },     
     ]
