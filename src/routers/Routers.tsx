@@ -107,7 +107,7 @@ export const routes = [
         ]
       },
       { path: "local/packaging-list",
-        handle: { breadcrumb: "Address List" },
+        handle: { breadcrumb: "Packaging Boxes" },
         children:[
           {
             path: "",

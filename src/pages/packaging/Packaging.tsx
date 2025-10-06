@@ -12,12 +12,14 @@ import {
     CardHeader,
     Spinner,
     Chip,
-    Pagination
+    Pagination,
+    Button
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useNavigate } from 'react-router-dom'
 import packagingService from '@pages/packaging/type/packagingService'
 import type { PackagingData } from '@pages/packaging/type/packagingService'
+import { PackagingFormModal } from './components/PackagingFormModal'
 
 const Packaging = () => {
     const navigate = useNavigate()
@@ -27,6 +29,7 @@ const Packaging = () => {
     const [searchQuery, setSearchQuery] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
     const [filterType, setFilterType] = useState<'all' | 'active' | 'inactive'>('active')
+    const [isModalOpen, setIsModalOpen] = useState(false)
     const itemsPerPage = 15
 
     useEffect(() => {
@@ -100,11 +103,20 @@ const Packaging = () => {
             <Card className="w-full">
                 <CardHeader className="flex flex-col gap-4 pb-4">
                     <div className="flex justify-between items-center w-full">
-                        <div className="flex flex-col gap-1">
-                            <h1 className="text-2xl font-bold">Packaging Management</h1>
-                            <p className="text-small text-default-600">
-                                {filteredData.length} packaging items found
-                            </p>
+                        <div className="flex items-center gap-4">
+                            <div className="flex flex-col gap-1">
+                                <h1 className="text-2xl font-bold">Packaging Management</h1>
+                                <p className="text-small text-default-600">
+                                    {filteredData.length} packaging items found
+                                </p>
+                            </div>
+                            <Button
+                                color="primary"
+                                startContent={<Icon icon="solar:add-circle-linear" width={20} />}
+                                onPress={() => setIsModalOpen(true)}
+                            >
+                                Add Packaging
+                            </Button>
                         </div>
 
                         <div className="flex gap-3 items-center">
@@ -264,6 +276,14 @@ const Packaging = () => {
                     )}
                 </CardBody>
             </Card>
+
+            {/* Create/Edit Modal */}
+            <PackagingFormModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSuccess={fetchPackaging}
+                mode="create"
+            />
         </div>
     )
 }

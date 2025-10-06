@@ -16,14 +16,19 @@ import {
   TableCell
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { useAuth } from '@context/AuthContext'
 import packagingService from '@pages/packaging/type/packagingService'
 import type { PackagingData } from '@pages/packaging/type/packagingService'
+import { PackagingFormModal } from './components/PackagingFormModal'
 
 const PackagingDetail = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [packaging, setPackaging] = useState<PackagingData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false)
 
   useEffect(() => {
     fetchPackagingDetail()
@@ -66,6 +71,25 @@ const PackagingDetail = () => {
     }
   }
 
+  const handleToggleStatus = async () => {
+    if (!packaging) return
+
+    setIsTogglingStatus(true)
+    try {
+      const newStatus = packaging.active === '1' ? 0 : 1
+      await packagingService.inactivePackaging(packaging.packageID, {
+        active: newStatus,
+        updated_userID: user?.userID || 1,
+        updated_user_name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : 'system'
+      })
+      await fetchPackagingDetail()
+    } catch (error) {
+      console.error('Failed to toggle status:', error)
+    } finally {
+      setIsTogglingStatus(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -89,27 +113,44 @@ const PackagingDetail = () => {
   return (
     <div className="space-y-6 p-5">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-left items-center">
         <div className="flex items-center gap-3">
-          <Button
-            isIconOnly
-            variant="light"
-            onPress={() => navigate('/local/packaging-list')}
-          >
-            <Icon icon="solar:arrow-left-linear" width={24} />
-          </Button>
           <div>
             <h1 className="text-2xl font-bold">{packaging.packageTypeName}</h1>
             <p className="text-sm text-default-600">Package ID: {packaging.packageID}</p>
           </div>
         </div>
-        <Chip
-          size="lg"
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 justify-between">
+        <Button
+          color="default"
           variant="flat"
-          color={packaging.active === '1' ? 'success' : 'danger'}
+          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
+          onPress={() => navigate('/local/packaging-list')}
         >
-          {packaging.active === '1' ? 'Active' : 'Inactive'}
-        </Chip>
+          Back to List
+        </Button>
+        <div className="flex gap-3">
+          <Button
+            color={packaging.active === '1' ? 'danger' : 'success'}
+            variant="flat"
+            startContent={<Icon icon={packaging.active === '1' ? 'solar:close-circle-linear' : 'solar:check-circle-linear'} width={20} />}
+            onPress={handleToggleStatus}
+            isLoading={isTogglingStatus}
+          >
+            {packaging.active === '1' ? 'Deactivate' : 'Activate'}
+          </Button>
+          <Button
+            color="primary"
+            variant="flat"
+            startContent={<Icon icon="solar:pen-linear" width={20} />}
+            onPress={() => setIsEditModalOpen(true)}
+          >
+            Edit
+          </Button>
+        </div>
       </div>
 
       {/* Basic Information */}
@@ -147,6 +188,18 @@ const PackagingDetail = () => {
               <TableRow>
                 <TableCell className="font-semibold text-default-700">Remark</TableCell>
                 <TableCell>{packaging.remark || '-'}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-semibold text-default-700">Status</TableCell>
+                <TableCell>
+                  <Chip
+                    size="lg"
+                    variant="flat"
+                    color={packaging.active === '1' ? 'success' : 'danger'}
+                  >
+                    {packaging.active === '1' ? 'Active' : 'Inactive'}
+                  </Chip>
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -253,24 +306,16 @@ const PackagingDetail = () => {
         </CardBody>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3 justify-end">
-        <Button
-          color="default"
-          variant="flat"
-          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
-          onPress={() => navigate('/local/packaging-list')}
-        >
-          Back to List
-        </Button>
-        <Button
-          color="primary"
-          variant="flat"
-          startContent={<Icon icon="solar:pen-linear" width={20} />}
-        >
-          Edit
-        </Button>
-      </div>
+      {/* Edit Modal */}
+      {packaging && (
+        <PackagingFormModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={fetchPackagingDetail}
+          editData={packaging}
+          mode="edit"
+        />
+      )}
     </div>
   )
 }
