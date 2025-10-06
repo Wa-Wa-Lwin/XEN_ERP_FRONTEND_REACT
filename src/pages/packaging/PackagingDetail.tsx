@@ -79,7 +79,7 @@ const PackagingDetail = () => {
       <div className="flex flex-col items-center justify-center h-64 gap-4">
         <Icon icon="solar:inbox-linear" width={64} className="text-default-300" />
         <p className="text-default-500">Packaging not found</p>
-        <Button color="primary" onPress={() => navigate('/packaging')}>
+        <Button color="primary" onPress={() => navigate('/local/packaging-list')}>
           Back to Packaging List
         </Button>
       </div>
@@ -87,14 +87,14 @@ const PackagingDetail = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-5">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Button
             isIconOnly
             variant="light"
-            onPress={() => navigate('/packaging')}
+            onPress={() => navigate('/local/packaging-list')}
           >
             <Icon icon="solar:arrow-left-linear" width={24} />
           </Button>
@@ -213,7 +213,7 @@ const PackagingDetail = () => {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Icon icon="solar:history-linear" width={24} className="text-primary" />
-            <h2 className="text-xl font-semibold">Audit Information</h2>
+            <h2 className="text-xl font-semibold">History Information</h2>
           </div>
         </CardHeader>
         <Divider />
@@ -259,7 +259,7 @@ const PackagingDetail = () => {
           color="default"
           variant="flat"
           startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
-          onPress={() => navigate('/packaging')}
+          onPress={() => navigate('/local/packaging-list')}
         >
           Back to List
         </Button>

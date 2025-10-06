@@ -92,11 +92,11 @@ const Packaging = () => {
     }
 
     const handleRowClick = (packageId: string) => {
-        navigate(`/packaging/${packageId}`)
+        navigate(`/local/packaging-list/${packageId}`)
     }
 
     return (
-        <div>
+        <div className="space-y-6 p-5">
             <Card className="w-full">
                 <CardHeader className="flex flex-col gap-4 pb-4">
                     <div className="flex justify-between items-center w-full">
