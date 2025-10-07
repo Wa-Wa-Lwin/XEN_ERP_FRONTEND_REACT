@@ -32,6 +32,7 @@ const ShipmentTable = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [reviewFilter, setReviewFilter] = useState<'waiting' | 'all'>('waiting')
   const [approvalFilter, setApprovalFilter] = useState<'waiting' | 'all' | 'approved' | 'rejected'>('waiting')
+  const [carrierFilter, setCarrierFilter] = useState<string>('all')
 
   // Sort states
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
@@ -45,6 +46,14 @@ const ShipmentTable = () => {
     // { value: 'logistic_updated', label: 'Waiting Approver' },
     { value: 'approver_approved', label: 'Approved' },
     { value: 'approver_rejected', label: 'Rejected' }
+  ]
+
+  // Carrier options for filtering
+  const carrierOptions = [
+    { value: 'all', label: 'All Carriers' },
+    { value: 'ups', label: 'UPS' },
+    { value: 'fedex', label: 'FedEx' },
+    { value: 'dhl', label: 'DHL' }
   ]
 
   // Pagination states
@@ -146,6 +155,14 @@ const ShipmentTable = () => {
           )
         }
       }
+
+      // Filter by carrier
+      if (carrierFilter !== 'all') {
+        filtered = filtered.filter(request => {
+          const chosenRate = request.rates?.find(rate => rate.chosen == true)
+          return chosenRate?.shipper_account_slug?.toLowerCase() === carrierFilter.toLowerCase()
+        })
+      }
     }
 
     // Apply sorting if enabled
@@ -163,7 +180,7 @@ const ShipmentTable = () => {
     }
 
     return filtered
-  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection, reviewFilter, approvalFilter])
+  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection, reviewFilter, approvalFilter, carrierFilter])
 
   // Pagination logic
   const paginatedData = useMemo(() => {
@@ -339,7 +356,7 @@ const ShipmentTable = () => {
             {activeButton === 'Request' && (
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-medium text-gray-700">Filter by:</span>
+                  <span className="text-sm font-medium text-gray-700">Filter by Status:</span>
                   <Select
                     size="sm"
                     className="w-48"
@@ -358,17 +375,37 @@ const ShipmentTable = () => {
                     ))}
                   </Select>
 
-                  {statusFilter !== 'all' && (
+                  <span className="text-sm font-medium text-gray-700">Filter by Carrier:</span>
+                  <Select
+                    size="sm"
+                    className="w-48"
+                    placeholder="Select carrier..."
+                    selectedKeys={[carrierFilter]}
+                    onSelectionChange={(keys) => {
+                      const selectedCarrier = Array.from(keys)[0] as string
+                      setCarrierFilter(selectedCarrier)
+                      setPage(1) // Reset to first page when changing filter
+                    }}
+                  >
+                    {carrierOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+
+                  {(statusFilter !== 'all' || carrierFilter !== 'all') && (
                     <Button
                       size="sm"
                       variant="light"
                       color="danger"
                       onPress={() => {
                         setStatusFilter('all')
+                        setCarrierFilter('all')
                         setPage(1)
                       }}
                     >
-                      Clear Filter
+                      Clear Filters
                     </Button>
                   )}
                 </div>
