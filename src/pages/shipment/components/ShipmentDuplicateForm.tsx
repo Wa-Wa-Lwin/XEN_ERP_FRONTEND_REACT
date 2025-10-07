@@ -337,13 +337,13 @@ const ShipmentDuplicateForm = () => {
       // Convert weight values from scientific notation to decimal strings
       const normalizedParcels = previewData.parcels?.map(parcel => ({
         ...parcel,
-        weight_value: Number(parcel.weight_value).toFixed(5),
-        net_weight_value: Number(parcel.net_weight_value || 0).toFixed(5),
-        parcel_weight_value: Number(parcel.parcel_weight_value || 0).toFixed(5),
+        weight_value: Number(Number(parcel.weight_value).toFixed(5)),
+        net_weight_value: Number(Number(parcel.net_weight_value || 0).toFixed(5)),
+        parcel_weight_value: Number(Number(parcel.parcel_weight_value || 0).toFixed(5)),
         parcel_items: parcel.parcel_items?.map(item => ({
           ...item,
-          weight_value: Number(item.weight_value).toFixed(5),
-          price_amount: Number(item.price_amount).toFixed(2)
+          weight_value: Number(Number(item.weight_value).toFixed(5)),
+          price_amount: Number(Number(item.price_amount).toFixed(2))
         }))
       }))
 
