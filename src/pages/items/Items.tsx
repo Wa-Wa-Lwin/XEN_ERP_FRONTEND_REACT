@@ -48,14 +48,14 @@ const Items = () => {
           const cachedData = JSON.parse(cached)
           setMaterials(cachedData)
           setFilteredMaterials(cachedData)
-          return
+          return // Exit early, don't fetch from API
         } catch (error) {
           console.error('Failed to parse cached data:', error)
         }
       }
     }
 
-    // Fetch from API
+    // Fetch from API only if no cache or force refresh
     setIsLoading(true)
     try {
       const response = await axios.get(import.meta.env.VITE_APP_GET_PARCEL_ITEMS)
