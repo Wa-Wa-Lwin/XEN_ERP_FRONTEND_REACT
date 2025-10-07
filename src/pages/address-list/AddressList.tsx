@@ -205,7 +205,7 @@ const AddressList = () => {
   }
 
   const handleViewDetail = (addressID: number) => {
-    navigate(`/address-list/${addressID}`)
+    navigate(`/local/address-list/${addressID}`)
   }
 
   const handleSubmit = async () => {

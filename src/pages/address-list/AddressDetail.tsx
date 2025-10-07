@@ -53,7 +53,7 @@ const AddressListDetail = () => {
       <div className="flex flex-col items-center justify-center h-screen gap-4">
         <Icon icon="solar:sad-circle-bold" className="text-6xl text-danger" />
         <h2 className="text-2xl font-bold">Address Not Found</h2>
-        <Button color="primary" onPress={() => navigate('/address-list')}>
+        <Button color="primary" onPress={() => navigate('/local/address-list')}>
           Back to Address List
         </Button>
       </div>
@@ -73,7 +73,7 @@ const AddressListDetail = () => {
         <Button
           isIconOnly
           variant="light"
-          onPress={() => navigate('/address-list')}
+          onPress={() => navigate('/local/address-list')}
         >
           <Icon icon="solar:arrow-left-bold" className="text-xl" />
         </Button>
@@ -234,7 +234,7 @@ const AddressListDetail = () => {
       <div className="flex gap-4 mt-6">
         <Button
           color="primary"
-          onPress={() => navigate('/address-list')}
+          onPress={() => navigate('/local/address-list')}
         >
           Back to List
         </Button>
