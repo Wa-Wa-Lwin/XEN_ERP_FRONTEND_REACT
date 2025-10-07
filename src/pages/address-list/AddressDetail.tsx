@@ -30,7 +30,7 @@ const AddressListDetail = () => {
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isInactiveOrActiveOpen, onOpen: onInactiveOrActiveOpen, onClose: onInactiveOrActiveClose } = useDisclosure()
   const { user, msLoginUser } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     CardCode: '',
     company_name: '',
@@ -106,8 +106,8 @@ const AddressListDetail = () => {
       const payload = {
         ...formData,
         active: 1,
-        updated_userID: user?.userID, 
-        updated_user_name: msLoginUser?.name 
+        updated_userID: user?.userID,
+        updated_user_name: msLoginUser?.name
       }
 
       await axios.post(`${import.meta.env.VITE_APP_NEW_ADDRESS_LIST_UPDATE}/${address.addressID}`, payload)
@@ -129,14 +129,17 @@ const AddressListDetail = () => {
     setIsLoading(true)
     try {
       await axios.post(`${import.meta.env.VITE_APP_NEW_ADDRESS_LIST_INACTIVE_OR_ACTIVE}/${address.addressID}`, {
-        updated_userID: user?.userID, 
-        updated_user_name: msLoginUser?.name 
+        updated_userID: user?.userID,
+        updated_user_name: msLoginUser?.name
       })
 
       // Clear cache to force refresh on list page
       localStorage.removeItem('address_list_cache')
 
       onInactiveOrActiveClose()
+
+      // Refresh the address detail to show updated status
+      fetchAddressDetail()
     } catch (error) {
       console.error('Failed to inactivate address:', error)
     } finally {
@@ -356,31 +359,34 @@ const AddressListDetail = () => {
       <Modal isOpen={isInactiveOrActiveOpen} onClose={onInactiveOrActiveClose} size="md">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-danger">
-              <Icon icon="solar:danger-circle-bold" className="text-3xl" />              
+            <div
+              className={`flex items-center gap-2 ${address.active === "1" ? "text-danger" : "text-success"
+                }`}
+            >
+              <Icon icon="solar:danger-circle-bold" className="text-3xl" />
               <span>
-                Confirm {address.active === "1" ? "Inactivation" : "Activation"}              
+                Confirm {address.active === "1" ? "Inactivation" : "Activation"}
               </span>
             </div>
           </ModalHeader>
           <ModalBody>
             <p className="text-default-600">
-              Are you sure you want to {address.active === "1" ? "inactivate" : "activate"}  this address? 
+              Are you sure you want to {address.active === "1" ? "inactivate" : "activate"}  this address?
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button 
-              variant="light" 
+            <Button
+              variant="light"
               onPress={onInactiveOrActiveClose}
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               color={address.active === "1" ? "danger" : "success"}
-              onPress={confirmInactivate} 
+              onPress={confirmInactivate}
               isLoading={isLoading}
             >
-               {address.active === "1" ? "Inactivate" : "Activate"}
+              {address.active === "1" ? "Inactivate" : "Activate"}
             </Button>
           </ModalFooter>
         </ModalContent>
