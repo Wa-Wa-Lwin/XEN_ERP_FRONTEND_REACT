@@ -14,12 +14,17 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
-  Input
+  Input,
+  Select,
+  SelectItem,
+  Autocomplete,
+  AutocompleteItem
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
 import type { AddressData } from './types'
 import { useAuth } from '@context/AuthContext'
+import { COUNTRIES } from '@pages/shipment/constants/countries'
 
 
 const AddressListDetail = () => {
@@ -409,12 +414,18 @@ const AddressListDetail = () => {
                 value={formData.company_name}
                 onValueChange={(value) => setFormData({ ...formData, company_name: value })}
               />
-              <Input
+              <Select
                 label="Card Type"
                 isRequired
-                value={formData.CardType}
-                onValueChange={(value) => setFormData({ ...formData, CardType: value })}
-              />
+                selectedKeys={formData.CardType}
+                onSelectionChange={(keys) => {
+                  const value = Array.from(keys)[0] as string
+                  setFormData({ ...formData, CardType: value })
+                }}
+              >
+                <SelectItem key="S" value="S">S</SelectItem>
+                <SelectItem key="C" value="C">C</SelectItem>
+              </Select>
               <Input
                 label="Street 1"
                 isRequired
@@ -443,12 +454,23 @@ const AddressListDetail = () => {
                 value={formData.state}
                 onValueChange={(value) => setFormData({ ...formData, state: value })}
               />
-              <Input
+              <Autocomplete
                 label="Country"
                 isRequired
-                value={formData.country}
-                onValueChange={(value) => setFormData({ ...formData, country: value })}
-              />
+                selectedKey={formData.country}
+                onSelectionChange={(key) => {
+                  if (key) {
+                    setFormData({ ...formData, country: key.toString() })
+                  }
+                }}
+              >
+                {COUNTRIES.map((country) => (
+                  <AutocompleteItem key={country.key} value={country.key}>
+                    {country.value}
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
+
               <Input
                 label="Postal Code"
                 isRequired
@@ -506,7 +528,7 @@ const AddressListDetail = () => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="light" onPress={onEditClose}>
+            <Button color="default" onPress={onEditClose}>
               Cancel
             </Button>
             <Button color="primary" onPress={handleSubmit} isLoading={isLoading}>

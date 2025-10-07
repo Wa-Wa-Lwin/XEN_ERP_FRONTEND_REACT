@@ -19,11 +19,16 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  useDisclosure
+  useDisclosure,
+  Select,
+  SelectItem,
+  Autocomplete,
+  AutocompleteItem
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { COUNTRIES } from '@pages/shipment/constants/countries'
 
 interface AddressData {
   addressID: number
@@ -246,7 +251,7 @@ const AddressList = () => {
         <CardHeader className="flex flex-col gap-4 pb-4">
           <div className="flex justify-between items-center w-full">
             <div className="flex gap-2 items-center">
-              <h1 className="text-2xl font-bold">Address List</h1>
+              <h1 className="text-2xl font-bold">New Address List</h1>
               <Button
                 color="primary"
                 size="sm"
@@ -254,7 +259,7 @@ const AddressList = () => {
                 startContent={<Icon icon="solar:add-circle-bold" />}
               >
                 Create New
-              </Button>              
+              </Button>
               <Button
                 color="primary"
                 variant="flat"
@@ -333,8 +338,8 @@ const AddressList = () => {
                 </TableHeader>
                 <TableBody emptyContent="No addresses found">
                   {currentItems.map((address, index) => (
-                    <TableRow 
-                      key={address.addressID} 
+                    <TableRow
+                      key={address.addressID}
                       onClick={() => handleViewDetail(address.addressID)}
                       className="cursor-pointer hover:bg-yellow-100 transition-colors"
                     >
@@ -425,12 +430,18 @@ const AddressList = () => {
                 value={formData.company_name}
                 onValueChange={(value) => setFormData({ ...formData, company_name: value })}
               />
-              <Input
+              <Select
                 label="Card Type"
                 isRequired
-                value={formData.CardType}
-                onValueChange={(value) => setFormData({ ...formData, CardType: value })}
-              />
+                selectedKeys={formData.CardType}
+                onSelectionChange={(keys) => {
+                  const value = Array.from(keys)[0] as string
+                  setFormData({ ...formData, CardType: value })
+                }}
+              >
+                <SelectItem key="S" value="S">S</SelectItem>
+                <SelectItem key="C" value="C">C</SelectItem>
+              </Select>
               <Input
                 label="Street 1"
                 isRequired
@@ -459,12 +470,22 @@ const AddressList = () => {
                 value={formData.state}
                 onValueChange={(value) => setFormData({ ...formData, state: value })}
               />
-              <Input
+              <Autocomplete
                 label="Country"
                 isRequired
-                value={formData.country}
-                onValueChange={(value) => setFormData({ ...formData, country: value })}
-              />
+                selectedKey={formData.country}
+                onSelectionChange={(key) => {
+                  if (key) {
+                    setFormData({ ...formData, country: key.toString() })
+                  }
+                }}
+              >
+                {COUNTRIES.map((country) => (
+                  <AutocompleteItem key={country.key} value={country.key}>
+                    {country.value}
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
               <Input
                 label="Postal Code"
                 isRequired
@@ -522,7 +543,7 @@ const AddressList = () => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="light" onPress={onClose}>
+            <Button color="default" onPress={onClose}>
               Cancel
             </Button>
             <Button color="primary" onPress={handleSubmit} isLoading={isLoading}>
