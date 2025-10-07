@@ -60,14 +60,15 @@ const STORAGE_KEY = 'address_list_cache'
 const AddressList = () => {
   const navigate = useNavigate()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const [addresses, setAddresses] = useState<AddressData[]>([])
+  const [allAddresses, setAllAddresses] = useState<AddressData[]>([])
+  const [activeAddresses, setActiveAddresses] = useState<AddressData[]>([])
+  const [inactiveAddresses, setInactiveAddresses] = useState<AddressData[]>([])
   const [filteredAddresses, setFilteredAddresses] = useState<AddressData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [editingAddress, setEditingAddress] = useState<AddressData | null>(null)
-  const [deletingAddressId, setDeletingAddressId] = useState<number | null>(null)
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [formData, setFormData] = useState({
     CardCode: '',
     company_name: '',
@@ -97,8 +98,18 @@ const AddressList = () => {
       if (cached) {
         try {
           const cachedData = JSON.parse(cached)
-          setAddresses(cachedData)
-          setFilteredAddresses(cachedData)
+          setAllAddresses(cachedData.all_address_list || [])
+          setActiveAddresses(cachedData.all_active_address_list || [])
+          setInactiveAddresses(cachedData.all_inactive_address_list || [])
+
+          // Set addresses based on current filter
+          if (statusFilter === 'active') {
+            setAddresses(cachedData.all_active_address_list || [])
+          } else if (statusFilter === 'inactive') {
+            setAddresses(cachedData.all_inactive_address_list || [])
+          } else {
+            setAddresses(cachedData.all_address_list || [])
+          }
           return
         } catch (error) {
           console.error('Failed to parse cached data:', error)
@@ -109,11 +120,26 @@ const AddressList = () => {
     setIsLoading(true)
     try {
       const response = await axios.get(import.meta.env.VITE_APP_NEW_ADDRESS_LIST_GET_ALL)
-      if (response.data?.all_address_list) {
-        const data = response.data.all_address_list
-        setAddresses(data)
-        setFilteredAddresses(data)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      if (response.data) {
+        const allData = response.data.all_address_list || []
+        const activeData = response.data.all_active_address_list || []
+        const inactiveData = response.data.all_inactive_address_list || []
+
+        setAllAddresses(allData)
+        setActiveAddresses(activeData)
+        setInactiveAddresses(inactiveData)
+
+        // Set addresses based on current filter
+        if (statusFilter === 'active') {
+          setAddresses(activeData)
+        } else if (statusFilter === 'inactive') {
+          setAddresses(inactiveData)
+        } else {
+          setAddresses(allData)
+        }
+
+        // Cache the entire response
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data))
       }
     } catch (error) {
       console.error('Failed to fetch addresses:', error)
@@ -129,6 +155,10 @@ const AddressList = () => {
   useEffect(() => {
     fetchAddresses()
   }, [])
+
+  useEffect(() => {
+    fetchAddresses()
+  }, [statusFilter])
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
@@ -147,13 +177,17 @@ const AddressList = () => {
     setCurrentPage(1)
   }, [searchQuery, addresses])
 
+  const handleStatusFilterChange = (filter: 'all' | 'active' | 'inactive') => {
+    setStatusFilter(filter)
+    setSearchQuery('')
+  }
+
   const totalPages = Math.ceil(filteredAddresses.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentItems = filteredAddresses.slice(startIndex, endIndex)
 
   const handleCreateNew = () => {
-    setEditingAddress(null)
     setFormData({
       CardCode: '',
       company_name: '',
@@ -178,32 +212,6 @@ const AddressList = () => {
     onOpen()
   }
 
-  const handleEdit = (address: AddressData) => {
-    setEditingAddress(address)
-    setFormData({
-      CardCode: address.CardCode || '',
-      company_name: address.company_name,
-      CardType: address.CardType,
-      full_address: address.full_address || '',
-      street1: address.street1,
-      street2: address.street2 || '',
-      street3: address.street3 || '',
-      city: address.city,
-      state: address.state,
-      country: address.country,
-      postal_code: address.postal_code,
-      contact_name: address.contact_name,
-      contact: address.contact || '',
-      phone: address.phone || '',
-      email: address.email || '',
-      tax_id: address.tax_id || '',
-      phone1: address.phone1 || '',
-      website: address.website || '',
-      eori_number: address.eori_number || ''
-    })
-    onOpen()
-  }
-
   const handleViewDetail = (addressID: number) => {
     navigate(`/local/address-list/${addressID}`)
   }
@@ -215,16 +223,13 @@ const AddressList = () => {
         ...formData,
         active: 1,
         user_id: 1, // Replace with actual user ID from auth
-        user_name: 'Admin', // Replace with actual user name from auth
-        updated_userID: editingAddress ? 1 : undefined,
-        updated_user_name: editingAddress ? 'Admin' : undefined
+        user_name: 'Admin' // Replace with actual user name from auth
       }
 
-      if (editingAddress) {
-        await axios.post(`${import.meta.env.VITE_APP_NEW_ADDRESS_LIST_UPDATE}/${editingAddress.addressID}`, payload)
-      } else {
-        await axios.post(import.meta.env.VITE_APP_NEW_ADDRESS_LIST_CREATE, payload)
-      }
+      await axios.post(import.meta.env.VITE_APP_NEW_ADDRESS_LIST_CREATE, payload)
+
+      // Clear cache and force refresh
+      localStorage.removeItem(STORAGE_KEY)
 
       onClose()
       fetchAddresses(true)
@@ -235,41 +240,31 @@ const AddressList = () => {
     }
   }
 
-  const handleInactivate = (addressID: number) => {
-    setDeletingAddressId(addressID)
-    onDeleteOpen()
-  }
-
-  const confirmInactivate = async () => {
-    if (!deletingAddressId) return
-
-    setIsLoading(true)
-    try {
-      await axios.post(`${import.meta.env.VITE_APP_NEW_ADDRESS_LIST_INACTIVE}/${deletingAddressId}`, {
-        active: 0,
-        updated_userID: 1, // Replace with actual user ID
-        updated_user_name: 'Admin' // Replace with actual user name
-      })
-      onDeleteClose()
-      fetchAddresses(true)
-    } catch (error) {
-      console.error('Failed to inactivate address:', error)
-    } finally {
-      setIsLoading(false)
-      setDeletingAddressId(null)
-    }
-  }
-
   return (
     <div>
       <Card className="w-full">
         <CardHeader className="flex flex-col gap-4 pb-4">
           <div className="flex justify-between items-center w-full">
-            <div className="flex flex-col gap-1">
+            <div className="flex gap-2 items-center">
               <h1 className="text-2xl font-bold">Address List</h1>
-              <p className="text-small text-default-600">
-                {filteredAddresses.length} addresses found
-              </p>
+              <Button
+                color="primary"
+                size="sm"
+                onPress={handleCreateNew}
+                startContent={<Icon icon="solar:add-circle-bold" />}
+              >
+                Create New
+              </Button>              
+              <Button
+                color="primary"
+                variant="flat"
+                size="sm"
+                onPress={handleForceRefresh}
+                isLoading={isLoading}
+                startContent={!isLoading && <Icon icon="solar:refresh-bold" />}
+              >
+                Refresh
+              </Button>
             </div>
             <Input
               placeholder="Search by company, city, contact..."
@@ -281,27 +276,32 @@ const AddressList = () => {
               isClearable
               onClear={() => setSearchQuery('')}
             />
-            <div className="flex items-center gap-2">
+            {/* Status Filter Tabs */}
+            <div className="flex gap-2">
               <Button
-                color="primary"
-                variant="flat"
                 size="sm"
-                onPress={handleForceRefresh}
-                isLoading={isLoading}
-                startContent={!isLoading && <Icon icon="solar:refresh-bold" />}
+                variant={statusFilter === 'all' ? 'solid' : 'flat'}
+                color={statusFilter === 'all' ? 'primary' : 'default'}
+                onPress={() => handleStatusFilterChange('all')}
               >
-                Refresh
+                All ({allAddresses.length})
               </Button>
               <Button
-                color="primary"
-                onPress={handleCreateNew}
-                startContent={<Icon icon="solar:add-circle-bold" />}
+                size="sm"
+                variant={statusFilter === 'active' ? 'solid' : 'flat'}
+                color={statusFilter === 'active' ? 'success' : 'default'}
+                onPress={() => handleStatusFilterChange('active')}
               >
-                Create New
+                Active ({activeAddresses.length})
               </Button>
-              <Chip color="primary" variant="flat">
-                Total: {addresses.length}
-              </Chip>
+              <Button
+                size="sm"
+                variant={statusFilter === 'inactive' ? 'solid' : 'flat'}
+                color={statusFilter === 'inactive' ? 'danger' : 'default'}
+                onPress={() => handleStatusFilterChange('inactive')}
+              >
+                Inactive ({inactiveAddresses.length})
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -330,11 +330,14 @@ const AddressList = () => {
                   <TableColumn className="w-32">CONTACT</TableColumn>
                   <TableColumn className="w-40">PHONE</TableColumn>
                   <TableColumn className="w-24">STATUS</TableColumn>
-                  <TableColumn className="w-32">ACTIONS</TableColumn>
                 </TableHeader>
                 <TableBody emptyContent="No addresses found">
                   {currentItems.map((address, index) => (
-                    <TableRow key={address.addressID}>
+                    <TableRow 
+                      key={address.addressID} 
+                      onClick={() => handleViewDetail(address.addressID)}
+                      className="cursor-pointer hover:bg-yellow-100 transition-colors"
+                    >
                       <TableCell>
                         <span className="text-sm font-medium text-default-600">
                           {startIndex + index + 1}
@@ -381,35 +384,6 @@ const AddressList = () => {
                           {address.active === '1' ? 'Active' : 'Inactive'}
                         </Chip>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button
-                            isIconOnly
-                            size="sm"
-                            key="view"
-                            startContent={<Icon icon="solar:eye-bold" />}
-                            onPress={() => handleViewDetail(address.addressID)}
-                          >
-                          </Button>
-                          <Button
-                            isIconOnly
-                            size="sm"
-                            key="edit"
-                            startContent={<Icon icon="solar:pen-bold" />}
-                            onPress={() => handleEdit(address)}
-                          >                            
-                          </Button>
-                          <Button
-                            isIconOnly
-                            size="sm"
-                            key="inactivate"
-                            color="danger"
-                            startContent={<Icon icon="solar:trash-bin-trash-bold" />}
-                            onPress={() => handleInactivate(address.addressID)}
-                          >                            
-                          </Button>
-                        </div>
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -432,36 +406,11 @@ const AddressList = () => {
         </CardBody>
       </Card>
 
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} size="md">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-danger">
-              <Icon icon="solar:danger-circle-bold" className="text-3xl" />
-              <span>Confirm Inactivation</span>
-            </div>
-          </ModalHeader>
-          <ModalBody>
-            <p className="text-default-600">
-              Are you sure you want to inactivate this address? This action will mark the address as inactive.
-            </p>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onDeleteClose}>
-              Cancel
-            </Button>
-            <Button color="danger" onPress={confirmInactivate} isLoading={isLoading}>
-              Inactivate
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      {/* Create/Edit Modal */}
+      {/* Create Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="3xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader>
-            {editingAddress ? 'Edit Address' : 'Create New Address'}
+            Create New Address
           </ModalHeader>
           <ModalBody>
             <div className="grid grid-cols-2 gap-4">
@@ -577,7 +526,7 @@ const AddressList = () => {
               Cancel
             </Button>
             <Button color="primary" onPress={handleSubmit} isLoading={isLoading}>
-              {editingAddress ? 'Update' : 'Create'}
+              Create
             </Button>
           </ModalFooter>
         </ModalContent>
