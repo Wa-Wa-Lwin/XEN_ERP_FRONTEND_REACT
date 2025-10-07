@@ -33,8 +33,8 @@ const ShipmentDetails = () => {
   const { isOpen: isPickupModalOpen, onOpen: onPickupModalOpen, onClose: onPickupModalClose } = useDisclosure();
   const [pickupFormData, setPickupFormData] = useState({
     pick_up_date: "",
-    pick_up_start_time: "",
-    pick_up_end_time: "",
+    pick_up_start_time: "09:00",
+    pick_up_end_time: "16:00",
     pick_up_instructions: ""
   });
   const [isUpdatingPickup, setIsUpdatingPickup] = useState(false);
@@ -65,11 +65,18 @@ const ShipmentDetails = () => {
       setEditCustomsPurpose(shipmentData.customs_purpose || "");
       setEditCustomsTermsOfTrade(shipmentData.customs_terms_of_trade || "");
 
+      // Helper to convert time from H:i:s format to HH:mm for input type="time"
+      const convertToInputTime = (time: string) => {
+        if (!time) return "";
+        // If time is in H:i:s format (e.g., "09:00:00"), extract HH:mm
+        return time.substring(0, 5);
+      };
+
       // Set pickup form data from shipment
       setPickupFormData({
         pick_up_date: shipmentData.pick_up_date || "",
-        pick_up_start_time: shipmentData.pick_up_start_time || "",
-        pick_up_end_time: shipmentData.pick_up_end_time || "",
+        pick_up_start_time: convertToInputTime(shipmentData.pick_up_start_time) || "09:00",
+        pick_up_end_time: convertToInputTime(shipmentData.pick_up_end_time) || "16:00",
         pick_up_instructions: shipmentData.pick_up_instructions || ""
       });
 
@@ -373,15 +380,30 @@ const ShipmentDetails = () => {
   };
 
   const handleOpenPickupModal = () => {
-    // Reset form data with current shipment values
+    // Helper to convert time from H:i:s format to HH:mm for input type="time"
+    const convertToInputTime = (time: string) => {
+      if (!time) return "";
+      // If time is in H:i:s format (e.g., "09:00:00"), extract HH:mm
+      return time.substring(0, 5);
+    };
+
+    // Reset form data with current shipment values or defaults (9 AM to 4 PM)
     setPickupFormData({
       pick_up_date: shipment?.pick_up_date || "",
-      pick_up_start_time: shipment?.pick_up_start_time || "",
-      pick_up_end_time: shipment?.pick_up_end_time || "",
+      pick_up_start_time: convertToInputTime(shipment?.pick_up_start_time || "") || "09:00",
+      pick_up_end_time: convertToInputTime(shipment?.pick_up_end_time || "") || "16:00",
       pick_up_instructions: shipment?.pick_up_instructions || ""
     });
     onPickupModalOpen();
   };
+  const formatTime = (time: string) => {
+    if (!time) return "";
+    // If time is in HH:mm format, append :00 for seconds
+    if (time.length === 5) return `${time}:00`;
+    // If time already has seconds, keep only HH:mm:ss
+    return time.length > 8 ? time.substring(0, 8) : time;
+  };
+
 
   const handleChangePickupDateTime = async () => {
     if (!shipmentId || !msLoginUser) return;
@@ -396,16 +418,18 @@ const ShipmentDetails = () => {
 
       const apiUrl = `${pickupUrl}${shipmentId}`;
 
+
+
       const payload = {
         pick_up_date: pickupFormData.pick_up_date,
-        pick_up_start_time: pickupFormData.pick_up_start_time,
-        pick_up_end_time: pickupFormData.pick_up_end_time,
+        pick_up_start_time: formatTime(pickupFormData.pick_up_start_time),
+        pick_up_end_time: formatTime(pickupFormData.pick_up_end_time),
         pick_up_instructions: pickupFormData.pick_up_instructions,
         login_user_id: user?.userID || 0,
         login_user_name: msLoginUser.name,
         login_user_mail: msLoginUser.email,
-        send_status: "pickup_datetime_changed"
       };
+
 
       const response = await axios.put(apiUrl, payload, {
         headers: { 'Content-Type': 'application/json' }

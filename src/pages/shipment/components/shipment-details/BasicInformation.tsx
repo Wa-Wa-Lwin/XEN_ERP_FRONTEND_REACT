@@ -67,7 +67,7 @@ const BasicInformation = ({
   let pickupDateTime = shipment.pick_up_date
     ? `${formatDate(shipment.pick_up_date)} (${formatTime(shipment.pick_up_start_time)} - ${formatTime(shipment.pick_up_end_time)})`
     : '';
-  let expectedDeliveryDate = shipment.due_date ? formatDate(shipment.due_date) : '-';
+  // let expectedDeliveryDate = shipment.due_date ? formatDate(shipment.due_date) : '-';
 
 
   if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success") {
@@ -76,7 +76,7 @@ const BasicInformation = ({
       <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
       <DetailRow label="Status" value={shipment.pick_up_created_status} />
       <DetailRow label="DateTime" value={pickupDateTime} />
-      <DetailRow label="Expected Delivery Date" value={shipment.due_date} />
+      {/* <DetailRow label="Expected Delivery Date" value={shipment.due_date} /> */}
       <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
     </>;
   }
@@ -104,7 +104,7 @@ const BasicInformation = ({
       </Button>
 
       <DetailRow label="DateTime" value={pickupDateTime} />
-      <DetailRow label="Expected Delivery Date" value={expectedDeliveryDate} />
+      {/* <DetailRow label="Expected Delivery Date" value={expectedDeliveryDate} /> */}
       <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
       <Button
         size="sm"
@@ -125,7 +125,7 @@ const BasicInformation = ({
     pickupData = <>
       <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
       <DetailRow label="DateTime" value={pickupDateTime} />
-      <DetailRow label="Expected Delivery Date" value={expectedDeliveryDate} />
+      {/* <DetailRow label="Expected Delivery Date" value={expectedDeliveryDate} /> */}
       <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
     </>;
   }
