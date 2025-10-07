@@ -223,9 +223,9 @@ export const SERVICE_OPTIONS = [
 //   { key: 'personC', value: 'Person C', label: 'Person C' }
 // ]
 export const SALES_PERSON_OPTIONS = [
-  { key: 'Solomon', value: 'Solomon', label: 'Solomon' },
-  { key: 'Nati', value: 'Nati', label: 'Nati' },
-  { key: 'Allen', value: 'Allen', label: 'Allen' }
+  { key: 'Solomon Sokolovsky', value: 'Solomon Sokolovsky', label: 'Solomon Sokolovsky' },
+  { key: 'Nati Neuberger', value: 'Nati Neuberger', label: 'Nati Neuberger' },
+  { key: 'Allen Koh', value: 'Allen Koh', label: 'Allen Koh' }
 ]
 
 export const DIMENSION_UNITS = [
