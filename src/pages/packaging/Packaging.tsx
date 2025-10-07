@@ -64,9 +64,9 @@ const Packaging = () => {
             setFilteredData(baseData)
         } else {
             const filtered = baseData.filter(pkg =>
-                pkg.packageTypeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                pkg.packageType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                pkg.packagePurpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                pkg.package_type_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                pkg.package_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                pkg.package_purpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 (pkg.remark && pkg.remark.toLowerCase().includes(searchQuery.toLowerCase()))
             )
             setFilteredData(filtered)
@@ -212,7 +212,7 @@ const Packaging = () => {
                                             <TableCell>
                                                 <div className="flex flex-col">
                                                     <span className="font-medium text-primary text-sm">
-                                                        {pkg.packageTypeName}
+                                                        {pkg.package_type_name}
                                                     </span>
                                                 </div>
                                             </TableCell>

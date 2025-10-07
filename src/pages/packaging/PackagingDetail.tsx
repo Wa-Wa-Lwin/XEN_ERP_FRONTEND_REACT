@@ -30,15 +30,11 @@ const PackagingDetail = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isTogglingStatus, setIsTogglingStatus] = useState(false)
 
-  useEffect(() => {
-    fetchPackagingDetail()
-  }, [id])
-
   const fetchPackagingDetail = async () => {
     setIsLoading(true)
     try {
       const response = await packagingService.getAllPackaging()
-      const found = response.all_Packaging.find(pkg => pkg.packageID === id)
+      const found = response.all_Packaging.find(pkg => String(pkg.packageID) === String(id))
       if (found) {
         setPackaging(found)
       }
@@ -48,6 +44,10 @@ const PackagingDetail = () => {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchPackagingDetail()
+  }, [id])
 
   const formatDimensions = (pkg: PackagingData) => {
     if (pkg.package_length === '0' && pkg.package_width === '0' && pkg.package_height === '0') {
@@ -116,7 +116,7 @@ const PackagingDetail = () => {
       <div className="flex justify-left items-center">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold">{packaging.packageTypeName}</h1>
+            <h1 className="text-2xl font-bold">{packaging.package_type_name}</h1>
             <p className="text-sm text-default-600">Package ID: {packaging.packageID}</p>
           </div>
         </div>
@@ -175,15 +175,15 @@ const PackagingDetail = () => {
             <TableBody>
               <TableRow>
                 <TableCell className="font-semibold text-default-700 w-1/3">Package Type</TableCell>
-                <TableCell>{packaging.packageType}</TableCell>
+                <TableCell>{packaging.package_type}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-semibold text-default-700">Package Name</TableCell>
-                <TableCell>{packaging.packageTypeName}</TableCell>
+                <TableCell>{packaging.package_type_name}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-semibold text-default-700">Purpose</TableCell>
-                <TableCell>{packaging.packagePurpose}</TableCell>
+                <TableCell>{packaging.package_purpose}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-semibold text-default-700">Remark</TableCell>

@@ -2,9 +2,9 @@ import axios from 'axios';
 
 export interface PackagingData {
   packageID: string;
-  packageType: string;
-  packageTypeName: string;
-  packagePurpose: string;
+  package_type: string;
+  package_type_name: string;
+  package_purpose: string;
   package_length: string;
   package_width: string;
   package_height: string;
@@ -29,9 +29,9 @@ export interface PackagingResponse {
 }
 
 export interface CreatePackagingPayload {
-  packageType: string;
-  packageTypeName: string;
-  packagePurpose: string;
+  package_type: string;
+  package_type_name: string;
+  package_purpose: string;
   package_length: number;
   package_width: number;
   package_height: number;

@@ -24,25 +24,6 @@ interface PackagingFormModalProps {
   mode: 'create' | 'edit'
 }
 
-const PACKAGE_TYPES = [
-  'HARD BOX - BLACK',
-  'HARD BOX - GREEN',
-  'PALLET (With cardboard box)',
-  'WOODEN BOX (Old version)',
-  'WOODEN BOX (New version)',
-  'CARDBOARD BOX'
-]
-
-const PACKAGE_PURPOSES = [
-  'XSOS (DEMONSTRATION)',
-  'CSOS (DEMONSTRATION)',
-  'MMU (DEMONSTRATION)',
-  'IT & EQUIPMENT',
-  'XSOS (For Sales)',
-  'CHASSIS',
-  'PARTS AND OTHER'
-]
-
 const DIMENSION_UNITS = ['cm', 'm', 'in']
 const WEIGHT_UNITS = ['kg', 'g', 'lb']
 
@@ -58,8 +39,9 @@ export const PackagingFormModal: React.FC<PackagingFormModalProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const [formData, setFormData] = useState({
-    packageType: '',
-    packagePurpose: '',
+    package_type: '',
+    package_type_name: '',
+    package_purpose: '',
     package_length: '',
     package_width: '',
     package_height: '',
@@ -72,8 +54,9 @@ export const PackagingFormModal: React.FC<PackagingFormModalProps> = ({
   useEffect(() => {
     if (editData && mode === 'edit') {
       setFormData({
-        packageType: editData.packageType,
-        packagePurpose: editData.packagePurpose,
+        package_type: editData.package_type,
+        package_type_name: editData.package_type_name,
+        package_purpose: editData.package_purpose,
         package_length: editData.package_length,
         package_width: editData.package_width,
         package_height: editData.package_height,
@@ -84,8 +67,9 @@ export const PackagingFormModal: React.FC<PackagingFormModalProps> = ({
       })
     } else {
       setFormData({
-        packageType: '',
-        packagePurpose: '',
+        package_type: '',
+        package_type_name: '', 
+        package_purpose: '',
         package_length: '',
         package_width: '',
         package_height: '',
@@ -101,8 +85,9 @@ export const PackagingFormModal: React.FC<PackagingFormModalProps> = ({
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.packageType) newErrors.packageType = 'Package type is required'
-    if (!formData.packagePurpose) newErrors.packagePurpose = 'Package purpose is required'
+    if (!formData.package_type) newErrors.package_type = 'Package type is required'
+    if (!formData.package_type_name) newErrors.package_type_name = 'Package type Name is required'
+    if (!formData.package_purpose) newErrors.package_purpose = 'Package purpose is required'
     if (!formData.package_length || parseFloat(formData.package_length) < 0) {
       newErrors.package_length = 'Valid length is required'
     }
@@ -126,9 +111,9 @@ export const PackagingFormModal: React.FC<PackagingFormModalProps> = ({
     setIsLoading(true)
     try {
       const payload: CreatePackagingPayload = {
-        packageType: formData.packageType,
-        packageTypeName: `${formData.packageType} ${formData.packagePurpose}`,
-        packagePurpose: formData.packagePurpose,
+        package_type: formData.package_type,
+        package_type_name: formData.package_type_name,
+        package_purpose: formData.package_purpose,
         package_length: parseFloat(formData.package_length),
         package_width: parseFloat(formData.package_width),
         package_height: parseFloat(formData.package_height),
@@ -174,46 +159,49 @@ export const PackagingFormModal: React.FC<PackagingFormModalProps> = ({
         <ModalBody>
           <div className="space-y-4">
             {/* Package Type */}
-            <Select
+            <Input
+              type="text"
               label="Package Type"
-              placeholder="Select package type"
-              selectedKeys={formData.packageType ? [formData.packageType] : []}
-              onSelectionChange={(keys) => {
-                const value = Array.from(keys)[0] as string
-                setFormData({ ...formData, packageType: value })
-                setErrors({ ...errors, packageType: '' })
+              placeholder="e.g., HARD BOX - BLACK"
+              value={formData.package_type}
+              onValueChange={(value) => {
+                setFormData({ ...formData, package_type: value })
+                setErrors({ ...errors, package_type: '' })
               }}
-              isInvalid={!!errors.packageType}
-              errorMessage={errors.packageType}
+              isInvalid={!!errors.package_type}
+              errorMessage={errors.package_type}
               isRequired
-            >
-              {PACKAGE_TYPES.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </Select>
+            />
+
+            {/* Package Type Name */}
+            <Input
+              type="text"
+              label="Package Type Name"
+              placeholder="e.g., HARD BOX - BLACK XSOS (DEMONSTRATION)"
+              value={formData.package_type_name}
+              onValueChange={(value) => {
+                setFormData({ ...formData, package_type_name: value })
+                setErrors({ ...errors, package_type_name: '' })
+              }}
+              isInvalid={!!errors.package_type_name}
+              errorMessage={errors.package_type_name}
+              isRequired
+            />
 
             {/* Package Purpose */}
-            <Select
+            <Input
+              type="text"
               label="Package Purpose"
-              placeholder="Select package purpose"
-              selectedKeys={formData.packagePurpose ? [formData.packagePurpose] : []}
-              onSelectionChange={(keys) => {
-                const value = Array.from(keys)[0] as string
-                setFormData({ ...formData, packagePurpose: value })
-                setErrors({ ...errors, packagePurpose: '' })
+              placeholder="e.g., XSOS (DEMONSTRATION)"
+              value={formData.package_purpose}
+              onValueChange={(value) => {
+                setFormData({ ...formData, package_purpose: value })
+                setErrors({ ...errors, package_purpose: '' })
               }}
-              isInvalid={!!errors.packagePurpose}
-              errorMessage={errors.packagePurpose}
+              isInvalid={!!errors.package_purpose}
+              errorMessage={errors.package_purpose}
               isRequired
-            >
-              {PACKAGE_PURPOSES.map((purpose) => (
-                <SelectItem key={purpose} value={purpose}>
-                  {purpose}
-                </SelectItem>
-              ))}
-            </Select>
+            />
 
             {/* Dimensions */}
             <div className="space-y-2">
