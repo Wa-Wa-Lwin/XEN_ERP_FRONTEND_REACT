@@ -19,6 +19,7 @@ interface BasicInformationProps {
   setShowError: (show: boolean) => void;
   onCreateLabel: () => void;
   onCreatePickup: () => void;
+  onChangePickupDateTime?: () => void;
   formattedError: string;
   formattedLabelError: string;
   formattedPickupError: string;
@@ -32,6 +33,7 @@ const BasicInformation = ({
   setShowError,
   onCreateLabel,
   onCreatePickup,
+  onChangePickupDateTime,
   formattedError,
   formattedLabelError,
   formattedPickupError
@@ -81,20 +83,26 @@ const BasicInformation = ({
   else if (shipment.pick_up_status && shipment.pick_up_created_status === "created_failed") {
     pickupData = <>
       <h2 className="text-lg font-semibold">Pickup Information</h2>
-      <div className="my-1 flex gap-2 items-center">
-        <p className="text-red-600 font-semibold">
-          ⚠️ Pickup creation failed
-        </p>
-        <Button
-          color="primary"
-          size="sm"
-          onPress={onCreatePickup}
-          className="px-2 py-0 text-[11px] h-auto min-h-0"
-        >
-          Retry Create Pickup
-        </Button>
+      <Button
+        color="warning"
+        size="sm"
+        onPress={onChangePickupDateTime}
+      >
+        Change Pickup DateTime
+      </Button>
 
-      </div>
+      <p className="text-red-600 font-semibold">
+        ⚠️ Pickup creation failed
+      </p>
+      <Button
+        color="primary"
+        size="sm"
+        onPress={onCreatePickup}
+        className="px-2 py-0 text-[11px] h-auto min-h-0"
+      >
+        Retry Create Pickup
+      </Button>
+
       <DetailRow label="DateTime" value={pickupDateTime} />
       <DetailRow label="Expected Delivery Date" value={expectedDeliveryDate} />
       <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
@@ -212,7 +220,7 @@ const BasicInformation = ({
     (user?.logisticRole === "1" &&
       shipment.request_status !== "approver_approved" &&
       shipment.request_status !== "approver_rejected")
-      ||
+    ||
     (shipment.approver_user_mail?.toLowerCase === msLoginUser?.mail?.toLowerCase() &&
       shipment.request_status !== "approver_approved" &&
       shipment.request_status !== "approver_rejected")
@@ -224,8 +232,8 @@ const BasicInformation = ({
     // (user?.logisticRole === "1" &&
     //   shipment?.request_status === "approver_approved" &&
     //   shipment?.label_status !== "created")
-      ;
-   
+    ;
+
   return (
     <section className="space-y-1">
       <div className="flex justify-between items-center">
@@ -257,7 +265,7 @@ const BasicInformation = ({
               </Button>
             )}
 
-            {/* <Button
+          {/* <Button
                 color="secondary"
                 size="sm"
                 variant="bordered"

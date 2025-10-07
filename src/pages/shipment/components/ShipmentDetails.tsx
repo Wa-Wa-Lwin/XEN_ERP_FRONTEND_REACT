@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Spinner, Button, Divider } from "@heroui/react";
+import { Spinner, Button, Divider, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure } from "@heroui/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
 import { useNotification } from "@context/NotificationContext";
@@ -30,6 +30,14 @@ const ShipmentDetails = () => {
   const [editCustomsPurpose, setEditCustomsPurpose] = useState("");
   const [editCustomsTermsOfTrade, setEditCustomsTermsOfTrade] = useState("");
   const [editedParcelItems, setEditedParcelItems] = useState<any[]>([]);
+  const { isOpen: isPickupModalOpen, onOpen: onPickupModalOpen, onClose: onPickupModalClose } = useDisclosure();
+  const [pickupFormData, setPickupFormData] = useState({
+    pick_up_date: "",
+    pick_up_start_time: "",
+    pick_up_end_time: "",
+    pick_up_instructions: ""
+  });
+  const [isUpdatingPickup, setIsUpdatingPickup] = useState(false);
 
   const { user, msLoginUser } = useAuth();
   const { success, error: showNotificationError } = useNotification();
@@ -56,6 +64,14 @@ const ShipmentDetails = () => {
 
       setEditCustomsPurpose(shipmentData.customs_purpose || "");
       setEditCustomsTermsOfTrade(shipmentData.customs_terms_of_trade || "");
+
+      // Set pickup form data from shipment
+      setPickupFormData({
+        pick_up_date: shipmentData.pick_up_date || "",
+        pick_up_start_time: shipmentData.pick_up_start_time || "",
+        pick_up_end_time: shipmentData.pick_up_end_time || "",
+        pick_up_instructions: shipmentData.pick_up_instructions || ""
+      });
 
       const allItems: any[] = [];
       shipmentData.parcels?.forEach((parcel: any, parcelIndex: number) => {
@@ -356,6 +372,77 @@ const ShipmentDetails = () => {
     navigate(`/shipment/duplicate/${shipmentId}`);
   };
 
+  const handleOpenPickupModal = () => {
+    // Reset form data with current shipment values
+    setPickupFormData({
+      pick_up_date: shipment?.pick_up_date || "",
+      pick_up_start_time: shipment?.pick_up_start_time || "",
+      pick_up_end_time: shipment?.pick_up_end_time || "",
+      pick_up_instructions: shipment?.pick_up_instructions || ""
+    });
+    onPickupModalOpen();
+  };
+
+  const handleChangePickupDateTime = async () => {
+    if (!shipmentId || !msLoginUser) return;
+
+    try {
+      setIsUpdatingPickup(true);
+
+      const pickupUrl = import.meta.env.VITE_APP_CHANGE_PICKUP_DATETIME;
+      if (!pickupUrl) {
+        throw new Error("Change Pickup DateTime API URL not configured");
+      }
+
+      const apiUrl = `${pickupUrl}${shipmentId}`;
+
+      const payload = {
+        pick_up_date: pickupFormData.pick_up_date,
+        pick_up_start_time: pickupFormData.pick_up_start_time,
+        pick_up_end_time: pickupFormData.pick_up_end_time,
+        pick_up_instructions: pickupFormData.pick_up_instructions,
+        login_user_id: user?.userID || 0,
+        login_user_name: msLoginUser.name,
+        login_user_mail: msLoginUser.email,
+        send_status: "pickup_datetime_changed"
+      };
+
+      const response = await axios.put(apiUrl, payload, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.status === 200) {
+        const responseData = response.data;
+
+        if (responseData.status === 'success') {
+          success('Pickup date/time updated successfully!', 'Success');
+          onPickupModalClose();
+          await fetchShipment();
+        } else {
+          showNotificationError('Failed to update pickup date/time. Please try again.', 'Update Failed');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating pickup date/time:', error);
+
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.message) {
+          showNotificationError(`Update failed: ${errorData.message}`, 'Update Failed');
+        } else if (errorData.errors) {
+          const errorMessages = Object.values(errorData.errors).flat().join('\n');
+          showNotificationError(`Validation failed:\n${errorMessages}`, 'Validation Error');
+        } else {
+          showNotificationError('Failed to update pickup date/time. Please try again.', 'Update Failed');
+        }
+      } else {
+        showNotificationError('Failed to update pickup date/time. Please check your connection and try again.', 'Connection Error');
+      }
+    } finally {
+      setIsUpdatingPickup(false);
+    }
+  };
+
   const formattedLabelError = shipment?.label_error_msg ? shipment.label_error_msg.replace(/\|/g, '\n|') : "";
   const formattedError = shipment?.error_msg ? shipment.error_msg.replace(/\|/g, '\n|') : "";
   const formattedPickupError = shipment?.pick_up_error_msg ? shipment.pick_up_error_msg.replace(/\|/g, '\n|') : "";
@@ -402,6 +489,7 @@ const ShipmentDetails = () => {
         setShowError={setShowError}
         onCreateLabel={handleCreateLabel}
         onCreatePickup={handleCreatePickup}
+        onChangePickupDateTime={handleOpenPickupModal}
         formattedError={formattedError}
         formattedLabelError={formattedLabelError}
         formattedPickupError={formattedPickupError}
@@ -442,6 +530,55 @@ const ShipmentDetails = () => {
         isUpdatingLogistics={isUpdatingLogistics}
         onLogisticsUpdate={handleLogisticsUpdate}
       />
+
+      {/* Change Pickup DateTime Modal */}
+      <Modal isOpen={isPickupModalOpen} onClose={onPickupModalClose} size="2xl">
+        <ModalContent>
+          <ModalHeader>Change Pickup Date & Time</ModalHeader>
+          <ModalBody>
+            <div className="grid grid-cols-1 gap-4">
+              <Input
+                type="date"
+                label="Pickup Date"
+                value={pickupFormData.pick_up_date}
+                onChange={(e) => setPickupFormData({ ...pickupFormData, pick_up_date: e.target.value })}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  type="time"
+                  label="Start Time"
+                  value={pickupFormData.pick_up_start_time}
+                  onChange={(e) => setPickupFormData({ ...pickupFormData, pick_up_start_time: e.target.value })}
+                />
+                <Input
+                  type="time"
+                  label="End Time"
+                  value={pickupFormData.pick_up_end_time}
+                  onChange={(e) => setPickupFormData({ ...pickupFormData, pick_up_end_time: e.target.value })}
+                />
+              </div>
+              <Input
+                label="Pickup Instructions"
+                placeholder="Enter any special instructions..."
+                value={pickupFormData.pick_up_instructions}
+                onChange={(e) => setPickupFormData({ ...pickupFormData, pick_up_instructions: e.target.value })}
+              />
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onPickupModalClose}>
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onPress={handleChangePickupDateTime}
+              isLoading={isUpdatingPickup}
+            >
+              Update Pickup DateTime
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
