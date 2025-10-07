@@ -179,25 +179,25 @@ export const sectionItems: SidebarItem[] = [
       },
     ]
   },
-  // {
-  //   key: "local",
-  //   to: "/local",
-  //   title: "Local",
-  //   items: [
-  //     {
-  //       key: "address-list",
-  //       to: "/local/address-list",
-  //       icon: "tabler:address-book",
-  //       title: "Address List New",
-  //     },     
-  //     {
-  //       key: "packaging-list",
-  //       to: "/local/packaging-list",
-  //       icon: "arcticons:parcel-tracker",
-  //       title: "Packaging List",
-  //     },     
-  //   ]
-  // },
+  {
+    key: "local",
+    to: "/local",
+    title: "Local",
+    items: [
+      {
+        key: "address-list",
+        to: "/local/address-list",
+        icon: "tabler:address-book",
+        title: "Address List New",
+      },     
+      {
+        key: "packaging-list",
+        to: "/local/packaging-list",
+        icon: "arcticons:parcel-tracker",
+        title: "Packaging List",
+      },     
+    ]
+  },
   // {
   //   key: "rate-calculator",
   //   title: "Rate Calculator",
