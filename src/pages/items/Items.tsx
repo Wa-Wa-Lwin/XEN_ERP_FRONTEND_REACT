@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { 
-  Table, 
-  TableHeader, 
-  TableColumn, 
-  TableBody, 
-  TableRow, 
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
   TableCell,
   Input,
   Card,
@@ -12,7 +12,8 @@ import {
   CardHeader,
   Spinner,
   Chip,
-  Pagination
+  Pagination,
+  Button
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
@@ -28,6 +29,8 @@ interface MaterialData {
   hscode: string;
 }
 
+const STORAGE_KEY = 'materials_cache'
+
 const Items = () => {
   const [materials, setMaterials] = useState<MaterialData[]>([])
   const [filteredMaterials, setFilteredMaterials] = useState<MaterialData[]>([])
@@ -36,22 +39,45 @@ const Items = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 15
 
-  useEffect(() => {
-    const fetchMaterials = async () => {
-      setIsLoading(true)
-      try {
-        const response = await axios.get(import.meta.env.VITE_APP_GET_PARCEL_ITEMS)
-        if (response.data?.ret === 0 && response.data?.data) {
-          setMaterials(response.data.data)
-          setFilteredMaterials(response.data.data)
+  const fetchMaterials = async (forceRefresh = false) => {
+    // Check local storage first if not forcing refresh
+    if (!forceRefresh) {
+      const cached = localStorage.getItem(STORAGE_KEY)
+      if (cached) {
+        try {
+          const cachedData = JSON.parse(cached)
+          setMaterials(cachedData)
+          setFilteredMaterials(cachedData)
+          return
+        } catch (error) {
+          console.error('Failed to parse cached data:', error)
         }
-      } catch (error) {
-        console.error('Failed to fetch materials:', error)
-      } finally {
-        setIsLoading(false)
       }
     }
 
+    // Fetch from API
+    setIsLoading(true)
+    try {
+      const response = await axios.get(import.meta.env.VITE_APP_GET_PARCEL_ITEMS)
+      if (response.data?.ret === 0 && response.data?.data) {
+        const data = response.data.data
+        setMaterials(data)
+        setFilteredMaterials(data)
+        // Store in local storage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      }
+    } catch (error) {
+      console.error('Failed to fetch materials:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleForceRefresh = () => {
+    fetchMaterials(true)
+  }
+
+  useEffect(() => {
     fetchMaterials()
   }, [])
 
@@ -111,9 +137,21 @@ const Items = () => {
                 isClearable
                 onClear={() => setSearchQuery('')}
             />
-            <Chip color="primary" variant="flat">
-              Total: {materials.length}
-            </Chip>
+            <div className="flex items-center gap-2">
+              <Button
+                color="primary"
+                variant="flat"
+                size="sm"
+                onPress={handleForceRefresh}
+                isLoading={isLoading}
+                startContent={!isLoading && <Icon icon="solar:refresh-bold" />}
+              >
+                Refresh
+              </Button>
+              <Chip color="primary" variant="flat">
+                Total: {materials.length}
+              </Chip>
+            </div>
           </div>
         </CardHeader>
 
