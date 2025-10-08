@@ -191,12 +191,12 @@ export const sectionItems: SidebarItem[] = [
         icon: "tabler:address-book",
         title: "Address List New",
       },     
-      {
-        key: "packaging-list",
-        to: "/local/packaging-list",
-        icon: "arcticons:parcel-tracker",
-        title: "Packaging List",
-      },     
+      // {
+      //   key: "packaging-list",
+      //   to: "/local/packaging-list",
+      //   icon: "arcticons:parcel-tracker",
+      //   title: "Packaging List",
+      // },     
     ]
   },
   // {
