@@ -83,7 +83,7 @@ const PackingSlipView = () => {
   // Calculate totals
   const totalPackages = shipment.parcels.length
   const totalNetWeight = shipment.parcels.reduce(
-    (sum, parcel) => sum + parseFloat(parcel.net_weight_value || parcel.weight_value || '0'),
+    (sum, parcel) => sum + parseFloat(parcel.net_weight_value || '0'),
     0
   )
   const totalGrossWeight = shipment.parcels.reduce(
@@ -97,7 +97,7 @@ const PackingSlipView = () => {
   const ITEMS_PER_PAGE = 10
 
   type Parcel = NonNullable<ShipmentGETData['parcels']>[number]
-  type ParcelItem = NonNullable<ShipmentGETData['parcels']>[number]['items'][number]  
+  type ParcelItem = NonNullable<ShipmentGETData['parcels']>[number]['items'][number]
 
   interface ParcelWithMetadata extends Parcel {
     originalParcelIndex: number
@@ -442,7 +442,9 @@ const PackingSlipView = () => {
                                   rowSpan={rowspan}
                                   style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center', verticalAlign: 'top' }}
                                 >
-                                  {parseFloat(parcelData.net_weight_value || parcelData.weight_value || '0').toFixed(2)}
+                                  {parseFloat(parcelData.net_weight_value || '0') < 0.01
+                                    ? "0.01"
+                                    : parseFloat(parcelData.net_weight_value || '0').toFixed(2)}
                                 </td>
                                 <td
                                   rowSpan={rowspan}
@@ -480,7 +482,9 @@ const PackingSlipView = () => {
                             {Math.round(parseFloat(parcelData.depth))}
                           </td>
                           <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
-                            {parseFloat(parcelData.net_weight_value || parcelData.weight_value || '0').toFixed(2)}
+                            {parseFloat(parcelData.net_weight_value || '0') < 0.01
+                              ? "0.01"
+                              : parseFloat(parcelData.net_weight_value || '0').toFixed(2)}
                           </td>
                           <td style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'center' }}>
                             {parseFloat(parcelData.weight_value || '0').toFixed(2)}
