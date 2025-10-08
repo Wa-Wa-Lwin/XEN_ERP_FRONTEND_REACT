@@ -5,17 +5,6 @@ import { Spinner, Button } from '@heroui/react'
 import { useReactToPrint } from 'react-to-print'
 import { Icon } from '@iconify/react'
 
-interface ParcelItem {
-  parcelItemID: string
-  description: string
-  quantity: string
-  price_currency: string
-  price_amount: string
-  sku: string
-  material_code: string
-  hs_code: string | null
-  weight_value: string
-}
 
 interface Parcel {
   parcelID: string

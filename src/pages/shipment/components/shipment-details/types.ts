@@ -116,7 +116,7 @@ export interface ShipmentGETData {
     active: number
     created_user_name: string
   }>
-  parcels?: Array<{
+  parcels: Array<{
     description: string
     box_type_name: string
     width: string
@@ -125,7 +125,7 @@ export interface ShipmentGETData {
     dimension_unit: string
     weight_value: string
     weight_unit: string
-    items?: Array<{
+    items: Array<{
       description: string
       quantity: string      
       price_currency: string

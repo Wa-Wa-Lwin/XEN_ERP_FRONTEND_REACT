@@ -4,60 +4,15 @@ import axios from 'axios'
 import { Spinner, Button } from '@heroui/react'
 import { useReactToPrint } from 'react-to-print'
 import { Icon } from '@iconify/react'
-
-interface ParcelItem {
-  parcelItemID: string
-  description: string
-  quantity: string
-  price_currency: string
-  price_amount: string
-  sku: string
-  material_code: string
-  hs_code: string | null
-  weight_value: string
-}
-
-interface Parcel {
-  parcelID: string
-  items: ParcelItem[]
-}
-
-interface Address {
-  contact_name: string
-  company_name: string
-  street1: string
-  street2?: string
-  city: string
-  state: string
-  postal_code: string
-  country: string
-  phone: string
-  email: string
-}
-
-interface ShipmentData {
-  shipmentRequestID: string
-  shipment_scope_type: string
-  customs_purpose: string
-  customs_terms_of_trade: string
-  invoice_no: string
-  approver_approved_date_time: string
-  topic: string
-  sales_person: string | null
-  po_number: string
-  po_date: string
-  ship_from: Address
-  ship_to: Address
-  parcels: Parcel[]
-}
+import type { ShipmentGETData } from './shipment-details'
 
 interface InvoiceResponse {
-  shipment_request: ShipmentData
+  shipment_request: ShipmentGETData
 }
 
 const InvoiceView = () => {
   const { shipmentId } = useParams<{ shipmentId: string }>()
-  const [shipment, setShipment] = useState<ShipmentData | null>(null)
+  const [shipment, setShipment] = useState<ShipmentGETData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const printRef = useRef<HTMLDivElement>(null)
@@ -129,8 +84,11 @@ const InvoiceView = () => {
     )
   }
 
+  // Type definition for parcel items
+  type ParcelItem = NonNullable<ShipmentGETData['parcels']>[number]['items'][number]
+
   // Process all items from all parcels
-  const allItems = shipment.parcels.flatMap(parcel => parcel.items)
+  const allItems = shipment.parcels?.flatMap(parcel => parcel.items) || []
 
   // Calculate totals
   const subtotal = allItems.reduce((sum, item) =>
@@ -139,18 +97,20 @@ const InvoiceView = () => {
   const taxTotal = 0
   const grandTotal = subtotal + taxTotal
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return ''
     return new Date(dateString).toISOString().split('T')[0]
   }
 
-  const addDays = (dateString: string, days: number) => {
+  const addDays = (dateString?: string, days: number = 0) => {
+    if (!dateString) return ''
     const date = new Date(dateString)
     date.setDate(date.getDate() + days)
     return date.toISOString().split('T')[0]
   }
 
-  const isXenoptics = (companyName: string) => {
-    return companyName?.toLowerCase().startsWith('xenoptics')
+  const isXenoptics = (companyName?: string) => {
+    return companyName?.toLowerCase().startsWith('xenoptics') || false
   }
 
   const isSample = shipment.customs_purpose?.toLowerCase() === 'sample'
@@ -199,9 +159,9 @@ const InvoiceView = () => {
           {shipment.topic === 'For Sales' && (
             <p style={{ fontSize: '12px', margin: '3px 0' }}>
               <strong>Sales Person:</strong>{' '}
-              {isXenoptics(shipment.ship_from.company_name)
+              {isXenoptics(shipment.ship_from?.company_name)
                 ? (shipment.sales_person || 'Nati Neuberger')
-                : shipment.ship_from.contact_name}
+                : shipment.ship_from?.contact_name}
             </p>
           )}
         </div>
@@ -213,7 +173,7 @@ const InvoiceView = () => {
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Shipper / Exporter:
             </div>
-            {isXenoptics(shipment.ship_from.company_name) ? (
+            {isXenoptics(shipment.ship_from?.company_name) ? (
               <>
                 <strong>Xenoptics Limited.</strong><br />
                 195 Moo.3 Bypass Chiangmai-Hangdong<br />
@@ -224,13 +184,15 @@ const InvoiceView = () => {
               </>
             ) : (
               <>
-                <strong>{shipment.ship_from.company_name}</strong><br />
-                {shipment.ship_from.street1}<br />
-                {shipment.ship_from.city}, {shipment.ship_from.state} {shipment.ship_from.postal_code}<br />
-                {shipment.ship_from.country}<br />
-                Tel: {shipment.ship_from.phone}<br />
-                Email: {shipment.ship_from.email}<br />
-                Contact: {shipment.ship_from.contact_name}
+                <strong>{shipment.ship_from?.company_name}</strong><br />
+                {shipment.ship_to?.street1 && <>{shipment.ship_to.street1}<br /></>}
+                {shipment.ship_to?.street2 && <>{shipment.ship_to.street2}<br /></>}
+                {shipment.ship_to?.street3 && <>{shipment.ship_to.street3}<br /></>}
+                {shipment.ship_from?.city}, {shipment.ship_from?.state} {shipment.ship_from?.postal_code}<br />
+                {shipment.ship_from?.country}<br />
+                Tel: {shipment.ship_from?.phone}<br />
+                Email: {shipment.ship_from?.email}<br />
+                Contact: {shipment.ship_from?.contact_name}
               </>
             )}
           </div>
@@ -240,13 +202,15 @@ const InvoiceView = () => {
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Bill To:
             </div>
-            <strong>{shipment.ship_to.company_name}</strong><br />
-            {shipment.ship_to.street1}<br />
-            {shipment.ship_to.city}, {shipment.ship_to.state} {shipment.ship_to.postal_code}<br />
-            {shipment.ship_to.country}<br />
-            Tel: {shipment.ship_to.phone}<br />
-            Email: {shipment.ship_to.email}<br />
-            Contact: {shipment.ship_to.contact_name}
+            <strong>{shipment.ship_to?.company_name}</strong><br />
+            {shipment.ship_to?.street1 && <>{shipment.ship_to.street1}<br /></>}
+            {shipment.ship_to?.street2 && <>{shipment.ship_to.street2}<br /></>}
+            {shipment.ship_to?.street3 && <>{shipment.ship_to.street3}<br /></>}
+            {shipment.ship_to?.city}, {shipment.ship_to?.state} {shipment.ship_to?.postal_code}<br />
+            {shipment.ship_to?.country}<br />
+            Tel: {shipment.ship_to?.phone}<br />
+            Email: {shipment.ship_to?.email}<br />
+            Contact: {shipment.ship_to?.contact_name}
           </div>
 
           {/* Delivery To */}
@@ -254,13 +218,15 @@ const InvoiceView = () => {
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Delivery To:
             </div>
-            <strong>{shipment.ship_to.company_name}</strong><br />
-            {shipment.ship_to.street1}<br />
-            {shipment.ship_to.city}, {shipment.ship_to.state} {shipment.ship_to.postal_code}<br />
-            {shipment.ship_to.country}<br />
-            Tel: {shipment.ship_to.phone}<br />
-            Email: {shipment.ship_to.email}<br />
-            Contact: {shipment.ship_to.contact_name}
+            <strong>{shipment.ship_to?.company_name}</strong><br />
+            {shipment.ship_to?.street1 && <>{shipment.ship_to.street1}<br /></>}
+            {shipment.ship_to?.street2 && <>{shipment.ship_to.street2}<br /></>}
+            {shipment.ship_to?.street3 && <>{shipment.ship_to.street3}<br /></>}
+            {shipment.ship_to?.city}, {shipment.ship_to?.state} {shipment.ship_to?.postal_code}<br />
+            {shipment.ship_to?.country}<br />
+            Tel: {shipment.ship_to?.phone}<br />
+            Email: {shipment.ship_to?.email}<br />
+            Contact: {shipment.ship_to?.contact_name}
           </div>
         </div>
       </div>
