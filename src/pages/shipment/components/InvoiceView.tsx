@@ -1,9 +1,11 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
-import { Spinner, Button } from '@heroui/react'
+import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure } from '@heroui/react'
 import { useReactToPrint } from 'react-to-print'
 import { Icon } from '@iconify/react'
+import { useAuth } from '@context/AuthContext'
+import { useNotification } from '@context/NotificationContext'
 import type { ShipmentGETData } from './shipment-details'
 
 interface InvoiceResponse {
@@ -17,6 +19,17 @@ const InvoiceView = () => {
   const [error, setError] = useState<string | null>(null)
   const printRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const { user, msLoginUser } = useAuth()
+  const { success: showSuccess, error: showError } = useNotification()
+
+  // Invoice data modal state
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [invoiceFormData, setInvoiceFormData] = useState({
+    invoice_no: '',
+    invoice_date: '',
+    invoice_due_date: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     const fetchShipmentData = async () => {
@@ -67,6 +80,59 @@ const InvoiceView = () => {
     contentRef: printRef,
     documentTitle: getDocumentTitle(),
   });
+
+  // Open modal and populate with current invoice data
+  const handleOpenInvoiceModal = () => {
+    if (shipment) {
+      setInvoiceFormData({
+        invoice_no: shipment.invoice_no || '',
+        invoice_date: shipment.invoice_date || '',
+        invoice_due_date: shipment.invoice_due_date || ''
+      })
+      onOpen()
+    }
+  }
+
+  // Handle invoice data change
+  const handleChangeInvoiceData = async () => {
+    if (!shipmentId || !user) {
+      showError('Missing required information')
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+      const apiUrl = import.meta.env.VITE_APP_CHANGE_INVOICE_DATA
+      if (!apiUrl) {
+        throw new Error('API URL not configured')
+      }
+
+      const payload = {
+        invoice_no: invoiceFormData.invoice_no,
+        invoice_date: invoiceFormData.invoice_date,
+        invoice_due_date: invoiceFormData.invoice_due_date,
+        login_user_id: user.userID,
+        login_user_name: msLoginUser?.name,
+        login_user_mail: user.email
+      }
+
+      await axios.put(`${apiUrl}${shipmentId}`, payload)
+
+      showSuccess('Invoice data updated successfully')
+      onClose()
+
+      // Refetch shipment data to reflect changes
+      const response = await axios.get<InvoiceResponse>(
+        `${import.meta.env.VITE_APP_GET_SHIPMENT_REQUEST_BY_ID}${shipmentId}`
+      )
+      setShipment(response.data.shipment_request)
+    } catch (err) {
+      console.error('Error updating invoice data:', err)
+      showError(err instanceof Error ? err.message : 'Failed to update invoice data')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -151,10 +217,11 @@ const InvoiceView = () => {
             Invoice No: <span style={{ fontWeight: 'normal' }}>{shipment.invoice_no}</span>
           </p>
           <p style={{ fontSize: '12px', margin: '3px 0' }}>
-            <strong>Date:</strong> {formatDate(shipment.approver_approved_date_time)}
+            <strong>Date:</strong> {formatDate(shipment.invoice_date)}
           </p>
           <p style={{ fontSize: '12px', margin: '3px 0' }}>
-            <strong>Due Date:</strong> {addDays(shipment.approver_approved_date_time, 30)}
+            <strong>Due Date:</strong> {formatDate(shipment.invoice_due_date)}
+            {/* <strong>Due Date:</strong> {addDays(shipment.approver_approved_date_time, 30)} */}
           </p>
           {shipment.topic === 'For Sales' && (
             <p style={{ fontSize: '12px', margin: '3px 0' }}>
@@ -253,7 +320,7 @@ const InvoiceView = () => {
   return (
     <div>
       {/* Download Button - Not printed */}
-      <div className="no-print flex gap-10 items-center justify-center" style={{ padding: '20px', textAlign: 'center', background: '#f0f0f0' }}>
+      <div className="no-print flex gap-4 items-center justify-center" style={{ padding: '20px', textAlign: 'center', background: '#f0f0f0' }}>
         <Button
           color="default"
           size="md"
@@ -264,6 +331,14 @@ const InvoiceView = () => {
         </Button>
         <h2 className="text-lg font-semibold">Shipment Request ID - {shipment.shipmentRequestID} | Invoice </h2>
         <Button
+          color="secondary"
+          size="md"
+          onPress={handleOpenInvoiceModal}
+          startContent={<Icon icon="solar:document-text-bold" />}
+        >
+          Change Invoice Data
+        </Button>
+        <Button
           color="primary"
           size="md"
           onPress={() => handlePrint()}
@@ -272,6 +347,54 @@ const InvoiceView = () => {
           Download as PDF
         </Button>
       </div>
+
+      {/* Change Invoice Data Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        <ModalContent>
+          <ModalHeader>Change Invoice Data</ModalHeader>
+          <ModalBody>
+            <div className="flex flex-col gap-4">
+              <Input
+                label="Invoice Number"
+                value={invoiceFormData.invoice_no}
+                onValueChange={(value) =>
+                  setInvoiceFormData({ ...invoiceFormData, invoice_no: value })
+                }
+                placeholder="Enter invoice number"
+              />
+              <Input
+                label="Invoice Date"
+                type="date"
+                value={invoiceFormData.invoice_date}
+                onValueChange={(value) =>
+                  setInvoiceFormData({ ...invoiceFormData, invoice_date: value })
+                }
+              />
+              <Input
+                label="Invoice Due Date"
+                type="date"
+                value={invoiceFormData.invoice_due_date}
+                onValueChange={(value) =>
+                  setInvoiceFormData({ ...invoiceFormData, invoice_due_date: value })
+                }
+              />
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="default" variant="light" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onPress={handleChangeInvoiceData}
+              isLoading={isSubmitting}
+              isDisabled={isSubmitting}
+            >
+              Save Changes
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       {/* Printable Content */}
       <div ref={printRef}>
