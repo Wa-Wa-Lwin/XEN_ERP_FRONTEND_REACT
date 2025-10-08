@@ -148,10 +148,16 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
             setValue(`${basePath}.description`, selectedMaterial.description || '', { shouldValidate: true, shouldDirty: true })
             setValue(`${basePath}.sku`, selectedMaterial.sku || '', { shouldValidate: true, shouldDirty: true })
             setValue(`${basePath}.material_code`, selectedMaterial.material_code || '', { shouldValidate: true, shouldDirty: true })
-            setValue(`${basePath}.hs_code`, selectedMaterial.hscode || '', { shouldValidate: true, shouldDirty: true })
+            setValue(`${basePath}.hs_code`, selectedMaterial.hscode || '12345678', { shouldValidate: true, shouldDirty: true })
         }
         setIsModalOpen(false)
         setCurrentItemIndex(null)
+    }
+
+    const handleForceRefresh = () => {
+        fetchParcelItems(true).catch(error => {
+            console.error('Failed to refresh materials:', error)
+        })
     }
 
     return (
@@ -458,7 +464,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                 onClearRates()
                                             }
                                         }}
-                                        min={1}
+                                        min={0}
                                     />
 
                                 </TableCell>
@@ -658,11 +664,23 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                             <ModalHeader className="flex flex-col gap-1">
                                 <div className="flex items-center justify-between">
                                     <h3>Material Lookup</h3>
-                                    {materials.length > 0 && (
-                                        <span className="text-sm text-default-500">
-                                            {materials.length} materials available
-                                        </span>
-                                    )}
+                                    <div className="flex items-center gap-2">                                        
+                                        {materials.length > 0 && (
+                                            <span className="text-sm text-default-500">
+                                                Total: {materials.length}
+                                            </span>
+                                        )}
+                                        <Button
+                                            color="primary"
+                                            variant="flat"
+                                            size="sm"
+                                            onPress={handleForceRefresh}
+                                            isLoading={isLoadingMaterials}
+                                            startContent={!isLoadingMaterials && <Icon icon="solar:refresh-bold" />}
+                                        >
+                                            Refresh
+                                        </Button>
+                                    </div>
                                 </div>
                                 <div className="flex gap-2 items-center mt-2">
                                     <Input

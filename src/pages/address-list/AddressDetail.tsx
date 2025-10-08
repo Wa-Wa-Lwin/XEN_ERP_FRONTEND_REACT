@@ -332,7 +332,7 @@ const AddressListDetail = () => {
         {/* Audit Information Card */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-semibold">Audit Information</h3>
+            <h3 className="text-lg font-semibold">History Information</h3>
           </CardHeader>
           <Divider />
           <CardBody>

@@ -16,7 +16,7 @@ import {
   Button
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import axios from 'axios'
+import { useParcelItemsCache } from '@hooks/useParcelItemsCache'
 
 interface MaterialData {
   material_code: string;
@@ -29,56 +29,26 @@ interface MaterialData {
   hscode: string;
 }
 
-const STORAGE_KEY = 'materials_cache'
-
 const Items = () => {
-  const [materials, setMaterials] = useState<MaterialData[]>([])
+  const { materials, isLoading, fetchParcelItems } = useParcelItemsCache()
   const [filteredMaterials, setFilteredMaterials] = useState<MaterialData[]>([])
-  const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 15
 
-  const fetchMaterials = async (forceRefresh = false) => {
-    // Check local storage first if not forcing refresh
-    if (!forceRefresh) {
-      const cached = localStorage.getItem(STORAGE_KEY)
-      if (cached) {
-        try {
-          const cachedData = JSON.parse(cached)
-          setMaterials(cachedData)
-          setFilteredMaterials(cachedData)
-          return // Exit early, don't fetch from API
-        } catch (error) {
-          console.error('Failed to parse cached data:', error)
-        }
-      }
-    }
-
-    // Fetch from API only if no cache or force refresh
-    setIsLoading(true)
-    try {
-      const response = await axios.get(import.meta.env.VITE_APP_GET_PARCEL_ITEMS)
-      if (response.data?.ret === 0 && response.data?.data) {
-        const data = response.data.data
-        setMaterials(data)
-        setFilteredMaterials(data)
-        // Store in local storage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-      }
-    } catch (error) {
-      console.error('Failed to fetch materials:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleForceRefresh = () => {
-    fetchMaterials(true)
+    fetchParcelItems(true).catch(error => {
+      console.error('Failed to refresh materials:', error)
+    })
   }
 
+  // Load materials on mount
   useEffect(() => {
-    fetchMaterials()
+    if (materials.length === 0) {
+      fetchParcelItems().catch(error => {
+        console.error('Failed to load materials:', error)
+      })
+    }
   }, [])
 
   useEffect(() => {
