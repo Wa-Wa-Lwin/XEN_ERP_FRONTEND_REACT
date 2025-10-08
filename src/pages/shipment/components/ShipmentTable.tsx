@@ -40,10 +40,10 @@ const ShipmentTable = () => {
   // Status options for filtering
   const statusOptions = [
     { value: 'all', label: 'All Status' },
-    { value: 'waiting', label: 'In Progress' },
-    // { value: 'requestor_requested', label: 'Waiting Approver' },
-    // { value: 'send_to_logistic', label: 'Waiting Logistics' },
-    // { value: 'logistic_updated', label: 'Waiting Approver' },
+    { value: 'waiting', label: 'In Progress(All)' },
+    { value: 'requestor_requested', label: 'Waiting Approver' },
+    { value: 'send_to_logistic', label: 'Waiting Logistics' },
+    { value: 'logistic_updated', label: 'Logistic Reviewed' },
     { value: 'approver_approved', label: 'Approved' },
     { value: 'approver_rejected', label: 'Rejected' }
   ]
@@ -115,7 +115,7 @@ const ShipmentTable = () => {
       switch (approvalFilter) {
         case 'waiting':
           filtered = filtered.filter(request =>
-            ['requestor_requested', 'logistic_updated', 'logistic_edited', 'approver_edited'].includes(request.request_status)
+            ['requestor_requested', 'logistic_updated', 'logistic_edited'].includes(request.request_status)
           );
           break;
         case 'all':
