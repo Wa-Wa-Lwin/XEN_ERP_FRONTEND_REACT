@@ -188,6 +188,53 @@ const transformRatesForShipmentForm = (apiRates: ShippingRate[]) => {
 }
 
 /**
+ * Calculate total charge weight from parcels
+ */
+const calculateChargeWeightThailandDomesticRate = (formData: RateCalculationFormData): number => {
+  if (!formData.parcels || formData.parcels.length === 0) {
+    return 1 // Default to 1kg if no parcels
+  }
+
+  return formData.parcels.reduce((total, parcel) => {
+    const weight = parseFloat(String(parcel.weight_value)) || 0
+    return total + weight
+  }, 0) || 1 // Default to 1kg if total is 0
+}
+
+/**
+ * Create manual domestic rate for Thailand
+ * Rate is 62 THB per kg
+ */
+const createThailandDomesticRate = (chargeWeight: number): ShippingRate => {
+  const ratePerKg = 62
+  const totalAmount = ratePerKg * chargeWeight
+
+  return {
+    shipper_account: {
+      id: "fb842bff60154a2f8c84584a74d0cf69",
+      slug: "dhl-global-mail-asia",
+      description: "DHL eCommerce Asia"
+    },
+    service_type: "dhl-global-mail-asia_parcel_domestic",
+    service_name: "Parcel Domestic",
+    pickup_deadline: "",
+    booking_cut_off: "",
+    delivery_date: "",
+    transit_time: undefined,
+    error_message: undefined,
+    info_message: "Rate will be calculated and received in billing cycle.",
+    charge_weight: {
+      value: chargeWeight,
+      unit: "kg"
+    },
+    total_charge: {
+      amount: totalAmount,
+      currency: "THB"
+    }
+  }
+}
+
+/**
  * Calculate shipping rates using the backend API
  * @param formData - The form data containing shipment details
  * @param options - Optional configuration for rate transformation
@@ -205,7 +252,7 @@ export const calculateShippingRates = async (
     preparedata: {
       shipment: shipment,
       pick_up_date: formData.pick_up_date,
-      expected_delivery_date: formData.expected_delivery_date 
+      expected_delivery_date: formData.expected_delivery_date
     },
     type: type
   }
@@ -222,8 +269,25 @@ export const calculateShippingRates = async (
   )
 
   // Extract rates from the API response
-  const apiRates = response.data?.data?.rates || []
+  let apiRates = response.data?.data?.rates || []
   console.log('Rate calculation successful:', apiRates)
+
+  // Add manual domestic rate for Thailand if both countries are THA
+  const isDomesticThailand = formData.ship_from_country === "THA" && formData.ship_to_country === "THA"
+  if (isDomesticThailand) {
+    // Check if DHL eCommerce Asia rate already exists
+    const hasDHLRate = apiRates.some((rate: ShippingRate) =>
+      rate.shipper_account?.slug === "dhl-global-mail-asia"
+    )
+
+    // Only add manual rate if DHL eCommerce Asia is not in the response
+    if (!hasDHLRate) {
+      const chargeWeight = calculateChargeWeightThailandDomesticRate(formData)
+      const manualRate = createThailandDomesticRate(chargeWeight)
+      apiRates = [manualRate, ...apiRates] // Add at the beginning
+      console.log('Added manual Thailand domestic rate:', manualRate)
+    }
+  }
 
   return apiRates
 }
