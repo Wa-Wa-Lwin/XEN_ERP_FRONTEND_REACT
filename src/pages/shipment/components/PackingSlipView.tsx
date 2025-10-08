@@ -4,52 +4,16 @@ import axios from 'axios'
 import { Spinner, Button } from '@heroui/react'
 import { useReactToPrint } from 'react-to-print'
 import { Icon } from '@iconify/react'
+import type { ShipmentGETData } from './shipment-details'
 
-
-interface Parcel {
-  parcelID: string
-  box_type_name: string
-  width: string
-  height: string
-  depth: string
-  dimension_unit: string
-  weight_value: string
-  net_weight_value: string
-  parcel_weight_value: string
-  weight_unit: string
-  items: ParcelItem[]
-}
-
-interface Address {
-  contact_name: string
-  company_name: string
-  street1: string
-  street2?: string
-  city: string
-  state: string
-  postal_code: string
-  country: string
-  phone: string
-  email: string
-}
-
-interface ShipmentData {
-  shipmentRequestID: string
-  shipment_scope_type: string
-  invoice_no: string
-  approver_approved_date_time: string
-  ship_from: Address
-  ship_to: Address
-  parcels: Parcel[]
-}
 
 interface PackingSlipResponse {
-  shipment_request: ShipmentData
+  shipment_request: ShipmentGETData
 }
 
 const PackingSlipView = () => {
   const { shipmentId } = useParams<{ shipmentId: string }>()
-  const [shipment, setShipment] = useState<ShipmentData | null>(null)
+  const [shipment, setShipment] = useState<ShipmentGETData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const printRef = useRef<HTMLDivElement>(null)
@@ -130,6 +94,9 @@ const PackingSlipView = () => {
   // Chunk parcels into pages based on item count (max 10 items per page)
   // This will split parcels across pages if they have more than 10 items
   const ITEMS_PER_PAGE = 10
+
+  type Parcel = NonNullable<ShipmentGETData['parcels']>[number]
+  type ParcelItem = NonNullable<ShipmentGETData['parcels']>[number]['items'][number]  
 
   interface ParcelWithMetadata extends Parcel {
     originalParcelIndex: number

@@ -124,6 +124,8 @@ export interface ShipmentGETData {
     depth: string
     dimension_unit: string
     weight_value: string
+    net_weight_value: string
+    parcel_weight_value: string
     weight_unit: string
     items: Array<{
       description: string
