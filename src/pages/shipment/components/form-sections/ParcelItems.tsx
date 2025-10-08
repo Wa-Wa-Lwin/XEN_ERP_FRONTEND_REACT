@@ -1,32 +1,18 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState } from 'react'
 import { useFieldArray } from 'react-hook-form'
 import {
     Button, Input, Select, SelectItem, Autocomplete, AutocompleteItem,
     Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
     Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
-    Pagination,
     Textarea
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { useParcelItemsCache } from '@hooks/useParcelItemsCache'
 import { DEFAULT_PARCEL_ITEM, WEIGHT_UNITS } from '../../constants/form-defaults'
 import type { ParcelItemsProps } from '../../types/shipment-form.types'
 import { CURRENCIES } from '@pages/shipment/constants/currencies'
 import { ISO_3_COUNTRIES } from '@pages/shipment/constants/iso3countries'
 import { Controller } from 'react-hook-form'
-
-interface MaterialData {
-    material_code: string;
-    description: string;
-    type_name: string;
-    part_revision: string;
-    supplier_name: string;
-    sku: string;
-    part_no: string;
-    hscode: string;
-}
-
-const DEBOUNCE_MS = 200
+import MaterialsTable, { type MaterialData } from '@pages/items/MaterialsTable'
 
 interface ExtendedParcelItemsProps extends ParcelItemsProps {
     sendTo?: string
@@ -69,71 +55,13 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
         name: `parcels.${parcelIndex}.parcel_items`
     })
 
-    const { materials, isLoading: isLoadingMaterials, fetchParcelItems } = useParcelItemsCache()
-
     // Modal + lookup state
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [currentItemIndex, setCurrentItemIndex] = useState<number | null>(null)
 
-    // Search (debounced for large lists)
-    const [searchQuery, setSearchQuery] = useState('')
-    const [debouncedQuery, setDebouncedQuery] = useState('')
-
-    useEffect(() => {
-        const id = setTimeout(() => setDebouncedQuery(searchQuery), DEBOUNCE_MS)
-        return () => clearTimeout(id)
-    }, [searchQuery])
-
-    // Pagination state
-    const [page, setPage] = useState(1)
-    const rowsPerPage = 25
-
-    // Reset to page 1 whenever the dataset or query changes
-    useEffect(() => {
-        setPage(1)
-    }, [debouncedQuery, materials])
-
-    const filteredMaterials: MaterialData[] = useMemo(() => {
-        if (!debouncedQuery.trim()) return materials
-        const q = debouncedQuery.toLowerCase()
-        // single pass filter (fast even for 100k with debounce)
-        return materials.filter(m =>
-            m.material_code?.toLowerCase().includes(q) ||
-            m.description?.toLowerCase().includes(q) ||
-            m.type_name?.toLowerCase().includes(q) ||
-            m.supplier_name?.toLowerCase().includes(q) ||
-            m.sku?.toLowerCase().includes(q) ||
-            m.material_code?.toLowerCase().includes(q) ||
-            m.part_no?.toLowerCase().includes(q) ||
-            m.hscode?.toLowerCase().includes(q)
-        )
-    }, [materials, debouncedQuery])
-
-    const totalItems = filteredMaterials.length
-    const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage))
-    const clampedPage = Math.min(page, totalPages)
-
-    // compute current page slice
-    const paginatedMaterials = useMemo(() => {
-        const start = (clampedPage - 1) * rowsPerPage
-        const end = start + rowsPerPage
-        return filteredMaterials.slice(start, end)
-    }, [filteredMaterials, clampedPage, rowsPerPage])
-
-    const showingFrom = totalItems === 0 ? 0 : (clampedPage - 1) * rowsPerPage + 1
-    const showingTo = Math.min(clampedPage * rowsPerPage, totalItems)
-
     const openMaterialModal = (itemIndex: number) => {
         setCurrentItemIndex(itemIndex)
-        setSearchQuery('')
         setIsModalOpen(true)
-
-        // If materials are not loaded, fetch them after opening modal
-        if (materials.length === 0) {
-            fetchParcelItems().catch(error => {
-                console.error('Failed to load materials:', error)
-            })
-        }
     }
 
     const handleMaterialSelect = (selectedMaterial: MaterialData) => {
@@ -152,12 +80,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
         }
         setIsModalOpen(false)
         setCurrentItemIndex(null)
-    }
-
-    const handleForceRefresh = () => {
-        fetchParcelItems(true).catch(error => {
-            console.error('Failed to refresh materials:', error)
-        })
     }
 
     return (
@@ -221,19 +143,16 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                     <div className="flex items-center gap-1">
                                         <Button
                                             type="button"
-                                            color={materials.length > 0 ? "success" : "primary"}
+                                            color="primary"
                                             size="sm"
                                             variant="light"
                                             isIconOnly
                                             onPress={() => openMaterialModal(itemIndex)}
-                                            isLoading={isLoadingMaterials}
                                         >
-                                            {!isLoadingMaterials && (
-                                                <Icon
-                                                    icon={materials.length > 0 ? "solar:database-bold" : "material-symbols:search"}
-                                                    width={16}
-                                                />
-                                            )}
+                                            <Icon
+                                                icon="solar:database-bold"
+                                                width={16}
+                                            />
                                         </Button>
 
                                         <Controller
@@ -662,103 +581,19 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                     {(onClose) => (
                         <>
                             <ModalHeader className="flex flex-col gap-1">
-                                <div className="flex items-center justify-between">
-                                    <h3>Material Lookup</h3>
-                                    <div className="flex items-center gap-2">                                        
-                                        {materials.length > 0 && (
-                                            <span className="text-sm text-default-500">
-                                                Total: {materials.length}
-                                            </span>
-                                        )}
-                                        <Button
-                                            color="primary"
-                                            variant="flat"
-                                            size="sm"
-                                            onPress={handleForceRefresh}
-                                            isLoading={isLoadingMaterials}
-                                            startContent={!isLoadingMaterials && <Icon icon="solar:refresh-bold" />}
-                                        >
-                                            Refresh
-                                        </Button>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2 items-center mt-2">
-                                    <Input
-                                        placeholder="Search materials by any field..."
-                                        value={searchQuery}
-                                        onValueChange={setSearchQuery}
-                                        startContent={<Icon icon="solar:magnifer-bold" />}
-                                        variant="flat"
-                                        isDisabled={isLoadingMaterials}
-                                        className="flex-1"
-                                    />
-                                </div>
+                                <h3>Material Lookup</h3>
                             </ModalHeader>
-                            <ModalBody>
-                                <div>
-                                    <Table
-                                        aria-label="Materials table"
-                                        classNames={{
-                                            wrapper: "min-h-[400px]",
-                                        }}
-                                    >
-                                        <TableHeader>
-                                            <TableColumn>MATERIAL CODE</TableColumn>
-                                            <TableColumn>DESCRIPTION</TableColumn>
-                                            <TableColumn>TYPE</TableColumn>
-                                            <TableColumn>SKU</TableColumn>
-                                            <TableColumn>PART NO</TableColumn>
-                                            <TableColumn>HS CODE</TableColumn>
-                                            <TableColumn>SUPPLIER</TableColumn>
-                                        </TableHeader>
-                                        <TableBody
-                                            emptyContent={
-                                                isLoadingMaterials
-                                                    ? "Loading materials from cache..."
-                                                    : materials.length === 0
-                                                        ? "No materials available. Please wait while we load the data."
-                                                        : "No materials found matching your search."
-                                            }
-                                            isLoading={isLoadingMaterials && materials.length === 0}
-                                            loadingContent="Loading materials from server..."
-                                        >
-                                            {paginatedMaterials.map((material) => (
-                                                <TableRow
-                                                    key={material.material_code}
-                                                    className="cursor-pointer hover:bg-default-100 transition-colors"
-                                                    onClick={() => handleMaterialSelect(material)}
-                                                >
-                                                    <TableCell>
-                                                        <span className="font-medium text-primary">
-                                                            {material.material_code}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell><span className="text-sm">{material.description}</span></TableCell>
-                                                    <TableCell><span className="text-sm">{material.type_name}</span></TableCell>
-                                                    <TableCell><span className="text-sm">{material.sku}</span></TableCell>
-                                                    <TableCell><span className="text-sm">{material.part_no}</span></TableCell>
-                                                    <TableCell><span className="text-sm">{material.hscode}</span></TableCell>
-                                                    <TableCell><span className="text-sm">{material.supplier_name}</span></TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-
-                                {/* Pagination footer inside body */}
-                                <div className="flex items-center justify-between pt-3">
-                                    <span className="text-sm text-default-500">
-                                        Showing {showingFrom.toLocaleString()}–{showingTo.toLocaleString()} of {totalItems.toLocaleString()}
-                                    </span>
-                                    <Pagination
-                                        page={clampedPage}
-                                        total={totalPages}
-                                        onChange={setPage}
-                                        showControls
-                                        size="sm"
-                                        className="ml-auto"
-                                    />
-                                </div>
+                            <ModalBody className="p-4">
+                                <MaterialsTable
+                                    onMaterialSelect={handleMaterialSelect}
+                                    showRefreshButton={true}
+                                    showSearch={true}
+                                    showRevisionColumn={false}
+                                    showNumberColumn={false}
+                                    itemsPerPage={25}
+                                    minHeight="400px"
+                                    selectable={true}
+                                />
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="danger" variant="light" onPress={onClose}>
