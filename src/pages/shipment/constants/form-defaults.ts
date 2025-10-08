@@ -98,14 +98,14 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
       description: '',
       quantity: 1,
       price_currency: 'THB',
-      price_amount: 0,
+      price_amount: 1,
       item_id: '',
-      origin_country: '',
+      origin_country: 'THA',
       weight_unit: 'kg',
       weight_value: 0,
       sku: '',
       material_code:'',
-      hs_code: '',
+      hs_code: '12345678',
       return_reason: ''
     }]
   }],
@@ -167,13 +167,13 @@ export const DEFAULT_PARCEL = {
     description: '',
     quantity: 1,
     price_currency: 'THB',
-    price_amount: 0,
+    price_amount: 1,
     item_id: '',
-    origin_country: '',
+    origin_country: 'THA',
     weight_unit: 'kg',
     weight_value: 0,
     sku: '',
-    hs_code: '',
+    hs_code: '12345678',
     return_reason: ''
   }]
 }
@@ -182,25 +182,16 @@ export const DEFAULT_PARCEL_ITEM = {
   description: '',
   quantity: 1,
   price_currency: 'THB',
-  price_amount: 0,
+  price_amount: 1,
   item_id: '',
-  origin_country: '',
+  origin_country: 'THA',
   weight_unit: 'kg',
   weight_value: 0,
   sku: '',
-  hs_code: '',
+  hs_code: '12345678',
   return_reason: ''
 }
 
-// export const TOPIC_OPTIONS = [
-//   { key: 'for_sales', value: 'for_sales', label: 'For Sales' },
-//   { key: 'sample', value: 'sample', label: 'Sample' },
-//   { key: 'demonstration', value: 'demonstration', label: 'Demonstration' },
-//   { key: 'consign_parts', value: 'consign_parts', label: 'Consign Parts' },
-//   { key: 'return', value: 'return', label: 'Return' },
-//   { key: 'replacement', value: 'replacement', label: 'Replacement' },
-//   { key: 'others', value: 'others', label: 'Others' }
-// ]
 export const TOPIC_OPTIONS = [
   { key: 'For Sales', value: 'For Sales', label: 'For Sales' },
   { key: 'Sample', value: 'Sample', label: 'Sample' },
@@ -217,11 +208,6 @@ export const SERVICE_OPTIONS = [
   { key: 'Urgent', value: 'Urgent', label: 'Urgent' },
 ]
 
-// export const SALES_PERSON_OPTIONS = [
-//   { key: 'personA', value: 'Person A', label: 'Person A' },
-//   { key: 'personB', value: 'Person B', label: 'Person B' },
-//   { key: 'personC', value: 'Person C', label: 'Person C' }
-// ]
 export const SALES_PERSON_OPTIONS = [
   { key: 'Solomon Sokolovsky', value: 'Solomon Sokolovsky', label: 'Solomon Sokolovsky' },
   { key: 'Nati Neuberger', value: 'Nati Neuberger', label: 'Nati Neuberger' },

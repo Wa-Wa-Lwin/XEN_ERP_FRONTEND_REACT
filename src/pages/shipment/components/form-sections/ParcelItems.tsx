@@ -434,7 +434,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             `parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`,
                                             {
                                                 required: isItemFieldRequired('price_amount') ? 'Price is required' : false,
-                                                min: { value: 0, message: 'Price must be at least 0' },
+                                                min: { value: 1, message: 'Price must be at least 1' },
                                                 pattern: {
                                                     value: /^\d*\.?\d*$/,
                                                     message: 'Only numbers and decimals allowed',
@@ -443,7 +443,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         )}
                                         type="number"
                                         step="0.01"
-                                        placeholder="1"
                                         variant="flat"
                                         size="sm"
                                         errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
@@ -454,8 +453,6 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         }}
                                         color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`) ? "warning" : "default"}
                                         onChange={() => {
-                                            // register automatically handles the field change
-                                            // Clear rates since price changed
                                             if (onClearRates) {
                                                 console.log('Item price changed, clearing rates...')
                                                 onClearRates()
