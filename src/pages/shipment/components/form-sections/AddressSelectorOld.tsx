@@ -27,7 +27,7 @@ import { Icon } from '@iconify/react'
 import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import type { AddressData } from '@pages/addresses/types'
-import { COUNTRIES } from '@pages/shipment/constants/countries'
+import { ISO_3_COUNTRIES } from '@pages/shipment/constants/iso3countries'
 import { ISO2_TO_ISO3 } from '@pages/shipment/constants/change-iso-country-codes'
 
 
@@ -326,7 +326,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               <Autocomplete
                 isRequired={isFieldRequired('country')}
                 {...field}
-                defaultItems={COUNTRIES}
+                defaultItems={ISO_3_COUNTRIES}
                 label={
                   <span>
                     Country

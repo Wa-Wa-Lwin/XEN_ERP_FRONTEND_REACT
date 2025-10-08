@@ -1,4 +1,4 @@
-export const COUNTRIES = [
+export const ISO_3_COUNTRIES = [
   { key: "AFG", value: "AFG - Afghanistan" },
   { key: "ALB", value: "ALB - Albania" },
   { key: "DZA", value: "DZA - Algeria" },

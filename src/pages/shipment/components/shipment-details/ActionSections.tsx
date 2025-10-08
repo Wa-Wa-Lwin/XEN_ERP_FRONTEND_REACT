@@ -2,7 +2,7 @@ import { Button, Textarea, Select, SelectItem, Input, Autocomplete, Autocomplete
 import { Icon } from '@iconify/react';
 import type { ShipmentGETData } from './types';
 import { INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults';
-import { COUNTRIES } from '../../constants/countries';
+import { ISO_3_COUNTRIES } from '../../constants/iso3countries';
 
 interface ActionSectionsProps {
   shipment: ShipmentGETData;
@@ -196,7 +196,7 @@ const ActionSections = ({
                         allowsCustomValue
                         isRequired
                       >
-                        {COUNTRIES.map((country) => (
+                        {ISO_3_COUNTRIES.map((country) => (
                           <AutocompleteItem key={country.key} value={country.key}>
                             {country.value}
                           </AutocompleteItem>

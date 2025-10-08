@@ -24,8 +24,7 @@ import { Icon } from '@iconify/react'
 import axios from 'axios'
 import type { AddressData } from './types'
 import { useAuth } from '@context/AuthContext'
-import { COUNTRIES } from '@pages/shipment/constants/countries'
-
+import { ISO_2_COUNTRIES } from '@pages/shipment/constants/iso2countries'
 
 const AddressListDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -464,7 +463,7 @@ const AddressListDetail = () => {
                   }
                 }}
               >
-                {COUNTRIES.map((country) => (
+                {ISO_2_COUNTRIES.map((country) => (
                   <AutocompleteItem key={country.key} value={country.key}>
                     {country.value}
                   </AutocompleteItem>

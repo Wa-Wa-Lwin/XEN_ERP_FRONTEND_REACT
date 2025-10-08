@@ -12,7 +12,7 @@ import { useParcelItemsCache } from '@hooks/useParcelItemsCache'
 import { DEFAULT_PARCEL_ITEM, WEIGHT_UNITS } from '../../constants/form-defaults'
 import type { ParcelItemsProps } from '../../types/shipment-form.types'
 import { CURRENCIES } from '@pages/shipment/constants/currencies'
-import { COUNTRIES } from '@pages/shipment/constants/countries'
+import { ISO_3_COUNTRIES } from '@pages/shipment/constants/iso3countries'
 import { Controller } from 'react-hook-form'
 
 interface MaterialData {
@@ -393,7 +393,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             <Autocomplete
                                                 isRequired={isItemFieldRequired('origin_country')}
                                                 {...field}
-                                                defaultItems={COUNTRIES}
+                                                defaultItems={ISO_3_COUNTRIES}
                                                 placeholder="country"
                                                 variant="flat"
                                                 size="sm"
