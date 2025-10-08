@@ -71,12 +71,13 @@ const PackingSlipView = () => {
     )
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return ''
     return new Date(dateString).toISOString().split('T')[0]
   }
 
-  const isXenoptics = (companyName: string) => {
-    return companyName?.toLowerCase().startsWith('xenoptics')
+  const isXenoptics = (companyName?: string) => {
+    return companyName?.toLowerCase().startsWith('xenoptics') || false
   }
 
   // Calculate totals
@@ -204,7 +205,7 @@ const PackingSlipView = () => {
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Shipper / Exporter:
             </div>
-            {shipment.shipment_scope_type === 'export' || isXenoptics(shipment.ship_from.company_name) ? (
+            {shipment.shipment_scope_type === 'export' || isXenoptics(shipment.ship_from?.company_name) ? (
               <>
                 <strong>Xenoptics Limited.</strong><br />
                 195 Moo.3 Bypass Chiangmai-Hangdong<br />
@@ -215,13 +216,15 @@ const PackingSlipView = () => {
               </>
             ) : (
               <>
-                <strong>{shipment.ship_from.company_name}</strong><br />
-                {shipment.ship_from.street1}<br />
-                {shipment.ship_from.city}, {shipment.ship_from.state} {shipment.ship_from.postal_code}<br />
-                {shipment.ship_from.country}<br />
-                Tel: {shipment.ship_from.phone}<br />
-                Email: {shipment.ship_from.email}<br />
-                Contact: {shipment.ship_from.contact_name}
+                <strong>{shipment.ship_from?.company_name}</strong><br />
+                {shipment.ship_from?.street1 && <>{shipment.ship_from.street1}<br /></>}
+                {shipment.ship_from?.street2 && <>{shipment.ship_from.street2}<br /></>}
+                {shipment.ship_from?.street3 && <>{shipment.ship_from.street3}<br /></>}
+                {shipment.ship_from?.city}, {shipment.ship_from?.state} {shipment.ship_from?.postal_code}<br />
+                {shipment.ship_from?.country}<br />
+                Tel: {shipment.ship_from?.phone}<br />
+                Email: {shipment.ship_from?.email}<br />
+                Contact: {shipment.ship_from?.contact_name}
               </>
             )}
           </div>
@@ -231,13 +234,15 @@ const PackingSlipView = () => {
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Bill To:
             </div>
-            <strong>{shipment.ship_to.company_name}</strong><br />
-            {shipment.ship_to.street1}<br />
-            {shipment.ship_to.city}, {shipment.ship_to.state} {shipment.ship_to.postal_code}<br />
-            {shipment.ship_to.country}<br />
-            Tel: {shipment.ship_to.phone}<br />
-            Email: {shipment.ship_to.email}<br />
-            Contact: {shipment.ship_to.contact_name}
+            <strong>{shipment.ship_to?.company_name}</strong><br />
+            {shipment.ship_to?.street1 && <>{shipment.ship_to.street1}<br /></>}
+            {shipment.ship_to?.street2 && <>{shipment.ship_to.street2}<br /></>}
+            {shipment.ship_to?.street3 && <>{shipment.ship_to.street3}<br /></>}
+            {shipment.ship_to?.city}, {shipment.ship_to?.state} {shipment.ship_to?.postal_code}<br />
+            {shipment.ship_to?.country}<br />
+            Tel: {shipment.ship_to?.phone}<br />
+            Email: {shipment.ship_to?.email}<br />
+            Contact: {shipment.ship_to?.contact_name}
           </div>
 
           {/* Delivery To */}
@@ -245,13 +250,15 @@ const PackingSlipView = () => {
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Delivery To:
             </div>
-            <strong>{shipment.ship_to.company_name}</strong><br />
-            {shipment.ship_to.street1}<br />
-            {shipment.ship_to.city}, {shipment.ship_to.state} {shipment.ship_to.postal_code}<br />
-            {shipment.ship_to.country}<br />
-            Tel: {shipment.ship_to.phone}<br />
-            Email: {shipment.ship_to.email}<br />
-            Contact: {shipment.ship_to.contact_name}
+            <strong>{shipment.ship_to?.company_name}</strong><br />
+            {shipment.ship_to?.street1 && <>{shipment.ship_to.street1}<br /></>}
+            {shipment.ship_to?.street2 && <>{shipment.ship_to.street2}<br /></>}
+            {shipment.ship_to?.street3 && <>{shipment.ship_to.street3}<br /></>}
+            {shipment.ship_to?.city}, {shipment.ship_to?.state} {shipment.ship_to?.postal_code}<br />
+            {shipment.ship_to?.country}<br />
+            Tel: {shipment.ship_to?.phone}<br />
+            Email: {shipment.ship_to?.email}<br />
+            Contact: {shipment.ship_to?.contact_name}
           </div>
         </div>
       </div>
