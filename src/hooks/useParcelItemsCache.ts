@@ -23,7 +23,32 @@ const CACHE_DURATION = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
 const CACHE_VERSION = '1.0'
 
 export const useParcelItemsCache = () => {
-  const [materials, setMaterials] = useState<MaterialData[]>([])
+  const [materials, setMaterials] = useState<MaterialData[]>(() => {
+    // Initialize with cached data synchronously
+    try {
+      const cached = localStorage.getItem(CACHE_KEY)
+      if (!cached) return []
+
+      const parsedCache: ParcelItemsCache = JSON.parse(cached)
+
+      // Check if cache is valid
+      if (parsedCache.version === CACHE_VERSION) {
+        const now = Date.now()
+        const isExpired = (now - parsedCache.timestamp) > CACHE_DURATION
+        if (!isExpired) {
+          return parsedCache.data
+        }
+      }
+
+      // Cache is invalid, remove it
+      localStorage.removeItem(CACHE_KEY)
+      return []
+    } catch (error) {
+      console.error('Failed to load parcel items from cache:', error)
+      localStorage.removeItem(CACHE_KEY)
+      return []
+    }
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [lastFetch, setLastFetch] = useState<Date | null>(null)
 
@@ -134,11 +159,18 @@ export const useParcelItemsCache = () => {
     }
   }
 
-  // Load from cache on mount
+  // Set lastFetch timestamp if cache was loaded
   useEffect(() => {
-    const cachedData = loadFromCache()
-    if (cachedData.length > 0) {
-      setMaterials(cachedData)
+    if (materials.length > 0) {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY)
+        if (cached) {
+          const parsedCache: ParcelItemsCache = JSON.parse(cached)
+          setLastFetch(new Date(parsedCache.timestamp))
+        }
+      } catch {
+        // Ignore errors
+      }
     }
   }, [])
 
