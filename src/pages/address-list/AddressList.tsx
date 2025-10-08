@@ -169,13 +169,15 @@ const AddressList = () => {
     if (searchQuery.trim() === '') {
       setFilteredAddresses(addresses)
     } else {
+      const q = searchQuery.toLowerCase()
       const filtered = addresses.filter(address =>
-        address.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.CardCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.contact_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.phone?.toLowerCase().includes(searchQuery.toLowerCase())
+        (address.company_name || '').toLowerCase().includes(q) ||
+        (address.CardCode || '').toLowerCase().includes(q) ||
+        (address.city || '').toLowerCase().includes(q) ||
+        (address.state || '').toLowerCase().includes(q) ||
+        (address.contact_name || '').toLowerCase().includes(q) ||
+        (address.phone || '').toLowerCase().includes(q) ||
+        (address.country || '').toLowerCase().includes(q)
       )
       setFilteredAddresses(filtered)
     }
@@ -330,6 +332,7 @@ const AddressList = () => {
                   <TableColumn className="w-16">No.</TableColumn>
                   <TableColumn className="w-32">CODE</TableColumn>
                   <TableColumn className="min-w-[250px]">COMPANY</TableColumn>
+                  <TableColumn className="w-24">COUNTRY</TableColumn>
                   <TableColumn className="w-24">TYPE</TableColumn>
                   <TableColumn className="min-w-[300px]">ADDRESS</TableColumn>
                   <TableColumn className="w-32">CONTACT</TableColumn>
@@ -357,6 +360,13 @@ const AddressList = () => {
                         <div className="flex flex-col">
                           <span className="font-medium text-sm">
                             {address.company_name}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">
+                            {address.country}
                           </span>
                         </div>
                       </TableCell>

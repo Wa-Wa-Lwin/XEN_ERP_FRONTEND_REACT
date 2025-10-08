@@ -152,19 +152,20 @@ export const sectionItems: SidebarItem[] = [
       },      
     ],
   },
-  {
-    key: "addresses",
-    title: "Addresses",
-    to: "/addresses",
-    items: [
-      {
-        key: "addresses",
-        to: "/addresses",
-        icon: "tabler:address-book",
-        title: "Addresses",
-      },      
-    ],
-  },
+  // old addresses
+  // {
+  //   key: "addresses",
+  //   title: "Addresses",
+  //   to: "/addresses",
+  //   items: [
+  //     {
+  //       key: "addresses",
+  //       to: "/addresses",
+  //       icon: "tabler:address-book",
+  //       title: "Addresses",
+  //     },      
+  //   ],
+  // },
   {
     key: "testing-data",
     to: "/testing-data",

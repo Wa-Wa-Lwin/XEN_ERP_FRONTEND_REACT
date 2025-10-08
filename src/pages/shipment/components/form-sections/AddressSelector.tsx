@@ -26,7 +26,7 @@ import {
 import { Icon } from '@iconify/react'
 import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
-import type { AddressData } from '@pages/addresses/types'
+import type { AddressData } from '@pages/address-list/types'
 import { COUNTRIES } from '@pages/shipment/constants/countries'
 import { ISO2_TO_ISO3 } from '@pages/shipment/constants/change-iso-country-codes'
 
@@ -57,21 +57,25 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
     setIsLoading(true)
     try {
       // Try to get from cache first
-      const cachedData = localStorage.getItem('addresses_data')
+      const cachedData = localStorage.getItem('address_list_cache')
       if (cachedData) {
         const parsedData = JSON.parse(cachedData)
-        setAddresses(parsedData)
-        setFilteredAddresses(parsedData)
+        // Get all_active_address_list from the cache
+        const activeAddresses = parsedData.all_active_address_list || []
+        setAddresses(activeAddresses)
+        setFilteredAddresses(activeAddresses)
         setIsLoading(false)
         return
       }
 
       // Fetch from API if no cache
-      const response = await axios.get(import.meta.env.VITE_APP_GET_ADDRESSES)
-      if (response.data?.ret === 0 && response.data?.data) {
-        setAddresses(response.data.data)
-        setFilteredAddresses(response.data.data)
-        localStorage.setItem('addresses_data', JSON.stringify(response.data.data))
+      const response = await axios.get(import.meta.env.VITE_APP_NEW_ADDRESS_LIST_GET_ALL)
+      if (response.data) {
+        const activeAddresses = response.data.all_active_address_list || []
+        setAddresses(activeAddresses)
+        setFilteredAddresses(activeAddresses)
+        // Cache the entire response
+        localStorage.setItem('address_list_cache', JSON.stringify(response.data))
       }
     } catch (error) {
       console.error('Failed to fetch addresses:', error)
@@ -84,11 +88,30 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
     if (searchQuery.trim() === '') {
       setFilteredAddresses(addresses)
     } else {
+      const q = searchQuery.toLowerCase()
       const filtered = addresses.filter(address =>
-        address.CardCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.CardName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.City?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        address.Country?.toLowerCase().includes(searchQuery.toLowerCase())
+        (address.CardCode ?? "").toLowerCase().includes(q) ||
+        (address.company_name ?? "").toLowerCase().includes(q) ||
+        (address.CardType ?? "").toLowerCase().includes(q) ||
+        (address.full_address ?? "").toLowerCase().includes(q) ||
+        (address.street1 ?? "").toLowerCase().includes(q) ||
+        (address.street2 ?? "").toLowerCase().includes(q) ||
+        (address.street3 ?? "").toLowerCase().includes(q) ||
+        (address.city ?? "").toLowerCase().includes(q) ||
+        (address.state ?? "").toLowerCase().includes(q) ||
+        (address.country ?? "").toLowerCase().includes(q) ||
+        (address.postal_code ?? "").toLowerCase().includes(q) ||
+        (address.contact_name ?? "").toLowerCase().includes(q) ||
+        (address.contact ?? "").toLowerCase().includes(q) ||
+        (address.phone ?? "").toLowerCase().includes(q) ||
+        (address.email ?? "").toLowerCase().includes(q) ||
+        (address.tax_id ?? "").toLowerCase().includes(q) ||
+        (address.phone1 ?? "").toLowerCase().includes(q) ||
+        (address.website ?? "").toLowerCase().includes(q) ||
+        (address.active ?? "").toLowerCase().includes(q) ||
+        (address.created_user_name ?? "").toLowerCase().includes(q) ||
+        (address.updated_user_name ?? "").toLowerCase().includes(q) ||
+        (address.eori_number ?? "").toLowerCase().includes(q)
       )
       setFilteredAddresses(filtered)
     }
@@ -120,40 +143,42 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
       // Use setValue with shouldDirty and shouldTouch options to trigger form updates
       const setValueOptions = { shouldDirty: true, shouldTouch: true, shouldValidate: true }
 
-      // Convert 2-letter to 3-letter (fallback to original if not found)
-      const rawCountry = address.Country || address.MailCountr || "";
-      const countryISO3 = ISO2_TO_ISO3[rawCountry.toUpperCase()] || rawCountry;
+      // Convert ISO2 country code to ISO3 if needed
+      const countryCode = address.country || '';
+      const countryISO3 = countryCode.length === 2
+        ? (ISO2_TO_ISO3[countryCode.toUpperCase()] || countryCode)
+        : countryCode;
 
-      console.log('Country conversion:', { rawCountry, countryISO3 });
-
-      // Map address data with fallbacks
+      // Map address data using new AddressData fields
       const fieldMappings = [
-        { field: `${prefix}_company_name`, value: address.CardName || '' },
-        { field: `${prefix}_contact_name`, value: address.CntctPrsn || '' },
-        { field: `${prefix}_phone`, value: (() => {
-          let phone = address.Phone1 || '';
-          // Remove all non-digit and non-plus characters
-          phone = phone.replace(/[^0-9+]/g, "");
-          // Ensure only one + and it's at the beginning
-          const plusCount = (phone.match(/\+/g) || []).length;
-          if (plusCount > 1) {
-            const firstPlusIndex = phone.indexOf('+');
-            phone = phone.charAt(firstPlusIndex) + phone.replace(/\+/g, '');
-          }
-          if (phone.includes('+') && !phone.startsWith('+')) {
-            phone = '+' + phone.replace(/\+/g, '');
-          }
-          return phone.slice(0, 15);
-        })() },
-        { field: `${prefix}_email`, value: address.E_Mail || '' },
-        // { field: `${prefix}_country`, value: address.Country || address.MailCountr || '' },
-        { field: `${prefix}_country`, value: countryISO3 },   // use ISO3
-        { field: `${prefix}_city`, value: address.City || address.MailCity || '' },
-        { field: `${prefix}_state`, value: address.County || address.MailCounty || '' },
-        { field: `${prefix}_postal_code`, value: address.ZipCode || address.MailZipCod || '' },        
-        { field: `${prefix}_street1`, value: address.MailStrNo || address.BillToDef || address.ShipToDef || '' },
-        { field: `${prefix}_street2`, value: address.Address || address.MailAddres || '' },
-        { field: `${prefix}_tax_id`, value: address.TaxID || '' }
+        { field: `${prefix}_company_name`, value: address.company_name || '' },
+        { field: `${prefix}_contact_name`, value: address.contact_name || '' },
+        {
+          field: `${prefix}_phone`, value: (() => {
+            let phone = address.phone || '';
+            // Remove all non-digit and non-plus characters
+            phone = phone.replace(/[^0-9+]/g, "");
+            // Ensure only one + and it's at the beginning
+            const plusCount = (phone.match(/\+/g) || []).length;
+            if (plusCount > 1) {
+              const firstPlusIndex = phone.indexOf('+');
+              phone = phone.charAt(firstPlusIndex) + phone.replace(/\+/g, '');
+            }
+            if (phone.includes('+') && !phone.startsWith('+')) {
+              phone = '+' + phone.replace(/\+/g, '');
+            }
+            return phone.slice(0, 15);
+          })()
+        },
+        { field: `${prefix}_email`, value: address.email || '' },
+        { field: `${prefix}_country`, value: countryISO3 },
+        { field: `${prefix}_city`, value: address.city || '' },
+        { field: `${prefix}_state`, value: address.state || '' },
+        { field: `${prefix}_postal_code`, value: address.postal_code || '' },
+        { field: `${prefix}_street1`, value: address.street1 || '' },
+        { field: `${prefix}_street2`, value: address.street2 || '' },
+        { field: `${prefix}_street3`, value: address.street3 || '' },
+        { field: `${prefix}_tax_id`, value: address.tax_id || '' }
       ]
 
       // Set values using setValue
@@ -163,7 +188,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
       })
 
       // Show success message and force form re-render
-      setSelectedAddressInfo(`Address "${address.CardName}" selected and auto-filled`)
+      setSelectedAddressInfo(`Address "${address.company_name}" selected and auto-filled`)
       setTimeout(() => {
         setFormKey(prev => prev + 1)
         // Clear success message after a delay
@@ -189,20 +214,21 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
 
   const formatAddress = (address: AddressData) => {
     const parts = [
-      address.StreetNo || address.MailStrNo,
-      address.Address || address.MailAddres,
-      address.Building || address.MailBuildi,
-      address.City || address.MailCity,
-      address.ZipCode || address.MailZipCod
+      address.street1,
+      address.street2,
+      address.street3,
+      address.city,
+      address.state,
+      address.postal_code
     ].filter(Boolean)
 
-    return parts.length > 0 ? parts.join(', ') : 'No address available'
+    return parts.length > 0 ? parts.join(', ') : address.full_address || 'No address available'
   }
 
   return (
     <>
       <Card shadow="none">
-      {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
         <CardHeader className="px-0 pt-0 pb-1 flex-row items-center gap-6 justify-left">
           <h2 className="text-lg font-semibold">{title}</h2>
           <div className="flex gap-2">
@@ -229,246 +255,256 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             </div>
           )}
           <div key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Textarea
-            {...register(`${prefix}_company_name`, { required: isFieldRequired('company_name') ? 'Company name is required' : false })}
-            isRequired={isFieldRequired('company_name')}
-            label={<span>Company Name</span>}
-            placeholder="Enter company name"
-            errorMessage={errors[`${prefix}_company_name`]?.message}
-            isInvalid={!!errors[`${prefix}_company_name`]}
-            key={`${formKey}_${prefix}_company_name`}
-            color={!watch(`${prefix}_company_name`) ? "warning" : "default"}
-            maxLength={255}
-            onChange={() => {
-              // Clear rates since company name changed
-              if (onClearRates) {
-                console.log(`${prefix} company name changed, clearing rates...`)
-                onClearRates()
-              }
-            }}
-            minRows={1}
-          />
-          <Textarea
-            {...register(`${prefix}_contact_name`, { required: isFieldRequired('contact_name') ? 'Contact name is required' : false })}
-            isRequired={isFieldRequired('contact_name')}
-            label={<span>Contact Name</span>}
-            placeholder="Enter contact name"
-            errorMessage={errors[`${prefix}_contact_name`]?.message}
-            isInvalid={!!errors[`${prefix}_contact_name`]}
-            key={`${formKey}_${prefix}_contact_name`}
-            color={!watch(`${prefix}_contact_name`) ? "warning" : "default"}
-            maxLength={100}
-            minRows={1}
-          />
-
-          <Textarea
-            {...register(`${prefix}_phone`, { required: isFieldRequired('phone') ? 'Phone is required' : false })}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-              // Allow only numbers and one + at the beginning
-              let sanitized = e.target.value;
-
-              // Remove all non-digit and non-plus characters
-              sanitized = sanitized.replace(/[^0-9+]/g, "");
-
-              // Ensure only one + and it's at the beginning
-              const plusCount = (sanitized.match(/\+/g) || []).length;
-              if (plusCount > 1) {
-                // Keep only the first +
-                const firstPlusIndex = sanitized.indexOf('+');
-                sanitized = sanitized.charAt(firstPlusIndex) + sanitized.replace(/\+/g, '');
-              }
-
-              // If + exists, it must be at the beginning
-              if (sanitized.includes('+') && !sanitized.startsWith('+')) {
-                sanitized = '+' + sanitized.replace(/\+/g, '');
-              }
-
-              // Limit to 15 characters
-              sanitized = sanitized.slice(0, 15);
-
-              setValue(`${prefix}_phone`, sanitized, { shouldValidate: true });
-            }}
-            isRequired={isFieldRequired("phone")}
-            label={<span>Phone</span>}
-            placeholder="Enter phone (e.g. +1234567890)"
-            errorMessage={errors[`${prefix}_phone`]?.message}
-            isInvalid={!!errors[`${prefix}_phone`]}
-            key={`${formKey}_${prefix}_phone`}
-            color={!watch(`${prefix}_phone`) ? "warning" : "default"}
-            minRows={1}
-          />
-
-          <Textarea
-            {...register(`${prefix}_email`, {
-              required: isFieldRequired('email') ? 'Email is required' : false,
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Please enter a valid email address"
-              }
-            })}
-            isRequired={isFieldRequired('email')}
-            type="email"
-            label={<span>Email</span>}
-            placeholder="Enter email"
-            errorMessage={errors[`${prefix}_email`]?.message}
-            isInvalid={!!errors[`${prefix}_email`]}
-            key={`${formKey}_${prefix}_email`}
-            color={!watch(`${prefix}_email`) ? "warning" : "default"}
-            maxLength={255}
-            minRows={1}
-          />
-          <Controller
-            key={`${formKey}_${prefix}_country`}
-            name={`${prefix}_country`}
-            control={control}
-            rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
-            render={({ field }) => (
-              <Autocomplete
-                isRequired={isFieldRequired('country')}
-                {...field}
-                defaultItems={COUNTRIES}
-                label={
-                  <span>
-                    Country
-                  </span>
+            <Textarea
+              {...register(`${prefix}_company_name`, { required: isFieldRequired('company_name') ? 'Company name is required' : false })}
+              isRequired={isFieldRequired('company_name')}
+              label={<span>Company Name</span>}
+              placeholder="Enter company name"
+              errorMessage={errors[`${prefix}_company_name`]?.message}
+              isInvalid={!!errors[`${prefix}_company_name`]}
+              key={`${formKey}_${prefix}_company_name`}
+              color={!watch(`${prefix}_company_name`) ? "warning" : "default"}
+              maxLength={255}
+              onChange={() => {
+                // Clear rates since company name changed
+                if (onClearRates) {
+                  console.log(`${prefix} company name changed, clearing rates...`)
+                  onClearRates()
                 }
-                placeholder="Search or select a country"
-                errorMessage={errors[`${prefix}_country`]?.message}
-                isInvalid={!!errors[`${prefix}_country`]}
-                selectedKey={field.value || null}
-                onSelectionChange={(key) => {
-                  console.log('Country selected:', key);
-                  if (key) {
-                    field.onChange(key)
-                    // Clear rates since country changed
-                    if (onClearRates) {
-                      console.log(`${prefix} country changed, clearing rates...`)
-                      onClearRates()
-                    }
+              }}
+              minRows={1}
+            />
+            <Textarea
+              {...register(`${prefix}_contact_name`, { required: isFieldRequired('contact_name') ? 'Contact name is required' : false })}
+              isRequired={isFieldRequired('contact_name')}
+              label={<span>Contact Name</span>}
+              placeholder="Enter contact name"
+              errorMessage={errors[`${prefix}_contact_name`]?.message}
+              isInvalid={!!errors[`${prefix}_contact_name`]}
+              key={`${formKey}_${prefix}_contact_name`}
+              color={!watch(`${prefix}_contact_name`) ? "warning" : "default"}
+              maxLength={100}
+              minRows={1}
+            />
+
+            <Textarea
+              {...register(`${prefix}_phone`, { required: isFieldRequired('phone') ? 'Phone is required' : false })}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                // Allow only numbers and one + at the beginning
+                let sanitized = e.target.value;
+
+                // Remove all non-digit and non-plus characters
+                sanitized = sanitized.replace(/[^0-9+]/g, "");
+
+                // Ensure only one + and it's at the beginning
+                const plusCount = (sanitized.match(/\+/g) || []).length;
+                if (plusCount > 1) {
+                  // Keep only the first +
+                  const firstPlusIndex = sanitized.indexOf('+');
+                  sanitized = sanitized.charAt(firstPlusIndex) + sanitized.replace(/\+/g, '');
+                }
+
+                // If + exists, it must be at the beginning
+                if (sanitized.includes('+') && !sanitized.startsWith('+')) {
+                  sanitized = '+' + sanitized.replace(/\+/g, '');
+                }
+
+                // Limit to 15 characters
+                sanitized = sanitized.slice(0, 15);
+
+                setValue(`${prefix}_phone`, sanitized, { shouldValidate: true });
+              }}
+              isRequired={isFieldRequired("phone")}
+              label={<span>Phone</span>}
+              placeholder="Enter phone (e.g. +1234567890)"
+              errorMessage={errors[`${prefix}_phone`]?.message}
+              isInvalid={!!errors[`${prefix}_phone`]}
+              key={`${formKey}_${prefix}_phone`}
+              color={!watch(`${prefix}_phone`) ? "warning" : "default"}
+              minRows={1}
+            />
+
+            <Textarea
+              {...register(`${prefix}_email`, {
+                required: isFieldRequired('email') ? 'Email is required' : false,
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Please enter a valid email address"
+                }
+              })}
+              isRequired={isFieldRequired('email')}
+              type="email"
+              label={<span>Email</span>}
+              placeholder="Enter email"
+              errorMessage={errors[`${prefix}_email`]?.message}
+              isInvalid={!!errors[`${prefix}_email`]}
+              key={`${formKey}_${prefix}_email`}
+              color={!watch(`${prefix}_email`) ? "warning" : "default"}
+              maxLength={255}
+              minRows={1}
+            />
+            <Controller
+              key={`${formKey}_${prefix}_country`}
+              name={`${prefix}_country`}
+              control={control}
+              rules={{ required: isFieldRequired('country') ? 'Country is required' : false }}
+              render={({ field }) => (
+                <Autocomplete
+                  isRequired={isFieldRequired('country')}
+                  {...field}
+                  defaultItems={COUNTRIES}
+                  label={
+                    <span>
+                      Country
+                    </span>
                   }
-                }}
-                listboxProps={{
-                  emptyContent: "No countries found."
-                }}
-                scrollShadowProps={{
-                  isEnabled: false
-                }}
-                classNames={{
-                  listbox: "max-h-60"
-                }}
-                color={!watch(`${prefix}_country`) ? "warning" : "default"}
-              >
-                {(item) => (
-                  <AutocompleteItem key={item.key} value={item.value}>
-                    {item.value}
-                  </AutocompleteItem>
-                )}
-              </Autocomplete>
-            )}
-          />
+                  placeholder="Search or select a country"
+                  errorMessage={errors[`${prefix}_country`]?.message}
+                  isInvalid={!!errors[`${prefix}_country`]}
+                  selectedKey={field.value || null}
+                  onSelectionChange={(key) => {
+                    console.log('Country selected:', key);
+                    if (key) {
+                      field.onChange(key)
+                      // Clear rates since country changed
+                      if (onClearRates) {
+                        console.log(`${prefix} country changed, clearing rates...`)
+                        onClearRates()
+                      }
+                    }
+                  }}
+                  listboxProps={{
+                    emptyContent: "No countries found."
+                  }}
+                  scrollShadowProps={{
+                    isEnabled: false
+                  }}
+                  classNames={{
+                    listbox: "max-h-60"
+                  }}
+                  color={!watch(`${prefix}_country`) ? "warning" : "default"}
+                >
+                  {(item) => (
+                    <AutocompleteItem key={item.key} value={item.value}>
+                      {item.value}
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
+              )}
+            />
 
-          <Textarea
-            {...register(`${prefix}_city`, { required: isFieldRequired('city') ? 'City is required' : false })}
-            isRequired={isFieldRequired('city')}
-            label={<span>City</span>}
-            placeholder="Enter city"
-            errorMessage={errors[`${prefix}_city`]?.message}
-            isInvalid={!!errors[`${prefix}_city`]}
-            key={`${formKey}_${prefix}_city`}
-            color={!watch(`${prefix}_city`) ? "warning" : "default"}
-            maxLength={100}
-            onChange={() => {
-              // Clear rates since city changed
-              if (onClearRates) {
-                console.log(`${prefix} city changed, clearing rates...`)
-                onClearRates()
-              }
-            }}
-            minRows={1}
-          />
+            <Textarea
+              {...register(`${prefix}_city`, { required: isFieldRequired('city') ? 'City is required' : false })}
+              isRequired={isFieldRequired('city')}
+              label={<span>City</span>}
+              placeholder="Enter city"
+              errorMessage={errors[`${prefix}_city`]?.message}
+              isInvalid={!!errors[`${prefix}_city`]}
+              key={`${formKey}_${prefix}_city`}
+              color={!watch(`${prefix}_city`) ? "warning" : "default"}
+              maxLength={100}
+              onChange={() => {
+                // Clear rates since city changed
+                if (onClearRates) {
+                  console.log(`${prefix} city changed, clearing rates...`)
+                  onClearRates()
+                }
+              }}
+              minRows={1}
+            />
 
-          <Textarea
-            {...register(`${prefix}_state`, { required: isFieldRequired('state') ? 'State is required' : false })}
-            isRequired={isFieldRequired('state')}
-            label={<span>State</span>}
-            placeholder="Enter state"
-            errorMessage={errors[`${prefix}_state`]?.message}
-            isInvalid={!!errors[`${prefix}_state`]}
-            key={`${formKey}_${prefix}_state`}
-            color={!watch(`${prefix}_state`) ? "warning" : "default"}
-            maxLength={100}
-            onChange={() => {
-              // Clear rates since state changed
-              if (onClearRates) {
-                console.log(`${prefix} state changed, clearing rates...`)
-                onClearRates()
-              }
-            }}
-            minRows={1}
-          />
+            <Textarea
+              {...register(`${prefix}_state`, { required: isFieldRequired('state') ? 'State is required' : false })}
+              isRequired={isFieldRequired('state')}
+              label={<span>State</span>}
+              placeholder="Enter state"
+              errorMessage={errors[`${prefix}_state`]?.message}
+              isInvalid={!!errors[`${prefix}_state`]}
+              key={`${formKey}_${prefix}_state`}
+              color={!watch(`${prefix}_state`) ? "warning" : "default"}
+              maxLength={100}
+              onChange={() => {
+                // Clear rates since state changed
+                if (onClearRates) {
+                  console.log(`${prefix} state changed, clearing rates...`)
+                  onClearRates()
+                }
+              }}
+              minRows={1}
+            />
 
-          <Textarea
-            {...register(`${prefix}_postal_code`, { required: isFieldRequired('postal_code') ? 'Postal code is required' : false })}
-            isRequired={isFieldRequired('postal_code')}
-            label={<span>Postal Code</span>}
-            placeholder="Enter postal code"
-            errorMessage={errors[`${prefix}_postal_code`]?.message}
-            isInvalid={!!errors[`${prefix}_postal_code`]}
-            key={`${formKey}_${prefix}_postal_code`}
-            color={!watch(`${prefix}_postal_code`) ? "warning" : "default"}
-            maxLength={255}
-            onChange={() => {
-              // Clear rates since postal code changed
-              if (onClearRates) {
-                console.log(`${prefix} postal code changed, clearing rates...`)
-                onClearRates()
-              }
-            }}
-            minRows={1}
-          />
+            <Textarea
+              {...register(`${prefix}_postal_code`, { required: isFieldRequired('postal_code') ? 'Postal code is required' : false })}
+              isRequired={isFieldRequired('postal_code')}
+              label={<span>Postal Code</span>}
+              placeholder="Enter postal code"
+              errorMessage={errors[`${prefix}_postal_code`]?.message}
+              isInvalid={!!errors[`${prefix}_postal_code`]}
+              key={`${formKey}_${prefix}_postal_code`}
+              color={!watch(`${prefix}_postal_code`) ? "warning" : "default"}
+              maxLength={255}
+              onChange={() => {
+                // Clear rates since postal code changed
+                if (onClearRates) {
+                  console.log(`${prefix} postal code changed, clearing rates...`)
+                  onClearRates()
+                }
+              }}
+              minRows={1}
+            />
 
-          <Textarea
-            isRequired={isFieldRequired('street1')}
-             {...register(`${prefix}_street1`, { required: isFieldRequired('street1') ? "Street 1 is required" : false })}
-            label={<span>Street 1</span>}
-            placeholder="Enter street line 1"
-            errorMessage={errors[`${prefix}_street1`]?.message}
-            isInvalid={!!errors[`${prefix}_street1`]}
-            minRows={1}
-            key={`${formKey}_${prefix}_street1`}
-            color={!watch(`${prefix}_street1`) ? "warning" : "default"}
-            maxLength={45}
-            onChange={() => {
-              // Clear rates since street address changed
-              if (onClearRates) {
-                console.log(`${prefix} street address changed, clearing rates...`)
-                onClearRates()
-              }
-            }}
-          />
+            <Textarea
+              isRequired={isFieldRequired('street1')}
+              {...register(`${prefix}_street1`, { required: isFieldRequired('street1') ? "Street 1 is required" : false })}
+              label={<span>Street 1</span>}
+              placeholder="Enter street line 1"
+              errorMessage={errors[`${prefix}_street1`]?.message}
+              isInvalid={!!errors[`${prefix}_street1`]}
+              minRows={1}
+              key={`${formKey}_${prefix}_street1`}
+              color={!watch(`${prefix}_street1`) ? "warning" : "default"}
+              maxLength={45}
+              onChange={() => {
+                // Clear rates since street address changed
+                if (onClearRates) {
+                  console.log(`${prefix} street address changed, clearing rates...`)
+                  onClearRates()
+                }
+              }}
+            />
 
-          <Textarea
-            {...register(`${prefix}_street2`)}
-            label="Street 2"
-            placeholder="Enter street line 2"
-            errorMessage={errors[`${prefix}_street2`]?.message}
-            isInvalid={!!errors[`${prefix}_street2`]}
-            minRows={1}
-            key={`${formKey}_${prefix}_street2`}
-            maxLength={45}
+            <Textarea
+              {...register(`${prefix}_street2`)}
+              label="Street 2"
+              placeholder="Enter street line 2"
+              errorMessage={errors[`${prefix}_street2`]?.message}
+              isInvalid={!!errors[`${prefix}_street2`]}
+              minRows={1}
+              key={`${formKey}_${prefix}_street2`}
+              maxLength={45}
             // color={!watch(`${prefix}_street2`) ? "warning" : "default"}
-          />
-          <Textarea
-            {...register(`${prefix}_tax_id`)}
-            label="Tax ID"
-            placeholder="Enter tax ID"
-            errorMessage={errors[`${prefix}_tax_id`]?.message}
-            isInvalid={!!errors[`${prefix}_tax_id`]}
-            key={`${formKey}_${prefix}_tax_id`}
-            maxLength={255}
-            // color={!watch(`${prefix}_tax_id`) ? "warning" : "default"}
-            minRows={1}
-          />
+            />
+            <Textarea
+              {...register(`${prefix}_street3`)}
+              label="Street 3"
+              placeholder="Enter street line 3"
+              errorMessage={errors[`${prefix}_street3`]?.message}
+              isInvalid={!!errors[`${prefix}_street3`]}
+              minRows={1}
+              key={`${formKey}_${prefix}_street3`}
+              maxLength={45}
+            />
+            <Textarea
+              {...register(`${prefix}_tax_id`)}
+              label="Tax ID"
+              placeholder="Enter tax ID"
+              errorMessage={errors[`${prefix}_tax_id`]?.message}
+              isInvalid={!!errors[`${prefix}_tax_id`]}
+              key={`${formKey}_${prefix}_tax_id`}
+              maxLength={255}
+              // color={!watch(`${prefix}_tax_id`) ? "warning" : "default"}
+              minRows={1}
+            />
           </div>
         </CardBody>
       </Card>
@@ -533,13 +569,13 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                         const typeInfo = getCardTypeInfo(address.CardType)
                         return (
                           <TableRow
-                            key={address.CardCode}
+                            key={address.addressID}
                             className="cursor-pointer hover:bg-default-100 transition-colors"
                             onClick={() => handleAddressSelect(address)}
                           >
                             <TableCell>
                               <span className="font-medium text-primary text-sm">
-                                {address.CardCode}
+                                {address.CardCode || 'N/A'}
                               </span>
                             </TableCell>
                             <TableCell>
@@ -555,7 +591,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                             <TableCell>
                               <div className="flex flex-col max-w-[200px]">
                                 <span className="text-sm font-medium text-foreground truncate">
-                                  {address.CardName}
+                                  {address.company_name}
                                 </span>
                               </div>
                             </TableCell>
@@ -566,24 +602,24 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                                 </span>
                               </div>
                             </TableCell>
-                             <TableCell>
-                              {address.Country || address.MailCountr || 'N/A'}
+                            <TableCell>
+                              {address.country || 'N/A'}
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col">
-                                {address.CntctPrsn && (
+                                {address.contact_name && (
                                   <span className="text-tiny text-default-500 truncate">
-                                    Contact: {address.CntctPrsn}
+                                    Contact: {address.contact_name}
                                   </span>
                                 )}
-                                {address.E_Mail && (
+                                {address.email && (
                                   <span className="text-tiny text-default-600 truncate max-w-[150px]">
-                                    {address.E_Mail}
+                                    {address.email}
                                   </span>
                                 )}
-                                {address.Phone1 && (
+                                {address.phone && (
                                   <span className="text-tiny text-default-600">
-                                    {address.Phone1}
+                                    {address.phone}
                                   </span>
                                 )}
                               </div>
