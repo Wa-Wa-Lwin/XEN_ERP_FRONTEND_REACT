@@ -53,6 +53,17 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
   const [formKey, setFormKey] = useState(0)
   const [selectedAddressInfo, setSelectedAddressInfo] = useState<string | null>(null)
 
+  // European countries that require EORI number
+  const europeanCountries = [
+    'AUT', 'BEL', 'BGR', 'HRV', 'CYP', 'CZE', 'DNK', 'EST', 'FIN', 'FRA',
+    'DEU', 'GRC', 'HUN', 'IRL', 'ITA', 'LVA', 'LTU', 'LUX', 'MLT', 'NLD',
+    'POL', 'PRT', 'ROU', 'SVK', 'SVN', 'ESP', 'SWE', 'GBR', 'NOR', 'ISL', 'CHE'
+  ]
+
+  // Check if selected country is European
+  const selectedCountry = watch(`${prefix}_country`)
+  const isEuropeanCountry = selectedCountry && europeanCountries.includes(selectedCountry)
+
   const fetchAddresses = async () => {
     setIsLoading(true)
     try {
@@ -505,16 +516,18 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               maxLength={255}
               minRows={1}
             />
-            <Textarea
-              {...register(`${prefix}_eori_number`)}
-              label="EORI Number"
-              placeholder="EORI Number"
-              errorMessage={errors[`${prefix}_eori_number`]?.message}
-              isInvalid={!!errors[`${prefix}_eori_number`]}
-              key={`${formKey}_${prefix}_eori_number`}
-              maxLength={255}
-              minRows={1}
-            />
+            {isEuropeanCountry && (
+              <Textarea
+                {...register(`${prefix}_eori_number`)}
+                label="EORI Number"
+                placeholder="EORI Number"
+                errorMessage={errors[`${prefix}_eori_number`]?.message}
+                isInvalid={!!errors[`${prefix}_eori_number`]}
+                key={`${formKey}_${prefix}_eori_number`}
+                maxLength={255}
+                minRows={1}
+              />
+            )}
           </div>
         </CardBody>
       </Card>
