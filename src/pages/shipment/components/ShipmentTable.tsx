@@ -666,7 +666,7 @@ const ShipmentTable = () => {
                         <p className="text-xs">
                           Pickup:{' '}
                           <span className={request.pick_up_created_status === 'created_success' ? 'text-green-500' : 'text-red-500'}>
-                            {request.pick_up_created_status === 'created_success' ? 'created' : 'failed'}
+                            {request.pick_up_created_status === 'created_success' ? 'created' : request.pick_up_created_status === 'created_failed' ? 'failed' : '-'}
                           </span>
                         </p>
                       </div>
