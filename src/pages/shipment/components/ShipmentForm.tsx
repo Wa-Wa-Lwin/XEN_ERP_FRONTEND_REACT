@@ -449,7 +449,7 @@ const ShipmentForm = () => {
             </div>
             {/* Addresses Section  */}
             <div className="flex grid grid-cols-1 md:grid-cols-2 gap-3 py-1 px-4">
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-start">
                 <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" forceRefresh={refreshCounter} watch={watch} onClearRates={handleClearRates} />
                 <Button
                   size="sm"
@@ -500,7 +500,7 @@ const ShipmentForm = () => {
                 </Button>
               </div>
 
-              <div className="">
+              <div className="items-start">
                 <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" forceRefresh={refreshCounter} watch={watch} onClearRates={handleClearRates} />
               </div>
             </div>
