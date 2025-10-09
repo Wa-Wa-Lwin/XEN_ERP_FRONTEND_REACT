@@ -6,6 +6,15 @@ interface AddressInformationProps {
 }
 
 const AddressInformation = ({ shipment }: AddressInformationProps) => {
+  // European countries that require EORI number
+  const europeanCountries = [
+    'AUT', 'BEL', 'BGR', 'HRV', 'CYP', 'CZE', 'DNK', 'EST', 'FIN', 'FRA',
+    'DEU', 'GRC', 'HUN', 'IRL', 'ITA', 'LVA', 'LTU', 'LUX', 'MLT', 'NLD',
+    'POL', 'PRT', 'ROU', 'SVK', 'SVN', 'ESP', 'SWE', 'GBR', 'NOR', 'ISL', 'CHE'
+  ];
+
+  const isShipFromEuropean = shipment.ship_from?.country && europeanCountries.includes(shipment.ship_from.country);
+  const isShipToEuropean = shipment.ship_to?.country && europeanCountries.includes(shipment.ship_to.country);
   return (
     <section className="grid grid-cols-1 md:grid-cols-2  gap-6">
       <div className="space-y-0 border-r border-gray-200 pr-4">
@@ -19,7 +28,7 @@ const AddressInformation = ({ shipment }: AddressInformationProps) => {
         <DetailRow label="State"  value={shipment.ship_from?.state} />
         <DetailRow label="Postal Code"  value={shipment.ship_from?.postal_code} />
         <DetailRow label="TaxID"  value={shipment.ship_from?.tax_id} />
-        <DetailRow label="EORI Number"  value={shipment.ship_from?.eori_number} />
+        {isShipFromEuropean && <DetailRow label="EORI Number"  value={shipment.ship_from?.eori_number} />}
         <DetailRow label="Contact" value={`${shipment.ship_from?.contact_name} (${shipment.ship_from?.phone})`} />
         <DetailRow label="Email" value={shipment.ship_from?.email} />
       </div>
@@ -34,7 +43,7 @@ const AddressInformation = ({ shipment }: AddressInformationProps) => {
         <DetailRow label="State"  value={shipment.ship_to?.state} />
         <DetailRow label="Postal Code"  value={shipment.ship_to?.postal_code} />
         <DetailRow label="TaxID"  value={shipment.ship_to?.tax_id} />
-        <DetailRow label="EORI Number"  value={shipment.ship_to?.eori_number} />
+        {isShipToEuropean && <DetailRow label="EORI Number"  value={shipment.ship_to?.eori_number} />}
         <DetailRow label="Contact" value={`${shipment.ship_to?.contact_name} (${shipment.ship_to?.phone})`} />
         <DetailRow label="Email" value={shipment.ship_to?.email} />
       </div>
