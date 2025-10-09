@@ -53,6 +53,7 @@ export interface ShipmentGETData {
   ship_from_phone: string
   ship_from_email: string
   ship_from_tax_id: string
+  ship_from_eori_number: string
 
   // Flattened ship_to properties
   ship_to_contact_name: string
@@ -67,6 +68,7 @@ export interface ShipmentGETData {
   ship_to_phone: string
   ship_to_email: string
   ship_to_tax_id: string
+  ship_to_eori_number: string
 
   ship_from?: {
   contact_name: string
@@ -81,6 +83,7 @@ export interface ShipmentGETData {
   phone: string
   email: string
   tax_id: string
+  eori_number: string
   }
 
   ship_to?: {
@@ -96,6 +99,7 @@ export interface ShipmentGETData {
   phone: string
   email: string
   tax_id: string
+  eori_number: string
   }  
 
   // Pickup info

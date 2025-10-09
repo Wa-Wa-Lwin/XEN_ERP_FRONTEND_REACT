@@ -71,6 +71,7 @@ export const useShipmentDuplicateForm = () => {
           ship_from_phone: shipmentData.ship_from_phone || shipmentData.ship_from?.phone || '',
           ship_from_email: shipmentData.ship_from_email || shipmentData.ship_from?.email || '',
           ship_from_tax_id: shipmentData.ship_from_tax_id || shipmentData.ship_from?.tax_id || '',
+          ship_from_eori_number: shipmentData.ship_from_eori_number || shipmentData.ship_from?.eori_number || '',
 
           // Ship To Address
           ship_to_company_name: shipmentData.ship_to_company_name || shipmentData.ship_to?.company_name || '',
@@ -85,6 +86,7 @@ export const useShipmentDuplicateForm = () => {
           ship_to_phone: shipmentData.ship_to_phone || shipmentData.ship_to?.phone || '',
           ship_to_email: shipmentData.ship_to_email || shipmentData.ship_to?.email || '',
           ship_to_tax_id: shipmentData.ship_to_tax_id || shipmentData.ship_to?.tax_id || '',
+          ship_to_eori_number: shipmentData.ship_to_eori_number || shipmentData.ship_to?.eori_number || '',
 
           // Pickup Information
           pick_up_status: shipmentData.pick_up_status || true,

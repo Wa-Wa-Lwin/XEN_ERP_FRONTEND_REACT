@@ -115,6 +115,7 @@ const ShipmentEditForm = () => {
           ship_from_phone: shipmentData.ship_from_phone || shipmentData.ship_from?.phone || '',
           ship_from_email: shipmentData.ship_from_email || shipmentData.ship_from?.email || '',
           ship_from_tax_id: shipmentData.ship_from_tax_id || shipmentData.ship_from?.tax_id || '',
+          ship_from_eori_number: shipmentData.ship_from_eori_number || shipmentData.ship_from?.eori_number || '',
 
           // Ship To Address
           ship_to_contact_name: shipmentData.ship_to_contact_name || shipmentData.ship_to?.contact_name || '',
@@ -129,6 +130,7 @@ const ShipmentEditForm = () => {
           ship_to_phone: shipmentData.ship_to_phone || shipmentData.ship_to?.phone || '',
           ship_to_email: shipmentData.ship_to_email || shipmentData.ship_to?.email || '',
           ship_to_tax_id: shipmentData.ship_to_tax_id || shipmentData.ship_to?.tax_id || '',
+          ship_to_eori_number: shipmentData.ship_to_eori_number || shipmentData.ship_to?.eori_number || '',
 
           // Parcels data
           parcels: shipmentData.parcels?.map((parcel: any) => ({
@@ -715,6 +717,7 @@ const ShipmentEditForm = () => {
                       ship_from_street1: currentValues.ship_to_street1,
                       ship_from_street2: currentValues.ship_to_street2,
                       ship_from_tax_id: currentValues.ship_to_tax_id,
+                      ship_from_eori_number: currentValues.ship_to_eori_number,
 
                       ship_to_company_name: currentValues.ship_from_company_name,
                       ship_to_contact_name: currentValues.ship_from_contact_name,
@@ -727,6 +730,7 @@ const ShipmentEditForm = () => {
                       ship_to_street1: currentValues.ship_from_street1,
                       ship_to_street2: currentValues.ship_from_street2,
                       ship_to_tax_id: currentValues.ship_from_tax_id,
+                      ship_to_eori_number: currentValues.ship_from_eori_number,
                     };
 
                     reset(swappedValues);

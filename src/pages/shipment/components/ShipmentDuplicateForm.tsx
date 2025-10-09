@@ -458,6 +458,7 @@ const ShipmentDuplicateForm = () => {
                       ship_from_street1: currentValues.ship_to_street1,
                       ship_from_street2: currentValues.ship_to_street2,
                       ship_from_tax_id: currentValues.ship_to_tax_id,
+                      ship_from_eori_number: currentValues.ship_to_eori_number, 
 
                       ship_to_company_name: currentValues.ship_from_company_name,
                       ship_to_contact_name: currentValues.ship_from_contact_name,
@@ -470,6 +471,7 @@ const ShipmentDuplicateForm = () => {
                       ship_to_street1: currentValues.ship_from_street1,
                       ship_to_street2: currentValues.ship_from_street2,
                       ship_to_tax_id: currentValues.ship_from_tax_id,
+                      ship_to_eori_number: currentValues.ship_from_eori_number,
                     };
 
                     reset(swappedValues); // replaces all at once

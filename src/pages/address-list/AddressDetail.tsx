@@ -22,14 +22,14 @@ import {
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
-import type { AddressData } from './types'
+import type { AddressListData } from './types'
 import { useAuth } from '@context/AuthContext'
 import { ISO_2_COUNTRIES } from '@pages/shipment/constants/iso2countries'
 
 const AddressListDetail = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [address, setAddress] = useState<AddressData | null>(null)
+  const [address, setAddress] = useState<AddressListData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isInactiveOrActiveOpen, onOpen: onInactiveOrActiveOpen, onClose: onInactiveOrActiveClose } = useDisclosure()

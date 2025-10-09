@@ -26,7 +26,7 @@ import {
 import { Icon } from '@iconify/react'
 import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
-import type { AddressData } from '@pages/address-list/types'
+import type { AddressListData } from '@pages/address-list/types'
 import { ISO_3_COUNTRIES } from '@pages/shipment/constants/iso3countries'
 import { ISO2_TO_ISO3 } from '@pages/shipment/constants/change-iso-country-codes'
 
@@ -46,8 +46,8 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
     return true;
   };
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [addresses, setAddresses] = useState<AddressData[]>([])
-  const [filteredAddresses, setFilteredAddresses] = useState<AddressData[]>([])
+  const [addresses, setAddresses] = useState<AddressListData[]>([])
+  const [filteredAddresses, setFilteredAddresses] = useState<AddressListData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [formKey, setFormKey] = useState(0)
@@ -131,7 +131,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
     setIsModalOpen(true)
   }
 
-  const handleAddressSelect = (address: AddressData) => {
+  const handleAddressSelect = (address: AddressListData) => {
     // Clear rates since address is changing
     if (onClearRates) {
       console.log(`${prefix} address selected, clearing rates...`)
@@ -178,7 +178,8 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
         { field: `${prefix}_street1`, value: address.street1 || '' },
         { field: `${prefix}_street2`, value: address.street2 || '' },
         { field: `${prefix}_street3`, value: address.street3 || '' },
-        { field: `${prefix}_tax_id`, value: address.tax_id || '' }
+        { field: `${prefix}_tax_id`, value: address.tax_id || '' },
+        { field: `${prefix}_eori_number`, value: address.eori_number || '' }
       ]
 
       // Set values using setValue
@@ -212,7 +213,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
     }
   }
 
-  const formatAddress = (address: AddressData) => {
+  const formatAddress = (address: AddressListData) => {
     const parts = [
       address.street1,
       address.street2,
@@ -502,7 +503,16 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               isInvalid={!!errors[`${prefix}_tax_id`]}
               key={`${formKey}_${prefix}_tax_id`}
               maxLength={255}
-              // color={!watch(`${prefix}_tax_id`) ? "warning" : "default"}
+              minRows={1}
+            />
+            <Textarea
+              {...register(`${prefix}_eori_number`)}
+              label="EORI Number"
+              placeholder="EORI Number"
+              errorMessage={errors[`${prefix}_eori_number`]?.message}
+              isInvalid={!!errors[`${prefix}_eori_number`]}
+              key={`${formKey}_${prefix}_eori_number`}
+              maxLength={255}
               minRows={1}
             />
           </div>

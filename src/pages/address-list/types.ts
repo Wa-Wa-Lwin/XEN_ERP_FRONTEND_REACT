@@ -1,4 +1,4 @@
-export interface AddressData {
+export interface AddressListData {
   addressID: number
   CardCode: string
   company_name: string

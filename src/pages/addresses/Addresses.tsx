@@ -23,33 +23,7 @@ import {
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
-
-interface AddressData {
-  CardCode: string;
-  CardName: string;
-  CardType: string;
-  Phone1?: string;
-  MailZipCod?: string;
-  MailAddres?: string;
-  ZipCode?: string;
-  Address?: string;
-  Currency?: string;
-  City?: string;
-  County?: string;
-  Country?: string;
-  MailCity?: string;
-  MailCounty?: string;
-  MailCountr?: string;
-  E_Mail?: string;
-  Building?: string;
-  MailBuildi?: string;
-  StreetNo?: string;
-  MailStrNo?: string;
-  CntctPrsn?: string;
-  BillToDef?: string;
-  ShipToDef?: string;
-  TaxID?: string;
-}
+import type { AddressData } from './types'
 
 const Addresses = () => {
   const [addresses, setAddresses] = useState<AddressData[]>([])

@@ -29,47 +29,18 @@ import { Icon } from '@iconify/react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { ISO_2_COUNTRIES } from '@pages/shipment/constants/iso2countries'
-
-interface AddressData {
-  addressID: number
-  CardCode: string
-  company_name: string
-  CardType: string
-  full_address: string
-  street1: string
-  street2: string
-  street3: string
-  city: string
-  state: string
-  country: string
-  postal_code: string
-  contact_name: string
-  contact: string
-  phone: string
-  email: string
-  tax_id: string
-  phone1: string
-  website: string
-  active: string
-  created_userID: number | null
-  created_time: string | null
-  updated_userID: number | null
-  updated_time: string | null
-  created_user_name: string | null
-  updated_user_name: string | null
-  eori_number: string | null
-}
+import type { AddressListData } from './types'
 
 const STORAGE_KEY = 'address_list_cache'
 
 const AddressList = () => {
   const navigate = useNavigate()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [addresses, setAddresses] = useState<AddressData[]>([])
-  const [allAddresses, setAllAddresses] = useState<AddressData[]>([])
-  const [activeAddresses, setActiveAddresses] = useState<AddressData[]>([])
-  const [inactiveAddresses, setInactiveAddresses] = useState<AddressData[]>([])
-  const [filteredAddresses, setFilteredAddresses] = useState<AddressData[]>([])
+  const [addresses, setAddresses] = useState<AddressListData[]>([])
+  const [allAddresses, setAllAddresses] = useState<AddressListData[]>([])
+  const [activeAddresses, setActiveAddresses] = useState<AddressListData[]>([])
+  const [inactiveAddresses, setInactiveAddresses] = useState<AddressListData[]>([])
+  const [filteredAddresses, setFilteredAddresses] = useState<AddressListData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)

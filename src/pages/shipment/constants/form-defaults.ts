@@ -64,6 +64,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   ship_from_state: 'Chiang Mai',
   ship_from_postal_code: '50230',
   ship_from_tax_id: '0505559000723',
+  ship_from_eori_number: '',
 
   // Flattened ship_to properties
   ship_to_country: '',
@@ -78,6 +79,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   ship_to_state: '',
   ship_to_postal_code: '',
   ship_to_tax_id: '',
+  ship_to_eori_number: '',
   
   // Customs
   customs_purpose: 'sample',
