@@ -1,8 +1,8 @@
-import { Card, CardHeader, CardBody, Input, Textarea } from '@heroui/react'
+import { Card, CardHeader, CardBody, Input, Textarea, Alert } from '@heroui/react'
 import { Controller } from 'react-hook-form'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { getDefaultPickupValues } from '../../constants/form-defaults'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 interface PickupInformationProps extends FormSectionProps {
   today: string
@@ -22,6 +22,40 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
   const pickupStartTime = watch ? watch('pick_up_start_time') : ''
   const pickupEndTime = watch ? watch('pick_up_end_time') : ''
   const todayDate = new Date().toISOString().split('T')[0]
+
+  // State to track if pickup date is on weekend
+  const [isWeekend, setIsWeekend] = useState(false)
+  const [isDeliveryBeforePickup, setIsDeliveryBeforePickup] = useState(false)
+
+  // Check if a date is weekend (Saturday = 6, Sunday = 0)
+  const checkIfWeekend = (dateString: string) => {
+    if (!dateString) return false
+    const date = new Date(dateString + 'T00:00:00')
+    const day = date.getDay()
+    return day === 0 || day === 6
+  }
+
+  // Check if delivery date is before pickup date
+  const checkDeliveryBeforePickup = (pickup: string, delivery: string) => {
+    if (!pickup || !delivery) return false
+    const pickupDate = new Date(pickup + 'T00:00:00')
+    const deliveryDate = new Date(delivery + 'T00:00:00')
+    return deliveryDate < pickupDate
+  }
+
+  // Update weekend status when pickup date changes
+  useEffect(() => {
+    if (pickupDate) {
+      setIsWeekend(checkIfWeekend(pickupDate))
+    }
+  }, [pickupDate])
+
+  // Update delivery date validation when either date changes
+  useEffect(() => {
+    if (pickupDate && expectedDeliveryDate) {
+      setIsDeliveryBeforePickup(checkDeliveryBeforePickup(pickupDate, expectedDeliveryDate))
+    }
+  }, [pickupDate, expectedDeliveryDate])
 
   const normalizeTime = (timeString?: string) => {
     if (!timeString) return ""
@@ -80,6 +114,24 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
       </CardHeader>
 
       <CardBody className="px-0 pt-0 pb-0">
+        {isWeekend && (
+          <Alert
+            color="danger"
+            variant="flat"
+            title="Weekend Pickup"
+            description="The selected pickup date falls on a weekend. Please confirm this is intentional as most carriers have limited or no weekend service."
+            className="mb-3"
+          />
+        )}
+        {isDeliveryBeforePickup && (
+          <Alert
+            color="danger"
+            variant="flat"
+            title="Invalid Delivery Date"
+            description="The expected delivery date cannot be earlier than the pickup date. Please adjust the dates."
+            className="mb-3"
+          />
+        )}
         <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
           <>
             <Input
