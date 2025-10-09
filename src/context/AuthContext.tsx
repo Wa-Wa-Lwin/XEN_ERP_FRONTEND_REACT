@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import axios from 'axios';
+import { preloadParcelItemsCache } from '@hooks/useParcelItemsCache';
 
 type MSLoginUser = {
   id: string;
@@ -27,7 +28,7 @@ interface User {
   supervisorID: string;
   level: string | null;
   headID: string | null;
-  logisticRole : string | null;
+  logisticRole: string | null;
 }
 
 interface Approver {
@@ -48,13 +49,13 @@ interface Approver {
   supervisorID: string | null;
   level: string | null;
   headID: string | null;
-  logisticRole : string | null;
+  logisticRole: string | null;
 }
 
 interface AuthContextType {
   user: User | null;
   approver: Approver | null;
-  msLoginUser : MSLoginUser | null; 
+  msLoginUser: MSLoginUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   hasDbData: boolean;
@@ -127,9 +128,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(userData);
         setApprover(approverData);
         setHasDbData(true);
-        
+
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('approver', JSON.stringify(approverData));
+
+        // Preload parcel items cache in the background
+        preloadParcelItemsCache();
+
       } else {
         // No user data found in database
         setHasDbData(false);

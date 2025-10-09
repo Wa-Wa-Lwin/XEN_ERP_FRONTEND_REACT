@@ -22,6 +22,23 @@ const CACHE_KEY = 'parcel_items_cache'
 const CACHE_DURATION = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
 const CACHE_VERSION = '1.0'
 
+// Standalone function to preload parcel items (can be called outside of React components)
+export const preloadParcelItemsCache = async (): Promise<void> => {
+  try {
+    const response = await axios.get(import.meta.env.VITE_APP_GET_PARCEL_ITEMS)
+    if (response.data?.ret === 0 && response.data?.data) {
+      const cache = {
+        data: response.data.data,
+        timestamp: Date.now(),
+        version: CACHE_VERSION
+      }
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cache))
+    }
+  } catch (error) {
+    console.error('Failed to preload parcel items:', error)
+  }
+}
+
 export const useParcelItemsCache = () => {
   const [materials, setMaterials] = useState<MaterialData[]>(() => {
     // Initialize with cached data synchronously
