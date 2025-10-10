@@ -651,7 +651,7 @@ const ShipmentTable = () => {
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700"> {formatDate(request.created_date_time)}</TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  <b>{formatDate(request.due_date)}</b>
+                  <b>{formatDate(request.pick_up_date)}</b>
                   <br />
                   {formatTime(request.pick_up_start_time)} - {formatTime(request.pick_up_end_time)}
                 </TableCell>
