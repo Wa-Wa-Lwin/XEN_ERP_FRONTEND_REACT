@@ -21,6 +21,7 @@ export interface RateCalculationFormData {
   ship_to_email: string
   pick_up_date: string
   expected_delivery_date: string
+  customs_terms_of_trade?: string
   parcels?: Array<{
     width: number | string
     height: number | string
@@ -279,8 +280,15 @@ export const calculateShippingRates = async (
     // Calculate total weight first
     const chargeWeight = calculateChargeWeightThailandDomesticRate(formData)
 
-    // Only show DHL eCommerce Asia if weight is 35kg or less
-    if (chargeWeight <= 35) {
+    // Get customs terms of trade (normalized to lowercase)
+    const customsTerms = formData.customs_terms_of_trade?.toLowerCase() || ''
+
+    // Only show DHL eCommerce Asia if:
+    // 1. Weight is 35kg or less
+    // 2. Customs terms of trade is DDU or DDP
+    const isValidCustomsTerms = customsTerms === 'ddu' || customsTerms === 'ddp'
+
+    if (chargeWeight <= 35 && isValidCustomsTerms) {
       // Check if DHL eCommerce Asia rate already exists
       const hasDHLRate = apiRates.some((rate: ShippingRate) =>
         rate.shipper_account?.slug === "dhl-global-mail-asia"
@@ -293,7 +301,12 @@ export const calculateShippingRates = async (
         console.log('Added manual Thailand domestic rate:', manualRate)
       }
     } else {
-      console.log('Skipping DHL eCommerce Asia rate - weight exceeds 35kg:', chargeWeight)
+      if (chargeWeight > 35) {
+        console.log('Skipping DHL eCommerce Asia rate - weight exceeds 35kg:', chargeWeight)
+      }
+      if (!isValidCustomsTerms) {
+        console.log('Skipping DHL eCommerce Asia rate - customs terms of trade is not DDU or DDP:', customsTerms)
+      }
     }
   }
 

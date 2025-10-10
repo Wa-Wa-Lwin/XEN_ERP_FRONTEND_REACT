@@ -93,7 +93,8 @@ const ShipmentDuplicateForm = () => {
         ship_to_email: formData.ship_to_email,
         parcels: formData.parcels,
         pick_up_date: formData.pick_up_date,
-        expected_delivery_date: formData.due_date
+        expected_delivery_date: formData.due_date,
+        customs_terms_of_trade: formData.customs_terms_of_trade
       }
 
       // Use the shared rate calculation service to get both original and transformed rates
