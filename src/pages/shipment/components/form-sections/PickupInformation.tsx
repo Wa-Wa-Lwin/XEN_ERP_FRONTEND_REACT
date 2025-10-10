@@ -25,6 +25,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
   // State to track if pickup date is on weekend
   const [isWeekend, setIsWeekend] = useState(false)
   const [isDeliveryBeforePickup, setIsDeliveryBeforePickup] = useState(false)
+  const [isOutsideOfficeHours, setIsOutsideOfficeHours] = useState(false)
 
   // Check if a date is weekend (Saturday = 6, Sunday = 0)
   const checkIfWeekend = (dateString: string) => {
@@ -42,6 +43,24 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
     return deliveryDate < pickupDate
   }
 
+  // Check if pickup times are outside office hours (9 AM to 5 PM)
+  const checkOutsideOfficeHours = (startTime: string, endTime: string) => {
+    if (!startTime || !endTime) return false
+
+    // Convert time strings to minutes for easier comparison
+    const timeToMinutes = (time: string) => {
+      const [hours, minutes] = time.split(':').map(Number)
+      return hours * 60 + minutes
+    }
+
+    const startMinutes = timeToMinutes(startTime)
+    const endMinutes = timeToMinutes(endTime)
+    const officeStartMinutes = 9 * 60 // 9:00 AM
+    const officeEndMinutes = 17 * 60 // 5:00 PM
+
+    return startMinutes < officeStartMinutes || endMinutes > officeEndMinutes
+  }
+
   // Update weekend status when pickup date changes
   useEffect(() => {
     if (pickupDate) {
@@ -55,6 +74,13 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
       setIsDeliveryBeforePickup(checkDeliveryBeforePickup(pickupDate, expectedDeliveryDate))
     }
   }, [pickupDate, expectedDeliveryDate])
+
+  // Update office hours validation when pickup times change
+  useEffect(() => {
+    if (pickupStartTime && pickupEndTime) {
+      setIsOutsideOfficeHours(checkOutsideOfficeHours(pickupStartTime, pickupEndTime))
+    }
+  }, [pickupStartTime, pickupEndTime])
 
   const normalizeTime = (timeString?: string) => {
     if (!timeString) return ""
@@ -105,6 +131,15 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
             variant="flat"
             title="Invalid Delivery Date"
             description="The expected delivery date cannot be earlier than the pickup date. Please adjust the dates."
+            className="mb-3"
+          />
+        )}
+        {isOutsideOfficeHours && (
+          <Alert
+            color="danger"
+            variant="flat"
+            title="Outside Office Hours"
+            description="The selected pickup time is outside standard office hours (9:00 AM - 5:00 PM). Please confirm this is intentional as it may affect carrier availability."
             className="mb-3"
           />
         )}
