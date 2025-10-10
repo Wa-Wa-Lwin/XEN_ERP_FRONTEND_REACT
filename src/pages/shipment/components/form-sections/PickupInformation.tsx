@@ -1,25 +1,11 @@
-import { Card, CardHeader, CardBody, Input, Textarea, Alert, Select, SelectItem } from '@heroui/react'
+import { Card, CardHeader, CardBody, Input, Textarea, Alert, Autocomplete, AutocompleteItem } from '@heroui/react'
 import { Controller } from 'react-hook-form'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { getDefaultPickupValues } from '../../constants/form-defaults'
 import { useEffect, useState } from 'react'
+import { TIMEZONES } from '@pages/shipment/constants/timezones'
 
-// Common timezones
-const TIMEZONES = [
-  { key: 'UTC', label: 'UTC (Coordinated Universal Time)', value: 'UTC' },
-  { key: 'America/New_York', label: 'EST/EDT (Eastern Time)', value: 'America/New_York' },
-  { key: 'America/Chicago', label: 'CST/CDT (Central Time)', value: 'America/Chicago' },
-  { key: 'America/Denver', label: 'MST/MDT (Mountain Time)', value: 'America/Denver' },
-  { key: 'America/Los_Angeles', label: 'PST/PDT (Pacific Time)', value: 'America/Los_Angeles' },
-  { key: 'Europe/London', label: 'GMT/BST (London)', value: 'Europe/London' },
-  { key: 'Europe/Paris', label: 'CET/CEST (Central European)', value: 'Europe/Paris' },
-  { key: 'Asia/Dubai', label: 'GST (Gulf Standard Time)', value: 'Asia/Dubai' },
-  { key: 'Asia/Bangkok', label: 'ICT (Indochina Time)', value: 'Asia/Bangkok' },
-  { key: 'Asia/Singapore', label: 'SGT (Singapore Time)', value: 'Asia/Singapore' },
-  { key: 'Asia/Tokyo', label: 'JST (Japan Standard Time)', value: 'Asia/Tokyo' },
-  { key: 'Asia/Shanghai', label: 'CST (China Standard Time)', value: 'Asia/Shanghai' },
-  { key: 'Australia/Sydney', label: 'AEDT/AEST (Sydney)', value: 'Australia/Sydney' },
-]
+
 
 interface PickupInformationProps extends FormSectionProps {
   today: string
@@ -38,7 +24,16 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
   const expectedDeliveryDate = watch ? watch('due_date') : defaultExpectedDeliveryDate
   const pickupStartTime = watch ? watch('pick_up_start_time') : ''
   const pickupEndTime = watch ? watch('pick_up_end_time') : ''
+  const pickupTimezone = watch ? watch('pick_up_timezone') : 'Asia/Bangkok'
   const todayDate = new Date().toISOString().split('T')[0]
+
+  // Get timezone info for display
+  const getTimezoneInfo = (tz: string) => {
+    const timezone = TIMEZONES.find(t => t.value === tz)
+    return timezone || TIMEZONES[8] // Default to Bangkok
+  }
+
+  const currentTimezoneInfo = getTimezoneInfo(pickupTimezone)
 
   // State to track if pickup date is on weekend
   const [isWeekend, setIsWeekend] = useState(false)
@@ -151,6 +146,39 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
         )}
         <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
           <>
+            <div className="col-span-2">
+              <Controller
+                name="pick_up_timezone"
+                control={control}
+                rules={{ required: "Timezone is required" }}
+                defaultValue="Asia/Bangkok"
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    isRequired
+                    label={<span>Timezone</span>}
+                    placeholder="Type or select timezone"
+                    allowsCustomValue={false}
+                    selectedKey={field.value}
+                    onSelectionChange={(selected) => field.onChange(selected)}
+                    onInputChange={(value) => {
+                      // Optional: allow typing to update the field directly
+                      field.onChange(value);
+                    }}
+                    errorMessage={errors.pick_up_timezone?.message}
+                    isInvalid={!!errors.pick_up_timezone}
+                    color={!watch("pick_up_timezone") ? "warning" : "default"}
+                    description={`All pickup times will be in ${currentTimezoneInfo.label}`}
+                  >
+                    {TIMEZONES.map((tz) => (
+                      <AutocompleteItem key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </AutocompleteItem>
+                    ))}
+                  </Autocomplete>
+                )}
+              />
+            </div>
             <Input
               {...register('pick_up_date', {
                 required: 'Pickup date is required',
@@ -179,35 +207,6 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
               onChange={handleDateChange('due_date')}
               errorMessage={errors.due_date?.message}
               isInvalid={!!errors.due_date}
-            />
-
-            <Controller
-              name="pick_up_timezone"
-              control={control}
-              rules={{ required: 'Timezone is required' }}
-              defaultValue="Asia/Bangkok"
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  isRequired
-                  label={<span>Timezone</span>}
-                  placeholder="Select timezone"
-                  selectedKeys={field.value ? [field.value] : []}
-                  onSelectionChange={(keys) => {
-                    const selected = Array.from(keys)[0] as string
-                    field.onChange(selected)
-                  }}
-                  errorMessage={errors.pick_up_timezone?.message}
-                  isInvalid={!!errors.pick_up_timezone}
-                  color={!watch('pick_up_timezone') ? "warning" : "default"}
-                >
-                  {TIMEZONES.map((tz) => (
-                    <SelectItem key={tz.key} value={tz.value}>
-                      {tz.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-              )}
             />
 
             <Controller
@@ -262,7 +261,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
                 />
               )}
             />
-            <div className="col-span-4">
+            <div className="col-span-2">
               <Textarea
                 {...register('pick_up_instructions')}
                 label={<span>Pickup Instructions</span>}
