@@ -2,25 +2,13 @@ import type { ShipmentFormData } from '../types/shipment-form.types'
 
 // Calculate default pickup date time based on current time
 export const getDefaultPickupValues = () => {
-  const now = new Date()
   const todayDate = new Date().toISOString().split("T")[0]
-  const currentHour = now.getHours()
-
   const defaultPickupDate = todayDate
-
   const defaultExpectedDeliveryDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
 
-  // Format as HH:MM
-  const todayStartTime = String(currentHour + 1).padStart(2, "0") + ":00"
-
-  let startTime = defaultPickupDate === todayDate ? todayStartTime : "09:00"
-
-  // If startTime is 17:00 or later → auto set endTime = startTime + 2 hours
-  const [hour, minute] = startTime.split(":").map(Number)
-  let endHour = hour >= 17 ? hour + 2 : 17
-  if (endHour > 23) endHour = 23 // cap at 23:59
-
-  const endTime = String(endHour).padStart(2, "0") + ":" + String(minute).padStart(2, "0")
+  // Default pickup times: 9 AM to 5 PM
+  const startTime = "09:00"
+  const endTime = "17:00"
 
   return {
     pickupDate: defaultPickupDate,
