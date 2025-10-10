@@ -663,12 +663,31 @@ const ShipmentTable = () => {
                         <p className={`font-medium text-xs`}>
                           Label: <span className={`${request.label_status === 'created' ? 'text-green-500' : 'text-red-500'}`}>{request.label_status}</span>
                         </p>
-                        <p className="text-xs">
-                          Pickup:{' '}
-                          <span className={request.pick_up_created_status === 'created_success' ? 'text-green-500' : 'text-red-500'}>
-                            {request.pick_up_created_status === 'created_success' ? 'created' : request.pick_up_created_status === 'created_failed' ? 'failed' : '-'}
-                          </span>
-                        </p>
+                        {(() => {
+                          const chosenRate = request.rates?.find(rate => rate.chosen == true);
+                          return chosenRate?.shipper_account_description === 'DHL eCommerce Asia' ? (
+                            <p className="text-xs">Pickup: <span className="text-blue-500">Call</span></p>
+                          ) : (
+                            <p className="text-xs">
+                              Pickup:{' '}
+                              <span
+                                className={
+                                  request.pick_up_created_status === 'created_success'
+                                    ? 'text-green-500'
+                                    : request.pick_up_created_status === 'created_failed'
+                                      ? 'text-red-500'
+                                      : ''
+                                }
+                              >
+                                {request.pick_up_created_status === 'created_success'
+                                  ? 'created'
+                                  : request.pick_up_created_status === 'created_failed'
+                                    ? 'failed'
+                                    : '-'}
+                              </span>
+                            </p>
+                          );
+                        })()}
                       </div>
 
                     </>

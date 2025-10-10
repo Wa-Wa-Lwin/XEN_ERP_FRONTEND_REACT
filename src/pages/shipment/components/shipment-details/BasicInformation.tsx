@@ -62,27 +62,28 @@ const BasicInformation = ({
     return `${parseInt(hours, 10)}:${minutes}`;
   }
 
-  let pickupData = null;
+  let pickupStatusData = null;
+  let pickupCommonData = null;
 
   let pickupDateTime = shipment.pick_up_date
     ? `${formatDate(shipment.pick_up_date)} (${formatTime(shipment.pick_up_start_time)} - ${formatTime(shipment.pick_up_end_time)})`
     : '';
-  // let expectedDeliveryDate = shipment.due_date ? formatDate(shipment.due_date) : '-';
+
+  pickupCommonData = <>
+    <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>    
+    <DetailRow label="DateTime" value={pickupDateTime} />
+    <DetailRow label="Instruction" value={shipment.pick_up_instructions || '-'} />
+  </>;
 
 
   if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success") {
-    pickupData = <>
-      <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
-      <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
+    pickupStatusData = <>
       <DetailRow label="Status" value={shipment.pick_up_created_status} />
-      <DetailRow label="DateTime" value={pickupDateTime} />
-      {/* <DetailRow label="Expected Delivery Date" value={shipment.due_date} /> */}
-      <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
+      <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
     </>;
   }
   else if (shipment.pick_up_status && shipment.pick_up_created_status === "created_failed") {
-    pickupData = <>
-      <h2 className="text-lg font-semibold">Pickup Information</h2>
+    pickupStatusData = <>
       <Button
         color="warning"
         size="sm"
@@ -90,43 +91,18 @@ const BasicInformation = ({
       >
         Change Pickup DateTime
       </Button>
-
       <p className="text-red-600 font-semibold">
-        ⚠️ Pickup creation failed
+        ⚠️ Pickup creation failed <br/>
+        <b>Details:</b> {formattedPickupError}
       </p>
       <Button
         color="primary"
         size="sm"
         onPress={onCreatePickup}
-        className="px-2 py-0 text-[11px] h-auto min-h-0"
+        // className="px-2 py-0 text-[11px] h-auto min-h-0"
       >
         Retry Create Pickup
       </Button>
-
-      <DetailRow label="DateTime" value={pickupDateTime} />
-      {/* <DetailRow label="Expected Delivery Date" value={expectedDeliveryDate} /> */}
-      <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
-      <Button
-        size="sm"
-        color="warning"
-        onPress={() => setShowError(!showError)}
-        className="px-2 py-0 text-[11px] h-auto min-h-0 mb-1"
-      >
-        {showError ? "Hide Error Details" : "Show Error Details"}
-      </Button>
-      {showError && (
-        <div className="text-gray-800 text-sm break-words whitespace-pre-wrap border p-2 rounded bg-gray-50">
-
-          <b>Details:</b> {formattedPickupError}
-        </div>
-      )}
-    </>;
-  } else {
-    pickupData = <>
-      <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
-      <DetailRow label="DateTime" value={pickupDateTime} />
-      {/* <DetailRow label="Expected Delivery Date" value={expectedDeliveryDate} /> */}
-      <DetailRow label="Instruction" value={shipment.pick_up_instructions} />
     </>;
   }
 
@@ -177,7 +153,6 @@ const BasicInformation = ({
       <DetailRow label="ID" value={shipment.label_id} />
       {/* <DetailRow label="Status" value={shipment.label_status} /> */}
       <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
-      {/* {pickupData} */}
     </>;
   }
   else if (shipment.approver_approved_date_time && shipment.label_status !== "created") {
@@ -212,7 +187,6 @@ const BasicInformation = ({
         </div>
       )}
 
-      {/* {pickupData} */}
     </>;
   };
 
@@ -318,7 +292,8 @@ const BasicInformation = ({
           )}
           <DetailRow label="Customs Purpose" value={shipment.customs_purpose?.toUpperCase() ?? ''} />
           <DetailRow label="Incoterms" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
-          {pickupData}
+          {pickupCommonData}
+          {pickupStatusData}
         </div>
 
         <div>

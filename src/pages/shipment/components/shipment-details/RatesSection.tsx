@@ -163,8 +163,6 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
               <TableColumn className="min-w-[60px]">No.</TableColumn>
               <TableColumn className="min-w-[120px]">Rate ID</TableColumn>
               <TableColumn className="min-w-[150px]">Carrier(Service)</TableColumn>
-              {/* <TableColumn className="min-w-[200px]">Service</TableColumn> */}
-              {/* <TableColumn className="min-w-[120px]">Service Type</TableColumn> */}
               <TableColumn className="min-w-[100px]">Transit Time</TableColumn>
               <TableColumn className="min-w-[120px] text-right">Estimate THB</TableColumn>
               <TableColumn className="min-w-[120px]">Cost</TableColumn>
@@ -190,12 +188,6 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                     <TableCell>
                       <span className="text-sm">{rate.shipper_account_description}({rate.service_name || 'N/A'})</span>
                     </TableCell>
-                    {/* <TableCell>
-                      <span className="text-sm">{rate.service_name || 'N/A'}</span>
-                    </TableCell> */}
-                    {/* <TableCell>
-                      <span className="text-xs text-gray-600">{rate.service_type || 'N/A'}</span>
-                    </TableCell> */}
                     <TableCell>
                       <span className="text-sm">{rate.transit_time ? `${rate.transit_time} days` : 'N/A'}</span>
                     </TableCell>
@@ -221,13 +213,16 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                     <TableCell>
                       <span className="text-xs">
                         {rate.pickup_deadline
-                          ? new Date(rate.pickup_deadline).toLocaleString('en-US', {
+                          ?
+                           new Date(rate.pickup_deadline).toLocaleString('en-US', {
                             month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
+                            day: 'numeric',                           
                           })
-                          : 'N/A'}
+                          : new Date(shipment.pick_up_date).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',                           
+                          }) 
+                          }
                       </span>
                     </TableCell>
                     <TableCell>
@@ -239,7 +234,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                             hour: '2-digit',
                             minute: '2-digit'
                           })
-                          : 'N/A'}
+                          : 'Call to confirm exact time.'}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -251,7 +246,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                             hour: '2-digit',
                             minute: '2-digit'
                           })
-                          : 'N/A'}
+                          : 'Call to confirm exact time.'}
                       </span>
                     </TableCell>
                     <TableCell>

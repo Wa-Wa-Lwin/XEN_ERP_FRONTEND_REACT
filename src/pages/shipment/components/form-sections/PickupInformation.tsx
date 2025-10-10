@@ -1,8 +1,25 @@
-import { Card, CardHeader, CardBody, Input, Textarea, Alert } from '@heroui/react'
+import { Card, CardHeader, CardBody, Input, Textarea, Alert, Select, SelectItem } from '@heroui/react'
 import { Controller } from 'react-hook-form'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { getDefaultPickupValues } from '../../constants/form-defaults'
 import { useEffect, useState } from 'react'
+
+// Common timezones
+const TIMEZONES = [
+  { key: 'UTC', label: 'UTC (Coordinated Universal Time)', value: 'UTC' },
+  { key: 'America/New_York', label: 'EST/EDT (Eastern Time)', value: 'America/New_York' },
+  { key: 'America/Chicago', label: 'CST/CDT (Central Time)', value: 'America/Chicago' },
+  { key: 'America/Denver', label: 'MST/MDT (Mountain Time)', value: 'America/Denver' },
+  { key: 'America/Los_Angeles', label: 'PST/PDT (Pacific Time)', value: 'America/Los_Angeles' },
+  { key: 'Europe/London', label: 'GMT/BST (London)', value: 'Europe/London' },
+  { key: 'Europe/Paris', label: 'CET/CEST (Central European)', value: 'Europe/Paris' },
+  { key: 'Asia/Dubai', label: 'GST (Gulf Standard Time)', value: 'Asia/Dubai' },
+  { key: 'Asia/Bangkok', label: 'ICT (Indochina Time)', value: 'Asia/Bangkok' },
+  { key: 'Asia/Singapore', label: 'SGT (Singapore Time)', value: 'Asia/Singapore' },
+  { key: 'Asia/Tokyo', label: 'JST (Japan Standard Time)', value: 'Asia/Tokyo' },
+  { key: 'Asia/Shanghai', label: 'CST (China Standard Time)', value: 'Asia/Shanghai' },
+  { key: 'Australia/Sydney', label: 'AEDT/AEST (Sydney)', value: 'Australia/Sydney' },
+]
 
 interface PickupInformationProps extends FormSectionProps {
   today: string
@@ -162,6 +179,35 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
               onChange={handleDateChange('due_date')}
               errorMessage={errors.due_date?.message}
               isInvalid={!!errors.due_date}
+            />
+
+            <Controller
+              name="pick_up_timezone"
+              control={control}
+              rules={{ required: 'Timezone is required' }}
+              defaultValue="Asia/Bangkok"
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  isRequired
+                  label={<span>Timezone</span>}
+                  placeholder="Select timezone"
+                  selectedKeys={field.value ? [field.value] : []}
+                  onSelectionChange={(keys) => {
+                    const selected = Array.from(keys)[0] as string
+                    field.onChange(selected)
+                  }}
+                  errorMessage={errors.pick_up_timezone?.message}
+                  isInvalid={!!errors.pick_up_timezone}
+                  color={!watch('pick_up_timezone') ? "warning" : "default"}
+                >
+                  {TIMEZONES.map((tz) => (
+                    <SelectItem key={tz.key} value={tz.value}>
+                      {tz.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
             />
 
             <Controller

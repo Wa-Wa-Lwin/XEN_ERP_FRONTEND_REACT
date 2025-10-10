@@ -207,7 +207,8 @@ const calculateChargeWeightThailandDomesticRate = (formData: RateCalculationForm
  */
 const createThailandDomesticRate = (chargeWeight: number): ShippingRate => {
   const ratePerKg = 62
-  const totalAmount = ratePerKg * chargeWeight
+  // const totalAmount = ratePerKg * chargeWeight
+  const totalAmount = 62
 
   return {
     shipper_account: {
