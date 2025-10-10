@@ -69,20 +69,31 @@ const BasicInformation = ({
     ? `${formatDate(shipment.pick_up_date)} (${formatTime(shipment.pick_up_start_time)} - ${formatTime(shipment.pick_up_end_time)})`
     : '';
 
+  // Check if carrier is DHL eCommerce Asia
+  const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
+
+  const isDHLeCommerceAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
+
   pickupCommonData = <>
-    <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>    
+    <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
     <DetailRow label="DateTime" value={pickupDateTime} />
     <DetailRow label="Instruction" value={shipment.pick_up_instructions || '-'} />
+    {isDHLeCommerceAsia && (
+      <p className="text-blue-600 font-semibold bg-blue-50 p-2 rounded">
+        📞 Please call DHL eCommerce Asia customer service to arrange pickup for this package. <br />
+        📇 Contact Logistic Team for futher information. 
+      </p>
+    )}
   </>;
 
 
-  if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success") {
+  if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success" && !isDHLeCommerceAsia) {
     pickupStatusData = <>
       <DetailRow label="Status" value={shipment.pick_up_created_status} />
       <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
     </>;
   }
-  else if (shipment.pick_up_status && shipment.pick_up_created_status === "created_failed") {
+  else if (shipment.pick_up_status && shipment.pick_up_created_status === "created_failed" && !isDHLeCommerceAsia) {
     pickupStatusData = <>
       <Button
         color="warning"
@@ -92,14 +103,14 @@ const BasicInformation = ({
         Change Pickup DateTime
       </Button>
       <p className="text-red-600 font-semibold">
-        ⚠️ Pickup creation failed <br/>
+        ⚠️ Pickup creation failed <br />
         <b>Details:</b> {formattedPickupError}
       </p>
       <Button
         color="primary"
         size="sm"
         onPress={onCreatePickup}
-        // className="px-2 py-0 text-[11px] h-auto min-h-0"
+      // className="px-2 py-0 text-[11px] h-auto min-h-0"
       >
         Retry Create Pickup
       </Button>
@@ -238,16 +249,6 @@ const BasicInformation = ({
                 Developer Only: Duplicate Shipment Request
               </Button>
             )}
-
-          {/* <Button
-                color="secondary"
-                size="sm"
-                variant="bordered"
-                startContent={<Icon icon="solar:copy-bold" />}
-                onPress={onDuplicateShipment}
-              >
-                Developer Only: Duplicate Shipment Request
-              </Button> */}
         </div>
       </div>
 
@@ -284,7 +285,7 @@ const BasicInformation = ({
           )}
         </div>
 
-        <div>
+        <div className='pe-20'>
           <DetailRow label="Scope" value={shipment.shipment_scope_type?.toUpperCase() ?? ''} />
           <DetailRow label="Service Options" value={shipment.service_options} />
           {shipment.service_options === 'Urgent' && (
