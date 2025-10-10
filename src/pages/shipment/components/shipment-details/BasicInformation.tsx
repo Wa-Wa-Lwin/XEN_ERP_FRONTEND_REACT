@@ -123,6 +123,11 @@ const BasicInformation = ({
   // const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_PACKING_SLIP_URL}${shipment.shipmentRequestID}`;
 
   if (shipment.approver_approved_date_time && shipment.label_status === "created") {
+    // Parse tracking numbers (comma-separated)
+    const trackingNumbers = shipment.tracking_numbers
+      ? shipment.tracking_numbers.split(',').map(id => id.trim()).filter(id => id.length > 0)
+      : [];
+
     labelData = <>
       <h2 className="text-lg font-semibold">Invoice Information</h2>
       <div className='flex gap-2'>
@@ -164,6 +169,28 @@ const BasicInformation = ({
       <DetailRow label="ID" value={shipment.label_id} />
       {/* <DetailRow label="Status" value={shipment.label_status} /> */}
       <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
+
+      {/* Track buttons for each tracking number */}
+      {trackingNumbers.length > 0 && chosenRate?.shipper_account_slug && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {trackingNumbers.map((trackingId, index) => (
+            <Button
+              key={index}
+              color="secondary"
+              size="sm"
+              variant="bordered"
+              startContent={<Icon icon="solar:map-point-wave-bold" />}
+              onPress={() => {
+                const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${trackingId}`;
+                window.open(trackingUrl, "_blank");
+              }}
+              className="px-2 py-0 text-[11px] h-auto min-h-0"
+            >
+              Track {trackingNumbers.length > 1 ? `#${index + 1}` : ''}
+            </Button>
+          ))}
+        </div>
+      )}
     </>;
   }
   else if (shipment.approver_approved_date_time && shipment.label_status !== "created") {

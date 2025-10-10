@@ -112,7 +112,10 @@ export interface ShipmentGETData {
   rates?: Array<{
     chosen: number
     past_chosen: number
+    shipper_account_id?: string
+    shipper_account_slug?: string
     shipper_account_description: string
+    service_type?: string
     service_name: string
     transit_time: string
     total_charge_amount: string
