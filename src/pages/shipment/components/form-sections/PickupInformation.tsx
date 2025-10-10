@@ -110,7 +110,10 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
     <Card shadow="none">
       {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
       <CardHeader className="px-0 pt-0 pb-1">
-        <h2 className="text-lg font-semibold">Pickup Information</h2>
+        <h2 className="text-lg font-semibold">Pickup Information </h2>  
+        <p className="text-blue-600 font-semibold text-sm">
+           (Pickup Date & Time will be based on the pickup country.)
+        </p>
       </CardHeader>
 
       <CardBody className="px-0 pt-0 pb-0">
