@@ -341,12 +341,33 @@ const ShipmentDetails = () => {
         headers: { "Content-Type": "application/json" },
       });
 
-      if (response.status === 200 && response.data?.$data_body?.meta?.code === 200) {
-        success('Pickup created successfully!', 'Success');
-        // window.location.reload();
-        await fetchShipment();
+      if (response.status === 200) {
+        const responseData = response.data;
+        const pickupStatus = responseData?.pickup_created_status;
+        const metaCode = responseData?.data_body?.meta?.code;
+        const details = responseData?.data_body?.meta?.details;
+
+        // Check if pickup was actually created successfully
+        if (pickupStatus === 'created_success' || (metaCode === 200 && !details?.length)) {
+          success('Pickup created successfully!', 'Success');
+          await fetchShipment();
+        } else {
+          // Pickup creation failed - show detailed error
+          const errorMessage = responseData?.message || 'Unknown error';
+          let detailedError = errorMessage;
+
+          if (Array.isArray(details) && details.length > 0) {
+            const formattedDetails = details
+              .map((d: any) => `• ${d.path}: ${d.info}`)
+              .join("\n");
+            detailedError = `${errorMessage}\n\nDetails:\n${formattedDetails}`;
+          }
+
+          showNotificationError(`Failed to create pickup:\n${detailedError}`, 'Pickup Creation Failed');
+          await fetchShipment();
+        }
       } else {
-        showNotificationError(`Failed to create pickup (HTTP ${response.data?.$data_body?.meta?.code}).`, 'Pickup Creation Failed');
+        showNotificationError(`Failed to create pickup (HTTP ${response.status}).`, 'Pickup Creation Failed');
         await fetchShipment();
       }
     } catch (error) {
