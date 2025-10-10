@@ -21,7 +21,6 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
   const expectedDeliveryDate = watch ? watch('due_date') : defaultExpectedDeliveryDate
   const pickupStartTime = watch ? watch('pick_up_start_time') : ''
   const pickupEndTime = watch ? watch('pick_up_end_time') : ''
-  const todayDate = new Date().toISOString().split('T')[0]
 
   // State to track if pickup date is on weekend
   const [isWeekend, setIsWeekend] = useState(false)
@@ -62,20 +61,8 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
     return timeString.split(":").slice(0, 2).join(":") // take first 2 parts (HH:mm)
   }
 
-  // Determine start time based on pickup date
-  const getPickUpStartTime = (selectedDate: string) => {
-    if (pickupStartTime) {
-      return normalizeTime(pickupStartTime)
-    }
-    return selectedDate === todayDate ? '12:00' : '09:00'
-  }
-
-  const getPickUpEndTime = (): string => {
-    if (pickupStartTime) {
-      return normalizeTime(pickupEndTime)
-    }
-    return '17:00'
-  }
+  const getPickUpStartTime = () => pickupStartTime ? normalizeTime(pickupStartTime) : '09:00'
+  const getPickUpEndTime = () => pickupEndTime ? normalizeTime(pickupEndTime) : '17:00'
 
   // Handler to sync both date fields when one is changed
   const handleDateChange = (fieldName: "pick_up_date" | "due_date") =>
@@ -83,12 +70,6 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
       const dateValue = e.target.value
       if (setValue) {
         setValue(fieldName, dateValue, { shouldValidate: true, shouldDirty: true })
-
-        if (fieldName === "pick_up_date") {
-          // Only adjust pickup times if pickup date is changed
-          const newStartTime = getPickUpStartTime(dateValue)
-          setValue('pick_up_start_time', newStartTime, { shouldValidate: true, shouldDirty: true })
-        }
       }
 
       // Clear rates when pickup or delivery date changes
@@ -97,14 +78,6 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
         onClearRates()
       }
     }
-
-  // Effect to set initial start time when component mounts or pickup date changes
-  useEffect(() => {
-    if (setValue && pickupDate && !pickupStartTime) {
-      const startTime = getPickUpStartTime(pickupDate)
-      setValue('pick_up_start_time', startTime, { shouldValidate: false, shouldDirty: false })
-    }
-  }, [pickupDate, setValue, pickupStartTime])
 
   return (
     <Card shadow="none">
@@ -179,7 +152,7 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
                   label={<span>Start Time</span>}
                   errorMessage={errors.pick_up_start_time?.message}
                   isInvalid={!!errors.pick_up_start_time}
-                  value={getPickUpStartTime(pickupDate || defaultPickupDate)}
+                  value={getPickUpStartTime()}
                   // value={field.value || getPickUpStartTime(pickupDate || defaultPickupDate)}
                   onChange={(e) => {
                     field.onChange(e.target.value) // updates RHF
