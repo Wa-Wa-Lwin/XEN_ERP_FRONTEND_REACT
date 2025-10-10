@@ -276,17 +276,24 @@ export const calculateShippingRates = async (
   // Add manual domestic rate for Thailand if both countries are THA
   const isDomesticThailand = formData.ship_from_country === "THA" && formData.ship_to_country === "THA"
   if (isDomesticThailand) {
-    // Check if DHL eCommerce Asia rate already exists
-    const hasDHLRate = apiRates.some((rate: ShippingRate) =>
-      rate.shipper_account?.slug === "dhl-global-mail-asia"
-    )
+    // Calculate total weight first
+    const chargeWeight = calculateChargeWeightThailandDomesticRate(formData)
 
-    // Only add manual rate if DHL eCommerce Asia is not in the response
-    if (!hasDHLRate) {
-      const chargeWeight = calculateChargeWeightThailandDomesticRate(formData)
-      const manualRate = createThailandDomesticRate(chargeWeight)
-      apiRates = [manualRate, ...apiRates] // Add at the beginning
-      console.log('Added manual Thailand domestic rate:', manualRate)
+    // Only show DHL eCommerce Asia if weight is 35kg or less
+    if (chargeWeight <= 35) {
+      // Check if DHL eCommerce Asia rate already exists
+      const hasDHLRate = apiRates.some((rate: ShippingRate) =>
+        rate.shipper_account?.slug === "dhl-global-mail-asia"
+      )
+
+      // Only add manual rate if DHL eCommerce Asia is not in the response
+      if (!hasDHLRate) {
+        const manualRate = createThailandDomesticRate(chargeWeight)
+        apiRates = [manualRate, ...apiRates] // Add at the beginning
+        console.log('Added manual Thailand domestic rate:', manualRate)
+      }
+    } else {
+      console.log('Skipping DHL eCommerce Asia rate - weight exceeds 35kg:', chargeWeight)
     }
   }
 
