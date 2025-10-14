@@ -23,6 +23,8 @@ import AddressList from "@pages/address-list/AddressList";
 import AddressListDetail from "@pages/address-list/AddressDetail";
 import Packaging from "@pages/packaging/Packaging";
 import PackagingDetail from "@pages/packaging/PackagingDetail";
+import Aftership from "@pages/aftership/Aftership";
+import AftershipDetail from "@pages/aftership/AftershipDetail";
 
 
 export const routes = [
@@ -132,6 +134,20 @@ export const routes = [
           {
             path: "",
             element: <Dashboard />,
+          },
+        ]
+      },
+      { path: "aftership",
+        handle: { breadcrumb: "Aftership" },
+        children:[
+          {
+            path: "",
+            element: <Aftership />,
+          },
+          {
+            path: ":id",
+            element: <AftershipDetail />,
+            handle: { breadcrumb: (match: any) => match.params.id }
           },
         ]
       },

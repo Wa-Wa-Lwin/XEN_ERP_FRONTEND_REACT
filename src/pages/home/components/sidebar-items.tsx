@@ -190,15 +190,28 @@ export const sectionItems: SidebarItem[] = [
         to: "/local/address-list",
         icon: "tabler:address-book",
         title: "Address List New",
-      },     
+      },
       // {
       //   key: "packaging-list",
       //   to: "/local/packaging-list",
       //   icon: "arcticons:parcel-tracker",
       //   title: "Packaging List",
-      // },     
+      // },
     ]
   },
+  // {
+  //   key: "aftership",
+  //   to: "/aftership",
+  //   title: "Aftership",
+  //   items: [
+  //     {
+  //       key: "aftership-labels",
+  //       to: "/aftership",
+  //       icon: "streamline:shipping-transfer-cart-package-box-fulfillment-cart-warehouse-shipping-delivery",
+  //       title: "Labels",
+  //     },
+  //   ]
+  // },
   // {
   //   key: "rate-calculator",
   //   title: "Rate Calculator",
