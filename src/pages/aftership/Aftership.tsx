@@ -13,7 +13,10 @@ import {
   Spinner,
   Button,
   Input,
-  Chip
+  Chip,
+  Modal,
+  ModalBody,
+  ModalContent
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
@@ -140,8 +143,74 @@ const Aftership = () => {
     )
   })
 
+  const [cancellingId, setCancellingId] = useState<string | null>(null)
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null) // Label to confirm
+  const cancelLabel = async (labelId: string) => {
+    try {
+      setCancellingId(labelId)
+      const response = await axios.post(import.meta.env.VITE_APP_AFTERSHIP_CANCEL_LABEL, {
+        label: { id: labelId }
+      })
+
+      if (response.data?.meta?.code !== 200) {
+        const message = response.data?.meta?.message || 'Failed to cancel label'
+        const details_info = response.data?.meta?.details?.[0]?.info || ''
+        alert(`Failed to cancel label: ${message} ${details_info}`)
+      } else {
+        await fetchLabels()
+      }  
+    } catch (err) {
+      console.error('Error cancelling label:', err)
+      alert('Failed to cancel label. Please try again.')
+    } finally {
+      setCancellingId(null)
+      setConfirmCancelId(null)
+    }
+  }
+
   return (
     <div>
+      {/* Cancel Confirmation Modal */}
+      <Modal
+        isOpen={!!confirmCancelId}
+        hideCloseButton
+        isDismissable={false}
+        size="sm"
+        backdrop="blur"
+      >
+        <ModalContent>
+          <ModalBody className="flex flex-col items-center justify-center py-8 space-y-4">
+            {cancellingId === confirmCancelId ? (
+              <>
+                <Spinner
+                  size="lg"
+                  color="danger"
+                  label="Cancelling label..."
+                  labelColor="danger"
+                />
+                <p className="text-sm text-gray-600 text-center">
+                  Please wait while we cancel this label...
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-center text-sm font-medium">
+                  Are you sure you want to cancel this label?
+                </p>
+                <div className="flex gap-3">
+                  <Button color="danger" onPress={() => cancelLabel(confirmCancelId!)}>
+                    Yes, Cancel
+                  </Button>
+                  <Button color="default" onPress={() => setConfirmCancelId(null)}>
+                    No, Keep
+                  </Button>
+                </div>
+              </>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
       <Card className="w-full">
         <CardHeader className="flex flex-col gap-4 pb-4">
           <div className="flex justify-between items-center w-full">
@@ -243,9 +312,10 @@ const Aftership = () => {
                 <TableColumn>SERVICE NAME</TableColumn>
                 <TableColumn>CHARGE WEIGHT</TableColumn>
                 <TableColumn>TOTAL CHARGE</TableColumn>
+                <TableColumn>ACTION</TableColumn>
               </TableHeader>
               <TableBody emptyContent="No labels found">
-                {filteredLabels.map((label,index) => (
+                {filteredLabels.map((label, index) => (
                   <TableRow
                     key={label.id}
                     className="cursor-pointer hover:bg-default-100"
@@ -306,6 +376,26 @@ const Aftership = () => {
                           ? `${label.rate.total_charge.currency} ${label.rate.total_charge.amount}`
                           : '-'}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {
+                          label.status === "created" && 
+                          <Button
+                            color="danger"
+                            size="sm"
+                            variant="flat"
+                            startContent={<Icon icon="solar:trash-bin-minimalistic-bold" />}
+                            isLoading={cancellingId === label.id}
+                            // onPress={() => cancelLabel(label.id)}
+                            onPress={() => setConfirmCancelId(label.id)} // Open modal
+                          >
+                            Cancel
+                          </Button>
+                        }                         
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
