@@ -428,7 +428,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Pickup Deadline</TableColumn>
               <TableColumn>Booking Cutoff</TableColumn>
             </TableHeader>
-            <TableBody emptyContent="No available rates found. Check or change your pick up date and expected delivery date.">
+            <TableBody emptyContent="No available rates found. Check or change your pick up date or expected delivery date or weight.">
               {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
               {sortedRates.map((rate, index) => {
                 const rateUniqueId = getRateUniqueId(rate, index)

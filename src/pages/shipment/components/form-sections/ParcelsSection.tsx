@@ -44,8 +44,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
         name: 'parcels'
     })
 
-    const [autoFilledParcels, setAutoFilledParcels] = useState<Set<number>>(new Set())
-    const [manualEditParcels, setManualEditParcels] = useState<Set<number>>(new Set())
     const [manualDescriptionParcels, setManualDescriptionParcels] = useState<Set<number>>(new Set())
     const [modalState, setModalState] = useState<{ isOpen: boolean; parcelIndex: number | null }>({
         isOpen: false,
@@ -184,15 +182,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
         console.log("selectedBoxType.width ", boxType.width)
         console.log('Form values set for parcel:', parcelIndex)
 
-        // Mark this parcel as auto-filled
-        setAutoFilledParcels(prev => new Set(prev).add(parcelIndex))
-        // Remove from manual edit if it was there
-        setManualEditParcels(prev => {
-            const updated = new Set(prev)
-            updated.delete(parcelIndex)
-            return updated
-        })
-
         // Trigger weight recalculation after parcel weight is set
         setTimeout(() => updateWeights(parcelIndex), 100)
     }
@@ -203,18 +192,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
 
     const closeBoxTypeModal = () => {
         setModalState({ isOpen: false, parcelIndex: null })
-    }
-
-    const handleToggleManualEdit = (parcelIndex: number) => {
-        setManualEditParcels(prev => {
-            const updated = new Set(prev)
-            if (updated.has(parcelIndex)) {
-                updated.delete(parcelIndex)
-            } else {
-                updated.add(parcelIndex)
-            }
-            return updated
-        })
     }
 
     const handleToggleDescriptionMode = (parcelIndex: number) => {
@@ -239,10 +216,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
     }
 
 
-    const isAutoFilled = (parcelIndex: number) => {
-        return autoFilledParcels.has(parcelIndex) && !manualEditParcels.has(parcelIndex)
-    }
-
     const handleRemoveParcel = (parcelIndex: number) => {
         // Clear rates since parcels are being removed
         if (onClearRates) {
@@ -252,30 +225,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
 
         removeParcel(parcelIndex)
         // Clean up state for removed parcel
-        // @ts-expect-error - no type
-        setAutoFilledParcels(prev => {
-            const updated = new Set()
-            prev.forEach(index => {
-                if (index < parcelIndex) {
-                    updated.add(index)
-                } else if (index > parcelIndex) {
-                    updated.add(index - 1)
-                }
-            })
-            return updated
-        })
-        // @ts-expect-error - no type
-        setManualEditParcels(prev => {
-            const updated = new Set()
-            prev.forEach(index => {
-                if (index < parcelIndex) {
-                    updated.add(index)
-                } else if (index > parcelIndex) {
-                    updated.add(index - 1)
-                }
-            })
-            return updated
-        })
         // @ts-expect-error - no type
         setManualDescriptionParcels(prev => {
             const updated = new Set()
@@ -324,30 +273,6 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
 
                             {/* Right side */}
                             <div className="flex gap-2 flex-wrap justify-end">
-                                {isAutoFilled(parcelIndex) && (
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="light"
-                                        color="primary"
-                                        startContent={<Icon icon="solar:pen-bold" />}
-                                        onPress={() => handleToggleManualEdit(parcelIndex)}
-                                    >
-                                        Edit Dimensions Manually
-                                    </Button>
-                                )}
-                                {manualEditParcels.has(parcelIndex) && autoFilledParcels.has(parcelIndex) && (
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="light"
-                                        color="warning"
-                                        startContent={<Icon icon="solar:lock-keyhole-minimalistic-bold" />}
-                                        onPress={() => handleToggleManualEdit(parcelIndex)}
-                                    >
-                                        Lock Auto-filled Values
-                                    </Button>
-                                )}
                                 {parcelFields.length > 1 && (
                                     <Button
                                         type="button"
@@ -413,15 +338,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                     placeholder="Enter length/depth"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.depth?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.depth}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
                                                     color={!watch(`parcels.${parcelIndex}.depth`) ? "warning" : "default"}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
-                                                    endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
-                                                    }
                                                     onChange={(e) => {
                                                         field.onChange(e)
                                                         // Clear rates since parcel dimensions are changing
@@ -450,15 +367,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                     placeholder="Enter width"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.width?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.width}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
                                                     color={!watch(`parcels.${parcelIndex}.width`) ? "warning" : "default"}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
-                                                    endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
-                                                    }
                                                     onChange={(e) => {
                                                         field.onChange(e)
                                                         // Clear rates since parcel dimensions are changing
@@ -487,15 +396,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                     placeholder="Enter height"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.height?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.height}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
                                                     color={!watch(`parcels.${parcelIndex}.height`) ? "warning" : "default"}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
-                                                    endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
-                                                    }
                                                     onChange={(e) => {
                                                         field.onChange(e)
                                                         // Clear rates since parcel dimensions are changing
@@ -554,15 +455,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                     placeholder="0.00000"
                                                     errorMessage={errors.parcels?.[parcelIndex]?.parcel_weight_value?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_weight_value}
-                                                    isReadOnly={isAutoFilled(parcelIndex)}
                                                     color={!watch(`parcels.${parcelIndex}.parcel_weight_value`) ? "warning" : "default"}
-                                                    className={isAutoFilled(parcelIndex) ? 'bg-gray-50' : ''}
-                                                    endContent={
-                                                        isAutoFilled(parcelIndex) && (
-                                                            <Icon icon="solar:lock-keyhole-minimalistic-bold"
-                                                                className="text-gray-400" />
-                                                        )
-                                                    }
                                                     onChange={(e) => {
                                                         field.onChange(e)
                                                         // Clear rates since parcel weight is changing
