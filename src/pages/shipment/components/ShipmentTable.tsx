@@ -160,7 +160,14 @@ const ShipmentTable = () => {
       if (carrierFilter !== 'all') {
         filtered = filtered.filter(request => {
           const chosenRate = request.rates?.find(rate => rate.chosen == true)
-          return chosenRate?.shipper_account_slug?.toLowerCase() === carrierFilter.toLowerCase()
+          const slug = chosenRate?.shipper_account_slug?.toLowerCase()
+
+          // If DHL is selected, include both 'dhl' and 'dhl-global-mail-asia'
+          if (carrierFilter.toLowerCase() === 'dhl') {
+            return slug === 'dhl' || slug === 'dhl-global-mail-asia'
+          }
+
+          return slug === carrierFilter.toLowerCase()
         })
       }
     }
