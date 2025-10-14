@@ -128,6 +128,9 @@ const BasicInformation = ({
       ? shipment.tracking_numbers.split(',').map(id => id.trim()).filter(id => id.length > 0)
       : [];
 
+    // Master tracking number is the first one
+    const masterTrackingNumber = trackingNumbers.length > 0 ? trackingNumbers[0] : null;
+
     labelData = <>
       <h2 className="text-lg font-semibold">Invoice Information</h2>
       <div className='flex gap-2'>
@@ -167,7 +170,30 @@ const BasicInformation = ({
         View Label
       </Button>
       <DetailRow label="ID" value={shipment.label_id} />
-      {/* <DetailRow label="Status" value={shipment.label_status} /> */}
+
+      {/* Master Tracking Number - only show if there are multiple tracking numbers */}
+      {trackingNumbers.length > 1 && masterTrackingNumber && (
+        <>
+          <DetailRow label="Master Tracking Number" value={masterTrackingNumber} />
+          {chosenRate?.shipper_account_slug && (
+            <Button
+              color="primary"
+              size="sm"
+              variant="solid"
+              startContent={<Icon icon="solar:map-point-wave-bold" />}
+              onPress={() => {
+                const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${masterTrackingNumber}`;
+                window.open(trackingUrl, "_blank");
+              }}
+              className="px-2 py-0 text-[11px] h-auto min-h-0 mb-2"
+            >
+              Track Master
+            </Button>
+          )}
+        </>
+      )}
+
+      {/* Tracking Numbers */}
       <DetailRow label="Tracking Numbers" value={shipment.tracking_numbers} />
 
       {/* Track buttons for each tracking number */}
