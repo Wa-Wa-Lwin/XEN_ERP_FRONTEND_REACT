@@ -1,6 +1,8 @@
 import { INCOTERMS } from "../../constants/form-defaults";
 
-export const getDisplayStatus = (status: string) => {
+export const getDisplayStatus = (status: string | null | undefined) => {
+  if (!status) return 'N/A';
+
   switch (status) {
     case 'requestor_requested':
       return 'WAITING APPROVER';
@@ -17,7 +19,9 @@ export const getDisplayStatus = (status: string) => {
   }
 };
 
-export const getDisplayStatusHistory = (status: string) => {
+export const getDisplayStatusHistory = (status: string | null | undefined) => {
+  if (!status) return 'N/A';
+
   switch (status) {
     case 'requestor_requested':
       return 'Requested to Approver';
