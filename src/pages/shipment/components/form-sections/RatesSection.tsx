@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
@@ -50,6 +50,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   // Inside RatesSection component, add sorting state
   const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>('thb')
   const [sortAsc, setSortAsc] = useState(true)
+  const [selectedCarrier, setSelectedCarrier] = useState<string>('all')
 
   // Cache keys
   const CACHE_KEY = 'exchange_rates_thb'
@@ -297,15 +298,38 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   }, [rates, serviceOption, exchangeRates, selectedRateId, onSelectRate])
 
 
-  // Sorted rates using useMemo
+  // Count carriers from available rates
+  const carrierCounts = useMemo(() => {
+    const availableRates = getAvailableUniqueRates(rates)
+    const counts: Record<string, number> = {
+      all: availableRates.length
+    }
+
+    availableRates.forEach(rate => {
+      const slug = rate.shipper_account.slug.toLowerCase()
+      counts[slug] = (counts[slug] || 0) + 1
+    })
+
+    return counts
+  }, [rates, exchangeRates, serviceOption])
+
+  // Sorted and filtered rates using useMemo
   const sortedRates = useMemo(() => {
-    const ratesToSort = getAvailableUniqueRates(rates).map(rate => ({
+    let ratesToSort = getAvailableUniqueRates(rates).map(rate => ({
       ...rate,
       thbAmount: rate.total_charge
         ? rate.total_charge.amount * (exchangeRates[rate.total_charge.currency?.toUpperCase()] || 1)
         : 0
     }))
 
+    // Filter by carrier
+    if (selectedCarrier !== 'all') {
+      ratesToSort = ratesToSort.filter(rate =>
+        rate.shipper_account.slug.toLowerCase() === selectedCarrier.toLowerCase()
+      )
+    }
+
+    // Sort
     if (sortBy === 'thb') {
       return ratesToSort.sort((a, b) => sortAsc ? a.thbAmount - b.thbAmount : b.thbAmount - a.thbAmount)
     } else if (sortBy === 'transit') {
@@ -316,7 +340,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       })
     }
     return ratesToSort
-  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption])
+  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier])
 
   return (
     <Card shadow="none">
@@ -372,6 +396,64 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             <p>No rates calculated yet. Click "Calculate Rates" to get shipping quotes.</p>
           </div>
         ) : (
+          <>
+            {/* Carrier Filter Tabs */}
+            <Tabs
+              aria-label="Carrier filter"
+              selectedKey={selectedCarrier}
+              onSelectionChange={(key) => setSelectedCarrier(key as string)}
+              className="mb-4"
+              color="primary"
+              variant="underlined"
+            >
+              <Tab
+                key="all"
+                title={
+                  <div className="flex items-center gap-2">
+                    <span>All</span>
+                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                      {carrierCounts.all || 0}
+                    </span>
+                  </div>
+                }
+              />
+              <Tab
+                key="fedex"
+                title={
+                  <div className="flex items-center gap-2">
+                    <span>FedEx</span>
+                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                      {carrierCounts.fedex || 0}
+                    </span>
+                  </div>
+                }
+              />
+              <Tab
+                key="dhl"
+                title={
+                  <div className="flex items-center gap-2">
+                    <span>DHL</span>
+                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                      {carrierCounts.dhl || 0}
+                    </span>
+                  </div>
+                }
+              />
+              <Tab
+                key="ups"
+                title={
+                  <div className="flex items-center gap-2">
+                    <span>UPS</span>
+                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                      {carrierCounts.ups || 0}
+                    </span>
+                  </div>
+                }
+              />
+            </Tabs>
+          </>
+        )}
+        {rates.length > 0 && (
           <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
             <TableHeader>
               <TableColumn>Select</TableColumn>
