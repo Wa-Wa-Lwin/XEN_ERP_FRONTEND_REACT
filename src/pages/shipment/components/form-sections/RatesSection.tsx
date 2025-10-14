@@ -307,7 +307,13 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
     availableRates.forEach(rate => {
       const slug = rate.shipper_account.slug.toLowerCase()
-      counts[slug] = (counts[slug] || 0) + 1
+
+      // Group dhl-global-mail-asia with dhl
+      if (slug === 'dhl-global-mail-asia') {
+        counts['dhl'] = (counts['dhl'] || 0) + 1
+      } else {
+        counts[slug] = (counts[slug] || 0) + 1
+      }
     })
 
     return counts
@@ -324,9 +330,16 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
     // Filter by carrier
     if (selectedCarrier !== 'all') {
-      ratesToSort = ratesToSort.filter(rate =>
-        rate.shipper_account.slug.toLowerCase() === selectedCarrier.toLowerCase()
-      )
+      ratesToSort = ratesToSort.filter(rate => {
+        const slug = rate.shipper_account.slug.toLowerCase()
+
+        // If DHL is selected, include both 'dhl' and 'dhl-global-mail-asia'
+        if (selectedCarrier.toLowerCase() === 'dhl') {
+          return slug === 'dhl' || slug === 'dhl-global-mail-asia'
+        }
+
+        return slug === selectedCarrier.toLowerCase()
+      })
     }
 
     // Sort
