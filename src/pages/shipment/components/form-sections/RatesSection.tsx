@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react'
 import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
+import { getRateUniqueId as generateRateId } from '@services/rateCalculationService'
 
 // Interface for exchange rate API response
 interface ExchangeRateResponse {
@@ -279,9 +280,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return availableRates
   }
 
-  // Generate unique rate ID for selection (should match the one in ShipmentForm)
+  // Generate unique rate ID for selection using the shared function from rateCalculationService
   const getRateUniqueId = (rate: RateResponse, _index: number) => {
-    return `${rate.shipper_account.id}-${rate.service_type}-${rate.transit_time || 'null'}-${rate.total_charge?.amount || 0}-${rate.total_charge?.currency || 'null'}`
+    // Use the same function from rateCalculationService to ensure consistency
+    return generateRateId(rate as any)
   }
 
   // Auto-select the cheapest rate when service option is "normal"
