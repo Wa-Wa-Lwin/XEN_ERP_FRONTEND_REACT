@@ -88,8 +88,23 @@ const Aftership = () => {
     cancelled: 0
   })
 
+  // Date range state - default to last 24 hours
+  const getDefaultDateRange = () => {
+    const now = new Date()
+    const yesterday = new Date(now)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    return {
+      from: yesterday.toISOString().slice(0, 16), // Format: YYYY-MM-DDTHH:mm
+      to: now.toISOString().slice(0, 16)
+    }
+  }
+
+  const [dateRange, setDateRange] = useState(getDefaultDateRange())
+
   useEffect(() => {
     fetchLabels()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchLabels = async () => {
@@ -97,9 +112,44 @@ const Aftership = () => {
       setLoading(true)
       setError(null)
 
-      const response = await axios.get(import.meta.env.VITE_APP_AFTERSHIP_GET_LABELS)
+      // Format dates to ISO 8601 with timezone
+      const fromDate = new Date(dateRange.from)
+      const toDate = new Date(dateRange.to)
+
+      // Validate date range
+      if (toDate <= fromDate) {
+        setError('End date must be after start date')
+        setLoading(false)
+        return
+      }
+
+      // Check if date range exceeds 90 days
+      const daysDiff = Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24))
+      if (daysDiff > 90) {
+        setError('Date range cannot exceed 90 days')
+        setLoading(false)
+        return
+      }
+
+      // Format dates without milliseconds: YYYY-MM-DDThh:mm:ss+00:00
+      const formatDateForAPI = (date: Date): string => {
+        // Get ISO string and remove milliseconds
+        const isoString = date.toISOString()
+        // Remove .000Z and replace with +00:00
+        return isoString.replace(/\.\d{3}Z$/, '+00:00')
+      }
+
+      const params: Record<string, string> = {
+        created_at_min: formatDateForAPI(fromDate),
+        created_at_max: formatDateForAPI(toDate)
+      }
+
+      const response = await axios.get(import.meta.env.VITE_APP_AFTERSHIP_GET_LABELS, {
+        params
+      })
 
       if (response.data && response.data.data) {
+        // Backend now returns all labels (handles pagination automatically)
         setLabels(response.data.data.labels || [])
 
         // Set counts from the response
@@ -112,10 +162,15 @@ const Aftership = () => {
       }
     } catch (err) {
       console.error('Error fetching labels:', err)
-      setError((err as Error).message || 'Failed to fetch labels')
+      const errorMessage = (err as any)?.response?.data?.error || (err as Error).message || 'Failed to fetch labels'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleDateRangeApply = () => {
+    fetchLabels()
   }
 
   const formatDate = (dateString: string) => {
@@ -220,7 +275,86 @@ const Aftership = () => {
                 View and manage shipping labels from Aftership
               </p>
             </div>
-            <div className="w-full max-w-md">
+
+            {/* Counts Summary */}
+            <div className="flex gap-3 flex-wrap">
+              <Chip
+                variant="flat"
+                color="default"
+                size="sm"
+                startContent={<Icon icon="solar:box-bold" width={18} />}
+              >
+                <span className="font-semibold">Total: {counts.total}</span>
+              </Chip>
+              <Chip
+                variant="flat"
+                color="success"
+                size="sm"
+                startContent={<Icon icon="solar:check-circle-bold" width={18} />}
+              >
+                <span className="font-semibold">Created: {counts.created}</span>
+              </Chip>
+              <Chip
+                variant="flat"
+                color="danger"
+                size="sm"
+                startContent={<Icon icon="solar:close-circle-bold" width={18} />}
+              >
+                <span className="font-semibold">Failed: {counts.failed}</span>
+              </Chip>
+              <Chip
+                variant="flat"
+                color="warning"
+                size="sm"
+                startContent={<Icon icon="solar:slash-circle-bold" width={18} />}
+              >
+                <span className="font-semibold">Cancelled: {counts.cancelled}</span>
+              </Chip>
+            </div>
+          </div>
+
+          {/* Date Range and Search Row */}
+          <div className="flex gap-3 items-end flex-wrap">
+            <div className="flex gap-2 items-end">
+              <Input
+                type="datetime-local"
+                label="From"
+                labelPlacement="outside"
+                value={dateRange.from}
+                onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
+                className="w-56"
+                size="sm"
+              />
+              <Input
+                type="datetime-local"
+                label="To"
+                labelPlacement="outside"
+                value={dateRange.to}
+                onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
+                className="w-56"
+                size="sm"
+              />
+              <Button
+                color="primary"
+                onPress={handleDateRangeApply}
+                isLoading={loading}
+                size="sm"
+              >
+                Apply
+              </Button>
+              <Button
+                color="default"
+                variant="flat"
+                onPress={() => {
+                  setDateRange(getDefaultDateRange())
+                }}
+                size="sm"
+              >
+                Reset
+              </Button>
+            </div>
+
+            <div className="flex-1 min-w-[300px]">
               <Input
                 placeholder="Search by ID, tracking number, status, or carrier..."
                 startContent={<Icon icon="solar:magnifer-linear" />}
@@ -228,50 +362,16 @@ const Aftership = () => {
                 onValueChange={setSearchQuery}
                 isClearable
                 onClear={() => setSearchQuery('')}
+                size="sm"
               />
             </div>
-            <div>
-              {/* Counts Summary */}
-              <div className="flex gap-3 flex-wrap">
-                <Chip
-                  variant="flat"
-                  color="default"
-                  size="sm"
-                  startContent={<Icon icon="solar:box-bold" width={18} />}
-                >
-                  <span className="font-semibold">Total: {counts.total}</span>
-                </Chip>
-                <Chip
-                  variant="flat"
-                  color="success"
-                  size="sm"
-                  startContent={<Icon icon="solar:check-circle-bold" width={18} />}
-                >
-                  <span className="font-semibold">Created: {counts.created}</span>
-                </Chip>
-                <Chip
-                  variant="flat"
-                  color="danger"
-                  size="sm"
-                  startContent={<Icon icon="solar:close-circle-bold" width={18} />}
-                >
-                  <span className="font-semibold">Failed: {counts.failed}</span>
-                </Chip>
-                <Chip
-                  variant="flat"
-                  color="warning"
-                  size="sm"
-                  startContent={<Icon icon="solar:slash-circle-bold" width={18} />}
-                >
-                  <span className="font-semibold">Cancelled: {counts.cancelled}</span>
-                </Chip>
-              </div>
-            </div>
+
             <Button
               color="primary"
               startContent={<Icon icon="solar:refresh-linear" />}
-              onPress={fetchLabels}
+              onPress={() => handleDateRangeApply()}
               isLoading={loading}
+              size="sm"
             >
               Refresh
             </Button>
@@ -288,7 +388,7 @@ const Aftership = () => {
           {error && (
             <div className="text-center py-10">
               <p className="text-red-600 mb-4">Error: {error}</p>
-              <Button color="primary" onPress={fetchLabels}>
+              <Button color="primary" onPress={() => fetchLabels()}>
                 Try Again
               </Button>
             </div>
@@ -401,6 +501,13 @@ const Aftership = () => {
                 ))}
               </TableBody>
             </Table>
+          )}
+
+          {/* Showing results info */}
+          {!loading && !error && labels.length > 0 && (
+            <p className="text-xs text-center text-default-400 mt-2">
+              Showing {filteredLabels.length} of {labels.length} labels
+            </p>
           )}
         </CardBody>
       </Card>
