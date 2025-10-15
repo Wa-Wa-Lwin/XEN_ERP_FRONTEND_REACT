@@ -87,16 +87,17 @@ const Aftership = () => {
     failed: 0,
     cancelled: 0
   })
+  const [statusFilter, setStatusFilter] = useState<'all' | 'created' | 'failed' | 'cancelled'>('all')
 
-  // Date range state - default to last 24 hours
+  // Date range state - default to last 7 days
   const getDefaultDateRange = () => {
     const now = new Date()
-    const yesterday = new Date(now)
-    yesterday.setDate(yesterday.getDate() - 1)
+    const lastweek = new Date(now)
+    lastweek.setDate(lastweek.getDate() - 7)
 
     return {
-      from: yesterday.toISOString().slice(0, 16), // Format: YYYY-MM-DDTHH:mm
-      to: now.toISOString().slice(0, 16)
+      from: lastweek.toISOString().slice(0, 10), // Format: YYYY-MM-DD
+      to: now.toISOString().slice(0, 10)
     }
   }
 
@@ -112,9 +113,9 @@ const Aftership = () => {
       setLoading(true)
       setError(null)
 
-      // Format dates to ISO 8601 with timezone
-      const fromDate = new Date(dateRange.from)
-      const toDate = new Date(dateRange.to)
+      // Create dates with specific times: 00:00:00 for from, 23:59:59 for to
+      const fromDate = new Date(dateRange.from + 'T00:00:00')
+      const toDate = new Date(dateRange.to + 'T23:59:59')
 
       // Validate date range
       if (toDate <= fromDate) {
@@ -187,6 +188,12 @@ const Aftership = () => {
   }
 
   const filteredLabels = labels.filter(label => {
+    // Filter by status
+    if (statusFilter !== 'all' && label.status !== statusFilter) {
+      return false
+    }
+
+    // Filter by search query
     if (!searchQuery) return true
     const query = searchQuery.toLowerCase()
     return (
@@ -213,7 +220,7 @@ const Aftership = () => {
         alert(`Failed to cancel label: ${message} ${details_info}`)
       } else {
         await fetchLabels()
-      }  
+      }
     } catch (err) {
       console.error('Error cancelling label:', err)
       alert('Failed to cancel label. Please try again.')
@@ -270,111 +277,117 @@ const Aftership = () => {
         <CardHeader className="flex flex-col gap-4 pb-4">
           <div className="flex justify-between items-center w-full">
             <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-bold">Aftership Labels</h1>
-              <p className="text-small text-default-600">
-                View and manage shipping labels from Aftership
-              </p>
+              <h1 className="text-2xl font-bold">Aftership Labels</h1>              
+            </div>
+            {/* Date Range and Search Row */}
+            <div className="flex gap-3 items-end flex-wrap">
+              <div className="flex gap-1 items-end">
+                <Input
+                  type="date"
+                  label="From"
+                  labelPlacement="outside-left"
+                  value={dateRange.from}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
+                  className="w-fit"
+                  size="sm"
+                />               
+                <Input
+                  type="date"
+                  label="To"
+                  labelPlacement="outside-left"
+                  value={dateRange.to}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
+                  className="w-fit"
+                  size="sm"
+                />
+                <Button
+                  color="primary"
+                  onPress={handleDateRangeApply}
+                  isLoading={loading}
+                  size="sm"
+                  className="!px-2 !py-1 !text-xs"
+                >
+                  Apply
+                </Button>
+                <Button
+                  color="default"
+                  variant="flat"
+                  onPress={() => {
+                    setDateRange(getDefaultDateRange())
+                  }}
+                  size="sm"
+                  className="!px-2 !py-1 !text-xs"
+                >
+                  Reset
+                </Button>
+              </div>
+
+              <div className="flex-1 min-w-[300px]">
+                <Input
+                  placeholder="Search by ID, tracking number, status, or carrier..."
+                  startContent={<Icon icon="solar:magnifer-linear" />}
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                  isClearable
+                  onClear={() => setSearchQuery('')}
+                  size="sm"
+                />
+              </div>
+
+              <Button
+                color="primary"
+                startContent={<Icon icon="solar:refresh-linear" />}
+                onPress={() => handleDateRangeApply()}
+                isLoading={loading}
+                size="sm"
+              >
+                Refresh
+              </Button>
             </div>
 
             {/* Counts Summary */}
             <div className="flex gap-3 flex-wrap">
               <Chip
-                variant="flat"
+                variant={statusFilter === 'all' ? 'solid' : 'flat'}
                 color="default"
                 size="sm"
                 startContent={<Icon icon="solar:box-bold" width={18} />}
+                className="cursor-pointer"
+                onClick={() => setStatusFilter('all')}
               >
                 <span className="font-semibold">Total: {counts.total}</span>
               </Chip>
               <Chip
-                variant="flat"
+                variant={statusFilter === 'created' ? 'solid' : 'flat'}
                 color="success"
                 size="sm"
                 startContent={<Icon icon="solar:check-circle-bold" width={18} />}
+                className="cursor-pointer"
+                onClick={() => setStatusFilter('created')}
               >
                 <span className="font-semibold">Created: {counts.created}</span>
               </Chip>
               <Chip
-                variant="flat"
+                variant={statusFilter === 'failed' ? 'solid' : 'flat'}
                 color="danger"
                 size="sm"
                 startContent={<Icon icon="solar:close-circle-bold" width={18} />}
+                className="cursor-pointer"
+                onClick={() => setStatusFilter('failed')}
               >
                 <span className="font-semibold">Failed: {counts.failed}</span>
               </Chip>
               <Chip
-                variant="flat"
+                variant={statusFilter === 'cancelled' ? 'solid' : 'flat'}
                 color="warning"
                 size="sm"
                 startContent={<Icon icon="solar:slash-circle-bold" width={18} />}
+                className="cursor-pointer"
+                onClick={() => setStatusFilter('cancelled')}
               >
                 <span className="font-semibold">Cancelled: {counts.cancelled}</span>
               </Chip>
             </div>
-          </div>
-
-          {/* Date Range and Search Row */}
-          <div className="flex gap-3 items-end flex-wrap">
-            <div className="flex gap-2 items-end">
-              <Input
-                type="datetime-local"
-                label="From"
-                labelPlacement="outside"
-                value={dateRange.from}
-                onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
-                className="w-56"
-                size="sm"
-              />
-              <Input
-                type="datetime-local"
-                label="To"
-                labelPlacement="outside"
-                value={dateRange.to}
-                onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
-                className="w-56"
-                size="sm"
-              />
-              <Button
-                color="primary"
-                onPress={handleDateRangeApply}
-                isLoading={loading}
-                size="sm"
-              >
-                Apply
-              </Button>
-              <Button
-                color="default"
-                variant="flat"
-                onPress={() => {
-                  setDateRange(getDefaultDateRange())
-                }}
-                size="sm"
-              >
-                Reset
-              </Button>
-            </div>
-
-            <div className="flex-1 min-w-[300px]">
-              <Input
-                placeholder="Search by ID, tracking number, status, or carrier..."
-                startContent={<Icon icon="solar:magnifer-linear" />}
-                value={searchQuery}
-                onValueChange={setSearchQuery}
-                isClearable
-                onClear={() => setSearchQuery('')}
-                size="sm"
-              />
-            </div>
-
-            <Button
-              color="primary"
-              startContent={<Icon icon="solar:refresh-linear" />}
-              onPress={() => handleDateRangeApply()}
-              isLoading={loading}
-              size="sm"
-            >
-              Refresh
-            </Button>
           </div>
         </CardHeader>
 
@@ -482,7 +495,7 @@ const Aftership = () => {
                         onClick={(e) => e.stopPropagation()}
                       >
                         {
-                          label.status === "created" && 
+                          label.status === "created" &&
                           <Button
                             color="danger"
                             size="sm"
@@ -494,7 +507,7 @@ const Aftership = () => {
                           >
                             Cancel
                           </Button>
-                        }                         
+                        }
                       </div>
                     </TableCell>
                   </TableRow>
