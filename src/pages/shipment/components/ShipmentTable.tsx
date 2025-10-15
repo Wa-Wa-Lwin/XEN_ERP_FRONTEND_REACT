@@ -33,6 +33,7 @@ const ShipmentTable = () => {
   const [reviewFilter, setReviewFilter] = useState<'waiting' | 'all'>('waiting')
   const [approvalFilter, setApprovalFilter] = useState<'waiting' | 'all' | 'approved' | 'rejected'>('waiting')
   const [carrierFilter, setCarrierFilter] = useState<string>('all')
+  const [scopeFilter, setScopeFilter] = useState<string>('all')
 
   // Sort states
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
@@ -54,6 +55,15 @@ const ShipmentTable = () => {
     { value: 'ups', label: 'UPS' },
     { value: 'fedex', label: 'FedEx' },
     { value: 'dhl', label: 'DHL' }
+  ]
+
+  // Scope options for filtering
+  const scopeOptions = [
+    { value: 'all', label: 'All Scopes' },
+    { value: 'domestic', label: 'Domestic' },
+    { value: 'international', label: 'International' },
+    { value: 'export', label: 'Export' },
+    { value: 'import', label: 'Import' }
   ]
 
   // Pagination states
@@ -170,6 +180,14 @@ const ShipmentTable = () => {
           return slug === carrierFilter.toLowerCase()
         })
       }
+
+      // Filter by scope
+      if (scopeFilter !== 'all') {
+        filtered = filtered.filter(request => {
+          const scope = request.shipment_scope_type?.toLowerCase()
+          return scope === scopeFilter.toLowerCase()
+        })
+      }
     }
 
     // Apply sorting if enabled
@@ -187,7 +205,7 @@ const ShipmentTable = () => {
     }
 
     return filtered
-  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection, reviewFilter, approvalFilter, carrierFilter])
+  }, [shipmentRequests, filterType, statusFilter, activeButton, msLoginUser?.email, sortDirection, reviewFilter, approvalFilter, carrierFilter, scopeFilter])
 
   // Pagination logic
   const paginatedData = useMemo(() => {
@@ -401,7 +419,26 @@ const ShipmentTable = () => {
                     ))}
                   </Select>
 
-                  {(statusFilter !== 'all' || carrierFilter !== 'all') && (
+                  <span className="text-sm font-medium text-gray-700">Filter by Scope:</span>
+                  <Select
+                    size="sm"
+                    className="w-48"
+                    placeholder="Select scope..."
+                    selectedKeys={[scopeFilter]}
+                    onSelectionChange={(keys) => {
+                      const selectedScope = Array.from(keys)[0] as string
+                      setScopeFilter(selectedScope)
+                      setPage(1) // Reset to first page when changing filter
+                    }}
+                  >
+                    {scopeOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+
+                  {(statusFilter !== 'all' || carrierFilter !== 'all' || scopeFilter !== 'all') && (
                     <Button
                       size="sm"
                       variant="light"
@@ -409,6 +446,7 @@ const ShipmentTable = () => {
                       onPress={() => {
                         setStatusFilter('all')
                         setCarrierFilter('all')
+                        setScopeFilter('all')
                         setPage(1)
                       }}
                     >
@@ -584,13 +622,13 @@ const ShipmentTable = () => {
                   {request.ship_from?.company_name
                     ?.split(' ')
                     .slice(0, 3)
-                    .join(' ') || request.ship_from?.company_name}
+                    .join(' ') || request.ship_from?.company_name} ({request.ship_from?.country})
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {request.ship_to?.company_name
                     ?.split(' ')
                     .slice(0, 3)
-                    .join(' ') || request.ship_to?.company_name}
+                    .join(' ') || request.ship_to?.company_name} ({request.ship_to?.country})
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
 
