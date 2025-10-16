@@ -367,7 +367,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             }
                                         )}
                                         type="number"
-                                        step="0.00001"
+                                        step="0.0001"
                                         variant="flat"
                                         size="sm"
                                         errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}

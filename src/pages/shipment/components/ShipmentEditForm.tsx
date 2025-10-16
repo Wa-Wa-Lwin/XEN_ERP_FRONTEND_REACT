@@ -555,7 +555,7 @@ const ShipmentEditForm = () => {
         parcel_items: parcel.parcel_items?.map(item => ({
           ...item,
           weight_value: Number(item.weight_value).toFixed(5),
-          price_amount: Number(item.price_amount).toFixed(2)
+          price_amount: Number(item.price_amount).toFixed(4)
         }))
       }))
 
