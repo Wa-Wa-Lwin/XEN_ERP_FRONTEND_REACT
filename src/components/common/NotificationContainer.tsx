@@ -13,7 +13,7 @@ const NotificationContainer: React.FC = () => {
         return {
           icon: 'solar:check-circle-bold',
           bgColor: 'bg-green-50',
-          borderColor: 'border-l-green-500',
+          borderColor: 'border-green-500',
           iconColor: 'text-green-500',
           titleColor: 'text-green-800',
           messageColor: 'text-green-700'
@@ -22,7 +22,7 @@ const NotificationContainer: React.FC = () => {
         return {
           icon: 'solar:close-circle-bold',
           bgColor: 'bg-red-50',
-          borderColor: 'border-l-red-500',
+          borderColor: 'border-red-500',
           iconColor: 'text-red-500',
           titleColor: 'text-red-800',
           messageColor: 'text-red-700'
@@ -31,7 +31,7 @@ const NotificationContainer: React.FC = () => {
         return {
           icon: 'solar:danger-triangle-bold',
           bgColor: 'bg-yellow-50',
-          borderColor: 'border-l-yellow-500',
+          borderColor: 'border-yellow-500',
           iconColor: 'text-yellow-500',
           titleColor: 'text-yellow-800',
           messageColor: 'text-yellow-700'
@@ -40,7 +40,7 @@ const NotificationContainer: React.FC = () => {
         return {
           icon: 'solar:info-circle-bold',
           bgColor: 'bg-blue-50',
-          borderColor: 'border-l-blue-500',
+          borderColor: 'border-blue-500',
           iconColor: 'text-blue-500',
           titleColor: 'text-blue-800',
           messageColor: 'text-blue-700'
@@ -49,7 +49,7 @@ const NotificationContainer: React.FC = () => {
         return {
           icon: 'solar:info-circle-bold',
           bgColor: 'bg-gray-50',
-          borderColor: 'border-l-gray-500',
+          borderColor: 'border-gray-500',
           iconColor: 'text-gray-500',
           titleColor: 'text-gray-800',
           messageColor: 'text-gray-700'
@@ -68,7 +68,7 @@ const NotificationContainer: React.FC = () => {
           return (
             <Card
               key={notification.id}
-              className={`${config.bgColor} ${config.borderColor} border-4 shadow-2xl w-full h-64 animate-in fade-in duration-300`}
+              className={`${config.bgColor} ${config.borderColor} border-4 shadow-xl w-full h-64 animate-in fade-in duration-300`}
               shadow="none"
             >
               <CardBody className="p-8 flex flex-col justify-center">

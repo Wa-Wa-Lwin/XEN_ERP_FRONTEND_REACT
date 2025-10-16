@@ -167,7 +167,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
         {
           field: `${prefix}_phone`, value: (() => {
             let phone = address.phone || '';
-            // Remove all non-digit and non-plus characters
+            // Remove all non-digit and non-plus characters (including -, (), and spaces)
             phone = phone.replace(/[^0-9+]/g, "");
             // Ensure only one + and it's at the beginning
             const plusCount = (phone.match(/\+/g) || []).length;
@@ -178,6 +178,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             if (phone.includes('+') && !phone.startsWith('+')) {
               phone = '+' + phone.replace(/\+/g, '');
             }
+            // Limit to 15 characters total
             return phone.slice(0, 15);
           })()
         },

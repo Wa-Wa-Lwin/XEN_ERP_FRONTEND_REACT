@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Table,
   TableHeader,
@@ -47,6 +47,10 @@ const AddressList = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [currentPage, setCurrentPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [sortConfig, setSortConfig] = useState<{ key: keyof AddressListData | null; direction: 'asc' | 'desc' }>({
+    key: null,
+    direction: 'asc'
+  })
   const [formData, setFormData] = useState({
     CardCode: '',
     company_name: '',
@@ -172,10 +176,51 @@ const AddressList = () => {
     setSearchQuery('')
   }
 
-  const totalPages = Math.ceil(filteredAddresses.length / itemsPerPage)
+  const handleSort = (key: keyof AddressListData) => {
+    setSortConfig((currentConfig) => {
+      if (currentConfig.key === key) {
+        // Toggle direction if clicking the same column
+        return {
+          key,
+          direction: currentConfig.direction === 'asc' ? 'desc' : 'asc'
+        }
+      }
+      // New column, default to ascending
+      return { key, direction: 'asc' }
+    })
+  }
+
+  // Sort the filtered addresses
+  const sortedAddresses = useMemo(() => {
+    if (!sortConfig.key) {
+      return filteredAddresses
+    }
+
+    const sorted = [...filteredAddresses].sort((a, b) => {
+      const aValue = a[sortConfig.key!]
+      const bValue = b[sortConfig.key!]
+
+      // Handle null/undefined values
+      if (aValue === null || aValue === undefined) return 1
+      if (bValue === null || bValue === undefined) return -1
+
+      // Compare values
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1
+      }
+      return 0
+    })
+
+    return sorted
+  }, [filteredAddresses, sortConfig])
+
+  const totalPages = Math.ceil(sortedAddresses.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentItems = filteredAddresses.slice(startIndex, endIndex)
+  const currentItems = sortedAddresses.slice(startIndex, endIndex)
 
   const handleCreateNew = () => {
     setFormData({
@@ -278,6 +323,22 @@ const AddressList = () => {
     }
   }
 
+  // Helper component for sortable column headers
+  const SortableHeader = ({ columnKey, label, className = '' }: { columnKey: keyof AddressListData; label: string; className?: string }) => (
+    <div
+      className={`flex items-center gap-1 cursor-pointer select-none hover:text-primary transition-colors ${className}`}
+      onClick={() => handleSort(columnKey)}
+    >
+      <span>{label}</span>
+      {sortConfig.key === columnKey && (
+        <Icon
+          icon={sortConfig.direction === 'asc' ? 'solar:alt-arrow-up-bold' : 'solar:alt-arrow-down-bold'}
+          width={16}
+        />
+      )}
+    </div>
+  )
+
   return (
     <div>
       <Card className="w-full">
@@ -360,15 +421,33 @@ const AddressList = () => {
                 isStriped
               >
                 <TableHeader>
-                  <TableColumn className="w-16">No.</TableColumn>
-                  <TableColumn className="w-32">CODE</TableColumn>
-                  <TableColumn className="min-w-[250px]">COMPANY</TableColumn>
-                  <TableColumn className="w-24">COUNTRY</TableColumn>
-                  <TableColumn className="w-24">TYPE</TableColumn>
-                  <TableColumn className="min-w-[300px]">ADDRESS</TableColumn>
-                  <TableColumn className="w-32">CONTACT</TableColumn>
-                  <TableColumn className="w-40">PHONE</TableColumn>
-                  <TableColumn className="w-24">STATUS</TableColumn>
+                  <TableColumn className="w-16">
+                    <SortableHeader columnKey="addressID" label="No." />
+                  </TableColumn>
+                  <TableColumn className="w-32">
+                    <SortableHeader columnKey="CardCode" label="CODE" />
+                  </TableColumn>
+                  <TableColumn className="min-w-[250px]">
+                    <SortableHeader columnKey="company_name" label="COMPANY" />
+                  </TableColumn>
+                  <TableColumn className="w-24">
+                    <SortableHeader columnKey="country" label="COUNTRY" />
+                  </TableColumn>
+                  <TableColumn className="w-24">
+                    <SortableHeader columnKey="CardType" label="TYPE" />
+                  </TableColumn>
+                  <TableColumn className="min-w-[300px]">
+                    <SortableHeader columnKey="full_address" label="ADDRESS" />
+                  </TableColumn>
+                  <TableColumn className="w-32">
+                    <SortableHeader columnKey="contact_name" label="CONTACT" />
+                  </TableColumn>
+                  <TableColumn className="w-40">
+                    <SortableHeader columnKey="phone" label="PHONE" />
+                  </TableColumn>
+                  <TableColumn className="w-24">
+                    <SortableHeader columnKey="active" label="STATUS" />
+                  </TableColumn>
                 </TableHeader>
                 <TableBody emptyContent="No addresses found">
                   {currentItems.map((address, index) => (

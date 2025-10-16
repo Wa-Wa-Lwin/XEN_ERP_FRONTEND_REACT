@@ -359,7 +359,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                             `parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`,
                                             {
                                                 required: isItemFieldRequired('price_amount') ? 'Price is required' : false,
-                                                min: { value: 1, message: 'Price must be at least 1' },
+                                                min: { value: 0, message: 'Price must be at least 0' },
                                                 pattern: {
                                                     value: /^\d*\.?\d*$/,
                                                     message: 'Only numbers and decimals allowed',
