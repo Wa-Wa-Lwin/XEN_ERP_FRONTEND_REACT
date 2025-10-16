@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Card, CardHeader, CardBody, Autocomplete, AutocompleteItem, Spinner } from '@heroui/react'
+import { Card, CardHeader, CardBody, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
 
@@ -39,7 +39,7 @@ interface ApiResponse {
 
 const Dashboard: React.FC = () => {
   const currentYear = new Date().getFullYear()
-  const [selectedYear, setSelectedYear] = useState<number>(currentYear)
+  const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString())
   const [data, setData] = useState<ApiResponse | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,15 +62,15 @@ const Dashboard: React.FC = () => {
   }
 
   useEffect(() => {
-    fetchData(selectedYear)
+    fetchData(parseInt(selectedYear))
   }, [selectedYear])
 
   // Update selectedYear when data is loaded to ensure it matches available years
   useEffect(() => {
     if (data?.year_list && data.year_list.length > 0) {
       const availableYears = data.year_list.map(item => parseInt(item.year)).sort((a, b) => b - a)
-      if (!availableYears.includes(selectedYear)) {
-        setSelectedYear(availableYears[0])
+      if (!availableYears.includes(parseInt(selectedYear))) {
+        setSelectedYear(availableYears[0].toString())
       }
     }
   }, [data?.year_list, selectedYear])
@@ -501,7 +501,7 @@ const Dashboard: React.FC = () => {
           <p className="text-red-600 text-lg mb-2">Failed to load dashboard data</p>
           <p className="text-gray-600">{error}</p>
           <button
-            onClick={() => fetchData(selectedYear)}
+            onClick={() => fetchData(parseInt(selectedYear))}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Retry
@@ -523,22 +523,23 @@ const Dashboard: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Shipment Dashboard</h1>
-        <Autocomplete
-          label="Select Year"
-          selectedKey={availableYears.includes(selectedYear) ? selectedYear.toString() : ""}
-          className="w-40"
-          onSelectionChange={(key) => {
-            if (key) {
-              setSelectedYear(parseInt(key as string))
-            }
-          }}
-        >
-          {availableYears.map((year) => (
-            <AutocompleteItem key={year.toString()} value={year.toString()}>
-              {year}
-            </AutocompleteItem>
-          ))}
-        </Autocomplete>
+        <div className="flex flex-row gap-1 items-center">
+          <label htmlFor="year-select" className="text-md text-gray-600 font-medium">
+            Year
+          </label>
+          <select
+            id="year-select"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="px-2 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer transition-all"
+          >
+            {availableYears.map((year) => (
+              <option key={year} value={year.toString()}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -296,20 +296,22 @@ const AftershipDetail = () => {
                 <div className="grid md:grid-cols-2 gap-x-8">
                   <DetailRow
                     label="Charge Weight"
-                    value={`${label.rate.charge_weight.value} ${label.rate.charge_weight.unit}`}
+                    value={label.rate.charge_weight ? `${label.rate.charge_weight.value} ${label.rate.charge_weight.unit}` : '-'}
                   />
                   {label.rate.dimensional_weight && (
                     <DetailRow
                       label="Dimensional Weight"
-                      value={`${label.rate.dimensional_weight.value} ${label.rate.dimensional_weight.unit}`}
+                      value={label.rate.dimensional_weight ? `${label.rate.dimensional_weight.value} ${label.rate.dimensional_weight.unit}` : '-'}
                     />
                   )}
                   <DetailRow
                     label="Total Charge"
                     value={
-                      <span className="font-bold text-primary">
-                        {label.rate.total_charge.currency} {label.rate.total_charge.amount}
-                      </span>
+                      label.rate.total_charge ? (
+                        <span className="font-bold text-primary">
+                          {label.rate.total_charge.currency} {label.rate.total_charge.amount}
+                        </span>
+                      ) : '-'
                     }
                   />
                 </div>
@@ -377,11 +379,11 @@ const AftershipDetail = () => {
                       <DetailRow label="Box Type" value={parcel.box_type} />
                       <DetailRow
                         label="Weight"
-                        value={`${parcel.weight.value} ${parcel.weight.unit}`}
+                        value={parcel.weight ? `${parcel.weight.value} ${parcel.weight.unit}` : '-'}
                       />
                       <DetailRow
                         label="Dimensions"
-                        value={`${parcel.dimension.width} × ${parcel.dimension.height} × ${parcel.dimension.depth} ${parcel.dimension.unit}`}
+                        value={parcel.dimension ? `${parcel.dimension.width} × ${parcel.dimension.height} × ${parcel.dimension.depth} ${parcel.dimension.unit}` : '-'}
                       />
                     </div>
                     {label?.shipment?.parcels && idx < label.shipment.parcels.length - 1 && (
