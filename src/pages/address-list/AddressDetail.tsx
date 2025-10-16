@@ -39,7 +39,6 @@ const AddressListDetail = () => {
     CardCode: '',
     company_name: '',
     CardType: 'S',
-    full_address: '',
     street1: '',
     street2: '',
     street3: '',
@@ -56,6 +55,17 @@ const AddressListDetail = () => {
     website: '',
     eori_number: ''
   })
+
+  // Automatically generate full address from address components
+  const fullAddress = [
+    formData.street1,
+    formData.street2,
+    formData.street3,
+    formData.city,
+    formData.state,
+    formData.country,
+    formData.postal_code
+  ].filter(Boolean).join(', ')
 
   const fetchAddressDetail = async () => {
     setIsLoading(true)
@@ -83,7 +93,6 @@ const AddressListDetail = () => {
       CardCode: address.CardCode || '',
       company_name: address.company_name,
       CardType: address.CardType,
-      full_address: address.full_address || '',
       street1: address.street1,
       street2: address.street2 || '',
       street3: address.street3 || '',
@@ -109,6 +118,7 @@ const AddressListDetail = () => {
     try {
       const payload = {
         ...formData,
+        full_address: fullAddress,
         active: 1,
         updated_userID: user?.userID,
         updated_user_name: msLoginUser?.name
@@ -416,7 +426,7 @@ const AddressListDetail = () => {
               <Select
                 label="Card Type"
                 isRequired
-                selectedKeys={formData.CardType}
+                selectedKeys={[formData.CardType]}
                 onSelectionChange={(keys) => {
                   const value = Array.from(keys)[0] as string
                   setFormData({ ...formData, CardType: value })
@@ -519,10 +529,11 @@ const AddressListDetail = () => {
                 onValueChange={(value) => setFormData({ ...formData, eori_number: value })}
               />
               <Input
-                label="Full Address"
-                value={formData.full_address}
-                onValueChange={(value) => setFormData({ ...formData, full_address: value })}
+                label="Full Address (Auto-generated)"
+                value={fullAddress}
+                isReadOnly
                 className="col-span-2"
+                description="This field is automatically generated from the address fields above"
               />
             </div>
           </ModalBody>

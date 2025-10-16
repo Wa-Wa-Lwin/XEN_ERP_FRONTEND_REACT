@@ -42,14 +42,15 @@ const AddressList = () => {
   const [inactiveAddresses, setInactiveAddresses] = useState<AddressListData[]>([])
   const [filteredAddresses, setFilteredAddresses] = useState<AddressListData[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [currentPage, setCurrentPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [formData, setFormData] = useState({
     CardCode: '',
     company_name: '',
     CardType: 'S',
-    full_address: '',
     street1: '',
     street2: '',
     street3: '',
@@ -66,6 +67,17 @@ const AddressList = () => {
     website: '',
     eori_number: ''
   })
+
+  // Automatically generate full address from address components
+  const fullAddress = [
+    formData.street1,
+    formData.street2,
+    formData.street3,
+    formData.city,
+    formData.state,
+    formData.country,
+    formData.postal_code
+  ].filter(Boolean).join(', ')
   const itemsPerPage = 15
 
   const fetchAddresses = async (forceRefresh = false) => {
@@ -170,7 +182,6 @@ const AddressList = () => {
       CardCode: '',
       company_name: '',
       CardType: 'S',
-      full_address: '',
       street1: '',
       street2: '',
       street3: '',
@@ -187,6 +198,7 @@ const AddressList = () => {
       website: '',
       eori_number: ''
     })
+    setFormErrors({})
     onOpen()
   }
 
@@ -194,13 +206,47 @@ const AddressList = () => {
     navigate(`/local/address-list/${addressID}`)
   }
 
+  const validateForm = () => {
+    const errors: Record<string, string> = {}
+
+    if (!formData.company_name.trim()) {
+      errors.company_name = 'Company name is required'
+    }
+    if (!formData.street1.trim()) {
+      errors.street1 = 'Street 1 is required'
+    }
+    if (!formData.city.trim()) {
+      errors.city = 'City is required'
+    }
+    if (!formData.state.trim()) {
+      errors.state = 'State is required'
+    }
+    if (!formData.country.trim()) {
+      errors.country = 'Country is required'
+    }
+    if (!formData.postal_code.trim()) {
+      errors.postal_code = 'Postal code is required'
+    }
+    if (!formData.contact_name.trim()) {
+      errors.contact_name = 'Contact name is required'
+    }
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleSubmit = async () => {
-    setIsLoading(true)
+    if (!validateForm()) {
+      return
+    }
+
+    setIsCreating(true)
     try {
       const payload = {
         ...formData,
+        full_address: fullAddress,
         active: 1,
-        user_id: 1, // Replace with actual user ID from auth
+        user_id: '1', // Replace with actual user ID from auth
         user_name: 'Admin' // Replace with actual user name from auth
       }
 
@@ -210,11 +256,25 @@ const AddressList = () => {
       localStorage.removeItem(STORAGE_KEY)
 
       onClose()
-      fetchAddresses(true)
-    } catch (error) {
+      setFormErrors({})
+
+      // Force refresh to show the new address
+      await fetchAddresses(true)
+    } catch (error: any) {
       console.error('Failed to save address:', error)
+
+      // Handle validation errors from backend
+      if (error.response?.status === 422 && error.response?.data?.errors) {
+        const backendErrors: Record<string, string> = {}
+        Object.keys(error.response.data.errors).forEach(key => {
+          backendErrors[key] = error.response.data.errors[key][0]
+        })
+        setFormErrors(backendErrors)
+      } else {
+        alert('Failed to create address. Please try again.')
+      }
     } finally {
-      setIsLoading(false)
+      setIsCreating(false)
     }
   }
 
@@ -410,11 +470,13 @@ const AddressList = () => {
                 isRequired
                 value={formData.company_name}
                 onValueChange={(value) => setFormData({ ...formData, company_name: value })}
+                isInvalid={!!formErrors.company_name}
+                errorMessage={formErrors.company_name}
               />
               <Select
                 label="Card Type"
                 isRequired
-                selectedKeys={formData.CardType}
+                selectedKeys={[formData.CardType]}
                 onSelectionChange={(keys) => {
                   const value = Array.from(keys)[0] as string
                   setFormData({ ...formData, CardType: value })
@@ -428,6 +490,8 @@ const AddressList = () => {
                 isRequired
                 value={formData.street1}
                 onValueChange={(value) => setFormData({ ...formData, street1: value })}
+                isInvalid={!!formErrors.street1}
+                errorMessage={formErrors.street1}
               />
               <Input
                 label="Street 2"
@@ -444,12 +508,16 @@ const AddressList = () => {
                 isRequired
                 value={formData.city}
                 onValueChange={(value) => setFormData({ ...formData, city: value })}
+                isInvalid={!!formErrors.city}
+                errorMessage={formErrors.city}
               />
               <Input
                 label="State"
                 isRequired
                 value={formData.state}
                 onValueChange={(value) => setFormData({ ...formData, state: value })}
+                isInvalid={!!formErrors.state}
+                errorMessage={formErrors.state}
               />
               <Autocomplete
                 label="Country"
@@ -472,12 +540,16 @@ const AddressList = () => {
                 isRequired
                 value={formData.postal_code}
                 onValueChange={(value) => setFormData({ ...formData, postal_code: value })}
+                isInvalid={!!formErrors.postal_code}
+                errorMessage={formErrors.postal_code}
               />
               <Input
                 label="Contact Name"
                 isRequired
                 value={formData.contact_name}
                 onValueChange={(value) => setFormData({ ...formData, contact_name: value })}
+                isInvalid={!!formErrors.contact_name}
+                errorMessage={formErrors.contact_name}
               />
               <Input
                 label="Contact"
@@ -516,19 +588,24 @@ const AddressList = () => {
                 onValueChange={(value) => setFormData({ ...formData, eori_number: value })}
               />
               <Input
-                label="Full Address"
-                value={formData.full_address}
-                onValueChange={(value) => setFormData({ ...formData, full_address: value })}
+                label="Full Address (Auto-generated)"
+                value={fullAddress}
+                isReadOnly
                 className="col-span-2"
+                description="This field is automatically generated from the address fields above"
               />
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="default" onPress={onClose}>
+            <Button color="default" onPress={onClose} isDisabled={isCreating}>
               Cancel
             </Button>
-            <Button color="primary" onPress={handleSubmit} isLoading={isLoading}>
-              Create
+            <Button
+              color="primary"
+              onPress={handleSubmit}
+              isLoading={isCreating}
+            >
+              {isCreating ? 'Creating New Address...' : 'Create'}
             </Button>
           </ModalFooter>
         </ModalContent>

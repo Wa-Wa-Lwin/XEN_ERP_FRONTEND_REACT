@@ -353,7 +353,7 @@ const Dashboard: React.FC = () => {
   // SVG Line Chart Component
   const LineChart: React.FC = () => {
     const yearData = monthlyData || []
-    const chartWidth = 800
+    const chartWidth = 1200
     const chartHeight = 300
     const padding = 40
 
@@ -376,7 +376,7 @@ const Dashboard: React.FC = () => {
 
     return (
       <div className="w-full overflow-x-auto">
-        <svg width={chartWidth} height={chartHeight} className="w-full">
+        <svg width="100%" height={chartHeight} viewBox="0 0 1200 300" preserveAspectRatio="none" className="w-full">
           {/* Grid lines */}
           {[0, 1, 2, 3, 4].map(i => {
             const y = padding + (i * (chartHeight - 2 * padding)) / 4
