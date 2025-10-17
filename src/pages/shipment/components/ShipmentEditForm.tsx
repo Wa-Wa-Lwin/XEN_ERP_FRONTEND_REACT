@@ -754,7 +754,7 @@ const ShipmentEditForm = () => {
             </div>
 
             <div className="py-1 px-4">
-              <PickupInformation register={register} control={control} errors={errors} today={today} setValue={setValue} watch={watch} />
+              <PickupInformation register={register} control={control} errors={errors} today={today} setValue={setValue} watch={watch} onClearRates={handleClearRates} />
               <div className="pt-2 px-1">
                 <hr />
               </div>

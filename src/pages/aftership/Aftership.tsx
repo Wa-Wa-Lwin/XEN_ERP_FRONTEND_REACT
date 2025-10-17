@@ -20,6 +20,7 @@ import {
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
+import { useAuth } from '@context/AuthContext'
 
 interface AftershipLabel {
   id: string
@@ -81,6 +82,7 @@ const Aftership = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const { user, msLoginUser } = useAuth();
   const [counts, setCounts] = useState<LabelCounts>({
     total: 0,
     created: 0,
@@ -229,7 +231,10 @@ const Aftership = () => {
     try {
       setCancellingId(labelId)
       const response = await axios.post(import.meta.env.VITE_APP_AFTERSHIP_CANCEL_LABEL, {
-        label: { id: labelId }
+        label: { id: labelId },
+        user_id :  user?.userID ?? '0', 
+        user_role : '-', 
+        user_name : msLoginUser?.name ?? 'Admin'
       })
 
       if (response.data?.meta?.code !== 200) {

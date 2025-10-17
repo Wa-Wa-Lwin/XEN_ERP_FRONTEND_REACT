@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
@@ -358,9 +358,38 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier])
 
   return (
-    <Card shadow="none">
-      {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-      <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left gap-3 w-full">
+    <>
+      {/* Calculating Modal */}
+      <Modal
+        isOpen={isCalculating}
+        hideCloseButton
+        isDismissable={false}
+        backdrop="blur"
+        classNames={{
+          backdrop: "backdrop-blur-md"
+        }}
+      >
+        <ModalContent>
+          <ModalBody className="py-8">
+            <div className="flex flex-col items-center justify-center gap-4">
+              <Icon
+                icon="solar:calculator-bold"
+                className="text-6xl text-primary animate-pulse"
+              />
+              <h2 className="text-2xl font-bold text-blue-500">
+                Calculating Rates
+              </h2>
+              <p className="text-gray-500 text-center">
+                Please wait while we fetch the best shipping rates for you...
+              </p>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      <Card shadow="none">
+        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left gap-3 w-full">
         <div className="flex flex-col">
           <h2 className="text-lg font-semibold">Shipping Rates</h2>
           {ratesError && (
@@ -591,6 +620,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         )}
       </CardBody>
     </Card>
+    </>
   )
 }
 
