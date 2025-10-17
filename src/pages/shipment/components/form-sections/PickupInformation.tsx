@@ -11,7 +11,7 @@ interface PickupInformationProps extends FormSectionProps {
   onClearRates?: () => void
 }
 
-const PickupInformation = ({ register, errors, control, setValue, watch, onClearRates }: PickupInformationProps) => {
+const PickupInformation = ({ register, errors, control, watch, onClearRates }: PickupInformationProps) => {
 
   // Get default pickup values based on current time
   const { pickupDate: defaultPickupDate, minDate, expectedDeliveryDate: defaultExpectedDeliveryDate } = getDefaultPickupValues()
