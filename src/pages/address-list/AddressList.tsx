@@ -30,6 +30,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { ISO_2_COUNTRIES } from '@pages/shipment/constants/iso2countries'
 import type { AddressListData } from './types'
+import { useAuth } from '@context/AuthContext'
 
 const STORAGE_KEY = 'address_list_cache'
 
@@ -47,6 +48,7 @@ const AddressList = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [currentPage, setCurrentPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const { user, msLoginUser } = useAuth()
   const [sortConfig, setSortConfig] = useState<{ key: keyof AddressListData | null; direction: 'asc' | 'desc' }>({
     key: null,
     direction: 'asc'
@@ -291,8 +293,8 @@ const AddressList = () => {
         ...formData,
         full_address: fullAddress,
         active: 1,
-        user_id: '1', // Replace with actual user ID from auth
-        user_name: 'Admin' // Replace with actual user name from auth
+        user_id: user?.userID,
+        user_name: msLoginUser?.name
       }
 
       await axios.post(import.meta.env.VITE_APP_NEW_ADDRESS_LIST_CREATE, payload)
