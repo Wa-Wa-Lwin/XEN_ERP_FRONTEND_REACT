@@ -341,8 +341,8 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               {...register(`${prefix}_email`, {
                 required: isFieldRequired('email') ? 'Email is required' : false,
                 pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Please enter a valid email address"
+                  value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Please enter a valid email address (only letters, numbers, dots, hyphens, and underscores allowed)"
                 }
               })}
               isRequired={isFieldRequired('email')}
