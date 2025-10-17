@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Card,
@@ -88,6 +88,7 @@ const Aftership = () => {
     cancelled: 0
   })
   const [statusFilter, setStatusFilter] = useState<'all' | 'created' | 'failed' | 'cancelled'>('all')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc') // Default: desc (latest at top)
 
   // Date range state - default to last 7 days
   const getDefaultDateRange = () => {
@@ -187,23 +188,40 @@ const Aftership = () => {
     }
   }
 
-  const filteredLabels = labels.filter(label => {
-    // Filter by status
-    if (statusFilter !== 'all' && label.status !== statusFilter) {
-      return false
-    }
+  const toggleSort = () => {
+    setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+  }
 
-    // Filter by search query
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    return (
-      label.id.toLowerCase().includes(query) ||
-      label.tracking_numbers?.some(tn => tn.toLowerCase().includes(query)) ||
-      label.status.toLowerCase().includes(query) ||
-      label.shipper_account?.slug.toLowerCase().includes(query) ||
-      label.rate?.shipper_account?.slug.toLowerCase().includes(query)
-    )
-  })
+  const filteredLabels = useMemo(() => {
+    // First, filter by status and search
+    const filtered = labels.filter(label => {
+      // Filter by status
+      if (statusFilter !== 'all' && label.status !== statusFilter) {
+        return false
+      }
+
+      // Filter by search query
+      if (!searchQuery) return true
+      const query = searchQuery.toLowerCase()
+      return (
+        label.id.toLowerCase().includes(query) ||
+        label.tracking_numbers?.some(tn => tn.toLowerCase().includes(query)) ||
+        label.status.toLowerCase().includes(query) ||
+        label.shipper_account?.slug.toLowerCase().includes(query) ||
+        label.rate?.shipper_account?.slug.toLowerCase().includes(query)
+      )
+    })
+
+    // Then, sort by created_at date
+    const sorted = [...filtered].sort((a, b) => {
+      const aDate = new Date(a.created_at).getTime()
+      const bDate = new Date(b.created_at).getTime()
+
+      return sortDirection === 'desc' ? bDate - aDate : aDate - bDate
+    })
+
+    return sorted
+  }, [labels, statusFilter, searchQuery, sortDirection])
 
   const [cancellingId, setCancellingId] = useState<string | null>(null)
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null) // Label to confirm
@@ -415,7 +433,23 @@ const Aftership = () => {
               }}
             >
               <TableHeader>
-                <TableColumn>No.</TableColumn>
+                <TableColumn>
+                  <div className="flex items-center gap-1">
+                    <span>No.</span>
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      onPress={toggleSort}
+                      className="min-w-unit-6 w-6 h-6"
+                    >
+                      <Icon
+                        icon={sortDirection === 'desc' ? 'solar:alt-arrow-down-bold' : 'solar:alt-arrow-up-bold'}
+                        width={16}
+                      />
+                    </Button>
+                  </div>
+                </TableColumn>
                 <TableColumn>ID</TableColumn>
                 <TableColumn>TRACKING NUMBERS</TableColumn>
                 <TableColumn>STATUS</TableColumn>
