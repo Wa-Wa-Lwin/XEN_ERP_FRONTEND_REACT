@@ -81,7 +81,7 @@ const BasicInformation = ({
     {isDHLeCommerceAsia && (
       <p className="text-blue-600 font-semibold bg-blue-50 p-2 rounded">
         📞 Please call DHL eCommerce Asia customer service to arrange pickup for this package. <br />
-        📇 Contact Logistic Team for futher information. 
+        📇 Contact Logistic Team for futher information.
       </p>
     )}
   </>;
@@ -122,7 +122,7 @@ const BasicInformation = ({
   // const to_invoice = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_INVOICE_URL}${shipment.shipmentRequestID}`;
   // const to_packing_slip = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}${import.meta.env.VITE_APP_CUSTOMIZE_PACKING_SLIP_URL}${shipment.shipmentRequestID}`;
 
-  if (shipment.approver_approved_date_time && shipment.label_status === "created") {
+  if (shipment.approver_approved_date_time && (shipment.label_status === "created" || shipment.label_status === "cancelled")) {
     // Parse tracking numbers (comma-separated)
     const trackingNumbers = shipment.tracking_numbers
       ? shipment.tracking_numbers.split(',').map(id => id.trim()).filter(id => id.length > 0)
@@ -160,7 +160,16 @@ const BasicInformation = ({
       <DetailRow label="No" value={shipment.invoice_no} />
       <DetailRow label="Date" value={shipment.invoice_date} />
       <DetailRow label="Due Date" value={shipment.invoice_due_date} />
-      <h2 className="text-lg font-semibold mt-1">Label Information</h2>
+      <h2
+        className={`text-lg font-semibold mt-1 ${shipment.label_status === "cancelled"
+            ? "text-red-600"
+            : shipment.label_status === "created"
+              ? "text-green-600"
+              : "text-gray-700"
+          }`}
+      >
+        Label Information ({shipment.label_status})
+      </h2>
       <Button
         color="primary"
         size="sm"
@@ -219,7 +228,7 @@ const BasicInformation = ({
       )}
     </>;
   }
-  else if (shipment.approver_approved_date_time && shipment.label_status !== "created") {
+  else if (shipment.approver_approved_date_time && shipment.label_status !== "created" && shipment.label_status !== "cancelled") {
     labelData = <>
       <h2 className="text-lg font-semibold">Label Information</h2>
       <div className="my-1 flex gap-2 items-center">
