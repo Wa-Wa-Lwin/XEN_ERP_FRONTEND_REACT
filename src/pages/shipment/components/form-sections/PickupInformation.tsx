@@ -90,21 +90,6 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
   const getPickUpStartTime = () => pickupStartTime ? normalizeTime(pickupStartTime) : '09:00'
   const getPickUpEndTime = () => pickupEndTime ? normalizeTime(pickupEndTime) : '17:00'
 
-  // Handler to sync both date fields when one is changed
-  const handleDateChange = (fieldName: "pick_up_date" | "due_date") =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const dateValue = e.target.value
-      if (setValue) {
-        setValue(fieldName, dateValue, { shouldValidate: true, shouldDirty: true })
-      }
-
-      // Clear rates when pickup or delivery date changes
-      if (onClearRates) {
-        console.log(`${fieldName} changed, clearing rates...`)
-        onClearRates()
-      }
-    }
-
   return (
     <Card shadow="none">
       {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
@@ -145,34 +130,54 @@ const PickupInformation = ({ register, errors, control, setValue, watch, onClear
         )}
         <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
           <>
-            <Input
-              {...register('pick_up_date', {
-                required: 'Pickup date is required',
-                onChange: handleDateChange('pick_up_date')
-              })}
-              isRequired
-              type="date"
-              label={<span>Pickup Date</span>}
-              min={minDate}
-              value={pickupDate || defaultPickupDate}
-              onChange={handleDateChange('pick_up_date')}
-              errorMessage={errors.pick_up_date?.message}
-              isInvalid={!!errors.pick_up_date}
+            <Controller
+              name="pick_up_date"
+              control={control}
+              rules={{ required: 'Pickup date is required' }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  isRequired
+                  type="date"
+                  label={<span>Pickup Date</span>}
+                  min={minDate}
+                  value={pickupDate || defaultPickupDate}
+                  onChange={(e) => {
+                    field.onChange(e.target.value) // updates RHF
+                    if (onClearRates) {
+                      console.log('Pickup date changed, clearing rates...')
+                      onClearRates()
+                    }
+                  }}
+                  errorMessage={errors.pick_up_date?.message}
+                  isInvalid={!!errors.pick_up_date}
+                />
+              )}
             />
 
-            <Input
-              {...register('due_date', {
-                required: 'Expected delivery date is required',
-                onChange: handleDateChange('due_date')
-              })}
-              isRequired
-              type="date"
-              label={<span>Expected Delivery Date</span>}
-              min={minDate}
-              value={expectedDeliveryDate}
-              onChange={handleDateChange('due_date')}
-              errorMessage={errors.due_date?.message}
-              isInvalid={!!errors.due_date}
+            <Controller
+              name="due_date"
+              control={control}
+              rules={{ required: 'Expected delivery date is required' }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  isRequired
+                  type="date"
+                  label={<span>Expected Delivery Date</span>}
+                  min={minDate}
+                  value={expectedDeliveryDate}
+                  onChange={(e) => {
+                    field.onChange(e.target.value) // updates RHF
+                    if (onClearRates) {
+                      console.log('Expected delivery date changed, clearing rates...')
+                      onClearRates()
+                    }
+                  }}
+                  errorMessage={errors.due_date?.message}
+                  isInvalid={!!errors.due_date}
+                />
+              )}
             />
 
             <Controller
