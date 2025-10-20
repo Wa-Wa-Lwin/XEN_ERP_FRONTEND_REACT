@@ -278,7 +278,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               <Select
                 isRequired={isFieldRequired('customs_purpose') }
                 {...field}
-                label={<span>Customs</span>}
+                label={<span>Customs Purpose</span>}
                 placeholder="Select"
                 errorMessage={errors.customs_purpose?.message}
                 isInvalid={!!errors.customs_purpose}

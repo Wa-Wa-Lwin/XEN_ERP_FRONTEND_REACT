@@ -59,7 +59,7 @@ const InvoiceView = () => {
   const getDocumentTitle = () => {
     if (!shipment) return 'Invoice'
     const { shipment_scope_type, customs_purpose, shipmentRequestID } = shipment
-    const isSample = customs_purpose?.toLowerCase() === 'sample'
+    const isSample = customs_purpose?.toLowerCase() === 'sample' || 'gift'
     const scope = shipment_scope_type?.toLowerCase()
 
     if (scope === 'domestic' && isSample) return `Domestic Foc ${shipmentRequestID}`
