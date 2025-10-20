@@ -278,6 +278,15 @@ const AddressList = () => {
       errors.contact_name = 'Contact name is required'
     }
 
+    // Phone number validation - only numbers, spaces, +, -, and () allowed
+    const phoneRegex = /^[0-9+\-() ]*$/
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
+      errors.phone = 'Phone number can only contain numbers and +, -, (), space'
+    }
+    if (formData.phone1 && !phoneRegex.test(formData.phone1)) {
+      errors.phone1 = 'Phone number can only contain numbers and +, -, (), space'
+    }
+
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
@@ -647,6 +656,8 @@ const AddressList = () => {
                 label="Phone"
                 value={formData.phone}
                 onValueChange={(value) => setFormData({ ...formData, phone: value })}
+                isInvalid={!!formErrors.phone}
+                errorMessage={formErrors.phone}
               />
               <Input
                 label="Email"
@@ -663,6 +674,8 @@ const AddressList = () => {
                 label="Phone 1"
                 value={formData.phone1}
                 onValueChange={(value) => setFormData({ ...formData, phone1: value })}
+                isInvalid={!!formErrors.phone1}
+                errorMessage={formErrors.phone1}
               />
               <Input
                 label="Website"
