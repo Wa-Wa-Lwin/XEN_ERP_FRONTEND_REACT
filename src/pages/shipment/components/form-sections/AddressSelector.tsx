@@ -379,6 +379,17 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                     console.log('Country selected:', key);
                     if (key) {
                       field.onChange(key)
+                      
+                      // Automatically set postal code for Hong Kong
+                      if (key === 'HKG') {
+                        console.log('Hong Kong selected, setting postal code to 00000');
+                        setValue(`${prefix}_postal_code`, '00000', {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        });
+                      }
+                      
                       // Clear rates since country changed
                       if (onClearRates) {
                         console.log(`${prefix} country changed, clearing rates...`)
@@ -446,24 +457,32 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               minRows={1}
             />
 
-            <Textarea
-              {...register(`${prefix}_postal_code`, { required: isFieldRequired('postal_code') ? 'Postal code is required' : false })}
-              isRequired={isFieldRequired('postal_code')}
-              label={<span>Postal Code</span>}
-              placeholder="Enter postal code"
-              errorMessage={errors[`${prefix}_postal_code`]?.message}
-              isInvalid={!!errors[`${prefix}_postal_code`]}
+            <Controller
               key={`${formKey}_${prefix}_postal_code`}
-              color={!watch(`${prefix}_postal_code`) ? "warning" : "default"}
-              maxLength={255}
-              onChange={() => {
-                // Clear rates since postal code changed
-                if (onClearRates) {
-                  console.log(`${prefix} postal code changed, clearing rates...`)
-                  onClearRates()
-                }
-              }}
-              minRows={1}
+              name={`${prefix}_postal_code`}
+              control={control}
+              rules={{ required: isFieldRequired('postal_code') ? 'Postal code is required' : false }}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  isRequired={isFieldRequired('postal_code')}
+                  label={<span>Postal Code</span>}
+                  placeholder="Enter postal code"
+                  errorMessage={errors[`${prefix}_postal_code`]?.message}
+                  isInvalid={!!errors[`${prefix}_postal_code`]}
+                  color={!watch(`${prefix}_postal_code`) ? "warning" : "default"}
+                  maxLength={255}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    // Clear rates since postal code changed
+                    if (onClearRates) {
+                      console.log(`${prefix} postal code changed, clearing rates...`)
+                      onClearRates()
+                    }
+                  }}
+                  minRows={1}
+                />
+              )}
             />
 
             <Textarea
