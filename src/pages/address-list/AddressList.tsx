@@ -606,7 +606,13 @@ const AddressList = () => {
                 selectedKey={formData.country}
                 onSelectionChange={(key) => {
                   if (key) {
-                    setFormData({ ...formData, country: key.toString() })
+                    const countryCode = key.toString()
+                    // Automatically set postal code for Hong Kong
+                    if (countryCode === 'HK') {
+                      setFormData({ ...formData, country: countryCode, postal_code: '00000' })
+                    } else {
+                      setFormData({ ...formData, country: countryCode })
+                    }
                   }
                 }}
               >
