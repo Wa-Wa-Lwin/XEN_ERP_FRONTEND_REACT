@@ -73,9 +73,17 @@ const BasicInformation = ({
   const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
 
   const isDHLeCommerceAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
+  // const isDHL_Express_Worldwide = chosenRate?.service_name === 'DHL Express Worldwide';
 
   pickupCommonData = <>
-    <h2 className="text-lg font-semibold mt-1">Pickup Information</h2>
+    <h2
+      className={`text-lg font-semibold mt-1 ${shipment.pick_up_created_status === "created_success"
+        ? "text-green-600"
+        : "text-red-600"
+        }`}
+    >
+      Pickup Information ({shipment.pick_up_created_status === "created_success" ? "success" : "fail"})
+    </h2>
     <DetailRow label="DateTime" value={pickupDateTime} />
     <DetailRow label="Instruction" value={shipment.pick_up_instructions || '-'} />
     {isDHLeCommerceAsia && (
@@ -93,6 +101,14 @@ const BasicInformation = ({
       <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
     </>;
   }
+  // else if (isDHL_Express_Worldwide === true && shipment.pick_up_created_status === "created_failed") {
+  //   pickupStatusData = <>
+  //     <p className="text-red-600 font-semibold">
+  //       ⚠️ Pickup creation failed <br />
+  //       <b>Details:</b> {formattedPickupError}
+  //     </p>
+  //   </>
+  // }
   else if (shipment.pick_up_status && shipment.pick_up_created_status === "created_failed" && !isDHLeCommerceAsia) {
     pickupStatusData = <>
       <Button
@@ -162,10 +178,10 @@ const BasicInformation = ({
       <DetailRow label="Due Date" value={shipment.invoice_due_date} />
       <h2
         className={`text-lg font-semibold mt-1 ${shipment.label_status === "cancelled"
-            ? "text-red-600"
-            : shipment.label_status === "created"
-              ? "text-green-600"
-              : "text-gray-700"
+          ? "text-red-600"
+          : shipment.label_status === "created"
+            ? "text-green-600"
+            : "text-gray-700"
           }`}
       >
         Label Information ({shipment.label_status})
