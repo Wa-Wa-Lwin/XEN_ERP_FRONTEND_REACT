@@ -31,6 +31,7 @@ const AddressListDetail = () => {
   const navigate = useNavigate()
   const [address, setAddress] = useState<AddressListData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const { isOpen: isInactiveOrActiveOpen, onOpen: onInactiveOrActiveOpen, onClose: onInactiveOrActiveClose } = useDisclosure()
   const { user, msLoginUser } = useAuth();
@@ -55,6 +56,8 @@ const AddressListDetail = () => {
     website: '',
     eori_number: ''
   })
+
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({})
 
   // Automatically generate full address from address components
   const fullAddress = [
@@ -109,12 +112,15 @@ const AddressListDetail = () => {
       website: address.website || '',
       eori_number: address.eori_number || ''
     })
+    setValidationErrors({}) // Clear any previous validation errors
     onEditOpen()
   }
 
   const handleSubmit = async () => {
     if (!address) return
-    setIsLoading(true)
+    setIsSubmitting(true)
+    setValidationErrors({})
+
     try {
       const payload = {
         ...formData,
@@ -124,17 +130,28 @@ const AddressListDetail = () => {
         updated_user_name: msLoginUser?.name
       }
 
-      await axios.post(`${import.meta.env.VITE_APP_NEW_ADDRESS_LIST_UPDATE}/${address.addressID}`, payload)
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_NEW_ADDRESS_LIST_UPDATE}/${address.addressID}`,
+        payload
+      )
 
-      // Clear cache to force refresh on list page
-      localStorage.removeItem('address_list_cache')
-
-      onEditClose()
-      fetchAddressDetail()
-    } catch (error) {
+      // ✅ If success
+      if (response.data?.status === 'success') {
+        localStorage.removeItem('address_list_cache')
+        onEditClose()
+        fetchAddressDetail()
+      }
+    } catch (error: any) {
       console.error('Failed to update address:', error)
+
+      // ✅ Handle validation errors without refreshing
+      if (error.response?.data?.errors) {
+        setValidationErrors(error.response.data.errors)
+      } else if (error.response?.data?.message) {
+        alert(error.response.data.message) // optional UX improvement
+      }
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -416,12 +433,16 @@ const AddressListDetail = () => {
                 label="Card Code"
                 value={formData.CardCode}
                 onValueChange={(value) => setFormData({ ...formData, CardCode: value })}
+                isInvalid={!!validationErrors.CardCode}
+                errorMessage={validationErrors.CardCode?.[0]}
               />
               <Input
                 label="Company Name"
                 isRequired
                 value={formData.company_name}
                 onValueChange={(value) => setFormData({ ...formData, company_name: value })}
+                isInvalid={!!validationErrors.company_name}
+                errorMessage={validationErrors.company_name?.[0]}
               />
               <Select
                 label="Card Type"
@@ -440,28 +461,38 @@ const AddressListDetail = () => {
                 isRequired
                 value={formData.street1}
                 onValueChange={(value) => setFormData({ ...formData, street1: value })}
+                isInvalid={!!validationErrors.street1}
+                errorMessage={validationErrors.street1?.[0]}
               />
               <Input
                 label="Street 2"
                 value={formData.street2}
                 onValueChange={(value) => setFormData({ ...formData, street2: value })}
+                isInvalid={!!validationErrors.street2}
+                errorMessage={validationErrors.street2?.[0]}
               />
               <Input
                 label="Street 3"
                 value={formData.street3}
                 onValueChange={(value) => setFormData({ ...formData, street3: value })}
+                isInvalid={!!validationErrors.street3}
+                errorMessage={validationErrors.street3?.[0]}
               />
               <Input
                 label="City"
                 isRequired
                 value={formData.city}
                 onValueChange={(value) => setFormData({ ...formData, city: value })}
+                isInvalid={!!validationErrors.city}
+                errorMessage={validationErrors.city?.[0]}
               />
               <Input
                 label="State"
                 isRequired
                 value={formData.state}
                 onValueChange={(value) => setFormData({ ...formData, state: value })}
+                isInvalid={!!validationErrors.state}
+                errorMessage={validationErrors.state?.[0]}
               />
               <Autocomplete
                 label="Country"
@@ -472,6 +503,8 @@ const AddressListDetail = () => {
                     setFormData({ ...formData, country: key.toString() })
                   }
                 }}
+                isInvalid={!!validationErrors.country}
+                errorMessage={validationErrors.country?.[0]}
               >
                 {ISO_2_COUNTRIES.map((country) => (
                   <AutocompleteItem key={country.key} value={country.key}>
@@ -485,48 +518,66 @@ const AddressListDetail = () => {
                 isRequired
                 value={formData.postal_code}
                 onValueChange={(value) => setFormData({ ...formData, postal_code: value })}
+                isInvalid={!!validationErrors.postal_code}
+                errorMessage={validationErrors.postal_code?.[0]}
               />
               <Input
                 label="Contact Name"
                 isRequired
                 value={formData.contact_name}
                 onValueChange={(value) => setFormData({ ...formData, contact_name: value })}
+                isInvalid={!!validationErrors.contact_name}
+                errorMessage={validationErrors.contact_name?.[0]}
               />
               <Input
                 label="Contact"
                 value={formData.contact}
                 onValueChange={(value) => setFormData({ ...formData, contact: value })}
+                isInvalid={!!validationErrors.contact}
+                errorMessage={validationErrors.contact?.[0]}
               />
               <Input
                 label="Phone"
                 value={formData.phone}
                 onValueChange={(value) => setFormData({ ...formData, phone: value })}
+                isInvalid={!!validationErrors.phone}
+                errorMessage={validationErrors.phone?.[0]}
               />
               <Input
                 label="Email"
                 type="email"
                 value={formData.email}
                 onValueChange={(value) => setFormData({ ...formData, email: value })}
+                isInvalid={!!validationErrors.email}
+                errorMessage={validationErrors.email?.[0]}
               />
               <Input
                 label="Tax ID"
                 value={formData.tax_id}
                 onValueChange={(value) => setFormData({ ...formData, tax_id: value })}
+                isInvalid={!!validationErrors.tax_id}
+                errorMessage={validationErrors.tax_id?.[0]}
               />
               <Input
                 label="Phone 1"
                 value={formData.phone1}
                 onValueChange={(value) => setFormData({ ...formData, phone1: value })}
+                isInvalid={!!validationErrors.phone1}
+                errorMessage={validationErrors.phone1?.[0]}
               />
               <Input
                 label="Website"
                 value={formData.website}
                 onValueChange={(value) => setFormData({ ...formData, website: value })}
+                isInvalid={!!validationErrors.website}
+                errorMessage={validationErrors.website?.[0]}
               />
               <Input
                 label="EORI Number"
                 value={formData.eori_number}
                 onValueChange={(value) => setFormData({ ...formData, eori_number: value })}
+                isInvalid={!!validationErrors.eori_number}
+                errorMessage={validationErrors.eori_number?.[0]}
               />
               <Input
                 label="Full Address (Auto-generated)"
@@ -538,10 +589,10 @@ const AddressListDetail = () => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="default" onPress={onEditClose}>
+            <Button color="default" onPress={onEditClose} isDisabled={isSubmitting}>
               Cancel
             </Button>
-            <Button color="primary" onPress={handleSubmit} isLoading={isLoading}>
+            <Button color="primary" onPress={handleSubmit} isLoading={isSubmitting} type="button">
               Update
             </Button>
           </ModalFooter>
