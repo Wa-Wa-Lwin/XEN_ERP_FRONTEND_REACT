@@ -79,10 +79,12 @@ const BasicInformation = ({
     <h2
       className={`text-lg font-semibold mt-1 ${shipment.pick_up_created_status === "created_success"
         ? "text-green-600"
-        : "text-red-600"
+        : shipment.pick_up_created_status === "created_success"
+          ? "text-red-600"
+          : "text-gray-700"
         }`}
     >
-      Pickup Information ({shipment.pick_up_created_status === "created_success" ? "success" : "fail"})
+      Pickup Information ({shipment.pick_up_created_status === "created_success" ? "success" : shipment.pick_up_created_status === "created_failed" ? "fail" : "Soon to be created"})
     </h2>
     <DetailRow label="DateTime" value={pickupDateTime} />
     <DetailRow label="Instruction" value={shipment.pick_up_instructions || '-'} />
