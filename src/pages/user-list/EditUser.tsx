@@ -4,7 +4,7 @@ import { Button, Spinner } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import UserForm from './components/UserForm';
 import { userApi } from './api/userApi';
-import type { User, UpdateUserData } from './types';
+import type { User, CreateUserData, UpdateUserData } from './types';
 
 export default function EditUser() {
   const { id } = useParams<{ id: string }>();
@@ -31,12 +31,12 @@ export default function EditUser() {
     }
   };
 
-  const handleSubmit = async (data: UpdateUserData) => {
+  const handleSubmit = async (data: CreateUserData | UpdateUserData) => {
     if (!id) return;
 
     try {
       setIsLoading(true);
-      await userApi.updateUser(parseInt(id), data);
+      await userApi.updateUser(parseInt(id), data as UpdateUserData);
       navigate(`/user-list/${id}`);
     } catch (error) {
       console.error('Failed to update user:', error);

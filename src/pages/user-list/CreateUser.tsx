@@ -4,16 +4,16 @@ import { Button } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import UserForm from './components/UserForm';
 import { userApi } from './api/userApi';
-import type { CreateUserData } from './types';
+import type { CreateUserData, UpdateUserData } from './types';
 
 export default function CreateUser() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (data: CreateUserData) => {
+  const handleSubmit = async (data: CreateUserData | UpdateUserData) => {
     try {
       setIsLoading(true);
-      await userApi.createUser(data);
+      await userApi.createUser(data as CreateUserData);
       navigate('/user-list');
     } catch (error) {
       console.error('Failed to create user:', error);

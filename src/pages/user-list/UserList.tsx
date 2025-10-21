@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Table,
   TableHeader,
@@ -11,155 +11,58 @@ import {
   Chip,
   Spinner,
   Input,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-} from '@heroui/react';
-import { Icon } from '@iconify/react';
-import { userApi } from './api/userApi';
-import type { User } from './types';
+} from '@heroui/react'
+import { Icon } from '@iconify/react'
+import { userApi } from './api/userApi'
+import type { User } from './types'
 
 export default function UserList() {
-  const navigate = useNavigate();
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate()
+  const [users, setUsers] = useState<User[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers()
+  }, [])
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
-      setFilteredUsers(users);
+      setFilteredUsers(users)
     } else {
-      const query = searchQuery.toLowerCase();
+      const query = searchQuery.toLowerCase()
       const filtered = users.filter(
         (user) =>
           user.firstName.toLowerCase().includes(query) ||
           user.lastName.toLowerCase().includes(query) ||
           user.username.toLowerCase().includes(query) ||
           user.email.toLowerCase().includes(query)
-      );
-      setFilteredUsers(filtered);
+      )
+      setFilteredUsers(filtered)
     }
-  }, [searchQuery, users]);
+  }, [searchQuery, users])
 
   const fetchUsers = async () => {
     try {
-      setIsLoading(true);
-      const data = await userApi.getAllUsers();
-      setUsers(data);
-      setFilteredUsers(data);
+      setIsLoading(true)
+      const data = await userApi.getAllUsers()
+      setUsers(data)
+      setFilteredUsers(data)
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error('Failed to fetch users:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
-
-  const handleToggleActive = async (userId: number, currentActive: boolean) => {
-    try {
-      if (currentActive) {
-        await userApi.deactivateUser(userId);
-      } else {
-        await userApi.activateUser(userId);
-      }
-      await fetchUsers();
-    } catch (error) {
-      console.error('Failed to toggle user status:', error);
-    }
-  };
-
-  const handleViewUser = (userId: number) => {
-    navigate(`/user-list/${userId}`);
-  };
-
-  const handleEditUser = (userId: number) => {
-    navigate(`/user-list/${userId}/edit`);
-  };
+  }
 
   const handleCreateUser = () => {
-    navigate('/user-list/create');
-  };
+    navigate('/user-list/create')
+  }
 
-  const columns = [
-    { key: 'userID', label: 'ID' },
-    { key: 'username', label: 'Username' },
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    { key: 'phone', label: 'Phone' },
-    { key: 'role', label: 'Role' },
-    { key: 'logisticRole', label: 'Logistic Role' },
-    { key: 'active', label: 'Status' },
-    { key: 'actions', label: 'Actions' },
-  ];
-
-  const renderCell = (user: User, columnKey: string) => {
-    switch (columnKey) {
-      case 'userID':
-        return <span className="text-sm">{user.userID}</span>;
-      case 'username':
-        return <span className="text-sm font-semibold">{user.username}</span>;
-      case 'name':
-        return <span className="text-sm">{`${user.firstName} ${user.lastName}`}</span>;
-      case 'email':
-        return <span className="text-sm">{user.email}</span>;
-      case 'phone':
-        return <span className="text-sm">{user.phone || '-'}</span>;
-      case 'role':
-        return <span className="text-sm">{user.role || '-'}</span>;
-      case 'logisticRole':
-        return <span className="text-sm">{user.logisticRole || '-'}</span>;
-      case 'active':
-        return (
-          <Chip color={user.active ? 'success' : 'danger'} size="sm" variant="flat">
-            {user.active ? 'Active' : 'Inactive'}
-          </Chip>
-        );
-      case 'actions':
-        return (
-          <div className="flex items-center gap-2">
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => handleViewUser(user.userID)}
-            >
-              <Icon icon="solar:eye-linear" width={18} />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => handleEditUser(user.userID)}
-            >
-              <Icon icon="solar:pen-linear" width={18} />
-            </Button>
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
-                  <Icon icon="solar:menu-dots-linear" width={18} />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="User Actions">
-                <DropdownItem
-                  key={user.active ? 'deactivate' : 'activate'}
-                  color={user.active ? 'danger' : 'success'}
-                  onPress={() => handleToggleActive(user.userID, user.active)}
-                >
-                  {user.active ? 'Deactivate' : 'Activate'}
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+  const handleRowClick = (userId: number) => {
+    navigate(`/user-list/${userId}`)
+  }
 
   return (
     <div className="flex flex-col gap-4 p-6">
@@ -205,28 +108,49 @@ export default function UserList() {
       </div>
 
       <Table aria-label="User list table">
-        <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn key={column.key} align={column.key === 'actions' ? 'center' : 'start'}>
-              {column.label}
-            </TableColumn>
-          )}
+        <TableHeader>
+          <TableColumn>ID</TableColumn>
+          <TableColumn>Username</TableColumn>
+          <TableColumn>Name</TableColumn>
+          <TableColumn>Email</TableColumn>
+          <TableColumn>Phone</TableColumn>
+          <TableColumn>Role</TableColumn>
+          <TableColumn>Logistic Role</TableColumn>
+          <TableColumn>Status</TableColumn>
         </TableHeader>
+
         <TableBody
           items={filteredUsers}
           isLoading={isLoading}
           loadingContent={<Spinner label="Loading users..." />}
           emptyContent={<div className="text-center py-8">No users found</div>}
         >
-          {(item) => (
-            <TableRow key={item.userID}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, String(columnKey))}</TableCell>
-              )}
+          {filteredUsers.map((user) => (
+            <TableRow
+              key={user.userID}
+              className="cursor-pointer hover:bg-warning-100 transition-colors"
+              onClick={() => handleRowClick(user.userID)}
+            >
+              <TableCell>{user.userID}</TableCell>
+              <TableCell className="font-semibold">{user.username}</TableCell>
+              <TableCell>{`${user.firstName} ${user.lastName}`}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.phone || '-'}</TableCell>
+              <TableCell>{user.role || '-'}</TableCell>
+              <TableCell>
+                <Chip color={user.logisticRole ? 'primary' : 'default'} size="sm" variant="flat">
+                  {user.logisticRole === 1 ? 'Enabled' : 'Disabled'}
+                </Chip>
+              </TableCell>
+              <TableCell>
+                <Chip color={user.active ? 'success' : 'danger'} size="sm" variant="flat">
+                  {user.active ? 'Active' : 'Inactive'}
+                </Chip>
+              </TableCell>
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }

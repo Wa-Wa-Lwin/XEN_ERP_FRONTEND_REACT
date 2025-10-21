@@ -162,7 +162,12 @@ export default function UserDetail() {
         <CardBody className="gap-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem label="Role" value={user.role || '-'} />
-            <InfoItem label="Logistic Role" value={user.logisticRole || '-'} />
+            <div className="flex flex-col gap-1">
+              <p className="text-sm text-default-500">Logistic Role</p>
+              <Chip color={user.logisticRole ? 'primary' : 'default'} size="sm" variant="flat" className="w-fit">
+                {user.logisticRole ? 'Enabled' : 'Disabled'}
+              </Chip>
+            </div>
             <InfoItem label="Level" value={user.level?.toString() || '-'} />
             <InfoItem label="Department ID" value={user.departmentID?.toString() || '-'} />
             <InfoItem label="Section Index" value={user.section_index?.toString() || '-'} />

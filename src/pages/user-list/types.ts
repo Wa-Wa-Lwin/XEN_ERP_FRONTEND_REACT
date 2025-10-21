@@ -16,7 +16,7 @@ export interface User {
   supervisorID?: number;
   level?: number;
   headID?: number;
-  logisticRole?: string;
+  logisticRole?: number;
   approver?: User;
   supervisor?: User;
 }
@@ -29,27 +29,8 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-export interface CreateUserData {
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  gender?: string;
-  phone?: string;
-  email: string;
-  departmentID?: number;
-  section_index?: number;
-  postitionID?: number;
-  active?: boolean;
-  role?: string;
-  user_code?: string;
-  supervisorID?: number;
-  level?: number;
-  headID?: number;
-  logisticRole?: string;
-}
-
-export interface UpdateUserData extends Partial<CreateUserData> {}
+export interface CreateUserData extends Partial<User> {}
+export interface UpdateUserData extends Partial<User> {}
 
 export interface UserListTableProps {
   users: User[];

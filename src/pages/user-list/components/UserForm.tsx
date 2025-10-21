@@ -29,7 +29,7 @@ export default function UserForm({ user, isLoading, onSubmit, onCancel }: UserFo
     gender: '',
     phone: '',
     role: '',
-    logisticRole: '',
+    logisticRole: 0,
     user_code: '',
     active: true,
     departmentID: undefined,
@@ -57,7 +57,7 @@ export default function UserForm({ user, isLoading, onSubmit, onCancel }: UserFo
         gender: user.gender || '',
         phone: user.phone || '',
         role: user.role || '',
-        logisticRole: user.logisticRole || '',
+        logisticRole: user.logisticRole || 0,
         user_code: user.user_code || '',
         active: user.active,
         departmentID: user.departmentID,
@@ -202,12 +202,21 @@ export default function UserForm({ user, isLoading, onSubmit, onCancel }: UserFo
               value={formData.role || ''}
               onValueChange={(value) => handleInputChange('role', value)}
             />
-            <Input
-              label="Logistic Role"
-              placeholder="Enter logistic role"
-              value={formData.logisticRole || ''}
-              onValueChange={(value) => handleInputChange('logisticRole', value)}
-            />
+            <div className="flex items-center justify-between p-3 border-2 border-default-200 rounded-lg">
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-semibold">Logistic Role</p>
+                <p className="text-xs text-default-500">
+                  Enable logistic permissions
+                </p>
+              </div>
+              <Switch
+                isSelected={formData.logisticRole === 1}
+                onValueChange={(value) => handleInputChange('logisticRole', value ? 1 : 0)}
+                color="primary"
+              >
+                {formData.logisticRole === 1 ? 'Enabled' : 'Disabled'}
+              </Switch>
+            </div>
             <Input
               type="number"
               label="Department ID"
