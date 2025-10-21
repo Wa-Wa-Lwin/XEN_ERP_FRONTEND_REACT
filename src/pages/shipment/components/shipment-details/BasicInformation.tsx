@@ -103,14 +103,6 @@ const BasicInformation = ({
       <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
     </>;
   }
-  // else if (isDHL_Express_Worldwide === true && shipment.pick_up_created_status === "created_failed") {
-  //   pickupStatusData = <>
-  //     <p className="text-red-600 font-semibold">
-  //       ⚠️ Pickup creation failed <br />
-  //       <b>Details:</b> {formattedPickupError}
-  //     </p>
-  //   </>
-  // }
   else if (shipment.pick_up_status && shipment.pick_up_created_status === "created_failed" && !isDHLeCommerceAsia) {
     pickupStatusData = <>
       <Button
@@ -131,6 +123,22 @@ const BasicInformation = ({
       // className="px-2 py-0 text-[11px] h-auto min-h-0"
       >
         Retry Create Pickup
+      </Button>
+    </>;
+  }
+  else if (
+    shipment.pick_up_status &&
+    shipment.request_status !== "approver_approved" &&
+    shipment.request_status !== "approver_rejected" &&
+    new Date(shipment.pick_up_date) < new Date()
+  ) {
+    pickupStatusData = <>
+      <Button
+        color="warning"
+        size="sm"
+        onPress={onChangePickupDateTime}
+      >
+        Change Pickup DateTime
       </Button>
     </>;
   }

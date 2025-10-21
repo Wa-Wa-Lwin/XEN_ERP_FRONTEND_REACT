@@ -1,4 +1,4 @@
-import { Button, Textarea, Select, SelectItem, Input, Autocomplete, AutocompleteItem, Modal, ModalContent, ModalBody, Spinner } from '@heroui/react';
+import { Button, Textarea, Select, SelectItem, Input, Autocomplete, AutocompleteItem, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter, Spinner, useDisclosure } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import type { ShipmentGETData } from './types';
 import { INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults';
@@ -40,26 +40,57 @@ const ActionSections = ({
   onLogisticsUpdate
 }: ActionSectionsProps) => {
   // let shipment_approved_date_time = new Date(shipment.approver_approved_date_time ?? 0);
+  const { isOpen: isWarningOpen, onOpen: onWarningOpen, onClose: onWarningClose } = useDisclosure();
+
+  // Check if pickup date is in the past
+  const checkPickupDate = () => {
+    if (!shipment.pick_up_date) return true;
+
+    const pickupDate = new Date(shipment.pick_up_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    pickupDate.setHours(0, 0, 0, 0);
+
+    return pickupDate >= today;
+  };
+
+  const isPickupDateValid = checkPickupDate();
+
+  const handleApprovalClick = () => {
+    if (!isPickupDateValid) {
+      onWarningOpen();
+      return;
+    }
+    onApprovalAction("approver_approved");
+  };
 
   // Approval Actions Section
   if ([
-      "requestor_requested", 
+      "requestor_requested",
       "logistic_updated",
       "logistic_edited",
       "approver_edited"
-    ].includes(shipment.request_status) 
+    ].includes(shipment.request_status)
     // && shipment_approved_date_time.getTime() >= 0
-    && shipment?.label_status !== "created" 
-    && shipment?.label_status !== "failed" 
-    //  msLoginUser?.email.toLowerCase() === shipment.approver_user_mail.toLowerCase()    
+    && shipment?.label_status !== "created"
+    && shipment?.label_status !== "failed"
+    //  msLoginUser?.email.toLowerCase() === shipment.approver_user_mail.toLowerCase()
     ) {
     return (
       <>
         <section className="bg-gray-50 rounded-xl border p-4 space-y-3">
           <h2 className="text-base font-semibold">Approval Actions</h2>
           <p className="text-sm text-blue-600">
-            Now Every Approver can approver other people request too. Open for Cross Approval. 
+            Now Every Approver can approver other people request too. Open for Cross Approval.
           </p>
+          {!isPickupDateValid && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-600 flex items-center gap-2">
+                <Icon icon="solar:danger-triangle-bold" width={20} />
+                <strong>Warning:</strong> The pickup date ({new Date(shipment.pick_up_date || '').toLocaleDateString()}) is earlier than today. Please change the pickup date before approving.
+              </p>
+            </div>
+          )}
           <Textarea
             placeholder="Enter remark (optional for approval, required for rejection)"
             value={remark}
@@ -72,9 +103,9 @@ const ActionSections = ({
           <div className="flex gap-2">
             <Button
               color="success"
-              onPress={() => onApprovalAction("approver_approved")}
+              onPress={handleApprovalClick}
               isLoading={isApproving}
-              disabled={isApproving || isRejecting}
+              disabled={isApproving || isRejecting || !isPickupDateValid}
               size="sm"
               startContent={<Icon icon="solar:check-circle-bold" />}
             >
@@ -115,6 +146,44 @@ const ActionSections = ({
                 </p>
               </div>
             </ModalBody>
+          </ModalContent>
+        </Modal>
+
+        {/* Pickup Date Warning Modal */}
+        <Modal
+          isOpen={isWarningOpen}
+          onClose={onWarningClose}
+          size="md"
+          backdrop="blur"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex gap-2 items-center text-danger">
+                  <Icon icon="solar:danger-triangle-bold" width={24} />
+                  Cannot Approve Shipment
+                </ModalHeader>
+                <ModalBody>
+                  <div className="space-y-3">
+                    <p className="text-sm">
+                      The pickup date ({new Date(shipment.pick_up_date || '').toLocaleDateString()}) is earlier than today.
+                    </p>
+                    <p className="text-sm font-semibold">
+                      Please change the pickup date before approving this shipment.
+                    </p>
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    color="danger"
+                    variant="light"
+                    onPress={onClose}
+                  >
+                    Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
           </ModalContent>
         </Modal>
       </>
