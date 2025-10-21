@@ -138,8 +138,8 @@ export default function UserList() {
               <TableCell>{user.phone || '-'}</TableCell>
               <TableCell>{user.role || '-'}</TableCell>
               <TableCell>
-                <Chip color={user.logisticRole ? 'primary' : 'default'} size="sm" variant="flat">
-                  {user.logisticRole === 1 ? 'Enabled' : 'Disabled'}
+                <Chip color={Number(user.logisticRole) === 1 ? 'primary' : 'default'} size="sm" variant="flat">
+                  {Number(user.logisticRole) === 1 ? 'Enabled' : 'Disabled'}
                 </Chip>
               </TableCell>
               <TableCell>

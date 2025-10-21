@@ -164,8 +164,8 @@ export default function UserDetail() {
             <InfoItem label="Role" value={user.role || '-'} />
             <div className="flex flex-col gap-1">
               <p className="text-sm text-default-500">Logistic Role</p>
-              <Chip color={user.logisticRole ? 'primary' : 'default'} size="sm" variant="flat" className="w-fit">
-                {user.logisticRole ? 'Enabled' : 'Disabled'}
+              <Chip color={Number(user.logisticRole) === 1 ? 'primary' : 'default'} size="sm" variant="flat" className="w-fit">
+                {Number(user.logisticRole) === 1 ? 'Enabled' : 'Disabled'}
               </Chip>
             </div>
             <InfoItem label="Level" value={user.level?.toString() || '-'} />

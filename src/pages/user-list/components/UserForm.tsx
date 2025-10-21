@@ -210,11 +210,11 @@ export default function UserForm({ user, isLoading, onSubmit, onCancel }: UserFo
                 </p>
               </div>
               <Switch
-                isSelected={formData.logisticRole === 1}
+                isSelected={Number(formData.logisticRole) === 1}
                 onValueChange={(value) => handleInputChange('logisticRole', value ? 1 : 0)}
                 color="primary"
               >
-                {formData.logisticRole === 1 ? 'Enabled' : 'Disabled'}
+                {Number(formData.logisticRole) === 1 ? 'Enabled' : 'Disabled'}
               </Switch>
             </div>
             <Input
