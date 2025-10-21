@@ -25,6 +25,10 @@ import Packaging from "@pages/packaging/Packaging";
 import PackagingDetail from "@pages/packaging/PackagingDetail";
 import Aftership from "@pages/aftership/Aftership";
 import AftershipDetail from "@pages/aftership/AftershipDetail";
+import UserList from "@pages/user-list/UserList";
+import UserDetail from "@pages/user-list/UserDetail";
+import CreateUser from "@pages/user-list/CreateUser";
+import EditUser from "@pages/user-list/EditUser";
 
 
 export const routes = [
@@ -148,6 +152,30 @@ export const routes = [
             path: ":id",
             element: <AftershipDetail />,
             handle: { breadcrumb: (match: any) => match.params.id }
+          },
+        ]
+      },
+      { path: "user-list",
+        handle: { breadcrumb: "User Management" },
+        children:[
+          {
+            path: "",
+            element: <UserList />,
+          },
+          {
+            path: "create",
+            element: <CreateUser />,
+            handle: { breadcrumb: "Create User" }
+          },
+          {
+            path: ":id",
+            element: <UserDetail />,
+            handle: { breadcrumb: (match: any) => match.params.id }
+          },
+          {
+            path: ":id/edit",
+            element: <EditUser />,
+            handle: { breadcrumb: "Edit" }
           },
         ]
       },
