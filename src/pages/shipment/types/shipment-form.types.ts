@@ -148,6 +148,7 @@ export interface ShipmentFormData {
   // Customs
   customs_purpose: string
   customs_terms_of_trade: string
+  payment_terms: string | null 
 
   created_user_id: string;
   created_user_name: string;

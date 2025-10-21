@@ -373,6 +373,12 @@ const BasicInformation = ({
           )}
           <DetailRow label="Customs Purpose" value={shipment.customs_purpose?.toUpperCase() ?? ''} />
           <DetailRow label="Incoterms" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
+          <DetailRow
+            label="Payment Terms"
+            value={shipment.payment_terms
+              ? shipment.payment_terms.replace(/_/g, ' ').toUpperCase()
+              : ''}
+          />
           {pickupCommonData}
           {pickupStatusData}
         </div>

@@ -125,6 +125,7 @@ export const useShipmentDuplicateForm = () => {
 
           customs_purpose: shipmentData.customs_purpose || '',
           customs_terms_of_trade: shipmentData.customs_terms_of_trade || '',
+          payment_terms: shipmentData.payment_terms || '',
           rates: [],
         }
 

@@ -25,6 +25,7 @@ export interface ShipmentGETData {
   shipment_scope_type: string
   customs_purpose: string
   customs_terms_of_trade: string
+  payment_terms?: string
   urgent_reason?: string
   label_id?: string
   label_status?: string

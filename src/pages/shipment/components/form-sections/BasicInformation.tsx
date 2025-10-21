@@ -276,18 +276,16 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             rules={isFieldRequired('customs_purpose') ? { required: "Customs purpose is required" } : undefined}
             render={({ field }) => (
               <Select
-                isRequired={isFieldRequired('customs_purpose') }
+                isRequired={isFieldRequired('customs_purpose')}
                 {...field}
-                label={<span>Customs Purpose</span>}
+                label={<span>Custom Purpose</span>}
                 placeholder="Select"
                 errorMessage={errors.customs_purpose?.message}
                 isInvalid={!!errors.customs_purpose}
                 selectedKeys={customsPurposeValue ? [customsPurposeValue] : field.value ? [field.value] : []}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
-                if (selectedKey) {
-                    field.onChange(selectedKey)
-                  }
+                  if (selectedKey) field.onChange(selectedKey)
                 }}
                 color={!watch('customs_purpose') ? "warning" : "default"}
               >
@@ -300,46 +298,83 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             )}
           />
 
-          <div className="col-span-2">
-            <Controller
-              name="customs_terms_of_trade"
-              control={control}
-              defaultValue="exw"
-              rules={isFieldRequired('customs_terms_of_trade') ? { required: "Incoterms is required" } : undefined}
-              render={({ field }) => (
-                <Select
-                  isRequired={isFieldRequired('customs_terms_of_trade')}
-                  {...field}
-                  label={<span>Incoterms</span>}
-                  placeholder="Select"
-                  errorMessage={errors.customs_terms_of_trade?.message}
-                  isInvalid={!!errors.customs_terms_of_trade}
-                  selectedKeys={customsTermsValue ? [customsTermsValue] : field.value ? [field.value] : []}
-                  onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string
-                    if (selectedKey) {
-                      field.onChange(selectedKey)
-                      setSelectedServiceOptions(new Set([selectedKey]))
-                      // Clear rates since service option changed
-                      if (onClearRates) {
-                        console.log('customs_terms_of_trade changed, clearing rates...')
-                        onClearRates()
-                      }
+          <Controller
+            name="customs_terms_of_trade"
+            control={control}
+            defaultValue="exw"
+            rules={isFieldRequired('customs_terms_of_trade') ? { required: "Incoterms is required" } : undefined}
+            render={({ field }) => (
+              <Select
+                isRequired={isFieldRequired('customs_terms_of_trade')}
+                {...field}
+                label={<span>Incoterms</span>}
+                placeholder="Select"
+                errorMessage={errors.customs_terms_of_trade?.message}
+                isInvalid={!!errors.customs_terms_of_trade}
+                selectedKeys={customsTermsValue ? [customsTermsValue] : field.value ? [field.value] : []}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                    setSelectedServiceOptions(new Set([selectedKey]))
+                    // Clear rates since service option changed
+                    if (onClearRates) {
+                      console.log('customs_terms_of_trade changed, clearing rates...')
+                      onClearRates()
                     }
-                  }}
-                  color={!watch('customs_terms_of_trade') ? "warning" : "default"}
-                >
-                  {INCOTERMS.map((option) => (
-                    <SelectItem key={option.key} value={option.value}>
-                      {option.value}
-                    </SelectItem>
-                  ))}
-                </Select>
+                  }
+                }}
+                color={!watch('customs_terms_of_trade') ? "warning" : "default"}
+              >
+                {INCOTERMS.map((option) => (
+                  <SelectItem key={option.key} value={option.value}>
+                    {option.value}
+                  </SelectItem>
+                ))}
+              </Select>
 
-              )}
-            />
+            )}
+          />
 
-          </div>
+          <Controller
+            name="payment_terms"
+            control={control}
+            rules={isFieldRequired('payment_terms') ? { required: "Payment terms is required" } : undefined}
+            render={({ field }) => (
+              <Select
+                isRequired={isFieldRequired('payment_terms')}
+                {...field}
+                label={<span>Payment Terms</span>}
+                placeholder="Select"
+                errorMessage={errors.payment_terms?.message}
+                isInvalid={!!errors.payment_terms}
+                selectedKeys={field.value ? new Set([field.value]) : new Set()}
+
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                    setSelectedServiceOptions(new Set([selectedKey]))
+                    // Clear rates since service option changed
+                    if (onClearRates) {
+                      console.log('payment_terms changed, clearing rates...')
+                      onClearRates()
+                    }
+                  }
+                }}
+                color={!watch('payment_terms') ? "warning" : "default"}
+              >
+                <SelectItem key="free_of_charge" value="free_of_charge">
+                  Free Of Charge
+                </SelectItem>
+                <SelectItem key="charge" value="charge">
+                  Charge
+                </SelectItem>
+              </Select>
+
+            )}
+          />
+
 
           <Textarea
             {...register('remark', { required: false })}

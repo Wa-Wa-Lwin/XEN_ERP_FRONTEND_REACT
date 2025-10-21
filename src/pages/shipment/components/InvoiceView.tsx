@@ -58,15 +58,15 @@ const InvoiceView = () => {
   // Get document title
   const getDocumentTitle = () => {
     if (!shipment) return 'Invoice'
-    const { shipment_scope_type, customs_purpose, shipmentRequestID } = shipment
-    const isSample = customs_purpose?.toLowerCase() === 'sample' || 'gift'
+    const { shipment_scope_type, shipmentRequestID , payment_terms } = shipment
+    const isFOC = payment_terms?.toLowerCase() === 'free_of_charge' 
     const scope = shipment_scope_type?.toLowerCase()
 
-    if (scope === 'domestic' && isSample) return `Domestic Foc ${shipmentRequestID}`
+    if (scope === 'domestic' && isFOC) return `Domestic Foc ${shipmentRequestID}`
     if (scope === 'domestic') return `Domestic ${shipmentRequestID}`
-    if (scope === 'export' && isSample) return `Export Foc ${shipmentRequestID}`
+    if (scope === 'export' && isFOC) return `Export Foc ${shipmentRequestID}`
     if (scope === 'export') return `Export ${shipmentRequestID}`
-    if (scope === 'import' && isSample) return `Import Foc ${shipmentRequestID}`
+    if (scope === 'import' && isFOC) return `Import Foc ${shipmentRequestID}`
     if (scope === 'import') return `Import ${shipmentRequestID}`
     return `Invoice ${shipmentRequestID}`
   }
@@ -179,7 +179,7 @@ const InvoiceView = () => {
     return companyName?.toLowerCase().startsWith('xenoptics') || false
   }
 
-  const isSample = shipment.customs_purpose?.toLowerCase() === 'sample'
+  const isFOC = shipment.payment_terms?.toLowerCase() === 'free_of_charge'
   const currency = allItems[0]?.price_currency || 'THB'
 
   // Chunk items for pagination - 10 items per page
@@ -518,9 +518,9 @@ const InvoiceView = () => {
                     padding: '10px', 
                     fontSize: '10px' 
                     }}>
-                    {isSample ? (
+                    {isFOC ? (
                       <>
-                        <strong>Purpose of Shipment: Sample</strong><br /><br />
+                        <strong>Purpose of Shipment: </strong>{shipment.customs_purpose.toUpperCase()}<br /><br />
                         <strong>Incoterm:</strong> {shipment.customs_terms_of_trade.toUpperCase()}<br /><br />
                         NO COMMERCIAL VALUE, "VALUE FOR CUSTOMS PURPOSE ONLY"<br /><br />
                         This is to certify that the above named materials are properly classified,

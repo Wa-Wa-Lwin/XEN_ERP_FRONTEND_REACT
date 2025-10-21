@@ -33,6 +33,8 @@ export const getDisplayStatusHistory = (status: string | null | undefined) => {
       return 'Approved';
     case 'approver_rejected':
       return 'Rejected';
+    case 'logistic_edited':
+      return 'Logistic Edited';
     default:
       return status.toUpperCase();
   }

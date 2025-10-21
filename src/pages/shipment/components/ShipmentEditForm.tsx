@@ -175,6 +175,7 @@ const ShipmentEditForm = () => {
           // Customs
           customs_purpose: shipmentData.customs_purpose || '',
           customs_terms_of_trade: shipmentData.customs_terms_of_trade || '',
+          payment_terms: shipmentData.payment_terms || '',
 
           // Rates
           rates: shipmentData.rates?.map((rate: any) => ({
@@ -674,14 +675,15 @@ const ShipmentEditForm = () => {
     <>
       <Card shadow="none" className="p-0 m-0 bg-transparent">
         <CardBody className="p-0">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold px-5 pt-3">Edit Shipment Request ID - {shipmentId}</h1>
+          <div className="flex justify-left items-center mb-4 gap-6 p-2">
             <Button
+              color="warning"
               variant="bordered"
               onPress={() => navigate(`/shipment/${shipmentId}`)}
             >
-              Cancel
+              Back
             </Button>
+            <h1 className="text-2xl font-bold px-5">Edit Shipment Request ID - {shipmentId}</h1>
           </div>
 
           <form

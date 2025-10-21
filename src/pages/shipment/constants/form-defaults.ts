@@ -72,6 +72,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   // Customs
   customs_purpose: 'sample',
   customs_terms_of_trade: 'exw',
+  payment_terms: '',
   
   parcels: [{
     box_type_name: '',
