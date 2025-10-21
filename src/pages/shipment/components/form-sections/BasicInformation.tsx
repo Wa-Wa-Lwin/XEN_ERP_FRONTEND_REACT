@@ -354,7 +354,6 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {
                     field.onChange(selectedKey)
-                    setSelectedServiceOptions(new Set([selectedKey]))
                     // Clear rates since service option changed
                     if (onClearRates) {
                       console.log('payment_terms changed, clearing rates...')
