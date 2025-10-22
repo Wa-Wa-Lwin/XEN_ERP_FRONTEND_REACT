@@ -29,6 +29,7 @@ import UserList from "@pages/user-list/UserList";
 import UserDetail from "@pages/user-list/UserDetail";
 import CreateUser from "@pages/user-list/CreateUser";
 import EditUser from "@pages/user-list/EditUser";
+import ShipmentFormVersionTwo from "@pages/shipment/components/ShipmentFormVersionTwo";
 
 
 export const routes = [
@@ -51,7 +52,12 @@ export const routes = [
           {
             path: "request-form",
             element: <ShipmentForm />,
-            handle: { breadcrumb: "Request Form" },
+            handle: { breadcrumb: "New Request Form" },
+          },
+          {
+            path: "request-form-v2",
+            element: <ShipmentFormVersionTwo />,
+            handle: { breadcrumb: "New Request Form Version 2" },
           },
           {
             path: "duplicate/:shipmentId",

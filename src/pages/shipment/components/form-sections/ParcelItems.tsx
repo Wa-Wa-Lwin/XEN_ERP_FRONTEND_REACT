@@ -20,9 +20,13 @@ interface ExtendedParcelItemsProps extends ParcelItemsProps {
     shipToCountry?: string
     validationMode?: 'shipment' | 'rate-calculator'
     onClearRates?: () => void
+    shipmentScopeType: string
 }
 
-const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange, sendTo, shipFromCountry, shipToCountry, validationMode = 'shipment', onClearRates }: ExtendedParcelItemsProps) => {
+const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange, sendTo, shipFromCountry, shipToCountry, validationMode = 'shipment', onClearRates, shipmentScopeType }: ExtendedParcelItemsProps) => {
+
+    const isDomestic = shipmentScopeType.toLowerCase() === "domestic" ? true : false
+
     // Helper function to determine if item fields should be required based on validation mode
     const isItemFieldRequired = (fieldName: string) => {
         if (validationMode === 'rate-calculator') {
@@ -127,11 +131,19 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                         <TableColumn className="w-48 min-w-[80px]">DESCRIPTION {isItemFieldRequired('description') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-36">Mat Code {isItemFieldRequired('material_code') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-36">SKU {isItemFieldRequired('sku') && <span className="text-red-500">*</span>}</TableColumn>
-                        <TableColumn className="w-24">HS CODE {isItemFieldRequired('hs_code') && <span className="text-red-500">*</span>}</TableColumn>
-                        <TableColumn className="w-28">ORIGIN {isItemFieldRequired('origin_country') && <span className="text-red-500">*</span>}</TableColumn>
-                        <TableColumn className="w-20">PRICE {isItemFieldRequired('price_amount') && <span className="text-red-500">*</span>}</TableColumn>
+                        {
+                            isDomestic
+                                ?
+                                <>
+                                    <TableColumn className="w-24">HS CODE {isItemFieldRequired('hs_code') && <span className="text-red-500">*</span>}</TableColumn>
+                                    <TableColumn className="w-28">ORIGIN {isItemFieldRequired('origin_country') && <span className="text-red-500">*</span>}</TableColumn>
+                                    <TableColumn className="w-20">PRICE {isItemFieldRequired('price_amount') && <span className="text-red-500">*</span>}</TableColumn>
+                                </>
+                                :
+                                <TableColumn className="w-20">PRICE {isItemFieldRequired('price_amount') && <span className="text-red-500">*</span>}</TableColumn>
+                        }
                         <TableColumn className="w-28">CURRENCY {isItemFieldRequired('price_currency') && <span className="text-red-500">*</span>}</TableColumn>
-                        <TableColumn className="w-20">WEIGHT(kg) Per Unit {isItemFieldRequired('weight_value') && <span className="text-red-500">*</span>}</TableColumn>
+                        <TableColumn className="w-16">WEIGHT(kg) Per Unit {isItemFieldRequired('weight_value') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-16">QTY {isItemFieldRequired('quantity') && <span className="text-red-500">*</span>}</TableColumn>
                         <TableColumn className="w-16">ACTION</TableColumn>
                     </TableHeader>
@@ -263,134 +275,175 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                     />
                                 </TableCell>
 
-                                {/* HS CODE cell */}
-                                <TableCell>
-                                    <Controller
-                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`}
-                                        control={control}
-                                        rules={{
-                                            required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false,
-                                            pattern: {
-                                                value: /^[\d.]+$/,
-                                                message: 'HS Code must contain only numbers and dots'
-                                            },
-                                            validate: (value) => {
-                                                if (!value) return true;
-                                                const digitsOnly = value.replace(/\./g, '');
-                                                if (digitsOnly.length < 6) return 'HS Code must have at least 6 digits';
-                                                if (digitsOnly.length > 12) return 'HS Code must have at most 12 digits';
-                                                return true;
-                                            }
-                                        }}
-                                        render={({ field: { onChange, value, ...restField } }) => (
+                                {
+                                    isDomestic ?
+                                        <>
+                                            <TableCell>
+                                                <Controller
+                                                    name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`}
+                                                    control={control}
+                                                    rules={{
+                                                        required: isItemFieldRequired('hs_code') ? 'HS Code is Required' : false,
+                                                        pattern: {
+                                                            value: /^[\d.]+$/,
+                                                            message: 'HS Code must contain only numbers and dots'
+                                                        },
+                                                        validate: (value) => {
+                                                            if (!value) return true;
+                                                            const digitsOnly = value.replace(/\./g, '');
+                                                            if (digitsOnly.length < 6) return 'HS Code must have at least 6 digits';
+                                                            if (digitsOnly.length > 12) return 'HS Code must have at most 12 digits';
+                                                            return true;
+                                                        }
+                                                    }}
+                                                    render={({ field: { onChange, value, ...restField } }) => (
+                                                        <Input
+                                                            isRequired={isItemFieldRequired('hs_code')}
+                                                            {...restField}
+                                                            value={value || ''}
+                                                            type="text"
+                                                            maxLength={12}
+                                                            placeholder="HS CODE"
+                                                            variant="flat"
+                                                            size="sm"
+                                                            errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code?.message}
+                                                            isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code}
+                                                            classNames={{
+                                                                input: "text-sm",
+                                                                inputWrapper: "min-h-unit-8 h-unit-8"
+                                                            }}
+                                                            color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`) ? "warning" : "default"}
+                                                            onChange={(e) => {
+                                                                // Only allow numeric input and dots
+                                                                const cleanValue = e.target.value.replace(/[^\d.]/g, '')
+                                                                onChange(cleanValue)
+                                                                // Clear rates since HS code changed
+                                                                if (onClearRates) {
+                                                                    console.log('Item HS code changed, clearing rates...')
+                                                                    onClearRates()
+                                                                }
+                                                            }}
+                                                        />
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Controller
+                                                    name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`}
+                                                    control={control}
+                                                    rules={{ required: isItemFieldRequired('origin_country') ? 'Origin country is required' : false }}
+                                                    render={({ field }) => (
+                                                        <Autocomplete
+                                                            isRequired={isItemFieldRequired('origin_country')}
+                                                            {...field}
+                                                            defaultItems={ISO_3_COUNTRIES}
+                                                            placeholder="country"
+                                                            variant="flat"
+                                                            size="sm"
+                                                            errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country?.message}
+                                                            isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country}
+                                                            selectedKey={field.value || null}
+                                                            onSelectionChange={(key) => {
+                                                                if (key) {
+                                                                    field.onChange(key)
+                                                                    // Clear rates since origin country changed
+                                                                    if (onClearRates) {
+                                                                        console.log('Item origin country changed, clearing rates...')
+                                                                        onClearRates()
+                                                                    }
+                                                                }
+                                                            }}
+                                                            listboxProps={{
+                                                                emptyContent: "No countries found."
+                                                            }}
+                                                            classNames={{
+                                                                base: "min-h-unit-8 h-unit-8",
+                                                                listbox: "max-h-60"
+                                                            }}
+                                                            color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`) ? "warning" : "default"}
+                                                        >
+                                                            {(item) => (
+                                                                <AutocompleteItem key={item.key} value={item.value}>
+                                                                    {item.key}
+                                                                </AutocompleteItem>
+                                                            )}
+                                                        </Autocomplete>
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Input
+                                                    {...register(
+                                                        `parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`,
+                                                        {
+                                                            required: isItemFieldRequired('price_amount') ? 'Price is required' : false,
+                                                            min: { value: 0, message: 'Price must be at least 0' },
+                                                            pattern: {
+                                                                value: /^\d*\.?\d*$/,
+                                                                message: 'Only numbers and decimals allowed',
+                                                            },
+                                                        }
+                                                    )}
+                                                    type="number"
+                                                    step="0.0001"
+                                                    variant="flat"
+                                                    size="sm"
+                                                    errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
+                                                    isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount}
+                                                    classNames={{
+                                                        input: "text-sm",
+                                                        inputWrapper: "min-h-unit-8 h-unit-8"
+                                                    }}
+                                                    color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`) ? "warning" : "default"}
+                                                    onChange={() => {
+                                                        if (onClearRates) {
+                                                            console.log('Item price changed, clearing rates...')
+                                                            onClearRates()
+                                                        }
+                                                    }}
+                                                    min={0}
+                                                />
+
+                                            </TableCell>
+                                        </>
+                                        :
+
+                                        <TableCell>
                                             <Input
-                                                isRequired={isItemFieldRequired('hs_code')}
-                                                {...restField}
-                                                value={value || ''}
-                                                type="text"
-                                                maxLength={12}
-                                                placeholder="HS CODE"
+                                                {...register(
+                                                    `parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`,
+                                                    {
+                                                        required: isItemFieldRequired('price_amount') ? 'Price is required' : false,
+                                                        min: { value: 0, message: 'Price must be at least 0' },
+                                                        pattern: {
+                                                            value: /^\d*\.?\d*$/,
+                                                            message: 'Only numbers and decimals allowed',
+                                                        },
+                                                    }
+                                                )}
+                                                type="number"
+                                                step="0.0001"
                                                 variant="flat"
                                                 size="sm"
-                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.hs_code}
+                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
+                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount}
                                                 classNames={{
                                                     input: "text-sm",
                                                     inputWrapper: "min-h-unit-8 h-unit-8"
                                                 }}
-                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.hs_code`) ? "warning" : "default"}
-                                                onChange={(e) => {
-                                                    // Only allow numeric input and dots
-                                                    const cleanValue = e.target.value.replace(/[^\d.]/g, '')
-                                                    onChange(cleanValue)
-                                                    // Clear rates since HS code changed
+                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`) ? "warning" : "default"}
+                                                onChange={() => {
                                                     if (onClearRates) {
-                                                        console.log('Item HS code changed, clearing rates...')
+                                                        console.log('Item price changed, clearing rates...')
                                                         onClearRates()
                                                     }
                                                 }}
+                                                min={0}
                                             />
-                                        )}
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <Controller
-                                        name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`}
-                                        control={control}
-                                        rules={{ required: isItemFieldRequired('origin_country') ? 'Origin country is required' : false }}
-                                        render={({ field }) => (
-                                            <Autocomplete
-                                                isRequired={isItemFieldRequired('origin_country')}
-                                                {...field}
-                                                defaultItems={ISO_3_COUNTRIES}
-                                                placeholder="country"
-                                                variant="flat"
-                                                size="sm"
-                                                errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country?.message}
-                                                isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.origin_country}
-                                                selectedKey={field.value || null}
-                                                onSelectionChange={(key) => {
-                                                    if (key) {
-                                                        field.onChange(key)
-                                                        // Clear rates since origin country changed
-                                                        if (onClearRates) {
-                                                            console.log('Item origin country changed, clearing rates...')
-                                                            onClearRates()
-                                                        }
-                                                    }
-                                                }}
-                                                listboxProps={{
-                                                    emptyContent: "No countries found."
-                                                }}
-                                                classNames={{
-                                                    base: "min-h-unit-8 h-unit-8",
-                                                    listbox: "max-h-60"
-                                                }}
-                                                color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.origin_country`) ? "warning" : "default"}
-                                            >
-                                                {(item) => (
-                                                    <AutocompleteItem key={item.key} value={item.value}>
-                                                        {item.key}
-                                                    </AutocompleteItem>
-                                                )}
-                                            </Autocomplete>
-                                        )}
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <Input
-                                        {...register(
-                                            `parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`,
-                                            {
-                                                required: isItemFieldRequired('price_amount') ? 'Price is required' : false,
-                                                min: { value: 0, message: 'Price must be at least 0' },
-                                                pattern: {
-                                                    value: /^\d*\.?\d*$/,
-                                                    message: 'Only numbers and decimals allowed',
-                                                },
-                                            }
-                                        )}
-                                        type="number"
-                                        step="0.0001"
-                                        variant="flat"
-                                        size="sm"
-                                        errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount?.message}
-                                        isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_amount}
-                                        classNames={{
-                                            input: "text-sm",
-                                            inputWrapper: "min-h-unit-8 h-unit-8"
-                                        }}
-                                        color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_amount`) ? "warning" : "default"}
-                                        onChange={() => {
-                                            if (onClearRates) {
-                                                console.log('Item price changed, clearing rates...')
-                                                onClearRates()
-                                            }
-                                        }}
-                                        min={0}
-                                    />
 
-                                </TableCell>
+                                        </TableCell>
+                                }
+
                                 <TableCell>
                                     <Controller
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
@@ -540,7 +593,9 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                             </TableRow>
                         ))}
                     </TableBody>
+                    
                 </Table>
+               
             </div>
 
             {/* Hidden weight unit field */}

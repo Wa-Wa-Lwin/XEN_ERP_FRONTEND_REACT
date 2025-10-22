@@ -94,7 +94,6 @@ const PickupInformation = ({ register, errors, control, watch, onClearRates }: P
     <Card shadow="none">
       {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
       <CardHeader className="px-0 pt-0 pb-1">
-        <h2 className="text-lg font-semibold">Pickup Information </h2>  
         <p className="text-blue-600 font-semibold text-sm">
            (Pickup Date & Time will be based on the pickup country.)
         </p>
@@ -128,7 +127,7 @@ const PickupInformation = ({ register, errors, control, watch, onClearRates }: P
             className="mb-3"
           />
         )}
-        <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-5">
           <>
             <Controller
               name="pick_up_date"
@@ -154,32 +153,6 @@ const PickupInformation = ({ register, errors, control, watch, onClearRates }: P
                 />
               )}
             />
-
-            <Controller
-              name="due_date"
-              control={control}
-              rules={{ required: 'Expected delivery date is required' }}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  isRequired
-                  type="date"
-                  label={<span>Expected Delivery Date</span>}
-                  min={minDate}
-                  value={expectedDeliveryDate}
-                  onChange={(e) => {
-                    field.onChange(e.target.value) // updates RHF
-                    if (onClearRates) {
-                      console.log('Expected delivery date changed, clearing rates...')
-                      onClearRates()
-                    }
-                  }}
-                  errorMessage={errors.due_date?.message}
-                  isInvalid={!!errors.due_date}
-                />
-              )}
-            />
-
             <Controller
               name="pick_up_start_time"
               control={control}
@@ -229,6 +202,30 @@ const PickupInformation = ({ register, errors, control, watch, onClearRates }: P
                     }
                   }}
                   color={!watch('pick_up_end_time') ? "warning" : "default"}
+                />
+              )}
+            />
+            <Controller
+              name="due_date"
+              control={control}
+              rules={{ required: 'Expected delivery date is required' }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  isRequired
+                  type="date"
+                  label={<span>Expected Delivery Date</span>}
+                  min={minDate}
+                  value={expectedDeliveryDate}
+                  onChange={(e) => {
+                    field.onChange(e.target.value) // updates RHF
+                    if (onClearRates) {
+                      console.log('Expected delivery date changed, clearing rates...')
+                      onClearRates()
+                    }
+                  }}
+                  errorMessage={errors.due_date?.message}
+                  isInvalid={!!errors.due_date}
                 />
               )}
             />

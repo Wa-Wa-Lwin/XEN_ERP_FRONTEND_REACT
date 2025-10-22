@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem } from '@heroui/react'
+import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem, Divider } from '@heroui/react'
 import { Controller } from 'react-hook-form'
 import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS, INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults'
 import type { FormSectionProps } from '../../types/shipment-form.types'
@@ -82,11 +82,53 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
         <h2 className="text-lg font-semibold">Basic Information</h2>
       </CardHeader>
       <CardBody className="px-0 pt-0 pb-0">
-        {/* <div className="grid grid-cols-1 md:grid-cols-1 gap-3"> */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-3"> */}
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-3">
 
-        <div className="grid grid-cols-1 md:grid-cols-8 gap-3">
           <Controller
+            name="shipment_scope_type"
+            control={control}
+            rules={isFieldRequired('shipment_scope_type') ? { required: "Shipment Scope is required" } : undefined}
+            render={({ field }) => (
+              <Select
+                isRequired={isFieldRequired('shipment_scope_type')}
+                {...field}
+                label={<span>Shipment Scope</span>}
+                placeholder="Select"
+                errorMessage={errors.shipment_scope_type?.message}
+                isInvalid={!!errors.shipment_scope_type}
+                selectedKeys={field.value ? new Set([field.value]) : new Set()}
+
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) {
+                    field.onChange(selectedKey)
+                    // Clear rates since service option changed
+                    if (onClearRates) {
+                      console.log('shipment_scope_type changed, clearing rates...')
+                      onClearRates()
+                    }
+                  }
+                }}
+                color={!watch('shipment_scope_type') ? "warning" : "default"}
+              >
+                <SelectItem key="domestic" value="domestic">
+                  Domestic
+                </SelectItem>
+                <SelectItem key="export" value="export">
+                  International (Export)
+                </SelectItem>
+                <SelectItem key="import" value="import">
+                  International (Import)
+                </SelectItem>
+                <SelectItem key="international" value="international">
+                  International (Outside Thai)
+                </SelectItem>
+              </Select>
+
+            )}
+          />
+
+          {/* <Controller
             name="send_to"
             control={control}
             rules={{ required: "Send to is required" }}
@@ -115,7 +157,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 </SelectItem>
               </Select>
             )}
-          />
+          /> */}
           <div className="col-span-1 grid grid-cols-1 gap-2">
             <Controller
               name="topic"
@@ -249,8 +291,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
           </div>
 
           <Input
-            {...register('po_number', { required: "PO number is required" })}
-            isRequired
+            {...register('po_number')}
             label={<span>PO Number</span>}
             placeholder="Enter"
             errorMessage={errors.po_number?.message}
@@ -258,8 +299,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             color={!watch('po_number') ? "warning" : "default"}
           />
           <Input
-            {...register('po_date', { required: "PO date is required" })}
-            isRequired
+            {...register('po_date')}
             type="date"
             label={<span>PO Date</span>}
             errorMessage={errors.po_date?.message}
@@ -269,7 +309,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
           />
 
 
-          <Controller
+          {/* <Controller
             name="customs_purpose"
             control={control}
             defaultValue="sample"
@@ -278,7 +318,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               <Select
                 isRequired={isFieldRequired('customs_purpose')}
                 {...field}
-                label={<span>Custom Purpose</span>}
+                label={<span>Customs Purpose</span>}
                 placeholder="Select"
                 errorMessage={errors.customs_purpose?.message}
                 isInvalid={!!errors.customs_purpose}
@@ -372,7 +412,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               </Select>
 
             )}
-          />
+          /> */}
 
 
           <Textarea

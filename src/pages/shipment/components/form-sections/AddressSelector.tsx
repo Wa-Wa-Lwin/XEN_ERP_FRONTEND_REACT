@@ -242,7 +242,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
     <>
       <Card shadow="none">
         {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-        <CardHeader className="px-0 pt-0 pb-1 flex-row items-center gap-6 justify-left">
+        <CardHeader className="px-0 pt-0 pb-3 flex-row items-center gap-6 justify-left">
           <h2 className="text-lg font-semibold">{title}</h2>
           <div className="flex gap-2">
             <Button
@@ -267,7 +267,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               />
             </div>
           )}
-          <div key={formKey} className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div key={formKey} className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Textarea
               {...register(`${prefix}_company_name`, { required: isFieldRequired('company_name') ? 'Company name is required' : false })}
               isRequired={isFieldRequired('company_name')}

@@ -195,8 +195,8 @@ export const TOPIC_OPTIONS = [
 
 
 export const SERVICE_OPTIONS = [
-  { key: 'Normal', value: 'Normal', label: 'Normal' },
-  { key: 'Urgent', value: 'Urgent', label: 'Urgent' },
+  { key: 'Normal', value: 'Normal', label: 'Normal (Cheapest one)' },
+  { key: 'Urgent', value: 'Urgent', label: 'Urgent (Will choose)' },
 ]
 
 export const SALES_PERSON_OPTIONS = [
