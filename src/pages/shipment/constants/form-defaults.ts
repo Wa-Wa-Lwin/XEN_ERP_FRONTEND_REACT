@@ -70,8 +70,8 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   ship_to_eori_number: '',
   
   // Customs
-  customs_purpose: 'sample',
-  customs_terms_of_trade: 'exw',
+  customs_purpose: '', // 'sample',
+  customs_terms_of_trade: '', // 'exw',
   payment_terms: '',
   
   parcels: [{
