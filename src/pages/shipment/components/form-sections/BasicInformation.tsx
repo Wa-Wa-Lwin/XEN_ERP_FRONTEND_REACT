@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem, Divider } from '@heroui/react'
+import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem } from '@heroui/react'
 import { Controller } from 'react-hook-form'
-import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS, INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults'
+import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS } from '../../constants/form-defaults'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { useState, useEffect } from 'react'
 
@@ -26,9 +26,6 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
   // Watch form values to sync with form state
   const topicValue = watch('topic');
   const serviceOptionsValue = watch('service_options');
-  const sendToValue = watch('send_to');
-  const customsPurposeValue = watch('customs_purpose');
-  const customsTermsValue = watch('customs_terms_of_trade');
   const salesPersonValue = watch('sales_person');
 
   // Update local state when form values change (for duplicated data)
@@ -304,7 +301,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             label={<span>PO Date</span>}
             errorMessage={errors.po_date?.message}
             isInvalid={!!errors.po_date}
-            defaultValue={new Date().toISOString().split('T')[0]}
+            // defaultValue={new Date().toISOString().split('T')[0]}
             color={!watch('po_date') ? "warning" : "default"}
           />
 

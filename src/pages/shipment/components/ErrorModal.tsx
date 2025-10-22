@@ -160,7 +160,7 @@ const ErrorModal = ({ isOpen, onClose, title, message, details }: ErrorModalProp
             </div>
           )}
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          {/* <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-start">
               <Icon icon="solar:info-circle-bold" className="text-blue-500 text-lg mt-0.5 mr-3 flex-shrink-0" />
               <div>
@@ -175,7 +175,7 @@ const ErrorModal = ({ isOpen, onClose, title, message, details }: ErrorModalProp
                 </ul>
               </div>
             </div>
-          </div>
+          </div> */}
         </ModalBody>
 
         <ModalFooter>

@@ -422,10 +422,56 @@ const ShipmentFormVersionTwo = () => {
     }
   }
 
+  // Validate shipment scope type matches selected countries
+  const validateShipmentScope = (formData: ShipmentFormData): { isValid: boolean; error?: { title: string; message: string; details: Array<{ path: string; info: string }> } } => {
+    const shipFromCountry = formData.ship_from_country?.toUpperCase()
+    const shipToCountry = formData.ship_to_country?.toUpperCase()
+    const scopeType = formData.shipment_scope_type?.toLowerCase()
+
+    const bothThai = shipFromCountry === 'THA' && shipToCountry === 'THA'
+    const bothNotThai = shipFromCountry !== 'THA' && shipToCountry !== 'THA'
+    const fromThaiToOther = shipFromCountry === 'THA' && shipToCountry !== 'THA'
+    const fromOtherToThai = shipFromCountry !== 'THA' && shipToCountry === 'THA'
+
+    if (
+      (scopeType === 'domestic' && !bothThai) || (scopeType === 'export' && !fromThaiToOther) || (scopeType === 'export' && !fromThaiToOther) || (scopeType === 'import' && !fromOtherToThai) || (scopeType === 'international' && !bothNotThai)
+    ) {
+      return {
+        isValid: false,
+        error: {
+          title: 'Shipment Scope Mismatch',
+          message: 'The selected addresses do not match the shipment scope type.',
+          details: [{
+            path: 'Shipment Scope',
+            info: 'Please change your Scope Type in Basic Information to "Domestic" since both Ship From and Ship To countries are Thailand (THA), to "Export" (if shipping from THA to another country), "Import" (if shipping from another country to THA), or "International" (if both countries are outside Thailand).'
+          }]
+        }
+      }
+    }
+
+    return { isValid: true }
+  }
+
   // Step Navigation Handlers
   const handleNextStep = async () => {
     const isValid = await trigger()
     if (isValid) {
+      // Additional validation: Check shipment scope when leaving step 1 (Addresses)
+      if (currentStep === 1) {
+        const formData = getValues()
+        const scopeValidation = validateShipmentScope(formData)
+
+        if (!scopeValidation.isValid && scopeValidation.error) {
+          setErrorModal({
+            isOpen: true,
+            title: scopeValidation.error.title,
+            message: scopeValidation.error.message,
+            details: scopeValidation.error.details
+          })
+          return
+        }
+      }
+
       setCompletedSteps(prev => new Set(prev).add(currentStep))
 
       // If we have a return step set, go back to it instead of the next sequential step

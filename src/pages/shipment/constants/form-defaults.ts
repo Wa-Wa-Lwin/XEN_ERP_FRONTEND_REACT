@@ -29,11 +29,11 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   urgent_reason: '',
   remark: '',
   topic: '',
-  po_number: '-',
+  po_number: '',
   other_topic: '',
   due_date: defaultPickupValues.expectedDeliveryDate, // Not Same as pickup date . It is expectedDeliveryDate
   sales_person: '',
-  po_date: new Date().toISOString().split('T')[0], // today
+  po_date: '', //new Date().toISOString().split('T')[0], // today
   send_to: 'Approver',
 
   label_status:'',
