@@ -30,6 +30,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
       classNames={{
         base: "max-h-[90vh]",
         body: "p-6"
+        ,backdrop: "backdrop-blur-lg bg-black/65"
       }}
     >
       <ModalContent>

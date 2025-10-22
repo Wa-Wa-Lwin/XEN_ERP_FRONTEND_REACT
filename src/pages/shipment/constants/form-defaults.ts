@@ -29,7 +29,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   urgent_reason: '',
   remark: '',
   topic: '',
-  po_number: '',
+  po_number: '-',
   other_topic: '',
   due_date: defaultPickupValues.expectedDeliveryDate, // Not Same as pickup date . It is expectedDeliveryDate
   sales_person: '',

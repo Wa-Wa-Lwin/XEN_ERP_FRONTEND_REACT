@@ -73,13 +73,13 @@ export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
 
 export const AddressesSummary = ({ data, onEdit }: { data: ShipmentFormData } & SectionSummaryProps) => {
   return (
-    <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-l-4 border-purple-500">
+    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
       <CardBody>
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Icon icon="solar:map-point-bold" width={20} className="text-purple-600" />
-              <h3 className="font-semibold text-purple-900">Addresses</h3>
+              <Icon icon="solar:map-point-bold" width={20} className="text-blue-600" />
+              <h3 className="font-semibold text-blue-900">Addresses</h3>
               <Icon icon="solar:check-circle-bold" width={20} className="text-green-600" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -132,13 +132,13 @@ export const AddressesSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
 
 export const PickupInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & SectionSummaryProps) => {
   return (
-    <Card className="bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500">
+    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
       <CardBody>
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Icon icon="solar:calendar-bold" width={20} className="text-green-600" />
-              <h3 className="font-semibold text-green-900">Pickup Information</h3>
+              <Icon icon="solar:calendar-bold" width={20} className="text-blue-600" />
+              <h3 className="font-semibold text-blue-900">Pickup Information</h3>
               <Icon icon="solar:check-circle-bold" width={20} className="text-green-600" />
             </div>
             <div className="grid grid-cols gap-x-4 gap-y-1 text-sm">
@@ -178,13 +178,13 @@ export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & Se
   const totalWeight = data.parcels?.reduce((sum, p) => sum + (parseFloat(String(p.weight_value)) || 0), 0) || 0;
 
   return (
-    <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-l-4 border-orange-500">
+    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
       <CardBody>
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Icon icon="solar:box-minimalistic-bold" width={20} className="text-orange-600" />
-              <h3 className="font-semibold text-orange-900">Parcels & Items</h3>
+              <Icon icon="solar:box-minimalistic-bold" width={20} className="text-blue-600" />
+              <h3 className="font-semibold text-blue-900">Parcels & Items</h3>
               <Icon icon="solar:check-circle-bold" width={20} className="text-green-600" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm">
@@ -212,13 +212,13 @@ export const RatesSummary = ({ data, selectedRateId, onEdit }: { data: ShipmentF
   const selectedRate = data.rates?.find(r => r.unique_id === selectedRateId);
 
   return (
-    <Card className="bg-gradient-to-r from-indigo-50 to-indigo-100 border-l-4 border-indigo-500">
+    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
       <CardBody>
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Icon icon="solar:dollar-bold" width={20} className="text-indigo-600" />
-              <h3 className="font-semibold text-indigo-900">Shipping Rate</h3>
+              <Icon icon="solar:dollar-bold" width={20} className="text-blue-600" />
+              <h3 className="font-semibold text-blue-900">Shipping Rate</h3>
               <Icon icon="solar:check-circle-bold" width={20} className="text-green-600" />
             </div>
             {selectedRate && (
