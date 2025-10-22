@@ -448,19 +448,22 @@ const ShipmentFormVersionTwo = () => {
           >
             {/* Completed Sections Summary */}
             <div className="space-y-3">
-              {currentStep > 0 && completedSteps.has(0) && (
+              {currentStep !== 0 && completedSteps.has(0) && (
                 <BasicInfoSummary data={getValues()} onEdit={() => handleEditStep(0)} />
               )}
-              {currentStep > 1 && completedSteps.has(1) && (
+              {currentStep !== 1 && completedSteps.has(1) && (
                 <AddressesSummary data={getValues()} onEdit={() => handleEditStep(1)} />
               )}
-              {currentStep > 2 && completedSteps.has(2) && (
+              {currentStep !== 2 && completedSteps.has(2) && (
                 <PickupInfoSummary data={getValues()} onEdit={() => handleEditStep(2)} />
               )}
-              {currentStep > 3 && completedSteps.has(3) && (
+              {currentStep !== 3 && completedSteps.has(3) && (
                 <ParcelsSummary data={getValues()} onEdit={() => handleEditStep(3)} />
               )}
-              {currentStep > 4 && completedSteps.has(4) && selectedRateId && (
+              {/* {currentStep !== 3 && completedSteps.has(3) && (
+                <RatesSummary data={getValues()} selectedRateId={selectedRateId} onEdit={() => handleEditStep(4)} />
+              )} */}
+              {currentStep !== 4 && completedSteps.has(4) && selectedRateId && (
                 <RatesSummary data={getValues()} selectedRateId={selectedRateId} onEdit={() => handleEditStep(4)} />
               )}
             </div>
