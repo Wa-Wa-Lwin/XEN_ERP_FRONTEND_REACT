@@ -36,6 +36,7 @@ const ShipmentFormVersionTwo = () => {
   // Step/Section Management
   const [currentStep, setCurrentStep] = useState<number>(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
+  const [returnToStep, setReturnToStep] = useState<number | null>(null)
 
   const steps = [
     { id: 0, name: 'Basic Information', icon: 'solar:box-bold' },
@@ -426,15 +427,32 @@ const ShipmentFormVersionTwo = () => {
     const isValid = await trigger()
     if (isValid) {
       setCompletedSteps(prev => new Set(prev).add(currentStep))
-      setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
+
+      // If we have a return step set, go back to it instead of the next sequential step
+      if (returnToStep !== null) {
+        setCurrentStep(returnToStep)
+        setReturnToStep(null)
+      } else {
+        setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
+      }
     }
   }
 
   const handlePreviousStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 0))
+    // If we have a return step set, go back to it instead of the previous sequential step
+    if (returnToStep !== null) {
+      setCurrentStep(returnToStep)
+      setReturnToStep(null)
+    } else {
+      setCurrentStep(prev => Math.max(prev - 1, 0))
+    }
   }
 
   const handleEditStep = (stepId: number) => {
+    // Store the current step so we can return to it after editing
+    if (currentStep !== stepId) {
+      setReturnToStep(currentStep)
+    }
     setCurrentStep(stepId)
   }
 
@@ -485,7 +503,7 @@ const ShipmentFormVersionTwo = () => {
                         onPress={handleNextStep}
                         endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                       >
-                        Next Step
+                        {returnToStep !== null ? `Return to Step ${returnToStep + 1}` : 'Next Step'}
                       </Button>
                     </div>
                   </CardBody>
@@ -593,7 +611,7 @@ const ShipmentFormVersionTwo = () => {
                         onPress={handleNextStep}
                         endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                       >
-                        Next Step
+                        {returnToStep !== null ? `Return to Step ${returnToStep + 1}` : 'Next Step'}
                       </Button>
                     </div>
                   </CardBody>
@@ -639,7 +657,7 @@ const ShipmentFormVersionTwo = () => {
                         onPress={handleNextStep}
                         endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                       >
-                        Next Step
+                        {returnToStep !== null ? `Return to Step ${returnToStep + 1}` : 'Next Step'}
                       </Button>
                     </div>
                   </CardBody>
@@ -684,7 +702,7 @@ const ShipmentFormVersionTwo = () => {
                         onPress={handleNextStep}
                         endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                       >
-                        Next Step
+                        {returnToStep !== null ? `Return to Step ${returnToStep + 1}` : 'Next Step'}
                       </Button>
                     </div>
                   </CardBody>
