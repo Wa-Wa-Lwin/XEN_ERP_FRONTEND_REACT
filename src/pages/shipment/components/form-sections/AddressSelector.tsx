@@ -354,15 +354,30 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
             <Textarea
               {...register(`${prefix}_email`, {
                 required: isFieldRequired('email') ? 'Email is required' : false,
-                pattern: {
-                  value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "Please enter a valid email address (only letters, numbers, dots, hyphens, and underscores allowed)"
+                validate: (value: string) => {
+                  // Trim the value before validation
+                  const trimmedValue = value?.trim() || '';
+                  // Auto-update the field with trimmed value
+                  if (value !== trimmedValue) {
+                    setValue(`${prefix}_email`, trimmedValue, { shouldValidate: false });
+                  }
+                  // Validate the trimmed value
+                  if (isFieldRequired('email') && !trimmedValue) {
+                    return 'Email is required';
+                  }
+                  const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                  if (trimmedValue && !emailPattern.test(trimmedValue)) {
+                    return "Please enter a valid email address (only letters, numbers, dots, hyphens, and underscores allowed)";
+                  }
+                  return true;
                 }
               })}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                // Automatically trim whitespace from email
+              onBlur={(e) => {
+                // Trim on blur to clean up the field
                 const trimmedValue = e.target.value.trim();
-                setValue(`${prefix}_email`, trimmedValue, { shouldValidate: true });
+                if (e.target.value !== trimmedValue) {
+                  setValue(`${prefix}_email`, trimmedValue, { shouldValidate: true, shouldDirty: true });
+                }
               }}
               isRequired={isFieldRequired('email')}
               // type="email"
