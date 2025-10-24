@@ -359,6 +359,11 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                   message: "Please enter a valid email address (only letters, numbers, dots, hyphens, and underscores allowed)"
                 }
               })}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                // Automatically trim whitespace from email
+                const trimmedValue = e.target.value.trim();
+                setValue(`${prefix}_email`, trimmedValue, { shouldValidate: true });
+              }}
               isRequired={isFieldRequired('email')}
               // type="email"
               label={<span>Email</span>}
