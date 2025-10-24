@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Controller } from 'react-hook-form'
 import {
   Card,
@@ -21,7 +21,8 @@ import {
   TableCell,
   Chip,
   Spinner,
-  Alert
+  Alert,
+  Pagination
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
@@ -52,6 +53,8 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
   const [searchQuery, setSearchQuery] = useState('')
   const [formKey, setFormKey] = useState(0)
   const [selectedAddressInfo, setSelectedAddressInfo] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const rowsPerPage = 10
 
   // European countries that require EORI number
   const europeanCountries = [
@@ -126,7 +129,18 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
       )
       setFilteredAddresses(filtered)
     }
+    // Reset to page 1 when search changes
+    setPage(1)
   }, [searchQuery, addresses])
+
+  // Calculate pagination
+  const pages = Math.ceil(filteredAddresses.length / rowsPerPage)
+
+  const paginatedAddresses = useMemo(() => {
+    const start = (page - 1) * rowsPerPage
+    const end = start + rowsPerPage
+    return filteredAddresses.slice(start, end)
+  }, [page, filteredAddresses, rowsPerPage])
 
   // Watch for forceRefresh prop changes to trigger form re-render
   useEffect(() => {
@@ -379,7 +393,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                     console.log('Country selected:', key);
                     if (key) {
                       field.onChange(key)
-                      
+
                       // Automatically set postal code for Hong Kong
                       if (key === 'HKG') {
                         console.log('Hong Kong selected, setting postal code to 00000');
@@ -389,7 +403,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                           shouldTouch: true,
                         });
                       }
-                      
+
                       // Clear rates since country changed
                       if (onClearRates) {
                         console.log(`${prefix} country changed, clearing rates...`)
@@ -566,21 +580,16 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">
-                <div className="flex items-center gap-3">
-                  <Icon icon="solar:buildings-2-bold" className="text-primary" width={24} />
-                  <div>
-                    <h3 className="text-xl font-bold">Select Address</h3>
-                    <p className="text-small text-default-600">Choose an address to auto-fill the form</p>
-                  </div>
-                </div>
+              <ModalHeader className="flex flex-row items-center gap-3">
+                <Icon icon="solar:buildings-2-bold" className="text-primary" width={24} />
+                <h3 className="text-xl font-bold whitespace-nowrap">Select Address</h3>
                 <Textarea
+                  className="px-5"
                   placeholder="Search by name, code, city..."
                   value={searchQuery}
                   onValueChange={setSearchQuery}
                   startContent={<Icon icon="solar:magnifer-bold" />}
                   variant="bordered"
-                  className="mt-2"
                   isClearable
                   onClear={() => setSearchQuery('')}
                   minRows={1}
@@ -592,86 +601,110 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                     <Spinner size="lg" label="Loading addresses..." />
                   </div>
                 ) : (
-                  <Table
-                    aria-label="Address selection table"
-                    selectionMode="single"
-                    classNames={{
-                      wrapper: "min-h-[400px]",
-                    }}
-                  >
-                    <TableHeader>
-                      <TableColumn>CODE</TableColumn>
-                      <TableColumn>TYPE</TableColumn>
-                      <TableColumn>COMPANY NAME</TableColumn>
-                      <TableColumn>ADDRESS</TableColumn>
-                      <TableColumn>COUNTRY</TableColumn>
-                      <TableColumn>CONTACT</TableColumn>
-                    </TableHeader>
-                    <TableBody emptyContent="No addresses found">
-                      {filteredAddresses.slice(0, 50).map((address) => {
-                        const typeInfo = getCardTypeInfo(address.CardType)
-                        return (
-                          <TableRow
-                            key={address.addressID}
-                            className="cursor-pointer hover:bg-default-100 transition-colors"
-                            onClick={() => handleAddressSelect(address)}
-                          >
-                            <TableCell>
-                              <span className="font-medium text-primary text-sm">
-                                {address.CardCode || 'N/A'}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <Chip
-                                size="sm"
-                                variant="flat"
-                                color={typeInfo.color}
-                                startContent={<Icon icon={typeInfo.icon} width={14} />}
-                              >
-                                {typeInfo.label}
-                              </Chip>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-col max-w-[200px]">
-                                <span className="text-sm font-medium text-foreground truncate">
-                                  {address.company_name}
+                  <div className="flex flex-col gap-4">
+                    <Table
+                      aria-label="Address selection table"
+                      selectionMode="single"
+                      classNames={{
+                        wrapper: "min-h-[400px]",
+                      }}
+                      bottomContent={
+                        pages > 1 ? (
+                          <div className="flex w-full justify-center">
+                            <Pagination
+                              isCompact
+                              showControls
+                              showShadow
+                              color="primary"
+                              page={page}
+                              total={pages}
+                              onChange={setPage}
+                            />
+                          </div>
+                        ) : null
+                      }
+                    >
+                      <TableHeader>
+                        <TableColumn>CODE</TableColumn>
+                        <TableColumn>TYPE</TableColumn>
+                        <TableColumn>COMPANY NAME</TableColumn>
+                        <TableColumn>ADDRESS</TableColumn>
+                        <TableColumn>COUNTRY</TableColumn>
+                        <TableColumn>CONTACT</TableColumn>
+                      </TableHeader>
+                      <TableBody emptyContent="No addresses found">
+                        {paginatedAddresses.map((address) => {
+                          const typeInfo = getCardTypeInfo(address.CardType)
+                          return (
+                            <TableRow
+                              key={address.addressID}
+                              className="cursor-pointer hover:bg-default-100 transition-colors"
+                              onClick={() => handleAddressSelect(address)}
+                            >
+                              <TableCell>
+                                <span className="font-medium text-primary text-sm">
+                                  {address.CardCode || 'N/A'}
                                 </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-col max-w-[250px]">
-                                <span className="text-sm text-default-600 truncate">
-                                  {formatAddress(address)}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {address.country || 'N/A'}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-col">
-                                {address.contact_name && (
-                                  <span className="text-tiny text-default-500 truncate">
-                                    Contact: {address.contact_name}
+                              </TableCell>
+                              <TableCell>
+                                <Chip
+                                  size="sm"
+                                  variant="flat"
+                                  color={typeInfo.color}
+                                  startContent={<Icon icon={typeInfo.icon} width={14} />}
+                                >
+                                  {typeInfo.label}
+                                </Chip>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-col max-w-[200px]">
+                                  <span className="text-sm font-medium text-foreground truncate">
+                                    {address.company_name}
                                   </span>
-                                )}
-                                {address.email && (
-                                  <span className="text-tiny text-default-600 truncate max-w-[150px]">
-                                    {address.email}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-col max-w-[250px]">
+                                  <span className="text-sm text-default-600 truncate">
+                                    {formatAddress(address)}
                                   </span>
-                                )}
-                                {address.phone && (
-                                  <span className="text-tiny text-default-600">
-                                    {address.phone}
-                                  </span>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })}
-                    </TableBody>
-                  </Table>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {address.country || 'N/A'}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  {address.contact_name && (
+                                    <span className="text-tiny text-default-500 truncate">
+                                      Contact: {address.contact_name}
+                                    </span>
+                                  )}
+                                  {address.email && (
+                                    <span className="text-tiny text-default-600 truncate max-w-[150px]">
+                                      {address.email}
+                                    </span>
+                                  )}
+                                  {address.phone && (
+                                    <span className="text-tiny text-default-600">
+                                      {address.phone}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                    {filteredAddresses.length > 0 && (
+                      <div className="flex justify-between items-center px-2">
+                        <span className="text-small text-default-500">
+                          Showing {((page - 1) * rowsPerPage) + 1} to {Math.min(page * rowsPerPage, filteredAddresses.length)} of {filteredAddresses.length} addresses
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 )}
               </ModalBody>
               <ModalFooter>
