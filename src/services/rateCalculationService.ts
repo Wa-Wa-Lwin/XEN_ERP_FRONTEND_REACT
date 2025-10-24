@@ -270,6 +270,14 @@ export const calculateShippingRates = async (
     }
   )
 
+  // Check if the response contains an error in the meta field
+  if (response.data?.meta?.code && response.data.meta.code !== 200) {
+    // API returned an error - throw it so it can be caught by the form
+    const error: any = new Error(response.data.meta.message || 'Rate calculation failed')
+    error.response = response
+    throw error
+  }
+
   // Extract rates from the API response
   let apiRates = response.data?.data?.rates || []
   console.log('Rate calculation successful:', apiRates)

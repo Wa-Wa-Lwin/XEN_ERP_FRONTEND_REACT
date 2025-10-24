@@ -376,7 +376,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                 // Trim on blur to clean up the field
                 const trimmedValue = e.target.value.trim();
                 if (e.target.value !== trimmedValue) {
-                  setValue(`${prefix}_email`, trimmedValue, { shouldValidate: true, shouldDirty: true });
+                  setValue(`${prefix}_email`, trimmedValue, { shouldValidate: true, shouldDirty: true });      
                 }
               }}
               isRequired={isFieldRequired('email')}
@@ -388,7 +388,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               key={`${formKey}_${prefix}_email`}
               color={!watch(`${prefix}_email`) ? "warning" : "default"}
               maxLength={255}
-              minRows={1}
+              minRows={1} 
             />
             <Controller
               key={`${formKey}_${prefix}_country`}

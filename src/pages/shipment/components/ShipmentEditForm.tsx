@@ -62,6 +62,10 @@ const ShipmentEditForm = () => {
     message: '',
     details: []
   })
+  const [rateCalculationError, setRateCalculationError] = useState<{
+    message: string
+    details?: Array<{ path: string; info: string }>
+  } | null>(null)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -293,6 +297,9 @@ const ShipmentEditForm = () => {
       setCalculatedRates(originalRates)
       setTransformedRates(transformedRates)
 
+      // Clear any previous rate calculation errors on success
+      setRateCalculationError(null)
+
       const updatedFormData = {
         ...formData,
         rates: transformedRates
@@ -302,31 +309,43 @@ const ShipmentEditForm = () => {
     } catch (error) {
       console.error('Error calculating rates:', error)
 
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const errorData = error.response.data
+      // Check for response data (handles both AxiosError and custom errors with response attached)
+      const errorResponse = (error as any).response?.data
 
-        if (errorData.meta?.details && Array.isArray(errorData.meta.details)) {
-          setErrorModal({
-            isOpen: true,
-            title: 'Rate Calculation Failed',
-            message: errorData.meta?.message || 'The following validation errors need to be fixed:',
-            details: errorData.meta.details.map((detail: any) => ({
+      if (errorResponse) {
+        if (errorResponse.meta?.details && Array.isArray(errorResponse.meta.details)) {
+          // Set error for RatesSection display
+          setRateCalculationError({
+            message: errorResponse.meta?.message || 'The request was invalid or cannot be otherwise served.',
+            details: errorResponse.meta.details.map((detail: any) => ({
               path: detail.path,
               info: detail.info
             }))
           })
-        } else if (errorData.meta?.message) {
-          setErrorModal({
-            isOpen: true,
-            title: 'Rate Calculation Failed',
-            message: errorData.meta.message,
+        } else if (errorResponse.meta?.message) {
+          // Set error for RatesSection display
+          setRateCalculationError({
+            message: errorResponse.meta.message,
             details: []
           })
         } else {
-          showError('Error calculating shipping rates. Please check your form data and try again.', 'Rate Calculation Error')
+          setRateCalculationError({
+            message: 'Error calculating shipping rates. Please check your form data and try again.',
+            details: []
+          })
         }
+      } else if (axios.isAxiosError(error)) {
+        // Handle network errors without response data
+        setRateCalculationError({
+          message: 'Error calculating shipping rates. Please check your internet connection and try again.',
+          details: []
+        })
       } else {
-        showError('Error calculating shipping rates. Please check your internet connection and try again.', 'Connection Error')
+        // Handle other unexpected errors
+        setRateCalculationError({
+          message: error instanceof Error ? error.message : 'An unexpected error occurred while calculating rates.',
+          details: []
+        })
       }
       return formData
 
@@ -593,22 +612,27 @@ const ShipmentEditForm = () => {
     } catch (error) {
       console.error('Error updating shipment:', error)
 
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const errorData = error.response.data
+      // Check for response data (handles both AxiosError and custom errors with response attached)
+      const errorResponse = (error as any).response?.data
 
-        if (errorData.meta?.details && Array.isArray(errorData.meta.details)) {
-          const errorMessages = errorData.meta.details.map((detail: any) =>
+      if (errorResponse) {
+        if (errorResponse.meta?.details && Array.isArray(errorResponse.meta.details)) {
+          const errorMessages = errorResponse.meta.details.map((detail: any) =>
             `${detail.path}: ${detail.info}`
           ).join('\n')
 
           showError(`Update failed with validation errors:\n\n${errorMessages}`, 'Validation Error')
-        } else if (errorData.meta?.message) {
-          showError(`Update failed: ${errorData.meta.message}`, 'Update Failed')
+        } else if (errorResponse.meta?.message) {
+          showError(`Update failed: ${errorResponse.meta.message}`, 'Update Failed')
         } else {
           showError('Error updating shipment request. Please check your form data and try again.', 'Update Error')
         }
-      } else {
+      } else if (axios.isAxiosError(error)) {
+        // Handle network errors without response data
         showError('Error updating shipment request. Please check your internet connection and try again.', 'Connection Error')
+      } else {
+        // Handle other unexpected errors
+        showError(error instanceof Error ? error.message : 'An unexpected error occurred while updating the shipment.', 'Update Error')
       }
     } finally {
       setIsSubmitting(false)
@@ -620,6 +644,7 @@ const ShipmentEditForm = () => {
     setTransformedRates([])
     setSelectedRateId('')
     setRateCalculationSnapshot(null)
+    setRateCalculationError(null)
   }
 
   const handleCalculateRate = async () => {
@@ -779,6 +804,7 @@ const ShipmentEditForm = () => {
                 register={register}
                 errors={errors}
                 serviceOption={watch('service_options')}
+                rateCalculationError={rateCalculationError}
               />
             </div>
 

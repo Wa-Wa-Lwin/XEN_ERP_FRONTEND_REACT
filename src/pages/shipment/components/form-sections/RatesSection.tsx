@@ -38,9 +38,13 @@ interface RatesSectionProps extends FormSectionProps {
   selectedRateId?: string
   onSelectRate: (rateId: string) => void
   serviceOption?: string
+  rateCalculationError?: {
+    message: string
+    details?: Array<{ path: string; info: string }>
+  } | null
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
@@ -435,9 +439,48 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
       <CardBody className="px-0 pt-0 pb-0">
         {rates.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Icon icon="solar:calculator-bold" className="text-4xl mb-2 mx-auto" />
-            <p>No rates calculated yet. Click "Calculate Rates" to get shipping quotes.</p>
+          <div className="text-center py-8">
+            {rateCalculationError ? (
+              <div className="flex flex-col items-center gap-4">
+                <Icon icon="solar:danger-circle-bold" className="text-6xl text-red-500 mb-2" />
+                <div className="max-w-2xl">
+                  <h3 className="text-xl font-bold text-red-600 mb-2">
+                    Rate Calculation Failed
+                  </h3>
+                  <p className="text-red-500 mb-4">
+                    {rateCalculationError.message}
+                  </p>
+                  {rateCalculationError.details && rateCalculationError.details.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
+                      <h4 className="font-semibold text-red-700 mb-2">Validation Errors:</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        {rateCalculationError.details.map((detail, index) => (
+                          <li key={index} className="text-red-600 text-sm">
+                            <span className="font-medium">{detail.path}:</span> {detail.info}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    color="danger"
+                    variant="flat"
+                    size="sm"
+                    className="mt-4"
+                    startContent={<Icon icon="solar:refresh-bold" />}
+                    onPress={onCalculateRates}
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-500">
+                <Icon icon="solar:calculator-bold" className="text-4xl mb-2 mx-auto" />
+                <p>No rates calculated yet. Click "Calculate Rates" to get shipping quotes.</p>
+              </div>
+            )}
           </div>
         ) : (
           <>

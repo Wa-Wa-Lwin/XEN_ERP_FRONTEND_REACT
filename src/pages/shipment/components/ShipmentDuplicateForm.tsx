@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner } from '@heroui/react'
 import axios from 'axios'
 import { useShipmentDuplicateForm } from '../hooks/useShipmentDuplicateForm'
-import { useNotification } from '@context/NotificationContext'
 import { calculateAndTransformRates, calculateShippingRates, type RateCalculationFormData } from '@services/rateCalculationService'
 import {
   BasicInformation,
@@ -18,7 +17,6 @@ import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentDuplicateForm = () => {
   const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, isLoading, today, getValues, trigger, watch, reset } = useShipmentDuplicateForm()
-  const { error: showError } = useNotification()
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
   const [isCalculatingRate, setIsCalculatingRate] = useState(false)
@@ -65,6 +63,10 @@ const ShipmentDuplicateForm = () => {
     message: '',
     details: []
   })
+  const [rateCalculationError, setRateCalculationError] = useState<{
+    message: string
+    details?: Array<{ path: string; info: string }>
+  } | null>(null)
   const [refreshCounter, setRefreshCounter] = useState(0)
 
   const calculateRates = async (formData: ShipmentFormData) => {
@@ -106,6 +108,9 @@ const ShipmentDuplicateForm = () => {
       setCalculatedRates(originalRates) // Keep original for RatesSection display
       setTransformedRates(transformedRates) // Store transformed rates to avoid recalculation
 
+      // Clear any previous rate calculation errors on success
+      setRateCalculationError(null)
+
       // Store the rates in the form data
       const updatedFormData = {
         ...formData,
@@ -116,32 +121,44 @@ const ShipmentDuplicateForm = () => {
     } catch (error) {
       console.error('Error calculating rates:', error)
 
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const errorData = error.response.data
+      // Check for response data (handles both AxiosError and custom errors with response attached)
+      const errorResponse = (error as any).response?.data
 
+      if (errorResponse) {
         // Handle API validation errors
-        if (errorData.meta?.details && Array.isArray(errorData.meta.details)) {
-          setErrorModal({
-            isOpen: true,
-            title: 'Rate Calculation Failed',
-            message: errorData.meta?.message || 'The following validation errors need to be fixed:',
-            details: errorData.meta.details.map((detail: any) => ({
+        if (errorResponse.meta?.details && Array.isArray(errorResponse.meta.details)) {
+          // Set error for RatesSection display
+          setRateCalculationError({
+            message: errorResponse.meta?.message || 'The request was invalid or cannot be otherwise served.',
+            details: errorResponse.meta.details.map((detail: any) => ({
               path: detail.path,
               info: detail.info
             }))
           })
-        } else if (errorData.meta?.message) {
-          setErrorModal({
-            isOpen: true,
-            title: 'Rate Calculation Failed',
-            message: errorData.meta.message,
+        } else if (errorResponse.meta?.message) {
+          // Set error for RatesSection display
+          setRateCalculationError({
+            message: errorResponse.meta.message,
             details: []
           })
         } else {
-          showError('Error calculating shipping rates. Please check your form data and try again.', 'Rate Calculation Error')
+          setRateCalculationError({
+            message: 'Error calculating shipping rates. Please check your form data and try again.',
+            details: []
+          })
         }
+      } else if (axios.isAxiosError(error)) {
+        // Handle network errors without response data
+        setRateCalculationError({
+          message: 'Error calculating shipping rates. Please check your internet connection and try again.',
+          details: []
+        })
       } else {
-        showError('Error calculating shipping rates. Please check your internet connection and try again.', 'Connection Error')
+        // Handle other unexpected errors
+        setRateCalculationError({
+          message: error instanceof Error ? error.message : 'An unexpected error occurred while calculating rates.',
+          details: []
+        })
       }
       return formData
 
@@ -364,6 +381,7 @@ const ShipmentDuplicateForm = () => {
     setTransformedRates([])
     setSelectedRateId('')
     setRateCalculationSnapshot(null)
+    setRateCalculationError(null)
   }
 
   const handleCalculateRate = async () => {
@@ -522,6 +540,7 @@ const ShipmentDuplicateForm = () => {
                 register={register}
                 errors={errors}
                 serviceOption={watch('service_options')}
+                rateCalculationError={rateCalculationError}
               />
             </div>
 
