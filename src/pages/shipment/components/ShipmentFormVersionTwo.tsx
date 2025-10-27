@@ -1,14 +1,12 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner } from '@heroui/react'
-import axios from 'axios'
 import { useShipmentForm } from '../hooks/useShipmentForm'
-import { calculateAndTransformRates, calculateShippingRates, type RateCalculationFormData } from '@services/rateCalculationService'
-// import { DEFAULT_FORM_VALUES } from '../constants/form-defaults'
+import { useShipmentRateCalculation } from '../hooks/useShipmentRateCalculation'
+import { validateCalculateRatesData, validateWeights, validateShipmentScope } from '../utils/shipment-validations'
 import {
   BasicInformation,
   AddressSelector,
   PickupInformation,
-  // InsuranceInformation,
   ParcelsSection,
   RatesSection,
   BasicInfoSummary,
@@ -24,12 +22,29 @@ import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentFormVersionTwo = () => {
   const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, today, getValues, trigger, watch, reset } = useShipmentForm()
+
+  // Watch for changes in critical fields that affect rates
+  const watchedFields = watch([
+    'ship_from_country', 'ship_from_postal_code', 'ship_from_city', 'ship_from_state', 'ship_from_street1', 'ship_from_company_name',
+    'ship_to_country', 'ship_to_postal_code', 'ship_to_city', 'ship_to_state', 'ship_to_street1', 'ship_to_company_name',
+    'parcels'
+  ])
+
+  // Use the shared rate calculation hook
+  const {
+    isCalculatingRate,
+    calculatedRates,
+    transformedRates,
+    selectedRateId,
+    rateCalculationError,
+    calculateRates,
+    handleRateSelection,
+    handleClearRates,
+    setRateCalculationSnapshot
+  } = useShipmentRateCalculation({ watchedFields })
+
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
-  const [isCalculatingRate, setIsCalculatingRate] = useState(false)
-  const [calculatedRates, setCalculatedRates] = useState<any[]>([])
-  const [transformedRates, setTransformedRates] = useState<any[]>([])
-  const [selectedRateId, setSelectedRateId] = useState<string>('')
 
   // Step/Section Management
   const [currentStep, setCurrentStep] = useState<number>(0)
@@ -44,33 +59,6 @@ const ShipmentFormVersionTwo = () => {
     { id: 4, name: 'Shipping Rates', icon: 'solar:dollar-bold' }
   ]
 
-  // Watch for changes in critical fields that affect rates
-  const watchedFields = watch([
-    'ship_from_country', 'ship_from_postal_code', 'ship_from_city', 'ship_from_state', 'ship_from_street1', 'ship_from_company_name',
-    'ship_to_country', 'ship_to_postal_code', 'ship_to_city', 'ship_to_state', 'ship_to_street1', 'ship_to_company_name',
-    'parcels'
-  ])
-
-  // Store the form data snapshot when rates were calculated
-  const [rateCalculationSnapshot, setRateCalculationSnapshot] = React.useState<any>(null)
-  const handleRateSelection = (rateId: string) => {
-    setSelectedRateId(rateId)
-  }
-
-  // Effect to clear rates when critical form data changes
-  React.useEffect(() => {
-    if (rateCalculationSnapshot && calculatedRates.length > 0) {
-      // Check if any critical field has changed since rates were calculated
-      const hasChanged = JSON.stringify(watchedFields) !== JSON.stringify(rateCalculationSnapshot)
-
-      if (hasChanged) {
-        console.log('Critical form data changed, clearing rates...')
-        console.log('Previous:', rateCalculationSnapshot)
-        console.log('Current:', watchedFields)
-        handleClearRates()
-      }
-    }
-  }, [watchedFields, rateCalculationSnapshot, calculatedRates.length])
   const [errorModal, setErrorModal] = useState<{
     isOpen: boolean
     title: string
@@ -82,232 +70,7 @@ const ShipmentFormVersionTwo = () => {
     message: '',
     details: []
   })
-  const [rateCalculationError, setRateCalculationError] = useState<{
-    message: string
-    details?: Array<{ path: string; info: string }>
-  } | null>(null)
   const [refreshCounter, setRefreshCounter] = useState(0)
-
-  const calculateRates = async (formData: ShipmentFormData) => {
-    try {
-      setIsCalculatingRate(true)
-
-      // Convert ShipmentFormData to RateCalculationFormData
-      const serviceFormData: RateCalculationFormData = {
-        ship_from_contact_name: formData.ship_from_contact_name,
-        ship_from_company_name: formData.ship_from_company_name,
-        ship_from_street1: formData.ship_from_street1,
-        ship_from_city: formData.ship_from_city,
-        ship_from_state: formData.ship_from_state,
-        ship_from_postal_code: formData.ship_from_postal_code,
-        ship_from_country: formData.ship_from_country,
-        ship_from_phone: formData.ship_from_phone,
-        ship_from_email: formData.ship_from_email,
-        ship_to_contact_name: formData.ship_to_contact_name,
-        ship_to_company_name: formData.ship_to_company_name,
-        ship_to_street1: formData.ship_to_street1,
-        ship_to_city: formData.ship_to_city,
-        ship_to_state: formData.ship_to_state,
-        ship_to_postal_code: formData.ship_to_postal_code,
-        ship_to_country: formData.ship_to_country,
-        ship_to_phone: formData.ship_to_phone,
-        ship_to_email: formData.ship_to_email,
-        parcels: formData.parcels,
-        pick_up_date: formData.pick_up_date,
-        expected_delivery_date: formData.due_date,
-        customs_terms_of_trade: formData.customs_terms_of_trade
-      }
-
-      // Use the shared rate calculation service to get both original and transformed rates
-      const originalRates = await calculateShippingRates(serviceFormData)
-      const transformedRates = await calculateAndTransformRates(serviceFormData)
-
-      // Store original rates in component state for display
-      console.log('Setting calculated rates:', originalRates)
-      setCalculatedRates(originalRates) // Keep original for RatesSection display
-      setTransformedRates(transformedRates) // Store transformed rates to avoid recalculation
-
-      // Clear any previous rate calculation errors on success
-      setRateCalculationError(null)
-
-      // Store the rates in the form data
-      const updatedFormData = {
-        ...formData,
-        rates: transformedRates
-      }
-
-      return updatedFormData
-    } catch (error) {
-      console.error('Error calculating rates:', error)
-
-      // Check for response data (handles both AxiosError and custom errors with response attached)
-      const errorResponse = (error as any).response?.data
-
-      if (errorResponse) {
-        // Handle API validation errors
-        if (errorResponse.meta?.details && Array.isArray(errorResponse.meta.details)) {
-          // Set error for RatesSection display
-          setRateCalculationError({
-            message: errorResponse.meta?.message || 'The request was invalid or cannot be otherwise served.',
-            details: errorResponse.meta.details.map((detail: any) => ({
-              path: detail.path,
-              info: detail.info
-            }))
-          })
-        } else if (errorResponse.meta?.message) {
-          // Set error for RatesSection display
-          setRateCalculationError({
-            message: errorResponse.meta.message,
-            details: []
-          })
-        } else {
-          setRateCalculationError({
-            message: 'Error calculating shipping rates. Please check your form data and try again.',
-            details: []
-          })
-        }
-      } else if (axios.isAxiosError(error)) {
-        // Handle network errors without response data
-        setRateCalculationError({
-          message: 'Error calculating shipping rates. Please check your internet connection and try again.',
-          details: []
-        })
-      } else {
-        // Handle other unexpected errors
-        setRateCalculationError({
-          message: error instanceof Error ? error.message : 'An unexpected error occurred while calculating rates.',
-          details: []
-        })
-      }
-      return formData
-
-    } finally {
-      setIsCalculatingRate(false)
-    }
-  }
-
-  const validateCalculateRatesData = (formData: ShipmentFormData): { isValid: boolean; errors: Array<{ path: string; info: string }> } => {
-    const errors: Array<{ path: string; info: string }> = []
-
-    // Validate address fields
-    if (!formData.ship_from_company_name?.trim()) {
-      errors.push({ path: 'data.shipment.ship_from.company_name', info: 'Ship from company name is required' })
-    }
-    if (!formData.ship_to_company_name?.trim()) {
-      errors.push({ path: 'data.shipment.ship_to.company_name', info: 'Ship to company name is required' })
-    }
-
-    // Validate parcels
-    if (!formData.parcels || formData.parcels.length === 0) {
-      errors.push({ path: 'data.shipment.parcels', info: 'At least one parcel is required' })
-    } else {
-      formData.parcels.forEach((parcel, parcelIndex) => {
-        // Validate parcel dimensions
-        if (!parcel.width || parseFloat(String(parcel.width)) <= 0) {
-          errors.push({
-            path: `data.shipment.parcels.${parcelIndex}.dimension.width`,
-            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.width should be > 0'
-          })
-        }
-        if (!parcel.height || parseFloat(String(parcel.height)) <= 0) {
-          errors.push({
-            path: `data.shipment.parcels.${parcelIndex}.dimension.height`,
-            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.height should be > 0'
-          })
-        }
-        if (!parcel.depth || parseFloat(String(parcel.depth)) <= 0) {
-          errors.push({
-            path: `data.shipment.parcels.${parcelIndex}.dimension.depth`,
-            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.depth should be > 0'
-          })
-        }
-
-        // Validate parcel has items
-        if (!parcel.parcel_items || parcel.parcel_items.length === 0) {
-          errors.push({
-            path: `data.shipment.parcels.${parcelIndex}.items`,
-            info: 'Each parcel must have at least one item'
-          })
-        } else {
-          // Validate items
-          parcel.parcel_items.forEach((item, itemIndex) => {
-            if (!item.description?.trim()) {
-              errors.push({
-                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.description`,
-                info: 'data.shipment.parcels.' + parcelIndex + '.items.' + itemIndex + '.description is a required property'
-              })
-            }
-            if (!item.quantity || parseInt(String(item.quantity)) < 1) {
-              errors.push({
-                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.quantity`,
-                info: 'Item quantity must be at least 1'
-              })
-            }
-            if (!item.weight_value || parseFloat(String(item.weight_value)) <= 0) {
-              errors.push({
-                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.weight.value`,
-                info: 'Item weight must be greater than 0'
-              })
-            }
-            if (!item.price_amount || parseFloat(String(item.price_amount)) <= 0) {
-              errors.push({
-                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.price.amount`,
-                info: 'Item price must be greater than 0'
-              })
-            }
-          })
-        }
-      })
-    }
-
-    return { isValid: errors.length === 0, errors }
-  }
-
-  const validateWeights = (formData: ShipmentFormData): { isValid: boolean; errors: Array<{ path: string; info: string }> } => {
-    const errors: Array<{ path: string; info: string }> = []
-
-    formData.parcels?.forEach((parcel, parcelIndex) => {
-      if (parcel.parcel_items && parcel.parcel_items.length > 0) {
-        // Calculate total item weight
-        const totalItemWeight = parcel.parcel_items.reduce((sum, item) => {
-          const itemWeight = parseFloat(String(item.weight_value)) || 0
-          const quantity = parseInt(String(item.quantity)) || 1
-          return sum + (itemWeight * quantity)
-        }, 0)
-
-        const parcelWeight = parseFloat(String(parcel.weight_value)) || 0
-
-        if (parcelWeight < totalItemWeight) {
-          errors.push({
-            path: `Parcel ${parcelIndex + 1} – Weight`, // `parcels.${parcelIndex}.weight_value`,
-            info: `Parcel weight (${parcelWeight}kg) must be greater than or equal to the sum of item weights (${totalItemWeight.toFixed(2)}kg). Please increase the parcel weight or reduce item weights.`
-          })
-        }
-      }
-
-      // Check for invalid weights
-      const parcelWeight = parseFloat(String(parcel.weight_value)) || 0
-      if (parcelWeight <= 0) {
-        errors.push({
-          path: `Parcel ${parcelIndex + 1} – Weight`, // `parcels.${parcelIndex}.weight_value`,
-          info: `Parcel weight must be greater than 0kg`
-        })
-      }
-
-      // Check item weights
-      parcel.parcel_items?.forEach((item, itemIndex) => {
-        const itemWeight = parseFloat(String(item.weight_value)) || 0
-        if (itemWeight <= 0) {
-          errors.push({
-            path: `Parcel ${parcelIndex + 1} – Item ${itemIndex + 1} Weight`, // `parcels.${parcelIndex}.items.${itemIndex}.weight_value`,
-            info: `Item weight must be greater than 0kg`
-          })
-        }
-      })
-    })
-
-    return { isValid: errors.length === 0, errors }
-  }
 
   const handlePreview = async (data: ShipmentFormData) => {
     // Use the data from form submission instead of getValues()
@@ -395,14 +158,6 @@ const ShipmentFormVersionTwo = () => {
     }
   }
 
-  const handleClearRates = () => {
-    setCalculatedRates([])
-    setTransformedRates([])
-    setSelectedRateId('')
-    setRateCalculationSnapshot(null)
-    setRateCalculationError(null)
-  }
-
   const handleCalculateRate = async () => {
     const formData = getValues()
 
@@ -438,36 +193,6 @@ const ShipmentFormVersionTwo = () => {
     } else {
       console.log("Rates calculated but no rates were returned.")
     }
-  }
-
-  // Validate shipment scope type matches selected countries
-  const validateShipmentScope = (formData: ShipmentFormData): { isValid: boolean; error?: { title: string; message: string; details: Array<{ path: string; info: string }> } } => {
-    const shipFromCountry = formData.ship_from_country?.toUpperCase()
-    const shipToCountry = formData.ship_to_country?.toUpperCase()
-    const scopeType = formData.shipment_scope_type?.toLowerCase()
-
-    const bothThai = shipFromCountry === 'THA' && shipToCountry === 'THA'
-    const bothNotThai = shipFromCountry !== 'THA' && shipToCountry !== 'THA'
-    const fromThaiToOther = shipFromCountry === 'THA' && shipToCountry !== 'THA'
-    const fromOtherToThai = shipFromCountry !== 'THA' && shipToCountry === 'THA'
-
-    if (
-      (scopeType === 'domestic' && !bothThai) || (scopeType === 'export' && !fromThaiToOther) || (scopeType === 'export' && !fromThaiToOther) || (scopeType === 'import' && !fromOtherToThai) || (scopeType === 'international' && !bothNotThai)
-    ) {
-      return {
-        isValid: false,
-        error: {
-          title: 'Shipment Scope Mismatch',
-          message: 'The selected addresses do not match the shipment scope type.',
-          details: [{
-            path: 'Shipment Scope',
-            info: 'Please change your Scope Type in Basic Information to "Domestic" since both Ship From and Ship To countries are Thailand (THA), to "Export" (if shipping from THA to another country), "Import" (if shipping from another country to THA), or "International" (if both countries are outside Thailand).'
-          }]
-        }
-      }
-    }
-
-    return { isValid: true }
   }
 
   // Step Navigation Handlers
@@ -524,6 +249,15 @@ const ShipmentFormVersionTwo = () => {
     <>
       <Card shadow="none" className="p-5 m-0 bg-transparent">
         <CardBody className="p-0">
+          <h3>
+            completedSteps - {completedSteps}
+          </h3>
+          <h3>
+            currentStep - {currentStep}
+          </h3>
+          <h3>
+            returnToStep - {returnToStep}
+          </h3>
           <form
             onSubmit={handleSubmit(handlePreview, () => { })}
             className="space-y-4"
@@ -637,9 +371,7 @@ const ShipmentFormVersionTwo = () => {
                                   ship_to_eori_number: currentValues.ship_from_eori_number,
                                 };
                                 reset(swappedValues);
-                                setCalculatedRates([]);
-                                setTransformedRates([]);
-                                setSelectedRateId('');
+                                handleClearRates();
                                 setRefreshCounter(prev => prev + 1);
                               }}
                             >

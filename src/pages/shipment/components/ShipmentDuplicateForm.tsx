@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner } from '@heroui/react'
-import axios from 'axios'
 import { useShipmentDuplicateForm } from '../hooks/useShipmentDuplicateForm'
-import { calculateAndTransformRates, calculateShippingRates, type RateCalculationFormData } from '@services/rateCalculationService'
+import { useShipmentRateCalculation } from '../hooks/useShipmentRateCalculation'
+import { validateCalculateRatesData, validateWeights } from '../utils/shipment-validations'
 import {
   BasicInformation,
   AddressSelector,
@@ -16,13 +16,7 @@ import type { ShipmentFormData } from '../types/shipment-form.types'
 import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentDuplicateForm = () => {
-  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, isLoading, today, getValues, trigger, watch, reset } = useShipmentDuplicateForm()
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-  const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
-  const [isCalculatingRate, setIsCalculatingRate] = useState(false)
-  const [calculatedRates, setCalculatedRates] = useState<any[]>([])
-  const [transformedRates, setTransformedRates] = useState<any[]>([])
-  const [selectedRateId, setSelectedRateId] = useState<string>('')
+  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, isLoading, today, getValues, watch, reset } = useShipmentDuplicateForm()
 
   // Watch for changes in critical fields that affect rates
   const watchedFields = watch([
@@ -31,27 +25,21 @@ const ShipmentDuplicateForm = () => {
     'parcels'
   ])
 
-  // Store the form data snapshot when rates were calculated
-  const [rateCalculationSnapshot, setRateCalculationSnapshot] = React.useState<any>(null)
-  const handleRateSelection = (rateId: string) => {
-    setSelectedRateId(rateId)
-  }
+  // Use the shared rate calculation hook
+  const {
+    isCalculatingRate,
+    calculatedRates,
+    transformedRates,
+    selectedRateId,
+    rateCalculationError,
+    calculateRates,
+    handleRateSelection,
+    handleClearRates,
+    setRateCalculationSnapshot
+  } = useShipmentRateCalculation({ watchedFields })
 
-  // Effect to clear rates when critical form data changes
-  React.useEffect(() => {
-    if (rateCalculationSnapshot && calculatedRates.length > 0) {
-      // Check if any critical field has changed since rates were calculated
-      const hasChanged = JSON.stringify(watchedFields) !== JSON.stringify(rateCalculationSnapshot)
-
-      if (hasChanged) {
-        console.log('Critical form data changed, clearing rates...')
-        console.log('Previous:', rateCalculationSnapshot)
-        console.log('Current:', watchedFields)
-        handleClearRates()
-      }
-    }
-  }, [watchedFields, rateCalculationSnapshot, calculatedRates.length])
-
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
   const [errorModal, setErrorModal] = useState<{
     isOpen: boolean
     title: string
@@ -63,232 +51,7 @@ const ShipmentDuplicateForm = () => {
     message: '',
     details: []
   })
-  const [rateCalculationError, setRateCalculationError] = useState<{
-    message: string
-    details?: Array<{ path: string; info: string }>
-  } | null>(null)
   const [refreshCounter, setRefreshCounter] = useState(0)
-
-  const calculateRates = async (formData: ShipmentFormData) => {
-    try {
-      setIsCalculatingRate(true)
-
-      // Convert ShipmentFormData to RateCalculationFormData
-      const serviceFormData: RateCalculationFormData = {
-        ship_from_contact_name: formData.ship_from_contact_name,
-        ship_from_company_name: formData.ship_from_company_name,
-        ship_from_street1: formData.ship_from_street1,
-        ship_from_city: formData.ship_from_city,
-        ship_from_state: formData.ship_from_state,
-        ship_from_postal_code: formData.ship_from_postal_code,
-        ship_from_country: formData.ship_from_country,
-        ship_from_phone: formData.ship_from_phone,
-        ship_from_email: formData.ship_from_email,
-        ship_to_contact_name: formData.ship_to_contact_name,
-        ship_to_company_name: formData.ship_to_company_name,
-        ship_to_street1: formData.ship_to_street1,
-        ship_to_city: formData.ship_to_city,
-        ship_to_state: formData.ship_to_state,
-        ship_to_postal_code: formData.ship_to_postal_code,
-        ship_to_country: formData.ship_to_country,
-        ship_to_phone: formData.ship_to_phone,
-        ship_to_email: formData.ship_to_email,
-        parcels: formData.parcels,
-        pick_up_date: formData.pick_up_date,
-        expected_delivery_date: formData.due_date,
-        customs_terms_of_trade: formData.customs_terms_of_trade
-      }
-
-      // Use the shared rate calculation service to get both original and transformed rates
-      const originalRates = await calculateShippingRates(serviceFormData)
-      const transformedRates = await calculateAndTransformRates(serviceFormData)
-
-      // Store original rates in component state for display
-      console.log('Setting calculated rates:', originalRates)
-      setCalculatedRates(originalRates) // Keep original for RatesSection display
-      setTransformedRates(transformedRates) // Store transformed rates to avoid recalculation
-
-      // Clear any previous rate calculation errors on success
-      setRateCalculationError(null)
-
-      // Store the rates in the form data
-      const updatedFormData = {
-        ...formData,
-        rates: transformedRates
-      }
-
-      return updatedFormData
-    } catch (error) {
-      console.error('Error calculating rates:', error)
-
-      // Check for response data (handles both AxiosError and custom errors with response attached)
-      const errorResponse = (error as any).response?.data
-
-      if (errorResponse) {
-        // Handle API validation errors
-        if (errorResponse.meta?.details && Array.isArray(errorResponse.meta.details)) {
-          // Set error for RatesSection display
-          setRateCalculationError({
-            message: errorResponse.meta?.message || 'The request was invalid or cannot be otherwise served.',
-            details: errorResponse.meta.details.map((detail: any) => ({
-              path: detail.path,
-              info: detail.info
-            }))
-          })
-        } else if (errorResponse.meta?.message) {
-          // Set error for RatesSection display
-          setRateCalculationError({
-            message: errorResponse.meta.message,
-            details: []
-          })
-        } else {
-          setRateCalculationError({
-            message: 'Error calculating shipping rates. Please check your form data and try again.',
-            details: []
-          })
-        }
-      } else if (axios.isAxiosError(error)) {
-        // Handle network errors without response data
-        setRateCalculationError({
-          message: 'Error calculating shipping rates. Please check your internet connection and try again.',
-          details: []
-        })
-      } else {
-        // Handle other unexpected errors
-        setRateCalculationError({
-          message: error instanceof Error ? error.message : 'An unexpected error occurred while calculating rates.',
-          details: []
-        })
-      }
-      return formData
-
-    } finally {
-      setIsCalculatingRate(false)
-    }
-  }
-
-  const validateCalculateRatesData = (formData: ShipmentFormData): { isValid: boolean; errors: Array<{ path: string; info: string }> } => {
-    const errors: Array<{ path: string; info: string }> = []
-
-    // Validate address fields
-    if (!formData.ship_from_company_name?.trim()) {
-      errors.push({ path: 'data.shipment.ship_from.company_name', info: 'Ship from company name is required' })
-    }
-    if (!formData.ship_to_company_name?.trim()) {
-      errors.push({ path: 'data.shipment.ship_to.company_name', info: 'Ship to company name is required' })
-    }
-
-    // Validate parcels
-    if (!formData.parcels || formData.parcels.length === 0) {
-      errors.push({ path: 'data.shipment.parcels', info: 'At least one parcel is required' })
-    } else {
-      formData.parcels.forEach((parcel, parcelIndex) => {
-        // Validate parcel dimensions
-        if (!parcel.width || parseFloat(String(parcel.width)) <= 0) {
-          errors.push({
-            path: `data.shipment.parcels.${parcelIndex}.dimension.width`,
-            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.width should be > 0'
-          })
-        }
-        if (!parcel.height || parseFloat(String(parcel.height)) <= 0) {
-          errors.push({
-            path: `data.shipment.parcels.${parcelIndex}.dimension.height`,
-            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.height should be > 0'
-          })
-        }
-        if (!parcel.depth || parseFloat(String(parcel.depth)) <= 0) {
-          errors.push({
-            path: `data.shipment.parcels.${parcelIndex}.dimension.depth`,
-            info: 'data.shipment.parcels.' + parcelIndex + '.dimension.depth should be > 0'
-          })
-        }
-
-        // Validate parcel has items
-        if (!parcel.parcel_items || parcel.parcel_items.length === 0) {
-          errors.push({
-            path: `data.shipment.parcels.${parcelIndex}.items`,
-            info: 'Each parcel must have at least one item'
-          })
-        } else {
-          // Validate items
-          parcel.parcel_items.forEach((item, itemIndex) => {
-            if (!item.description?.trim()) {
-              errors.push({
-                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.description`,
-                info: 'data.shipment.parcels.' + parcelIndex + '.items.' + itemIndex + '.description is a required property'
-              })
-            }
-            if (!item.quantity || parseInt(String(item.quantity)) < 1) {
-              errors.push({
-                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.quantity`,
-                info: 'Item quantity must be at least 1'
-              })
-            }
-            if (!item.weight_value || parseFloat(String(item.weight_value)) <= 0) {
-              errors.push({
-                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.weight.value`,
-                info: 'Item weight must be greater than 0'
-              })
-            }
-            if (!item.price_amount || parseFloat(String(item.price_amount)) <= 0) {
-              errors.push({
-                path: `data.shipment.parcels.${parcelIndex}.items.${itemIndex}.price.amount`,
-                info: 'Item price must be greater than 0'
-              })
-            }
-          })
-        }
-      })
-    }
-
-    return { isValid: errors.length === 0, errors }
-  }
-
-  const validateWeights = (formData: ShipmentFormData): { isValid: boolean; errors: Array<{ path: string; info: string }> } => {
-    const errors: Array<{ path: string; info: string }> = []
-
-    formData.parcels?.forEach((parcel, parcelIndex) => {
-      if (parcel.parcel_items && parcel.parcel_items.length > 0) {
-        // Calculate total item weight
-        const totalItemWeight = parcel.parcel_items.reduce((sum, item) => {
-          const itemWeight = parseFloat(String(item.weight_value)) || 0
-          const quantity = parseInt(String(item.quantity)) || 1
-          return sum + (itemWeight * quantity)
-        }, 0)
-
-        const parcelWeight = parseFloat(String(parcel.weight_value)) || 0
-
-        if (parcelWeight < totalItemWeight) {
-          errors.push({
-            path: `Parcel ${parcelIndex + 1} – Weight`,
-            info: `Parcel weight (${parcelWeight}kg) must be greater than or equal to the sum of item weights (${totalItemWeight.toFixed(2)}kg). Please increase the parcel weight or reduce item weights.`
-          })
-        }
-      }
-
-      // Check for invalid weights
-      const parcelWeight = parseFloat(String(parcel.weight_value)) || 0
-      if (parcelWeight <= 0) {
-        errors.push({
-          path: `Parcel ${parcelIndex + 1} – Weight`,
-          info: `Parcel weight must be greater than 0kg`
-        })
-      }
-
-      // Check item weights
-      parcel.parcel_items?.forEach((item, itemIndex) => {
-        const itemWeight = parseFloat(String(item.weight_value)) || 0
-        if (itemWeight <= 0) {
-          errors.push({
-            path: `Parcel ${parcelIndex + 1} – Item ${itemIndex + 1} Weight`,
-            info: `Item weight must be greater than 0kg`
-          })
-        }
-      })
-    })
-
-    return { isValid: errors.length === 0, errors }
-  }
 
   const handlePreview = async (data: ShipmentFormData) => {
     // Use the data from form submission instead of getValues()
@@ -376,14 +139,6 @@ const ShipmentDuplicateForm = () => {
     }
   }
 
-  const handleClearRates = () => {
-    setCalculatedRates([])
-    setTransformedRates([])
-    setSelectedRateId('')
-    setRateCalculationSnapshot(null)
-    setRateCalculationError(null)
-  }
-
   const handleCalculateRate = async () => {
     const formData = getValues()
 
@@ -411,12 +166,6 @@ const ShipmentDuplicateForm = () => {
       return
     }
 
-    // Clear existing rates before calculating new ones
-    // This prevents doubling of rates when recalculating
-    setCalculatedRates([])
-    setTransformedRates([])
-    setSelectedRateId('')
-
     const updatedFormData = await calculateRates(formData)
 
     if (updatedFormData.rates && updatedFormData.rates.length > 0) {
@@ -427,43 +176,90 @@ const ShipmentDuplicateForm = () => {
     }
   }
 
-  // Show loading spinner while fetching data
+  const handleClearForm = () => {
+    // Clear calculated rates and selected rate first
+    handleClearRates()
+    // Close any open modals
+    setIsPreviewOpen(false)
+    setErrorModal({
+      isOpen: false,
+      title: '',
+      message: '',
+      details: []
+    })
+    // Reset the form to initial values using react-hook-form's reset
+    reset()
+    setRefreshCounter(prev => prev + 1)
+  }
+
   if (isLoading) {
     return (
-      <div className="flex flex-col justify-center items-center min-h-[400px] gap-4">
-        <Spinner size="lg" label="Loading shipment data for duplication..." />
-        <p className="text-sm text-gray-600">Please wait...</p>
-      </div>
+      <Card shadow="none" className="p-5 m-0 bg-transparent">
+        <CardBody className="flex justify-center items-center p-8">
+          <Spinner size="lg" color="primary" />
+          <p className="mt-4 text-gray-600">Loading shipment data...</p>
+        </CardBody>
+      </Card>
     )
   }
 
   return (
     <>
-      <Card shadow="none" className="p-0 m-0 bg-transparent">
+      <Card shadow="none" className="p-5 m-0 bg-transparent">
         <CardBody className="p-0">
           <form
-            onSubmit={handleSubmit(handlePreview, () => {
-
-            })}
-            className="space-y-1"
+            onSubmit={handleSubmit(handlePreview)}
+            className="space-y-4"
           >
-            <div className="py-1 px-4">
-              <BasicInformation register={register} errors={errors} control={control} watch={watch} setValue={setValue} onClearRates={handleClearRates} />
-              <div className="pt-2 px-1">
-                <hr />
+            {/* Form Header */}
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">Duplicate Shipment Request</h2>
+                <p className="text-sm text-gray-500">Create a new shipment based on an existing one</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="flat"
+                  color="default"
+                  onPress={handleClearForm}
+                  startContent={<Icon icon="solar:refresh-linear" width={20} />}
+                >
+                  Clear Form
+                </Button>
               </div>
             </div>
-            {/* Addresses Section  */}
-            <div className="flex grid grid-cols-1 md:grid-cols-2 gap-3 py-1 px-4">
-              <div className="flex gap-2 items-center">
-                <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship From Address" prefix="ship_from" forceRefresh={refreshCounter} watch={watch} onClearRates={handleClearRates} />
+
+            {/* Form Sections */}
+            <BasicInformation
+              register={register}
+              errors={errors}
+              control={control}
+              watch={watch}
+              setValue={setValue}
+              onClearRates={handleClearRates}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 items-center">
+              <AddressSelector
+                register={register}
+                errors={errors}
+                control={control}
+                setValue={setValue}
+                title="Ship From Address"
+                prefix="ship_from"
+                forceRefresh={refreshCounter}
+                watch={watch}
+                onClearRates={handleClearRates}
+              />
+              <div className="flex justify-center my-4 md:my-0">
                 <Button
                   size="sm"
                   variant="bordered"
                   color="primary"
+                  startContent={<Icon icon="solar:refresh-bold" />}
                   onPress={() => {
                     const currentValues = getValues();
-
                     const swappedValues = {
                       ...currentValues,
                       ship_from_company_name: currentValues.ship_to_company_name,
@@ -477,8 +273,7 @@ const ShipmentDuplicateForm = () => {
                       ship_from_street1: currentValues.ship_to_street1,
                       ship_from_street2: currentValues.ship_to_street2,
                       ship_from_tax_id: currentValues.ship_to_tax_id,
-                      ship_from_eori_number: currentValues.ship_to_eori_number, 
-
+                      ship_from_eori_number: currentValues.ship_to_eori_number,
                       ship_to_company_name: currentValues.ship_from_company_name,
                       ship_to_contact_name: currentValues.ship_from_contact_name,
                       ship_to_phone: currentValues.ship_from_phone,
@@ -492,78 +287,73 @@ const ShipmentDuplicateForm = () => {
                       ship_to_tax_id: currentValues.ship_from_tax_id,
                       ship_to_eori_number: currentValues.ship_from_eori_number,
                     };
-
-                    reset(swappedValues); // replaces all at once
-                    setCalculatedRates([]);
-                    setTransformedRates([]);
-                    setSelectedRateId('');
-                    setRefreshCounter(prev => prev + 1); // Force AddressSelector components to re-render
+                    reset(swappedValues);
+                    handleClearRates();
+                    setRefreshCounter(prev => prev + 1);
                   }}
-
                 >
-                  <Icon icon="solar:refresh-bold" />
-
+                  Swap
                 </Button>
               </div>
-
-              <div className="">
-                <AddressSelector register={register} errors={errors} control={control} setValue={setValue} title="Ship To Address" prefix="ship_to" forceRefresh={refreshCounter} watch={watch} onClearRates={handleClearRates} />
-              </div>
-            </div>
-            <div className="pt-2 px-1">
-              <hr />
-            </div>
-
-            <div className="py-1 px-4">
-              <PickupInformation register={register} control={control} errors={errors} today={today} setValue={setValue} watch={watch} onClearRates={handleClearRates} />
-              <div className="pt-2 px-1">
-                <hr />
-              </div>
-            </div>
-
-
-            <div className="py-1 px-4">
-              <ParcelsSection register={register} errors={errors} control={control} setValue={setValue} watch={watch} onClearRates={handleClearRates} />
-              <div className="pt-2 px-1">
-                <hr />
-              </div>
-            </div>
-
-            {/* <Divider className="my-6" /> */}
-            <div className="py-1 px-4">
-              <RatesSection
-                rates={calculatedRates}
-                onCalculateRates={handleCalculateRate}
-                isCalculating={isCalculatingRate}
-                selectedRateId={selectedRateId}
-                onSelectRate={handleRateSelection}
+              <AddressSelector
                 register={register}
                 errors={errors}
-                serviceOption={watch('service_options')}
-                rateCalculationError={rateCalculationError}
+                control={control}
+                setValue={setValue}
+                title="Ship To Address"
+                prefix="ship_to"
+                forceRefresh={refreshCounter}
+                watch={watch}
+                onClearRates={handleClearRates}
               />
             </div>
 
-            <div className="flex justify-start gap-4">
-              <Button
-                color="primary"
-                type="submit"
-                startContent={<Icon icon="solar:eye-bold" />}
-                isDisabled={calculatedRates.length === 0 || !selectedRateId}
-                onPress={() => {
-                  console.log("Preview & Submit button clicked")
-                  // Also log current form state for debugging
-                  const currentValues = getValues()
-                  console.log("Current form values:", currentValues)
+            <PickupInformation
+              register={register}
+              control={control}
+              errors={errors}
+              today={today}
+              setValue={setValue}
+              watch={watch}
+              onClearRates={handleClearRates}
+            />
 
-                  // Manually trigger validation to see errors
-                  trigger().then(isValid => {
-                    console.log("Manual validation result:", isValid)
-                    if (!isValid) {
-                      console.log("Current form errors:", errors)
-                    }
-                  })
-                }}
+            <ParcelsSection
+              register={register}
+              errors={errors}
+              control={control}
+              setValue={setValue}
+              watch={watch}
+              onClearRates={handleClearRates}
+            />
+
+            <RatesSection
+              rates={calculatedRates}
+              onCalculateRates={handleCalculateRate}
+              isCalculating={isCalculatingRate}
+              selectedRateId={selectedRateId}
+              onSelectRate={handleRateSelection}
+              register={register}
+              errors={errors}
+              serviceOption={watch('service_options')}
+              rateCalculationError={rateCalculationError}
+            />
+
+            {/* Form Actions */}
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button
+                type="button"
+                variant="flat"
+                color="default"
+                onPress={handleClearForm}
+              >
+                Clear Form
+              </Button>
+              <Button
+                type="submit"
+                color="success"
+                startContent={<Icon icon="solar:eye-bold" width={20} />}
+                isDisabled={calculatedRates.length === 0 || !selectedRateId}
               >
                 {calculatedRates.length === 0
                   ? 'Calculate Rates First'
@@ -575,6 +365,7 @@ const ShipmentDuplicateForm = () => {
           </form>
         </CardBody>
       </Card>
+
       {/* Preview Modal */}
       {previewData && (
         <ShipmentPreviewModal
@@ -623,6 +414,5 @@ const ShipmentDuplicateForm = () => {
     </>
   )
 }
-
 
 export default ShipmentDuplicateForm
