@@ -1,4 +1,5 @@
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider } from '@heroui/react';
+import { Card, CardBody, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react';
+import { Icon } from '@iconify/react';
 import type { ShipmentGETData } from './types';
 
 interface ParcelsSectionProps {
@@ -11,12 +12,15 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
   }
 
   return (
-    <>
-      <section>
-        <h2 className="text-base font-semibold mb-0">
-          Parcels ({shipment.parcels.length})
-        </h2>
-        <Table shadow="none" aria-label="Parcels Table">
+    <Card className="m-3">
+      <CardBody>
+        <div className="flex items-center gap-2 mb-4">
+          <Icon icon="solar:box-minimalistic-bold" width={24} className="text-blue-600" />
+          <h3 className="font-semibold text-blue-900 text-lg">
+            Parcels & Items ({shipment.parcels.length})
+          </h3>
+        </div>
+        <Table shadow="none" aria-label="Parcels Table" removeWrapper>
           <TableHeader>
             <TableColumn>No.</TableColumn>
             <TableColumn>Description</TableColumn>
@@ -48,10 +52,8 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
             ))}
           </TableBody>
         </Table>
-        <hr />
-      </section>
-      <Divider />
-    </>
+      </CardBody>
+    </Card>
   );
 };
 

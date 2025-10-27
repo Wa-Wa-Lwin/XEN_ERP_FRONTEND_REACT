@@ -1,3 +1,5 @@
+import { Card, CardBody } from '@heroui/react';
+import { Icon } from '@iconify/react';
 import DetailRow from './DetailRow';
 import type { ShipmentGETData } from './types';
 
@@ -15,39 +17,48 @@ const AddressInformation = ({ shipment }: AddressInformationProps) => {
 
   const isShipFromEuropean = shipment.ship_from?.country && europeanCountries.includes(shipment.ship_from.country);
   const isShipToEuropean = shipment.ship_to?.country && europeanCountries.includes(shipment.ship_to.country);
+
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2  gap-6">
-      <div className="space-y-0 border-r border-gray-200 pr-4">
-        <h2 className="text-base font-semibold">Ship From</h2>
-        <DetailRow label="Company" value={shipment.ship_from?.company_name || '-'} />
-        <DetailRow label="Street 1"  value={shipment.ship_from?.street1 || '-'} />
-        <DetailRow label="Street 2"  value={shipment.ship_from?.street2 || '-'} />
-        <DetailRow label="Street 3"  value={shipment.ship_from?.street3 || '-'} />
-        <DetailRow label="City"  value={shipment.ship_from?.city || '-'} />
-        <DetailRow label="Country"  value={shipment.ship_from?.country || '-'} />
-        <DetailRow label="State"  value={shipment.ship_from?.state || '-'} />
-        <DetailRow label="Postal Code"  value={shipment.ship_from?.postal_code || '-'} />
-        <DetailRow label="TaxID"  value={shipment.ship_from?.tax_id || '-'} />
-        {isShipFromEuropean && <DetailRow label="EORI Number"  value={shipment.ship_from?.eori_number || '-'} />}
-        <DetailRow label="Contact" value={`${shipment.ship_from?.contact_name} (${shipment.ship_from?.phone || '-'})`} />
-        <DetailRow label="Email" value={shipment.ship_from?.email || '-'} />
-      </div>
-      <div className="space-y-0">
-        <h2 className="text-base font-semibold">Ship To</h2>
-        <DetailRow label="Company" value={shipment.ship_to?.company_name || '-'} />
-        <DetailRow label="Street 1"  value={shipment.ship_to?.street1 || '-'} />
-        <DetailRow label="Street 2"  value={shipment.ship_to?.street2 || '-'} />
-        <DetailRow label="Street 3"  value={shipment.ship_to?.street3 || '-'} />
-        <DetailRow label="City"  value={shipment.ship_to?.city || '-'} />
-        <DetailRow label="Country"  value={shipment.ship_to?.country || '-'} />
-        <DetailRow label="State"  value={shipment.ship_to?.state || '-'} />
-        <DetailRow label="Postal Code"  value={shipment.ship_to?.postal_code || '-'} />
-        <DetailRow label="TaxID"  value={shipment.ship_to?.tax_id || '-'} />
-        {isShipToEuropean && <DetailRow label="EORI Number"  value={shipment.ship_to?.eori_number || '-'} />}
-        <DetailRow label="Contact" value={`${shipment.ship_to?.contact_name} (${shipment.ship_to?.phone || '-'})`} />
-        <DetailRow label="Email" value={shipment.ship_to?.email || '-'} />
-      </div>
-    </section>
+    <Card className="m-3">
+      <CardBody>
+        <div className="flex items-center gap-2 mb-4">
+          <Icon icon="solar:map-point-bold" width={24} className="text-blue-600" />
+          <h3 className="font-semibold text-blue-900 text-lg">Addresses</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-1 text-sm">
+            <h4 className="font-semibold text-gray-700 mb-2">Ship From</h4>
+            <DetailRow label="Company" value={shipment.ship_from?.company_name || '-'} />
+            <DetailRow label="Street 1" value={shipment.ship_from?.street1 || '-'} />
+            {shipment.ship_from?.street2 && <DetailRow label="Street 2" value={shipment.ship_from.street2} />}
+            {shipment.ship_from?.street3 && <DetailRow label="Street 3" value={shipment.ship_from.street3} />}
+            <DetailRow label="City" value={shipment.ship_from?.city || '-'} />
+            <DetailRow label="Country" value={shipment.ship_from?.country || '-'} />
+            <DetailRow label="State" value={shipment.ship_from?.state || '-'} />
+            <DetailRow label="Postal Code" value={shipment.ship_from?.postal_code || '-'} />
+            <DetailRow label="TaxID" value={shipment.ship_from?.tax_id || '-'} />
+            {isShipFromEuropean && <DetailRow label="EORI Number" value={shipment.ship_from?.eori_number || '-'} />}
+            <DetailRow label="Contact" value={`${shipment.ship_from?.contact_name} (${shipment.ship_from?.phone || '-'})`} />
+            <DetailRow label="Email" value={shipment.ship_from?.email || '-'} />
+          </div>
+          <div className="space-y-1 text-sm">
+            <h4 className="font-semibold text-gray-700 mb-2">Ship To</h4>
+            <DetailRow label="Company" value={shipment.ship_to?.company_name || '-'} />
+            <DetailRow label="Street 1" value={shipment.ship_to?.street1 || '-'} />
+            {shipment.ship_to?.street2 && <DetailRow label="Street 2" value={shipment.ship_to.street2} />}
+            {shipment.ship_to?.street3 && <DetailRow label="Street 3" value={shipment.ship_to.street3} />}
+            <DetailRow label="City" value={shipment.ship_to?.city || '-'} />
+            <DetailRow label="Country" value={shipment.ship_to?.country || '-'} />
+            <DetailRow label="State" value={shipment.ship_to?.state || '-'} />
+            <DetailRow label="Postal Code" value={shipment.ship_to?.postal_code || '-'} />
+            <DetailRow label="TaxID" value={shipment.ship_to?.tax_id || '-'} />
+            {isShipToEuropean && <DetailRow label="EORI Number" value={shipment.ship_to?.eori_number || '-'} />}
+            <DetailRow label="Contact" value={`${shipment.ship_to?.contact_name} (${shipment.ship_to?.phone || '-'})`} />
+            <DetailRow label="Email" value={shipment.ship_to?.email || '-'} />
+          </div>
+        </div>
+      </CardBody>
+    </Card>
   );
 };
 

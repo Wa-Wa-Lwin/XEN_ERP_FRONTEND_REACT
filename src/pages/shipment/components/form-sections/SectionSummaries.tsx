@@ -241,7 +241,6 @@ export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & Se
                   <h4 className="font-semibold text-sm text-gray-900 mb-2">
                     Parcel #{parcelIndex + 1}
                   </h4>
-                  {/* <div className="flex gap-4 text-xs mb-3"> */}
                   <div className="grid gap-2 text-xs mb-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
                     <div>
                       <span className="text-gray-600">Box Type: </span>

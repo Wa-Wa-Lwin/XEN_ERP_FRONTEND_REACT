@@ -1,4 +1,4 @@
-import { Button, Chip } from '@heroui/react';
+import { Button, Chip, Card, CardBody } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import DetailRow from './DetailRow';
 import type { ShipmentGETData } from './types';
@@ -76,7 +76,7 @@ const BasicInformation = ({
   // const isDHL_Express_Worldwide = chosenRate?.service_name === 'DHL Express Worldwide';
 
   pickupCommonData = <>
-    <h2
+    <h3
       className={`text-lg font-semibold mt-1 ${shipment.pick_up_created_status === "created_success"
         ? "text-green-600"
         : shipment.pick_up_created_status === "created_success"
@@ -85,7 +85,7 @@ const BasicInformation = ({
         }`}
     >
       Pickup Information ({shipment.pick_up_created_status === "created_success" ? "success" : shipment.pick_up_created_status === "created_failed" ? "fail" : "Soon to be created"})
-    </h2>
+    </h3>
     <DetailRow label="DateTime" value={pickupDateTime} />
     <DetailRow label="Instruction" value={shipment.pick_up_instructions || '-'} />
     {isDHLeCommerceAsia && (
@@ -308,98 +308,173 @@ const BasicInformation = ({
     ;
 
   return (
-    <section className="space-y-1">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">General Information</h2>
-        <div className="flex gap-2">
-
-          {canEdit && (
-            <Button
-              color="primary"
-              size="sm"
-              variant="bordered"
-              startContent={<Icon icon="solar:pen-bold" />}
-              onPress={() => navigate(`/shipment/edit/${shipment.shipmentRequestID}`)}
-            >
-              Edit
-            </Button>
-          )}
-          {(msLoginUser?.email === 'wawa@xenoptics.com' ||
-            msLoginUser?.email === 'susu@xenoptics.com' ||
-            msLoginUser?.email === 'thinzar@xenoptics.com') && onDuplicateShipment && (
+    <>
+      <Card className="m-3 p-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <Icon icon="solar:box-bold" width={20} className="text-blue-600" />
+            <h3 className="font-semibold text-blue-900">Basic Information</h3>
+            {canEdit && (
               <Button
-                color="secondary"
+                color="primary"
                 size="sm"
                 variant="bordered"
-                startContent={<Icon icon="solar:copy-bold" />}
-                onPress={onDuplicateShipment}
+                startContent={<Icon icon="solar:pen-bold" />}
+                onPress={() => navigate(`/shipment/edit/${shipment.shipmentRequestID}`)}
               >
-                Developer Only: Duplicate Shipment Request
+                Edit
               </Button>
             )}
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-1 text-sm">
-        <div>
-          <DetailRow label="ID" value={shipment.shipmentRequestID} />
-          <Chip
-            size="sm"
-            color={
-              shipment.request_status.includes("approved") ? "success" :
-                shipment.request_status.includes("rejected") ? "danger" :
-                  "warning"
-            }
-            variant="flat"
+            {(msLoginUser?.email === 'wawa@xenoptics.com' ||
+              msLoginUser?.email === 'susu@xenoptics.com' ||
+              msLoginUser?.email === 'thinzar@xenoptics.com') && onDuplicateShipment && (
+                <Button
+                  color="secondary"
+                  size="sm"
+                  variant="bordered"
+                  startContent={<Icon icon="solar:copy-bold" />}
+                  onPress={onDuplicateShipment}
+                >
+                  Developer Only: Duplicate Shipment Request
+                </Button>
+              )}
+          </div>
+          <div
+            className="grid gap-2 text-sm mb-3"
+            style={{
+              gridTemplateColumns: 'repeat(8, max-content)',
+              justifyContent: 'start',
+              alignItems: 'start',
+              textAlign: 'left',
+            }}
           >
-            {getDisplayStatus(shipment.request_status)}
-          </Chip>
-          <DetailRow label="Topic" value={`${shipment.topic}`} />
-          {shipment.po_number && (
-            <DetailRow label="PO Number(Date)"value={`${shipment.po_number} (${shipment.po_date})`} />
-          )}
-          {shipment.topic === 'For Sales' && (
-            <DetailRow label="Sales Person" value={shipment.sales_person} />
-          )}
-          {shipment.topic === 'Others' && (
-            <DetailRow label="Other" value={shipment.other_topic} />
-          )}
-          <DetailRow label="Requestor" value={`${shipment.created_user_name}`} />
-          <DetailRow label="Approver" value={`${shipment.approver_user_name}`} />
-          {shipment.remark && <DetailRow label="Remark" value={shipment.remark} />}
-          <DetailRow label="Created" value={formatDateTime(shipment.created_date_time)} />
-          {shipment.approver_rejected_date_time && (
-            <DetailRow label="Rejected" value={formatDateTime(shipment.approver_rejected_date_time)} />
-          )}
-          {shipment.approver_approved_date_time && (
-            <DetailRow label="Approved" value={formatDateTime(shipment.approver_approved_date_time)} />
-          )}
+            <div>
+              <span className="text-gray-600">Scope: </span>
+              <span className="font-medium">
+                {shipment.shipment_scope_type
+                  ? shipment.shipment_scope_type.toLowerCase() === 'international'
+                    ? 'International (Outside Thai)'
+                    : shipment.shipment_scope_type.toLowerCase() === 'export'
+                      ? 'International (Export)'
+                      : shipment.shipment_scope_type.toLowerCase() === 'import'
+                        ? 'International (Import)'
+                        : shipment.shipment_scope_type.toLowerCase() === 'domestic'
+                          ? 'Domestic'
+                          : shipment.shipment_scope_type
+                  : '-'}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600">| Topic: </span>
+              <span className="font-medium">
+                {shipment.topic || '-'} {shipment.topic === 'Others' && `(${shipment.other_topic})`} {shipment.topic === 'For Sales' && `(${shipment.sales_person})`}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600">| Service: </span>
+              <span className="font-medium">
+                {
+                  shipment.service_options.toLowerCase() === 'normal'
+                    ? 'Normal (Cheapest One)'
+                    : `Urgent (${shipment.urgent_reason})`
+                }
+              </span>
+            </div>
+            {
+              shipment.po_number !== "" &&
+              <>
+                <div>
+                  <span className="text-gray-600"> | PO Number(Date): </span>
+                  <span className="font-medium">
+                    {shipment.po_number || '-'}({shipment.po_date || '-'})
+                  </span>
+                </div>
+              </>
+            }
+            <div>
+              <span className="text-gray-600"> | Requestor: </span>
+              <span className="font-medium">
+                {shipment.created_user_name || '-'}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600"> | Approver: </span>
+              <span className="font-medium">
+                {shipment.approver_user_name || '-'}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600"> | Created: </span>
+              <span className="font-medium">
+                {formatDateTime(shipment.created_date_time) || '-'}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600"> | Created: </span>
+              <span className="font-medium">
+                {formatDateTime(shipment.created_date_time) || '-'}
+              </span>
+            </div>
+          </div>
         </div>
+      </Card>
 
-        <div className='pe-20'>
-          <DetailRow label="Scope" value={shipment.shipment_scope_type?.toUpperCase() ?? ''} />
-          <DetailRow label="Service Options" value={shipment.service_options} />
-          {shipment.service_options === 'Urgent' && (
-            <DetailRow label="Urgent Reason" value={shipment.urgent_reason} />
-          )}
-          <DetailRow label="Customs Purpose" value={shipment.customs_purpose?.toUpperCase() ?? ''} />
-          <DetailRow label="Incoterms" value={getIncotermDisplay(shipment.customs_terms_of_trade)} />
-          <DetailRow
-            label="Payment Terms"
-            value={shipment.payment_terms
-              ? shipment.payment_terms.replace(/_/g, ' ').toUpperCase()
-              : ''}
-          />
-          {pickupCommonData}
-          {pickupStatusData}
-        </div>
-
-        <div>
-          {labelData}
-        </div>
-      </div>
-      <hr />
-    </section>
+      {/* Pickup Information Card */}
+      <Card className="m-3 p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Icon icon="solar:calendar-bold" width={24} className={
+              shipment.pick_up_created_status === "created_success"
+                ? "text-green-600"
+                : shipment.pick_up_created_status === "created_failed"
+                  ? "text-red-600"
+                  : "text-blue-600"
+            } />
+            <h3 className={`font-semibold ${shipment.pick_up_created_status === "created_success"
+              ? "text-green-900"
+              : shipment.pick_up_created_status === "created_failed"
+                ? "text-red-900"
+                : "text-blue-900"
+              }`}>
+              Pickup Information ({shipment.pick_up_created_status === "created_success" ? "Success" : shipment.pick_up_created_status === "created_failed" ? "Failed" : "Pending"})
+            </h3>
+          </div>
+          <div
+            className="grid gap-2 text-sm mb-3"
+            style={{
+              gridTemplateColumns: 'repeat(8, max-content)',
+              justifyContent: 'start',
+              alignItems: 'start',
+              textAlign: 'left',
+            }}
+          >
+            <div>
+              <span className="text-gray-600">Date(Time): </span>
+              <span className="font-medium">
+                {pickupDateTime}
+              </span>
+            </div>
+            {shipment.pick_up_instructions !== "" &&
+              <>
+                <div>
+                  <span className="text-gray-600">| Instruction: </span>
+                  <span className="font-medium">
+                    {shipment.pick_up_instructions || '-'}
+                  </span>
+                </div>
+              </>
+            }
+            <div>
+              {isDHLeCommerceAsia && (
+              <div className="text-blue-600 font-semibold bg-blue-50 p-3 rounded border border-blue-200 mt-2">
+                <p>📞 Please call DHL eCommerce Asia customer service to arrange pickup for this package.</p>
+                <p>📇 Contact Logistic Team for further information.</p>
+              </div>
+            )}
+            {pickupStatusData}
+            </div>
+          </div>     
+      </Card>
+    </>
   );
 };
 

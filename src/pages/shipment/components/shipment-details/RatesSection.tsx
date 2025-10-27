@@ -1,4 +1,4 @@
-import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider } from '@heroui/react';
+import { Card, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -134,10 +134,13 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
   }
 
   return (
-    <>
-      <section>
-        <div className="flex justify-left gap-6 items-center mb-0">
-          <h2 className="text-base font-semibold">Rates</h2>
+    <Card className="m-3">
+      <CardBody>
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <Icon icon="solar:dollar-bold" width={24} className="text-blue-600" />
+            <h3 className="font-semibold text-blue-900 text-lg">Shipping Rates</h3>
+          </div>
           {shipment.rates.length > 1 && (
             <Button
               size="sm"
@@ -152,6 +155,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
         <div className="overflow-x-auto">
           <Table
             shadow="none"
+            removeWrapper
             aria-label="Rates Table"
             classNames={{
               wrapper: "min-w-fit",
@@ -282,9 +286,8 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
             </TableBody>
           </Table>
         </div>
-      </section>
-      <Divider />
-    </>
+      </CardBody>
+    </Card>
   );
 };
 

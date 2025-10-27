@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Spinner, Button, Divider, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure } from "@heroui/react";
+import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure } from "@heroui/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
 import { useNotification } from "@context/NotificationContext";
@@ -523,7 +523,7 @@ const ShipmentDetails = () => {
   }
 
   return (
-    <div className="mx-auto w-full p-4 space-y-2">
+    <div className="mx-auto w-full p-0 space-y-0">
       <BasicInformation
         shipment={shipment}
         showHistory={showHistory}
@@ -541,8 +541,6 @@ const ShipmentDetails = () => {
       />
 
       <AddressInformation shipment={shipment} />
-
-      <Divider />
 
       <RatesSection
         shipment={shipment}
