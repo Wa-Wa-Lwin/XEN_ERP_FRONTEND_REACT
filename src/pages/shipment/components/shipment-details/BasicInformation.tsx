@@ -1,8 +1,8 @@
-import { Button, Chip, Card, CardBody } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import DetailRow from './DetailRow';
 import type { ShipmentGETData } from './types';
-import { formatDateTime, getDisplayStatus, getIncotermDisplay } from './utils';
+import { formatDateTime } from './utils';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
 
@@ -62,9 +62,6 @@ const BasicInformation = ({
     return `${parseInt(hours, 10)}:${minutes}`;
   }
 
-  let pickupStatusData = null;
-  let pickupCommonData = null;
-
   let pickupDateTime = shipment.pick_up_date
     ? `${formatDate(shipment.pick_up_date)} (${formatTime(shipment.pick_up_start_time)} - ${formatTime(shipment.pick_up_end_time)})`
     : '';
@@ -74,74 +71,6 @@ const BasicInformation = ({
 
   const isDHLeCommerceAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
   // const isDHL_Express_Worldwide = chosenRate?.service_name === 'DHL Express Worldwide';
-
-  pickupCommonData = <>
-    <h3
-      className={`text-lg font-semibold mt-1 ${shipment.pick_up_created_status === "created_success"
-        ? "text-green-500"
-        : shipment.pick_up_created_status === "created_success"
-          ? "text-red-600"
-          : "text-gray-700"
-        }`}
-    >
-      Pickup Information ({shipment.pick_up_created_status === "created_success" ? "success" : shipment.pick_up_created_status === "created_failed" ? "fail" : "Soon to be created"})
-    </h3>
-    <DetailRow label="DateTime" value={pickupDateTime} />
-    <DetailRow label="Instruction" value={shipment.pick_up_instructions || '-'} />
-    {isDHLeCommerceAsia && (
-      <p className="text-blue-600 font-semibold bg-blue-50 p-2 rounded">
-        📞 Please call DHL eCommerce Asia customer service to arrange pickup for this package. <br />
-        📇 Contact Logistic Team for futher information.
-      </p>
-    )}
-  </>;
-
-
-  if (shipment.pick_up_status && shipment.pick_up_created_status === "created_success" && !isDHLeCommerceAsia) {
-    pickupStatusData = <>
-      <DetailRow label="Status" value={shipment.pick_up_created_status} />
-      <DetailRow label="Confirmation  No" value={shipment.pickup_confirmation_numbers} />
-    </>;
-  }
-  else if (shipment.pick_up_status && shipment.pick_up_created_status === "created_failed" && !isDHLeCommerceAsia) {
-    pickupStatusData = <>
-      <Button
-        color="warning"
-        size="sm"
-        onPress={onChangePickupDateTime}
-      >
-        Change Pickup DateTime
-      </Button>
-      <p className="text-red-600 font-semibold">
-        ⚠️ Pickup creation failed <br />
-        <b>Details:</b> {formattedPickupError}
-      </p>
-      <Button
-        color="primary"
-        size="sm"
-        onPress={onCreatePickup}
-      // className="px-2 py-0 text-[11px] h-auto min-h-0"
-      >
-        Retry Create Pickup
-      </Button>
-    </>;
-  }
-  else if (
-    shipment.pick_up_status &&
-    shipment.request_status !== "approver_approved" &&
-    shipment.request_status !== "approver_rejected" &&
-    new Date(shipment.pick_up_date) < new Date()
-  ) {
-    pickupStatusData = <>
-      <Button
-        color="warning"
-        size="sm"
-        onPress={onChangePickupDateTime}
-      >
-        Change Pickup DateTime
-      </Button>
-    </>;
-  }
 
   let labelData = null;
 
@@ -155,34 +84,6 @@ const BasicInformation = ({
     const masterTrackingNumber = trackingNumbers.length > 0 ? trackingNumbers[0] : null;
 
     labelData = <>
-      <h2 className="text-lg font-semibold">Invoice Information</h2>
-      <div className='flex gap-2'>
-        <Button
-          color="primary"
-          size="sm"
-          // onPress={() => window.open(to_invoice, "_blank")}
-          onPress={() => {
-            navigate(`/shipment/invoice/${shipment.shipmentRequestID}`)
-          }}
-          className="px-2 py-0 text-[11px] h-auto min-h-0"
-        >
-          View Invoice
-        </Button>
-        <Button
-          color="primary"
-          size="sm"
-          // onPress={() => window.open(to_packing_slip, "_blank")}
-          onPress={() => {
-            navigate(`/shipment/packing-slip/${shipment.shipmentRequestID}`)
-          }}
-          className="px-2 py-0 text-[11px] h-auto min-h-0"
-        >
-          View Packing Slip
-        </Button>
-      </div>
-      <DetailRow label="No" value={shipment.invoice_no} />
-      <DetailRow label="Date" value={shipment.invoice_date} />
-      <DetailRow label="Due Date" value={shipment.invoice_due_date} />
       <h2
         className={`text-lg font-semibold mt-1 ${shipment.label_status === "cancelled"
           ? "text-red-600"
@@ -294,14 +195,6 @@ const BasicInformation = ({
     (shipment.approver_user_mail?.toLowerCase === msLoginUser?.mail?.toLowerCase() &&
       shipment.request_status !== "approver_approved" &&
       shipment.request_status !== "approver_rejected")
-    //   ||
-    // (shipment.approver_user_mail?.toLowerCase === msLoginUser?.mail?.toLowerCase() &&
-    //   shipment?.request_status === "approver_approved" &&
-    //   shipment?.label_status !== "created")
-    //   ||
-    // (user?.logisticRole === "1" &&
-    //   shipment?.request_status === "approver_approved" &&
-    //   shipment?.label_status !== "created")
     ;
 
   return (
@@ -339,11 +232,12 @@ const BasicInformation = ({
         </div>
       </Card>
 
+      {/* Basic Information  */}
       <Card className="m-3 p-3 rounded-none">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <Icon icon="solar:box-bold" width={20} className="text-blue-600" />
-            <h3 className="font-semibold text-blue-900">Basic Information</h3>
+            <h3 className="font-semibold text-blue-900">Basic Information ({shipment.request_status.toUpperCase()})</h3>
           </div>
           <div
             className="grid gap-2 text-sm"
@@ -469,8 +363,8 @@ const BasicInformation = ({
               </div>
             </>
           }
-          {
-            shipment.pick_up_created_status === "created_success" && shipment.pickup_confirmation_numbers !== "" &&
+          {/* created_success  */}
+          {(shipment.pick_up_created_status === "created_success" && shipment.pickup_confirmation_numbers !== "" && !isDHLeCommerceAsia) &&
             <>
               <div>
                 <span className="text-gray-600"> | Confirmation No: </span>
@@ -478,18 +372,14 @@ const BasicInformation = ({
                   {shipment.pickup_confirmation_numbers}
                 </span>
               </div>
-            </>
-          }
-          {
-            shipment.pick_up_created_status === "created_failed" &&
-            <>
-              <div>
-                <span className="text-gray-600"> | ⚠️ Error Detail: </span>
-                <span className="font-medium break-words max-w-full whitespace-normal">
-                  {formattedPickupError}
-                </span>
-              </div>
-
+            </>}
+          {(
+            shipment.pick_up_status &&
+            shipment.request_status !== "approver_approved" &&
+            shipment.request_status !== "approver_rejected" &&
+            new Date(shipment.pick_up_date) < new Date() &&
+            !isDHLeCommerceAsia
+          ) && <>
               <Button
                 color="warning"
                 size="sm"
@@ -497,21 +387,56 @@ const BasicInformation = ({
               >
                 Change Pickup DateTime
               </Button>
-              <Button
-                color="primary"
-                size="sm"
-                onPress={onCreatePickup}
-              // className="px-2 py-0 text-[11px] h-auto min-h-0"
-              >
-                Retry Create Pickup
-              </Button>
-
+            </>}
+          {shipment.pick_up_created_status === "created_failed" &&
+            <>
+              {shipment.request_status === "approver_approved" ? (
+                <Button
+                  color="primary"
+                  size="sm"
+                  onPress={onChangePickupDateTime}
+                >
+                  Change Pickup Date Time and Retry
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    color="warning"
+                    size="sm"
+                    onPress={onChangePickupDateTime}
+                  >
+                    Change Pickup DateTime
+                  </Button>
+                  <Button
+                    color="primary"
+                    size="sm"
+                    onPress={onCreatePickup}
+                  >
+                    Retry Create Pickup
+                  </Button>
+                </>
+              )}
+            </>}
+        </div>
+        <p className="text-xs">
+          {isDHLeCommerceAsia && (
+            <p className="text-blue-600 font-semibold bg-blue-50 p-2 rounded">
+              📞 Please call DHL eCommerce Asia customer service to arrange pickup for this package.
+              📇 Contact Logistic Team for futher information.
+            </p>
+          )}
+          {
+            shipment.pick_up_created_status === "created_failed" && !isDHLeCommerceAsia &&
+            <>
+              <p className="text-red-600 font-semibold bg-yellow-50 p-2 rounded break-words max-w-full whitespace-normal">
+                ⚠️ Error Detail: {formattedPickupError}
+              </p>
             </>
           }
-        </div>
+        </p>
       </Card>
 
-      {/* Label Information Card */}
+      {/* Label & Invoice Information */}
       <Card className="m-3 p-3 rounded-none">
         <div className="flex items-center gap-2 mb-2">
           <Icon icon="solar:calendar-bold" width={24} className={
@@ -527,7 +452,7 @@ const BasicInformation = ({
               ? "text-red-600"
               : "text-yellow-600"
             }`}>
-            Label Information ({shipment.label_status === "success" ? "Success" : shipment.label_status === "failed" ? "Failed" : "Pending"})
+            Label & Invoice Information ({shipment.label_status === "success" ? "Success" : shipment.label_status === "failed" ? "Failed" : "Pending"})
           </h3>
         </div>
         <div
@@ -540,9 +465,55 @@ const BasicInformation = ({
           }}
         >
           <div>
-            <span className="text-gray-600">Status(Time): </span>
+            <span className="text-gray-600">Invoice No: </span>
             <span className="font-medium">
-              {pickupDateTime}
+              {shipment.invoice_no}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600"> | Invoice Date: </span>
+            <span className="font-medium">
+              {shipment.invoice_date}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600"> | Invoice Due Date: </span>
+            <span className="font-medium">
+              {shipment.invoice_due_date}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600"> | View Invoice: </span>
+            <span className="font-medium">
+              <Button
+                color="primary"
+                size="sm"
+                // onPress={() => window.open(to_invoice, "_blank")}
+                onPress={() => {
+                  navigate(`/shipment/invoice/${shipment.shipmentRequestID}`)
+                }}
+                className="px-2 py-0 text-[11px] h-auto min-h-0"
+              >
+                View Invoice
+              </Button>
+              <Button
+                color="primary"
+                size="sm"
+                // onPress={() => window.open(to_packing_slip, "_blank")}
+                onPress={() => {
+                  navigate(`/shipment/packing-slip/${shipment.shipmentRequestID}`)
+                }}
+                className="px-2 py-0 text-[11px] h-auto min-h-0"
+              >
+                View Packing Slip
+              </Button>
+            </span>
+          </div>
+
+          <div>
+            <span className="text-gray-600">Invoice No: </span>
+            <span className="font-medium">
+              {shipment.invoice_no}
             </span>
           </div>
           {shipment.pick_up_instructions !== "" &&

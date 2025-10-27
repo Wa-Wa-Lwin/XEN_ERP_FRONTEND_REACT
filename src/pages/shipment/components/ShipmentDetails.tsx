@@ -429,6 +429,8 @@ const ShipmentDetails = () => {
   const handleChangePickupDateTime = async () => {
     if (!shipmentId || !msLoginUser) return;
 
+    const shouldRetryPickup = shipment?.request_status === "approver_approved" && shipment?.pick_up_created_status === "created_failed";
+
     try {
       setIsUpdatingPickup(true);
 
@@ -439,8 +441,6 @@ const ShipmentDetails = () => {
 
       const apiUrl = `${pickupUrl}${shipmentId}`;
 
-
-
       const payload = {
         pick_up_date: pickupFormData.pick_up_date,
         pick_up_start_time: formatTime(pickupFormData.pick_up_start_time),
@@ -450,7 +450,6 @@ const ShipmentDetails = () => {
         login_user_name: msLoginUser.name,
         login_user_mail: msLoginUser.email,
       };
-
 
       const response = await axios.put(apiUrl, payload, {
         headers: { 'Content-Type': 'application/json' }
@@ -463,6 +462,11 @@ const ShipmentDetails = () => {
           success('Pickup date/time updated successfully!', 'Success');
           onPickupModalClose();
           await fetchShipment();
+
+          // If approved and pickup failed, automatically retry pickup creation
+          if (shouldRetryPickup) {
+            await handleCreatePickup();
+          }
         } else {
           showNotificationError('Failed to update pickup date/time. Please try again.', 'Update Failed');
         }
@@ -617,7 +621,9 @@ const ShipmentDetails = () => {
               onPress={handleChangePickupDateTime}
               isLoading={isUpdatingPickup}
             >
-              Update Pickup DateTime
+              {shipment?.request_status === "approver_approved" && shipment?.pick_up_created_status === "created_failed"
+                ? "Update and Retry"
+                : "Update Pickup DateTime"}
             </Button>
           </ModalFooter>
         </ModalContent>
