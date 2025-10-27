@@ -27,6 +27,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
   const topicValue = watch('topic');
   const serviceOptionsValue = watch('service_options');
   const salesPersonValue = watch('sales_person');
+  const shipmentScopeValue = watch('shipment_scope_type');
 
   // Update local state when form values change (for duplicated data)
   useEffect(() => {
@@ -93,8 +94,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 placeholder="Select"
                 errorMessage={errors.shipment_scope_type?.message}
                 isInvalid={!!errors.shipment_scope_type}
-                selectedKeys={field.value ? new Set([field.value]) : new Set()}
-
+                selectedKeys={shipmentScopeValue ? [shipmentScopeValue] : field.value ? [field.value] : []}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {
@@ -121,7 +121,6 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                   International (Outside Thai)
                 </SelectItem>
               </Select>
-
             )}
           />
 

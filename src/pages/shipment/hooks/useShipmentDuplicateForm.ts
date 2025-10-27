@@ -47,6 +47,7 @@ export const useShipmentDuplicateForm = () => {
 
         // Transform the API response to match form structure
         const duplicateData = {
+          shipment_scope_type: shipmentData.shipment_scope_type || '',
           send_to: shipmentData.send_to || 'Approver',
           topic: shipmentData.topic || '',
           other_topic: shipmentData.other_topic || '',
