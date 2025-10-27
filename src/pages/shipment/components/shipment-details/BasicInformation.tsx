@@ -354,7 +354,10 @@ const BasicInformation = ({
           >
             {getDisplayStatus(shipment.request_status)}
           </Chip>
-          <DetailRow label="Topic" value={`${shipment.topic} (${shipment.po_number})`} />
+          <DetailRow label="Topic" value={`${shipment.topic}`} />
+          {shipment.po_number && (
+            <DetailRow label="PO Number(Date)"value={`${shipment.po_number} (${shipment.po_date})`} />
+          )}
           {shipment.topic === 'For Sales' && (
             <DetailRow label="Sales Person" value={shipment.sales_person} />
           )}
