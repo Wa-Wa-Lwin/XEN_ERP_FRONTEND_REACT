@@ -17,7 +17,8 @@ import {
   BasicInfoSummary,
   AddressesSummary,
   PickupInfoSummary,
-  ParcelsSummary
+  ParcelsSummary,
+  RatesSummary
 } from './form-sections'
 import ShipmentPreviewModal from './ShipmentPreviewModal'
 import ErrorModal from './ErrorModal'
@@ -850,7 +851,7 @@ const ShipmentEditForm = () => {
               )}
 
               {/* Step 4: Shipping Rates */}
-              {currentStep === 4 && (
+              {currentStep === 4 ? (
                 <>
                   {/* Rate Calculation Section */}
                   <Card className="border-2 border-primary shadow-lg m-1">
@@ -928,7 +929,12 @@ const ShipmentEditForm = () => {
                     </CardBody>
                   </Card>
                 </>
-              )}
+              ) : 
+               completedSteps.has(3) && (
+                <div className="pb-1">
+                  <RatesSummary data={getValues()} selectedRateId={selectedRateId} onEdit={() => handleEditStep(4)} />
+                </div>
+              )}              
             </div>
           </form>
         </CardBody>
