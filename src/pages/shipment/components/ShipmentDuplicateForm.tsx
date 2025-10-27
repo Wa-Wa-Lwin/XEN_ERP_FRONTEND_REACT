@@ -217,17 +217,6 @@ const ShipmentDuplicateForm = () => {
                 <h2 className="text-2xl font-bold text-gray-800">Duplicate Shipment Request</h2>
                 <p className="text-sm text-gray-500">Create a new shipment based on an existing one</p>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="flat"
-                  color="default"
-                  onPress={handleClearForm}
-                  startContent={<Icon icon="solar:refresh-linear" width={20} />}
-                >
-                  Clear Form
-                </Button>
-              </div>
             </div>
 
             {/* Form Sections */}

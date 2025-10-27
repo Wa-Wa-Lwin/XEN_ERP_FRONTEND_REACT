@@ -85,32 +85,63 @@ export const AddressesSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="font-medium">From: {data.ship_from_company_name || '-'}</p>
-                <p className="text-gray-600">{data.ship_from_country}, {data.ship_from_city}, {data.ship_from_state} , {data.ship_from_postal_code},
-                  {data.ship_from_street1 && `${data.ship_from_street1} ,`}
-                  {data.ship_from_street2 && `${data.ship_from_street2} ,`}
-                  {data.ship_from_street3 && `${data.ship_from_street3} ,`}
+                <p className="text-gray-600">{data.ship_from_country}, {data.ship_from_city}, {data.ship_from_state} , {data.ship_from_postal_code}, 
+                  <br />
+                  {data.ship_from_street1 && (
+                    <>
+                      <b>St 1 : </b>{data.ship_from_street1},<br />
+                    </>
+                  )}
+                  {data.ship_from_street2 && (
+                    <>
+                      <b>St 2 : </b>{data.ship_from_street2},<br />
+                    </>
+                  )}
+                  {data.ship_from_street3 && (
+                    <>
+                      <b>St 3 : </b>{data.ship_from_street3},<br />
+                    </>
+                  )}
                 </p>
                 {/* ✅ Only render this paragraph if tax_id exists */}
                 {data.ship_from_tax_id && (
-                  <p className="text-gray-600">{data.ship_from_tax_id}</p>
+                  <p className="text-gray-600"><b>Tax ID : </b>{data.ship_from_tax_id}</p>
+                )}
+                {data.ship_from_eori_number && (
+                  <p className="text-gray-600"><b>EORI : </b>{data.ship_from_eori_number}</p>
                 )}
                 <p className="text-gray-600">
-                  {data.ship_from_contact_name}, {data.ship_from_phone}, {data.ship_from_email}.
+                  <b>Contact : </b>{data.ship_from_contact_name}, {data.ship_from_phone}, {data.ship_from_email}.
                 </p>
               </div>
               <div>
                 <p className="font-medium">To: {data.ship_to_company_name || '-'}</p>
                 <p className="text-gray-600">{data.ship_to_country}, {data.ship_to_city}, {data.ship_to_state} , {data.ship_to_postal_code},
-                  {data.ship_to_street1 && `${data.ship_to_street1} ,`}
-                  {data.ship_to_street2 && `${data.ship_to_street2} ,`}
-                  {data.ship_to_street3 && `${data.ship_to_street3} ,`}
+                  <br />
+                  {data.ship_to_street1 && (
+                    <>
+                      <b>St 1 : </b>{data.ship_to_street1},<br />
+                    </>
+                  )}
+                  {data.ship_to_street2 && (
+                    <>
+                      <b>St 2 : </b>{data.ship_to_street2},<br />
+                    </>
+                  )}
+                  {data.ship_to_street3 && (
+                    <>
+                      <b>St 3 : </b>{data.ship_to_street3},<br />
+                    </>
+                  )}
                 </p>
-                {/* ✅ Only render this paragraph if tax_id exists */}
                 {data.ship_to_tax_id && (
-                  <p className="text-gray-600">{data.ship_to_tax_id}</p>
+                  <p className="text-gray-600"><b>Tax ID : </b>{data.ship_to_tax_id}</p>
+                )}
+                {data.ship_to_eori_number && (
+                  <p className="text-gray-600"><b>EORI : </b>{data.ship_to_eori_number}</p>
                 )}
                 <p className="text-gray-600">
-                  {data.ship_to_contact_name}, {data.ship_to_phone}, {data.ship_to_email}.
+                  <b>Contact : </b>{data.ship_to_contact_name}, {data.ship_to_phone}, {data.ship_to_email}.
                 </p>
               </div>
             </div>

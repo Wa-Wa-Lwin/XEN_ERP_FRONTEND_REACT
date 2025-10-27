@@ -864,7 +864,7 @@ const ShipmentEditForm = () => {
                       </div>
                       <div className="mb-4 p-4 bg-gray-50 rounded border">
                         <h3 className="font-semibold mb-2">
-                          Previously Chosen Rate
+                          Previously Chosen Rate : 
                           {previouslyChosenRate ?
                             <span className="text-green-600 font-semibold"> Found ✓</span> :
                             <span className="text-red-600 font-semibold"> Not Found ✗</span>
