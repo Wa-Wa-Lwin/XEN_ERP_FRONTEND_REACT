@@ -6,7 +6,6 @@ import Home from "@pages/home/Home"
 import LoginPage from "@pages/login/Login"
 import Shipment from "@pages/shipment/Shipment"
 import ShipmentDetails from "@pages/shipment/components/ShipmentDetails"
-import ShipmentForm from "@pages/shipment/components/ShipmentForm"
 import ShipmentDuplicateForm from "@pages/shipment/components/ShipmentDuplicateForm"
 import ShipmentEditForm from "@pages/shipment/components/ShipmentEditForm"
 import InvoiceView from "@pages/shipment/components/InvoiceView"
@@ -29,7 +28,7 @@ import UserList from "@pages/user-list/UserList";
 import UserDetail from "@pages/user-list/UserDetail";
 import CreateUser from "@pages/user-list/CreateUser";
 import EditUser from "@pages/user-list/EditUser";
-import ShipmentFormVersionTwo from "@pages/shipment/components/ShipmentFormVersionTwo";
+import ShipmentForm from "@pages/shipment/components/ShipmentForm";
 
 
 export const routes = [
@@ -53,12 +52,7 @@ export const routes = [
             path: "request-form",
             element: <ShipmentForm />,
             handle: { breadcrumb: "New Request Form" },
-          },
-          {
-            path: "request-form-v2",
-            element: <ShipmentFormVersionTwo />,
-            handle: { breadcrumb: "New Request Form Version 2" },
-          },
+          },      
           {
             path: "duplicate/:shipmentId",
             element: <ShipmentDuplicateForm />,

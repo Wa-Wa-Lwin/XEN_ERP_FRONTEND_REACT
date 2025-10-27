@@ -294,9 +294,10 @@ export const calculateShippingRates = async (
     // Only show DHL eCommerce Asia if:
     // 1. Weight is 35kg or less
     // 2. Customs terms of trade is DDU or DDP
-    const isValidCustomsTerms = customsTerms === 'ddu' || customsTerms === 'ddp'
+    // const isValidCustomsTerms = customsTerms === 'ddu' || customsTerms === 'ddp'
 
-    if (chargeWeight <= 35 && isValidCustomsTerms) {
+    // if (chargeWeight <= 35 && isValidCustomsTerms) {
+    if (chargeWeight <= 35) {
       // Check if DHL eCommerce Asia rate already exists
       const hasDHLRate = apiRates.some((rate: ShippingRate) =>
         rate.shipper_account?.slug === "dhl-global-mail-asia"
@@ -312,9 +313,9 @@ export const calculateShippingRates = async (
       if (chargeWeight > 35) {
         console.log('Skipping DHL eCommerce Asia rate - weight exceeds 35kg:', chargeWeight)
       }
-      if (!isValidCustomsTerms) {
-        console.log('Skipping DHL eCommerce Asia rate - customs terms of trade is not DDU or DDP:', customsTerms)
-      }
+      // if (!isValidCustomsTerms) {
+      //   console.log('Skipping DHL eCommerce Asia rate - customs terms of trade is not DDU or DDP:', customsTerms)
+      // }
     }
   }
 

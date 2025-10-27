@@ -137,12 +137,6 @@ export const sectionItems: SidebarItem[] = [
         //   // <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
         // ),
       },
-      {
-        key: "request-form-v2",
-        to: "/shipment/request-form-v2",
-        icon: "codicon:request-changes",
-        title: "New Request Form Version Two",       
-      },
     ],
   },
   {
