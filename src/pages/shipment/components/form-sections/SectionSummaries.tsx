@@ -1,6 +1,6 @@
 import { Card, CardBody, Button } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import type { ShipmentFormData } from '../../types/shipment-form.types';
+import type { ShipmentFormData, Rate } from '../../types/shipment-form.types';
 
 interface SectionSummaryProps {
   onEdit: () => void;
@@ -337,7 +337,7 @@ export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & Se
   );
 };
 
-export const RatesSummary = ({ data, selectedRateId, onEdit }: { data: ShipmentFormData; selectedRateId: string } & SectionSummaryProps) => {
+export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, onEdit }: { data: ShipmentFormData; selectedRateId: string; previouslyChosenRate?: Rate } & SectionSummaryProps) => {
   const selectedRate = data.rates?.find(r => r.unique_id === selectedRateId);
 
   return (
@@ -350,13 +350,36 @@ export const RatesSummary = ({ data, selectedRateId, onEdit }: { data: ShipmentF
               <h3 className="font-semibold text-blue-900">Shipping Rate</h3>
               <Icon icon="solar:check-circle-bold" width={20} className="text-green-600" />
             </div>
+
+            {/* Show Selected Rate (when user recalculates) */}
             {selectedRate && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm">
-                <div><span className="text-gray-600">Carrier:</span> <span className="font-medium">{selectedRate.shipper_account_slug.toUpperCase() || '-'}</span></div>
-                <div><span className="text-gray-600">Service:</span> <span className="font-medium">{selectedRate.shipper_account_description || '-'}</span></div>
-                <div><span className="text-gray-600">Amount:</span> <span className="font-medium">{selectedRate.total_charge_amount} {selectedRate.charge_weight_value}</span></div>
-                <div><span className="text-gray-600">Delivery:</span> <span className="font-medium">{selectedRate.delivery_date || '-'} days</span></div>
+              <div className="mb-3">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Selected Rate:</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm bg-green-50 p-3 rounded border border-green-200">
+                  <div><span className="text-gray-600">Carrier:</span> <span className="font-medium">{selectedRate.shipper_account_slug.toUpperCase() || '-'}</span></div>
+                  <div><span className="text-gray-600">Service:</span> <span className="font-medium">{selectedRate.shipper_account_description || '-'}</span></div>
+                  <div><span className="text-gray-600">Amount:</span> <span className="font-medium">{selectedRate.total_charge_amount} {selectedRate.total_charge_currency}</span></div>
+                  <div><span className="text-gray-600">Transit Time:</span> <span className="font-medium">{selectedRate.transit_time || '-'} days</span></div>
+                </div>
               </div>
+            )}
+
+            {/* Show Previously Chosen Rate (in edit mode) */}
+            {previouslyChosenRate && (
+              <div className="mb-3">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Previously Chosen Rate:</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm bg-blue-50 p-3 rounded border border-blue-200">
+                  <div><span className="text-gray-600">Carrier:</span> <span className="font-medium">{previouslyChosenRate.shipper_account_slug.toUpperCase() || '-'}</span></div>
+                  <div><span className="text-gray-600">Service:</span> <span className="font-medium">{previouslyChosenRate.shipper_account_description || '-'}</span></div>
+                  <div><span className="text-gray-600">Amount:</span> <span className="font-medium">{previouslyChosenRate.total_charge_amount} {previouslyChosenRate.total_charge_currency}</span></div>
+                  <div><span className="text-gray-600">Transit Time:</span> <span className="font-medium">{previouslyChosenRate.transit_time || '-'} days</span></div>
+                </div>
+              </div>
+            )}
+
+            {/* Fallback if no rates are available */}
+            {!selectedRate && !previouslyChosenRate && (
+              <div className="text-sm text-gray-500">No rate selected</div>
             )}
           </div>
           <Button

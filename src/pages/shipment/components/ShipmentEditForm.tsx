@@ -547,11 +547,6 @@ const ShipmentEditForm = () => {
   }
 
   const handleEditStep = (stepId: number) => {
-    // Prevent editing the rates section (step 4) in edit mode
-    if (stepId === 4) {
-      return
-    }
-
     // Navigate to the step to edit
     setCurrentStep(stepId)
   }
@@ -929,10 +924,10 @@ const ShipmentEditForm = () => {
                     </CardBody>
                   </Card>
                 </>
-              ) : 
-               completedSteps.has(3) && (
+              ) :
+               completedSteps.has(3) && (selectedRateId || previouslyChosenRate) && (
                 <div className="pb-1">
-                  <RatesSummary data={getValues()} selectedRateId={selectedRateId} onEdit={() => handleEditStep(4)} />
+                  <RatesSummary data={getValues()} selectedRateId={selectedRateId} previouslyChosenRate={previouslyChosenRate} onEdit={() => handleEditStep(4)} />
                 </div>
               )}              
             </div>

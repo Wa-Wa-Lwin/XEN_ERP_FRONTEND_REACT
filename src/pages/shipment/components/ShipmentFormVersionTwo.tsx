@@ -577,8 +577,10 @@ const ShipmentFormVersionTwo = () => {
                     </div>
                   </CardBody>
                 </Card>
-              ) : completedSteps.has(4) && selectedRateId && (
-                <RatesSummary data={getValues()} selectedRateId={selectedRateId} onEdit={() => handleEditStep(4)} />
+              ) : completedSteps.has(3) && selectedRateId && (
+                <div className="pb-1">
+                  <RatesSummary data={getValues()} selectedRateId={selectedRateId} onEdit={() => handleEditStep(4)} /> 
+                </div>                 
               )}
             </div>
           </form>
