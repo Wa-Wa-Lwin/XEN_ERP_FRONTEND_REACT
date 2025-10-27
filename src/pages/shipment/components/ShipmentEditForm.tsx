@@ -927,7 +927,14 @@ const ShipmentEditForm = () => {
               ) :
                completedSteps.has(3) && (selectedRateId || previouslyChosenRate) && (
                 <div className="pb-1">
-                  <RatesSummary data={getValues()} selectedRateId={selectedRateId} previouslyChosenRate={previouslyChosenRate} onEdit={() => handleEditStep(4)} />
+                  <RatesSummary
+                    data={getValues()}
+                    selectedRateId={selectedRateId}
+                    previouslyChosenRate={previouslyChosenRate}
+                    transformedRates={transformedRates}
+                    serviceType={watch('service_options')}
+                    onEdit={() => handleEditStep(4)}
+                  />
                 </div>
               )}              
             </div>

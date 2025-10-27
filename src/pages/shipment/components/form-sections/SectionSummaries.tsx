@@ -337,8 +337,9 @@ export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & Se
   );
 };
 
-export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, onEdit }: { data: ShipmentFormData; selectedRateId: string; previouslyChosenRate?: Rate } & SectionSummaryProps) => {
-  const selectedRate = data.rates?.find(r => r.unique_id === selectedRateId);
+export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, transformedRates, serviceType, onEdit }: { data: ShipmentFormData; selectedRateId: string; previouslyChosenRate?: Rate; transformedRates?: Rate[]; serviceType?: string } & SectionSummaryProps) => {
+  // Look for selected rate in transformedRates first (newly calculated), then fall back to data.rates (form data)
+  const selectedRate = transformedRates?.find(r => r.unique_id === selectedRateId) || data.rates?.find(r => r.unique_id === selectedRateId);
 
   return (
     <Card className="m-3">
@@ -354,7 +355,9 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, onEdi
             {/* Show Selected Rate (when user recalculates) */}
             {selectedRate && (
               <div className="mb-3">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Selected Rate:</h4>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                  {serviceType?.toLowerCase() === 'normal' ? 'Cheapest Rate (Auto-selected):' : 'Selected Rate:'}
+                </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm bg-green-50 p-3 rounded border border-green-200">
                   <div><span className="text-gray-600">Carrier:</span> <span className="font-medium">{selectedRate.shipper_account_slug.toUpperCase() || '-'}</span></div>
                   <div><span className="text-gray-600">Service:</span> <span className="font-medium">{selectedRate.shipper_account_description || '-'}</span></div>
