@@ -8,7 +8,7 @@ interface SectionSummaryProps {
 
 export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & SectionSummaryProps) => {
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
+    <Card className="m-3">
       <CardBody>
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -40,12 +40,12 @@ export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
                   {data.topic || '-'} {data.topic === 'Others' && `(${data.other_topic})`} {data.topic === 'For Sales' && `(${data.sales_person})`}
                 </span>
                 <span className="text-gray-600"> | </span>
-                <span className="text-gray-600">Service: </span> 
+                <span className="text-gray-600">Service: </span>
                 <span className="font-medium">
                   {
-                    data.service_options.toLowerCase() === 'normal'    
-                    ? 'Normal (Cheapest One)'                  
-                    : 'Urgent (Choose Carrier Manually)'
+                    data.service_options.toLowerCase() === 'normal'
+                      ? 'Normal (Cheapest One)'
+                      : 'Urgent (Choose Carrier Manually)'
                   }
 
                 </span>
@@ -73,7 +73,7 @@ export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
 
 export const AddressesSummary = ({ data, onEdit }: { data: ShipmentFormData } & SectionSummaryProps) => {
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
+    <Card className="m-3">
       <CardBody>
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -132,7 +132,7 @@ export const AddressesSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
 
 export const PickupInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & SectionSummaryProps) => {
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
+    <Card className="m-3">
       <CardBody>
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -178,30 +178,128 @@ export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & Se
   const totalWeight = data.parcels?.reduce((sum, p) => sum + (parseFloat(String(p.weight_value)) || 0), 0) || 0;
 
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
+    <Card className="m-3">
       <CardBody>
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
+        <div className="flex-row justify-between items-start">
+          <div className="flex justify-between">
             <div className="flex items-center gap-2 mb-2">
               <Icon icon="solar:box-minimalistic-bold" width={20} className="text-blue-600" />
               <h3 className="font-semibold text-blue-900">Parcels & Items</h3>
               <Icon icon="solar:check-circle-bold" width={20} className="text-green-600" />
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm">
-              <div><span className="text-gray-600">Parcels:</span> <span className="font-medium">{totalParcels}</span></div>
-              <div><span className="text-gray-600">Items:</span> <span className="font-medium">{totalItems}</span></div>
-              <div><span className="text-gray-600">Total Weight:</span> <span className="font-medium">{totalWeight.toFixed(2)} kg</span></div>
-            </div>
+            <Button
+              size="sm"
+              variant="flat"
+              color="primary"
+              startContent={<Icon icon="solar:pen-linear" width={16} />}
+              onPress={onEdit}
+            >
+              Edit
+            </Button>
           </div>
-          <Button
-            size="sm"
-            variant="flat"
-            color="primary"
-            startContent={<Icon icon="solar:pen-linear" width={16} />}
-            onPress={onEdit}
-          >
-            Edit
-          </Button>
+          <div className="flex gap-4 text-sm mb-3">
+            <div><span className="text-gray-600">Parcels:</span> <span className="font-medium">{totalParcels}</span></div>
+            <div><span className="text-gray-600">Items:</span> <span className="font-medium">{totalItems}</span></div>
+            <div><span className="text-gray-600">Total Weight:</span> <span className="font-medium">{totalWeight.toFixed(2)} kg</span></div>
+          </div>
+          <details className="mt-2">
+            <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Show full details</summary>
+            <div className="mt-3">
+              {data.parcels?.map((parcel, parcelIndex) => (
+                <div key={parcelIndex} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                  <h4 className="font-semibold text-sm text-gray-900 mb-2">
+                    Parcel #{parcelIndex + 1}
+                  </h4>
+                  {/* <div className="flex gap-4 text-xs mb-3"> */}
+                  <div className="grid gap-2 text-xs mb-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                    <div>
+                      <span className="text-gray-600">Box Type: </span>
+                      <span className="font-medium">{parcel.box_type_name || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Description: </span>
+                      <span className="font-medium">{parcel.description || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Dimensions: </span>
+                      <span className="font-medium">
+                        {parcel.width} × {parcel.height} × {parcel.depth} {parcel.dimension_unit}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Net Weight: </span>
+                      <span className="font-medium">{parcel.net_weight_value || 0} {parcel.weight_unit}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Parcel Weight: </span>
+                      <span className="font-medium">{parcel.parcel_weight_value || 0} {parcel.weight_unit}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Total Weight: </span>
+                      <span className="font-medium">{parcel.weight_value} {parcel.weight_unit}</span>
+                    </div>
+                  </div>
+
+                  {parcel.parcel_items && parcel.parcel_items.length > 0 && (
+                    <div className="mt-2">
+                      <h5 className="font-semibold text-xs text-gray-700 mb-2">
+                        Items ({parcel.parcel_items.length})
+                      </h5>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-xs border-collapse border border-gray-300">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              <th className="border border-gray-300 px-2 py-1 text-left">#</th>
+                              <th className="border border-gray-300 px-2 py-1 text-left">Description</th>
+                              <th className="border border-gray-300 px-2 py-1 text-left">SKU</th>
+                              <th className="border border-gray-300 px-2 py-1 text-center">Qty</th>
+                              <th className="border border-gray-300 px-2 py-1 text-right">Price</th>
+                              <th className="border border-gray-300 px-2 py-1 text-right">Weight</th>
+                              <th className="border border-gray-300 px-2 py-1 text-center">Origin</th>
+                              <th className="border border-gray-300 px-2 py-1 text-left">HS Code</th>
+                              <th className="border border-gray-300 px-2 py-1 text-left">Material Code</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white">
+                            {parcel.parcel_items.map((item, itemIndex) => (
+                              <tr key={itemIndex} className="hover:bg-gray-50">
+                                <td className="border border-gray-300 px-2 py-1 text-gray-600">{itemIndex + 1}</td>
+                                <td className="border border-gray-300 px-2 py-1 font-medium">{item.description || '-'}</td>
+                                <td className="border border-gray-300 px-2 py-1">{item.sku || '-'}</td>
+                                <td className="border border-gray-300 px-2 py-1 text-center">{item.quantity}</td>
+                                <td className="border border-gray-300 px-2 py-1 text-right">
+                                  {item.price_amount} {item.price_currency}
+                                </td>
+                                <td className="border border-gray-300 px-2 py-1 text-right">
+                                  {item.weight_value} {item.weight_unit}
+                                </td>
+                                <td className="border border-gray-300 px-2 py-1 text-center">{item.origin_country || '-'}</td>
+                                <td className="border border-gray-300 px-2 py-1">{item.hs_code || '-'}</td>
+                                <td className="border border-gray-300 px-2 py-1">{item.material_code || '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {parcel.parcel_items.some(item => item.return_reason) && (
+                          <div className="mt-2 text-xs">
+                            <p className="font-semibold text-gray-700">Return Reasons:</p>
+                            {parcel.parcel_items.map((item, itemIndex) =>
+                              item.return_reason && (
+                                <p key={itemIndex} className="text-gray-600">
+                                  Item #{itemIndex + 1}: {item.return_reason}
+                                </p>
+                              )
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </details>
+
         </div>
       </CardBody>
     </Card>
@@ -212,7 +310,7 @@ export const RatesSummary = ({ data, selectedRateId, onEdit }: { data: ShipmentF
   const selectedRate = data.rates?.find(r => r.unique_id === selectedRateId);
 
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
+    <Card className="m-3">
       <CardBody>
         <div className="flex justify-between items-start">
           <div className="flex-1">

@@ -78,7 +78,6 @@ const ShipmentEditForm = () => {
   // Step/Section Management - Start at last step in edit mode
   const [currentStep, setCurrentStep] = useState<number>(4)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set([0, 1, 2, 3]))
-  const [returnToStep, setReturnToStep] = useState<number | null>(null)
   const [previouslyChosenRate, setPreviouslyChosenRate] = useState<any>(null)
 
   const steps = [
@@ -492,6 +491,16 @@ const ShipmentEditForm = () => {
     }
   }
 
+  // Helper function to get the highest completed step
+  const getHighestCompletedStep = (): { stepNumber: number; stepName: string } | null => {
+    if (completedSteps.size === 0) return null
+    const maxStep = Math.max(...Array.from(completedSteps))+1
+    return {
+      stepNumber: maxStep,
+      stepName: steps[maxStep]?.name || ''
+    }
+  }
+
   // Step Navigation Handlers
   const handleNextStep = async () => {
     const isValid = await trigger()
@@ -514,10 +523,11 @@ const ShipmentEditForm = () => {
 
       setCompletedSteps(prev => new Set(prev).add(currentStep))
 
-      // If we have a return step set, go back to it instead of the next sequential step
-      if (returnToStep !== null) {
-        setCurrentStep(returnToStep)
-        setReturnToStep(null)
+      // If we're editing a previous step, return to the highest completed step
+      // Otherwise, proceed to the next sequential step
+      const highestCompleted = getHighestCompletedStep()
+      if (highestCompleted && currentStep < highestCompleted.stepNumber) {
+        setCurrentStep(highestCompleted.stepNumber)
       } else {
         setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
       }
@@ -525,10 +535,11 @@ const ShipmentEditForm = () => {
   }
 
   const handlePreviousStep = () => {
-    // If we have a return step set, go back to it instead of the previous sequential step
-    if (returnToStep !== null) {
-      setCurrentStep(returnToStep)
-      setReturnToStep(null)
+    // If we're editing a previous step, return to the highest completed step
+    // Otherwise, go to the previous sequential step
+    const highestCompleted = getHighestCompletedStep()
+    if (highestCompleted && currentStep < highestCompleted.stepNumber) {
+      setCurrentStep(highestCompleted.stepNumber)
     } else {
       setCurrentStep(prev => Math.max(prev - 1, 0))
     }
@@ -540,10 +551,7 @@ const ShipmentEditForm = () => {
       return
     }
 
-    // Store the current step so we can return to it after editing
-    if (currentStep !== stepId) {
-      setReturnToStep(currentStep)
-    }
+    // Navigate to the step to edit
     setCurrentStep(stepId)
   }
 
@@ -578,7 +586,7 @@ const ShipmentEditForm = () => {
             <div className="space-y-3">
               {/* Step 0: Basic Information */}
               {currentStep === 0 ? (
-                <Card className="border-2 border-primary shadow-lg">
+                <Card className="border-2 border-primary shadow-lg m-1">
                   <CardBody className="p-6">
                     <div className="mb-4">
                       <div className="flex items-center gap-3 mb-2">
@@ -613,7 +621,12 @@ const ShipmentEditForm = () => {
                         onPress={handleNextStep}
                         endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                       >
-                        {returnToStep !== null ? `Return to Step ${returnToStep + 1}` : 'Next Step'}
+                        {(() => {
+                          const highestCompleted = getHighestCompletedStep()
+                          return highestCompleted && currentStep < highestCompleted.stepNumber
+                            ? `Return to ${highestCompleted.stepName}`
+                            : 'Next Step'
+                        })()}
                       </Button>
                     </div>
                   </CardBody>
@@ -624,7 +637,7 @@ const ShipmentEditForm = () => {
 
               {/* Step 1: Addresses */}
               {currentStep === 1 ? (
-                <Card className="border-2 border-primary shadow-lg">
+                <Card className="border-2 border-primary shadow-lg m-1">
                   <CardBody className="p-6">
                     <div className="mb-4">
                       <div className="flex items-center gap-3 mb-2">
@@ -719,7 +732,12 @@ const ShipmentEditForm = () => {
                         onPress={handleNextStep}
                         endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                       >
-                        {returnToStep !== null ? `Return to Step ${returnToStep + 1}` : 'Next Step'}
+                        {(() => {
+                          const highestCompleted = getHighestCompletedStep()
+                          return highestCompleted && currentStep < highestCompleted.stepNumber
+                            ? `Return to ${highestCompleted.stepName}`
+                            : 'Next Step'
+                        })()}
                       </Button>
                     </div>
                   </CardBody>
@@ -730,7 +748,7 @@ const ShipmentEditForm = () => {
 
               {/* Step 2: Pickup Information */}
               {currentStep === 2 ? (
-                <Card className="border-2 border-primary shadow-lg">
+                <Card className="border-2 border-primary shadow-lg m-1">
                   <CardBody className="p-6">
                     <div className="mb-4">
                       <div className="flex items-center gap-3 mb-2">
@@ -765,7 +783,12 @@ const ShipmentEditForm = () => {
                         onPress={handleNextStep}
                         endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                       >
-                        {returnToStep !== null ? `Return to Step ${returnToStep + 1}` : 'Next Step'}
+                        {(() => {
+                          const highestCompleted = getHighestCompletedStep()
+                          return highestCompleted && currentStep < highestCompleted.stepNumber
+                            ? `Return to ${highestCompleted.stepName}`
+                            : 'Next Step'
+                        })()}
                       </Button>
                     </div>
                   </CardBody>
@@ -776,7 +799,7 @@ const ShipmentEditForm = () => {
 
               {/* Step 3: Parcels & Items */}
               {currentStep === 3 ? (
-                <Card className="border-2 border-primary shadow-lg">
+                <Card className="border-2 border-primary shadow-lg m-1">
                   <CardBody className="p-6">
                     <div className="mb-4">
                       <div className="flex items-center gap-3 mb-2">
@@ -810,20 +833,27 @@ const ShipmentEditForm = () => {
                         onPress={handleNextStep}
                         endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                       >
-                        {returnToStep !== null ? `Return to Step ${returnToStep + 1}` : 'Next Step'}
+                        {(() => {
+                          const highestCompleted = getHighestCompletedStep()
+                          return highestCompleted && currentStep < highestCompleted.stepNumber
+                            ? `Return to ${highestCompleted.stepName}`
+                            : 'Next Step'
+                        })()}
                       </Button>
                     </div>
                   </CardBody>
                 </Card>
               ) : completedSteps.has(3) && (
-                <ParcelsSummary data={getValues()} onEdit={() => handleEditStep(3)} />
+                <div className="pb-1">
+                  <ParcelsSummary data={getValues()} onEdit={() => handleEditStep(3)} />
+                </div>
               )}
 
               {/* Step 4: Shipping Rates */}
               {currentStep === 4 && (
                 <>
                   {/* Rate Calculation Section */}
-                  <Card className="border-2 border-primary shadow-lg">
+                  <Card className="border-2 border-primary shadow-lg m-1">
                     <CardBody className="p-6">
                       <div className="mb-4">
                         <div className="flex items-center gap-3 mb-2">
