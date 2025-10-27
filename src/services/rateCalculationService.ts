@@ -289,7 +289,7 @@ export const calculateShippingRates = async (
     const chargeWeight = calculateChargeWeightThailandDomesticRate(formData)
 
     // Get customs terms of trade (normalized to lowercase)
-    const customsTerms = formData.customs_terms_of_trade?.toLowerCase() || ''
+    // const customsTerms = formData.customs_terms_of_trade?.toLowerCase() || ''
 
     // Only show DHL eCommerce Asia if:
     // 1. Weight is 35kg or less
