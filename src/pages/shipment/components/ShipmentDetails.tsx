@@ -537,15 +537,20 @@ const ShipmentDetails = () => {
 
   return (
     <div className="mx-auto w-full p-0 space-y-0">
-      <ActionSections
-        shipment={shipment}
-        msLoginUser={msLoginUser}
-        onDuplicateShipment={handleDuplicateShipment}
-        onOpenLogisticsModal={onLogisticsModalOpen}
-        isApproving={isApproving}
-        isRejecting={isRejecting}
-        onApprovalAction={handleApprovalAction}
-      />
+      {(
+        ( shipment.request_status !== "approver_approved" && shipment.request_status !== "approver_rejected" ) ||
+        ( msLoginUser?.email.toLowerCase() === "wawa@xenoptics.com" )
+      ) &&
+        <ActionSections
+          shipment={shipment}
+          msLoginUser={msLoginUser}
+          onDuplicateShipment={handleDuplicateShipment}
+          onOpenLogisticsModal={onLogisticsModalOpen}
+          isApproving={isApproving}
+          isRejecting={isRejecting}
+          onApprovalAction={handleApprovalAction}
+        />
+      }
       <BasicInformation shipment={shipment} />
       <LabelAndInvoiceInformation
         shipment={shipment}
