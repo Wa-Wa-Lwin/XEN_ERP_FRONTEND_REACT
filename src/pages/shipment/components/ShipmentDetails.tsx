@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure } from "@heroui/react";
+import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
 import { useNotification } from "@context/NotificationContext";
@@ -11,10 +12,12 @@ import {
   RequestHistory,
   ActionSections,
   type ShipmentGETData,
-  ActionAndBasicInformation,
+  BasicInformation,
   LabelAndInvoiceInformation,
   PickupInformation
 } from "./shipment-details";
+import { INCOTERMS, CUSTOM_PURPOSES } from '../constants/form-defaults';
+import { ISO_3_COUNTRIES } from '../constants/iso3countries';
 
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
@@ -22,7 +25,6 @@ const ShipmentDetails = () => {
   const [shipment, setShipment] = useState<ShipmentGETData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [remark, setRemark] = useState("");
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -33,6 +35,7 @@ const ShipmentDetails = () => {
   const [editCustomsTermsOfTrade, setEditCustomsTermsOfTrade] = useState("");
   const [editedParcelItems, setEditedParcelItems] = useState<any[]>([]);
   const { isOpen: isPickupModalOpen, onOpen: onPickupModalOpen, onClose: onPickupModalClose } = useDisclosure();
+  const { isOpen: isLogisticsModalOpen, onOpen: onLogisticsModalOpen, onClose: onLogisticsModalClose } = useDisclosure();
   const [pickupFormData, setPickupFormData] = useState({
     pick_up_date: "",
     pick_up_start_time: "09:00",
@@ -107,7 +110,7 @@ const ShipmentDetails = () => {
     fetchShipment();
   }, [shipmentId]);
 
-  const handleApprovalAction = async (action: 'approver_approved' | 'approver_rejected') => {
+  const handleApprovalAction = async (action: 'approver_approved' | 'approver_rejected', remarkParam?: string) => {
     if (!msLoginUser || !shipmentId) {
       showNotificationError('Missing user information or shipment ID', 'Authentication Error');
       return;
@@ -116,7 +119,10 @@ const ShipmentDetails = () => {
     const isApprove = action === 'approver_approved';
     const setLoadingState = isApprove ? setIsApproving : setIsRejecting;
 
-    if (!isApprove && !remark.trim()) {
+    // Use the remark parameter if provided, otherwise use the state remark
+    const remarkToUse = remarkParam !== undefined ? remarkParam : remark;
+
+    if (!isApprove && !remarkToUse.trim()) {
       showNotificationError('Remark is required when rejecting a shipment request.', 'Missing Remark');
       return;
     }
@@ -135,7 +141,7 @@ const ShipmentDetails = () => {
         login_user_id: user?.userID || 0,
         login_user_name: msLoginUser.name,
         login_user_mail: msLoginUser.email,
-        remark: remark.trim() || (isApprove ? "Approved" : "Rejected"),
+        remark: remarkToUse.trim() || (isApprove ? "Approved" : "Rejected"),
         send_status: action
       };
 
@@ -243,6 +249,7 @@ const ShipmentDetails = () => {
 
         if (responseData.status === 'success') {
           success('Logistics information updated successfully!', 'Success');
+          onLogisticsModalClose();
           window.location.reload();
         } else {
           showNotificationError('Failed to update logistics information. Please try again.', 'Update Failed');
@@ -530,11 +537,16 @@ const ShipmentDetails = () => {
 
   return (
     <div className="mx-auto w-full p-0 space-y-0">
-      <ActionAndBasicInformation
+      <ActionSections
         shipment={shipment}
         msLoginUser={msLoginUser}
         onDuplicateShipment={handleDuplicateShipment}
+        onOpenLogisticsModal={onLogisticsModalOpen}
+        isApproving={isApproving}
+        isRejecting={isRejecting}
+        onApprovalAction={handleApprovalAction}
       />
+      <BasicInformation shipment={shipment} />
       <LabelAndInvoiceInformation
         shipment={shipment}
         showError={showError}
@@ -564,24 +576,6 @@ const ShipmentDetails = () => {
         shipment={shipment}
         showHistory={showHistory}
         setShowHistory={setShowHistory}
-      />
-
-      <ActionSections
-        shipment={shipment}
-        msLoginUser={msLoginUser}
-        remark={remark}
-        setRemark={setRemark}
-        isApproving={isApproving}
-        isRejecting={isRejecting}
-        onApprovalAction={handleApprovalAction}
-        editCustomsPurpose={editCustomsPurpose}
-        setEditCustomsPurpose={setEditCustomsPurpose}
-        editCustomsTermsOfTrade={editCustomsTermsOfTrade}
-        setEditCustomsTermsOfTrade={setEditCustomsTermsOfTrade}
-        editedParcelItems={editedParcelItems}
-        onParcelItemUpdate={handleParcelItemUpdate}
-        isUpdatingLogistics={isUpdatingLogistics}
-        onLogisticsUpdate={handleLogisticsUpdate}
       />
 
       {/* Change Pickup DateTime Modal */}
@@ -630,6 +624,158 @@ const ShipmentDetails = () => {
               {shipment?.request_status === "approver_approved" && shipment?.pick_up_created_status === "created_failed"
                 ? "Update and Retry"
                 : "Update Pickup DateTime"}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Logistics Information Update Modal */}
+      <Modal
+        isOpen={isLogisticsModalOpen}
+        onClose={onLogisticsModalClose}
+        size="3xl"
+        scrollBehavior="inside"
+      >
+        <ModalContent>
+          <ModalHeader className="flex gap-2 items-center text-blue-900 border-b-2 border-blue-300 bg-blue-50">
+            <Icon icon="solar:box-bold-duotone" className="text-blue-600" width={28} />
+            Update Logistics Information
+          </ModalHeader>
+          <ModalBody className="py-6">
+            <div className="space-y-6">
+              {/* Info Banner */}
+              <div className="bg-blue-100 border-l-4 border-blue-600 p-4 rounded">
+                <p className="text-sm font-semibold text-blue-800 flex items-center gap-2">
+                  <Icon icon="solar:info-circle-bold" width={20} />
+                  Please update the required logistics information below. All fields marked with * are required.
+                </p>
+              </div>
+
+              {/* Customs Purpose and Incoterms */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <Select
+                  label="Customs Purpose"
+                  placeholder="Select customs purpose"
+                  selectedKeys={editCustomsPurpose ? [editCustomsPurpose] : []}
+                  onSelectionChange={(keys) => setEditCustomsPurpose(Array.from(keys)[0] as string)}
+                  size="md"
+                  variant="bordered"
+                  isRequired
+                  isInvalid={!editCustomsPurpose}
+                  errorMessage={!editCustomsPurpose ? "Customs purpose is required" : ""}
+                >
+                  {CUSTOM_PURPOSES.map((purpose) => (
+                    <SelectItem key={purpose.key} value={purpose.key}>
+                      {purpose.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+
+                <Select
+                  label="Incoterms"
+                  placeholder="Select terms of trade"
+                  selectedKeys={editCustomsTermsOfTrade ? [editCustomsTermsOfTrade] : []}
+                  onSelectionChange={(keys) => setEditCustomsTermsOfTrade(Array.from(keys)[0] as string)}
+                  size="md"
+                  variant="bordered"
+                  isRequired
+                  isInvalid={!editCustomsTermsOfTrade}
+                  errorMessage={!editCustomsTermsOfTrade ? "Terms of trade is required" : ""}
+                >
+                  {INCOTERMS.map((term) => (
+                    <SelectItem key={term.key} value={term.key}>
+                      {term.value}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Parcel Items */}
+              {editedParcelItems.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 border-b pb-2">
+                    <Icon icon="solar:box-minimalistic-bold" className="text-blue-600" width={20} />
+                    <h3 className="text-base font-bold text-gray-900">Parcel Items</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {editedParcelItems.map((item, index) => (
+                      <div key={item.id} className="border-2 border-gray-200 rounded-lg p-4 space-y-3 bg-gray-50">
+                        <div className="flex items-start gap-2 pb-2 border-b border-gray-300">
+                          <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                            {index + 1}
+                          </span>
+                          <div className="text-sm text-gray-700 flex-1">
+                            <strong className="text-gray-900">Description:</strong> {item.description}
+                          </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-3">
+                          <Input
+                            label="HS Code"
+                            value={item.hs_code || ""}
+                            onValueChange={(value) => handleParcelItemUpdate(item.id, "hs_code", value)}
+                            size="md"
+                            variant="bordered"
+                            isRequired
+                            isInvalid={!item.hs_code}
+                            errorMessage={!item.hs_code ? "HS Code is required" : ""}
+                          />
+                          <Autocomplete
+                            label="Origin Country"
+                            placeholder="Search country..."
+                            selectedKey={item.origin_country || ""}
+                            onSelectionChange={(key) => handleParcelItemUpdate(item.id, "origin_country", key as string)}
+                            size="md"
+                            variant="bordered"
+                            allowsCustomValue
+                            isRequired
+                            isInvalid={!item.origin_country}
+                            errorMessage={!item.origin_country ? "Origin country is required" : ""}
+                          >
+                            {ISO_3_COUNTRIES.map((country) => (
+                              <AutocompleteItem key={country.key} value={country.key}>
+                                {country.value}
+                              </AutocompleteItem>
+                            ))}
+                          </Autocomplete>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </ModalBody>
+          <ModalFooter className="border-t-2 border-gray-200">
+            <Button
+              variant="light"
+              onPress={onLogisticsModalClose}
+              disabled={isUpdatingLogistics}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onPress={() => {
+                // Validation before calling update
+                if (
+                  !editCustomsPurpose ||
+                  !editCustomsTermsOfTrade ||
+                  editedParcelItems.some(
+                    (item) => !item.hs_code || !item.origin_country
+                  )
+                ) {
+                  alert("⚠️ Please fill all required fields before updating.");
+                  return;
+                }
+                handleLogisticsUpdate();
+              }}
+              isLoading={isUpdatingLogistics}
+              disabled={isUpdatingLogistics}
+              size="md"
+              className="font-bold"
+              startContent={<Icon icon="solar:diskette-bold" width={20} />}
+            >
+              {isUpdatingLogistics ? "Updating..." : "Save Changes"}
             </Button>
           </ModalFooter>
         </ModalContent>

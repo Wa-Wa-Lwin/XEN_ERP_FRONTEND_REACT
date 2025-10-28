@@ -8,7 +8,10 @@
       "Bash(npm run lint:*)",
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(dir \"C:\\Code\\xeno-shipment\\src\\pages\\shipment\\components\\shipment-details\")",
+      "Bash(findstr:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []
