@@ -163,6 +163,7 @@ const LabelAndInvoiceInformation = ({
     </>;
 
     const label_failed_data = <>
+    <div>
         <Button
             color="primary"
             size="sm"
@@ -171,7 +172,10 @@ const LabelAndInvoiceInformation = ({
         >
             Retry Create Label
         </Button>
-        <b>Details:</b> {formattedLabelError} {formattedError}
+        <p className="text-blue-600 text-xs font-semibold bg-blue-50 p-2 rounded">
+            <b>Details:</b> {formattedLabelError} {formattedError}
+        </p>
+    </div>
     </>;
 
     return (
