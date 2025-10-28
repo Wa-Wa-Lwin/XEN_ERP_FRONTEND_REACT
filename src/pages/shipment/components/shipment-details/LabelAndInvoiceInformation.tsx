@@ -175,7 +175,7 @@ const LabelAndInvoiceInformation = ({
     </>;
 
     return (
-        <Card className="m-3 p-3 rounded-none">
+        <Card className="m-3 p-3 rounded-none shadow-light">
             <div className="flex items-center gap-2 mb-2">
                 <Icon
                     icon="solar:calendar-bold"

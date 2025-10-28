@@ -1,4 +1,4 @@
-import { Card, CardBody, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react';
+import { Card, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import type { ShipmentGETData } from './types';
 
@@ -12,47 +12,45 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
   }
 
   return (
-    <Card className="m-3">
-      <CardBody>
-        <div className="flex items-center gap-2 mb-4">
-          <Icon icon="solar:box-minimalistic-bold" width={24} className="text-blue-600" />
-          <h3 className="font-semibold text-blue-900 text-lg">
-            Parcels & Items ({shipment.parcels.length})
-          </h3>
-        </div>
-        <Table shadow="none" aria-label="Parcels Table" removeWrapper>
-          <TableHeader>
-            <TableColumn>No.</TableColumn>
-            <TableColumn>Description</TableColumn>
-            <TableColumn>Box Type</TableColumn>
-            <TableColumn>Dimensions LWH ({shipment.parcels[0].dimension_unit})</TableColumn>
-            <TableColumn>Weight ({shipment.parcels[0].weight_unit})</TableColumn>
-            <TableColumn>Items</TableColumn>
-          </TableHeader>
-          <TableBody>
-            {shipment.parcels.map((parcel: any, idx: number) => (
-              <TableRow key={idx}>
-                <TableCell>{idx + 1}</TableCell>
-                <TableCell>{parcel.description}</TableCell>
-                <TableCell>{parcel.box_type_name || 'N/A'}</TableCell>
-                <TableCell>{Math.floor(parseFloat(parcel.depth) || 0)} × {Math.floor(parseFloat(parcel.height) || 0)} × {Math.floor(parseFloat(parcel.width) || 0)}</TableCell>
-                <TableCell>{parseFloat(parcel.weight_value) || 0}</TableCell>
-                <TableCell>
-                  {parcel.items?.length > 0 ? (
-                    <ul className="list-disc list-inside text-sm space-y-1">
-                      {parcel.items.map((item: any, i: number) => (
-                        <li key={i}>
-                          <strong>Mat Code:</strong> {item.material_code || 'N/A'} | <strong>SKU:</strong> {item.sku || 'N/A'} | <strong>Description:</strong> {item.description} | <strong>Price:</strong> {parseFloat(item.price_amount) || 0} {item.price_currency} | <strong>Qty:</strong> {parseInt(item.quantity) || 1} pcs | <strong>Weight:</strong> {(parseFloat(item.weight_value) || 0).toFixed(5)} {item.weight_unit} | <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : <span className="text-gray-400">No items</span>}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardBody>
+    <Card className="m-3 p-3 rounded-none shadow-light">
+      <div className="flex items-center gap-2 mb-4">
+        <Icon icon="solar:box-minimalistic-bold" width={24} className="text-blue-600" />
+        <h3 className="font-semibold text-blue-900">
+          Parcels & Items ({shipment.parcels.length})
+        </h3>
+      </div>
+      <Table shadow="none" aria-label="Parcels Table" removeWrapper>
+        <TableHeader>
+          <TableColumn>No.</TableColumn>
+          <TableColumn>Description</TableColumn>
+          <TableColumn>Box Type</TableColumn>
+          <TableColumn>Dimensions LWH ({shipment.parcels[0].dimension_unit})</TableColumn>
+          <TableColumn>Weight ({shipment.parcels[0].weight_unit})</TableColumn>
+          <TableColumn>Items</TableColumn>
+        </TableHeader>
+        <TableBody>
+          {shipment.parcels.map((parcel: any, idx: number) => (
+            <TableRow key={idx}>
+              <TableCell className="text-xs">{idx + 1}</TableCell>
+              <TableCell className="text-xs">{parcel.description}</TableCell>
+              <TableCell className="text-xs">{parcel.box_type_name || 'N/A'}</TableCell>
+              <TableCell className="text-xs">{Math.floor(parseFloat(parcel.depth) || 0)} × {Math.floor(parseFloat(parcel.height) || 0)} × {Math.floor(parseFloat(parcel.width) || 0)}</TableCell>
+              <TableCell className="text-xs">{parseFloat(parcel.weight_value) || 0}</TableCell>
+              <TableCell className="text-xs">
+                {parcel.items?.length > 0 ? (
+                  <ul className="list-disc list-inside text-xs space-y-1">
+                    {parcel.items.map((item: any, i: number) => (
+                      <li key={i}>
+                        <strong>Mat Code:</strong> {item.material_code || 'N/A'} | <strong>SKU:</strong> {item.sku || 'N/A'} | <strong>Description:</strong> {item.description} | <strong>Price:</strong> {parseFloat(item.price_amount) || 0} {item.price_currency} | <strong>Qty:</strong> {parseInt(item.quantity) || 1} pcs | <strong>Weight:</strong> {(parseFloat(item.weight_value) || 0).toFixed(5)} {item.weight_unit} | <strong>HS CODE:</strong> {item.hs_code || 'N/A'} | <strong>Origin:</strong> {item.origin_country}
+                      </li>
+                    ))}
+                  </ul>
+                ) : <span className="text-gray-400">No items</span>}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </Card>
   );
 };

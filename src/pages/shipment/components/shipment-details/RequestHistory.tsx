@@ -12,7 +12,7 @@ interface RequestHistoryProps {
 const RequestHistory = ({ shipment, showHistory, setShowHistory }: RequestHistoryProps) => {
   return (
     <section className="space-y-1">
-      <div className="flex justify-left gap-6 items-center mb-0">
+      <div className="flex justify-left gap-6 items-center mx-3 p-3">
         <h2 className="text-base font-semibold">Request History</h2>
         <Button
           color="primary"

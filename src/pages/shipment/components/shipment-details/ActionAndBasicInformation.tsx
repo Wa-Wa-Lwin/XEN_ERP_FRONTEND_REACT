@@ -30,7 +30,7 @@ const ActionAndBasicInformation = ({
   return (
     <>
       {/* Action Section */}
-      <Card className="m-3 p-3 rounded-none">
+      <Card className="m-3 p-3 rounded-none shadow-light">
         <div className="flex-1 flex items-center gap-2">
           <Icon icon="solar:box-bold" width={20} className="text-blue-600" />
           <h3 className="font-semibold text-blue-900">Action</h3>
@@ -63,7 +63,7 @@ const ActionAndBasicInformation = ({
       </Card>
 
       {/* Basic Information Section */}
-      <Card className="m-3 p-3 rounded-none">
+      <Card className="m-3 p-3 rounded-none border-light">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <Icon icon="solar:box-bold" width={20} className="text-blue-600" />

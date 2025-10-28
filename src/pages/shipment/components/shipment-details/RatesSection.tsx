@@ -134,7 +134,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
   }
 
   return (
-    <Card className="m-3 p-3 rounded-none">
+    <Card className="m-3 p-3 rounded-none shadow-light">
       <div className="flex justify-left gap-3 items-center mb-1">
         <div className="flex items-center gap-2">
           <Icon icon="solar:dollar-bold" width={24} className="text-blue-600" />
