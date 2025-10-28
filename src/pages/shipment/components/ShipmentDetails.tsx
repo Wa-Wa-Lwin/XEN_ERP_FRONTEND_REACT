@@ -656,44 +656,46 @@ const ShipmentDetails = () => {
                 </p>
               </div>
 
-              {/* Customs Purpose and Incoterms */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <Select
-                  label="Customs Purpose"
-                  placeholder="Select customs purpose"
-                  selectedKeys={editCustomsPurpose ? [editCustomsPurpose] : []}
-                  onSelectionChange={(keys) => setEditCustomsPurpose(Array.from(keys)[0] as string)}
-                  size="md"
-                  variant="bordered"
-                  isRequired
-                  isInvalid={!editCustomsPurpose}
-                  errorMessage={!editCustomsPurpose ? "Customs purpose is required" : ""}
-                >
-                  {CUSTOM_PURPOSES.map((purpose) => (
-                    <SelectItem key={purpose.key} value={purpose.key}>
-                      {purpose.label}
-                    </SelectItem>
-                  ))}
-                </Select>
+              {/* Customs Purpose and Incoterms - Only for non-domestic shipments */}
+              {shipment?.shipment_scope_type?.toLowerCase() !== 'domestic' && (
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Select
+                    label="Customs Purpose"
+                    placeholder="Select customs purpose"
+                    selectedKeys={editCustomsPurpose ? [editCustomsPurpose] : []}
+                    onSelectionChange={(keys) => setEditCustomsPurpose(Array.from(keys)[0] as string)}
+                    size="md"
+                    variant="bordered"
+                    isRequired
+                    isInvalid={!editCustomsPurpose}
+                    errorMessage={!editCustomsPurpose ? "Customs purpose is required" : ""}
+                  >
+                    {CUSTOM_PURPOSES.map((purpose) => (
+                      <SelectItem key={purpose.key} value={purpose.key}>
+                        {purpose.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
 
-                <Select
-                  label="Incoterms"
-                  placeholder="Select terms of trade"
-                  selectedKeys={editCustomsTermsOfTrade ? [editCustomsTermsOfTrade] : []}
-                  onSelectionChange={(keys) => setEditCustomsTermsOfTrade(Array.from(keys)[0] as string)}
-                  size="md"
-                  variant="bordered"
-                  isRequired
-                  isInvalid={!editCustomsTermsOfTrade}
-                  errorMessage={!editCustomsTermsOfTrade ? "Terms of trade is required" : ""}
-                >
-                  {INCOTERMS.map((term) => (
-                    <SelectItem key={term.key} value={term.key}>
-                      {term.value}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </div>
+                  <Select
+                    label="Incoterms"
+                    placeholder="Select terms of trade"
+                    selectedKeys={editCustomsTermsOfTrade ? [editCustomsTermsOfTrade] : []}
+                    onSelectionChange={(keys) => setEditCustomsTermsOfTrade(Array.from(keys)[0] as string)}
+                    size="md"
+                    variant="bordered"
+                    isRequired
+                    isInvalid={!editCustomsTermsOfTrade}
+                    errorMessage={!editCustomsTermsOfTrade ? "Terms of trade is required" : ""}
+                  >
+                    {INCOTERMS.map((term) => (
+                      <SelectItem key={term.key} value={term.key}>
+                        {term.value}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              )}
 
               {/* Parcel Items */}
               {editedParcelItems.length > 0 && (
@@ -762,16 +764,20 @@ const ShipmentDetails = () => {
               color="primary"
               onPress={() => {
                 // Validation before calling update
-                if (
-                  !editCustomsPurpose ||
-                  !editCustomsTermsOfTrade ||
-                  editedParcelItems.some(
-                    (item) => !item.hs_code || !item.origin_country
-                  )
-                ) {
-                  alert("⚠️ Please fill all required fields before updating.");
+                const isDomestic = shipment?.shipment_scope_type?.toLowerCase() === 'domestic';
+
+                // For non-domestic shipments, validate customs fields
+                if (!isDomestic && (!editCustomsPurpose || !editCustomsTermsOfTrade)) {
+                  alert("⚠️ Please fill customs purpose and incoterms before updating.");
                   return;
                 }
+
+                // Always validate parcel items
+                if (editedParcelItems.some((item) => !item.hs_code || !item.origin_country)) {
+                  alert("⚠️ Please fill HS Code and Origin Country for all items.");
+                  return;
+                }
+
                 handleLogisticsUpdate();
               }}
               isLoading={isUpdatingLogistics}

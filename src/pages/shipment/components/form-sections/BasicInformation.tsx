@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem } from '@heroui/react'
 import { Controller } from 'react-hook-form'
-import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS } from '../../constants/form-defaults'
+import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS, INCOTERMS, CUSTOM_PURPOSES } from '../../constants/form-defaults'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { useState, useEffect } from 'react'
 
@@ -28,6 +28,9 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
   const serviceOptionsValue = watch('service_options');
   const salesPersonValue = watch('sales_person');
   const shipmentScopeValue = watch('shipment_scope_type');
+  // const sendToValue = watch('send_to');
+  const customsPurposeValue = watch('customs_purpose');
+  const customsTermsValue = watch('customs_terms_of_trade');
 
   // Update local state when form values change (for duplicated data)
   useEffect(() => {
@@ -57,8 +60,16 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
     }
   }, [sendTo]);
 
-  // Helper function to determine if a field should be required based on send_to value
+  // Helper function to determine if a field should be required based on send_to value and shipment scope
   const isFieldRequired = (fieldName?: string) => {
+    // For domestic shipments, customs fields are never required
+    if (shipmentScopeValue?.toLowerCase() === 'domestic') {
+      const domesticNotRequiredFields = ['customs_purpose', 'customs_terms_of_trade'];
+      if (fieldName && domesticNotRequiredFields.includes(fieldName)) {
+        return false;
+      }
+    }
+
     if (sendTo === 'Logistic') {
       // For logistics, only customs purpose and incoterms are not required
       const logisticNotRequiredFields = ['customs_purpose', 'customs_terms_of_trade'];
@@ -304,75 +315,77 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             color={!watch('po_date') ? "warning" : "default"}
           />
 
+          {/* Only show customs fields for non-domestic shipments */}
+          {shipmentScopeValue?.toLowerCase() !== 'domestic' && shipmentScopeValue?.toLowerCase() !== '' && (
+            <>
+              <Controller
+                name="customs_purpose"
+                control={control}
+                defaultValue="sample"
+                rules={isFieldRequired('customs_purpose') ? { required: "Customs purpose is required" } : undefined}
+                render={({ field }) => (
+                  <Select
+                    isRequired={isFieldRequired('customs_purpose')}
+                    {...field}
+                    label={<span>Customs Purpose</span>}
+                    placeholder="Select"
+                    errorMessage={errors.customs_purpose?.message}
+                    isInvalid={!!errors.customs_purpose}
+                    selectedKeys={customsPurposeValue ? [customsPurposeValue] : field.value ? [field.value] : []}
+                    onSelectionChange={(keys) => {
+                      const selectedKey = Array.from(keys)[0] as string
+                      if (selectedKey) field.onChange(selectedKey)
+                    }}
+                    color={!watch('customs_purpose') ? "warning" : "default"}
+                  >
+                    {CUSTOM_PURPOSES.map((option) => (
+                      <SelectItem key={option.key} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              <Controller
+                name="customs_terms_of_trade"
+                control={control}
+                defaultValue="exw"
+                rules={isFieldRequired('customs_terms_of_trade') ? { required: "Incoterms is required" } : undefined}
+                render={({ field }) => (
+                  <Select
+                    isRequired={isFieldRequired('customs_terms_of_trade')}
+                    {...field}
+                    label={<span>Incoterms</span>}
+                    placeholder="Select"
+                    errorMessage={errors.customs_terms_of_trade?.message}
+                    isInvalid={!!errors.customs_terms_of_trade}
+                    selectedKeys={customsTermsValue ? [customsTermsValue] : field.value ? [field.value] : []}
+                    onSelectionChange={(keys) => {
+                      const selectedKey = Array.from(keys)[0] as string
+                      if (selectedKey) {
+                        field.onChange(selectedKey)
+                        setSelectedServiceOptions(new Set([selectedKey]))
+                        // Clear rates since service option changed
+                        if (onClearRates) {
+                          console.log('customs_terms_of_trade changed, clearing rates...')
+                          onClearRates()
+                        }
+                      }
+                    }}
+                    color={!watch('customs_terms_of_trade') ? "warning" : "default"}
+                  >
+                    {INCOTERMS.map((option) => (
+                      <SelectItem key={option.key} value={option.value}>
+                        {option.value}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </>
+          )}
 
           {/* <Controller
-            name="customs_purpose"
-            control={control}
-            defaultValue="sample"
-            rules={isFieldRequired('customs_purpose') ? { required: "Customs purpose is required" } : undefined}
-            render={({ field }) => (
-              <Select
-                isRequired={isFieldRequired('customs_purpose')}
-                {...field}
-                label={<span>Customs Purpose</span>}
-                placeholder="Select"
-                errorMessage={errors.customs_purpose?.message}
-                isInvalid={!!errors.customs_purpose}
-                selectedKeys={customsPurposeValue ? [customsPurposeValue] : field.value ? [field.value] : []}
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys)[0] as string
-                  if (selectedKey) field.onChange(selectedKey)
-                }}
-                color={!watch('customs_purpose') ? "warning" : "default"}
-              >
-                {CUSTOM_PURPOSES.map((option) => (
-                  <SelectItem key={option.key} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </Select>
-            )}
-          />
-
-          <Controller
-            name="customs_terms_of_trade"
-            control={control}
-            defaultValue="exw"
-            rules={isFieldRequired('customs_terms_of_trade') ? { required: "Incoterms is required" } : undefined}
-            render={({ field }) => (
-              <Select
-                isRequired={isFieldRequired('customs_terms_of_trade')}
-                {...field}
-                label={<span>Incoterms</span>}
-                placeholder="Select"
-                errorMessage={errors.customs_terms_of_trade?.message}
-                isInvalid={!!errors.customs_terms_of_trade}
-                selectedKeys={customsTermsValue ? [customsTermsValue] : field.value ? [field.value] : []}
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys)[0] as string
-                  if (selectedKey) {
-                    field.onChange(selectedKey)
-                    setSelectedServiceOptions(new Set([selectedKey]))
-                    // Clear rates since service option changed
-                    if (onClearRates) {
-                      console.log('customs_terms_of_trade changed, clearing rates...')
-                      onClearRates()
-                    }
-                  }
-                }}
-                color={!watch('customs_terms_of_trade') ? "warning" : "default"}
-              >
-                {INCOTERMS.map((option) => (
-                  <SelectItem key={option.key} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </Select>
-
-            )}
-          />
-
-          <Controller
             name="payment_terms"
             control={control}
             rules={isFieldRequired('payment_terms') ? { required: "Payment terms is required" } : undefined}
@@ -428,8 +441,3 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
 }
 
 export default BasicInformation
-
-//    <Card className="p-1 m-1">
-//  <Card className="pt-2 pb-2 px-4 m-0">
-//   <Card shadow="none" className="pt-2 pb-0 px-4 m-0">
-// <Card shadow="none" className="p-1 m-1 border-b border-gray-300">

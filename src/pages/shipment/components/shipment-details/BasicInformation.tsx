@@ -78,14 +78,19 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
             <span className="text-gray-600"> | Created: </span>
             <span className="font-medium">{formatDateTime(shipment.created_date_time) || '-'}</span>
           </div>
-          <div>
-            <span className="text-gray-600"> | Customs Purpose: </span>
-            <span className="font-medium">{shipment.customs_purpose || '-'}</span>
-          </div>
-          <div>
-            <span className="text-gray-600"> | Incoterms: </span>
-            <span className="font-medium">{shipment.customs_terms_of_trade || '-'}</span>
-          </div>
+          {/* Only show customs fields for non-domestic shipments */}
+          {shipment.shipment_scope_type?.toLowerCase() !== 'domestic' && (
+            <>
+              <div>
+                <span className="text-gray-600"> | Customs Purpose: </span>
+                <span className="font-medium">{shipment.customs_purpose || '-'}</span>
+              </div>
+              <div>
+                <span className="text-gray-600"> | Incoterms: </span>
+                <span className="font-medium">{shipment.customs_terms_of_trade || '-'}</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </Card>

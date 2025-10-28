@@ -44,15 +44,27 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
           <p>
             <h3 className="text-lg font-medium">Basic Information</h3>
             <b>Topic - </b> {formData.topic || 'Not specified'} <br />
-            <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
-            <b>Custom Purpose - </b> {formData.customs_purpose?.toLocaleUpperCase() || 'Not specified'} <br />
-            <b>Incoterms - </b> {formData.customs_terms_of_trade?.toLocaleUpperCase() || 'Not specified'} <br />
-            <b>Payment Terms - </b> {formData.payment_terms?.toLocaleUpperCase() || 'Not specified'} <br />
             {formData.topic === 'For Sales' && (
               <>
                 <b>Sales Person - </b> {formData.sales_person || 'Not specified'} <br />
               </>
             )}
+            {formData.topic === 'Others' && (
+              <>
+                <b>Other Reason - </b> {formData.other_topic || 'Not specified'} <br />
+              </>
+            )}
+            <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
+            <b>PO Date - </b> {formData.po_date.slice(0, 10) || 'Not specified'} ({new Date(formData.po_date).toLocaleDateString('en-US', { weekday: 'short' })}) <br />
+            {
+              formData?.shipment_scope_type.toLowerCase() !== "domestic" && 
+              <>
+                <b>Custom Purpose - </b> {formData.customs_purpose?.toLocaleUpperCase() || 'Not specified'} <br />
+                <b>Incoterms - </b> {formData.customs_terms_of_trade?.toLocaleUpperCase() || 'Not specified'} <br />
+              </>
+            }
+            
+            <b>Payment Terms - </b> {formData.payment_terms?.toLocaleUpperCase() || 'Not specified'} <br />
           </p>
           <hr />
 
