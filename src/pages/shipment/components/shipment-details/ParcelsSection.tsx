@@ -12,7 +12,7 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
   }
 
   return (
-    <Card className="m-3 p-3 rounded-none shadow-light">
+    <Card className="p-3 rounded-none shadow-light">
       <div className="flex items-center gap-2 mb-4">
         <Icon icon="solar:box-minimalistic-bold" width={24} className="text-blue-600" />
         <h3 className="font-semibold text-blue-900">

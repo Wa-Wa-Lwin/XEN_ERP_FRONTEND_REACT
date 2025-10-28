@@ -536,7 +536,7 @@ const ShipmentDetails = () => {
   }
 
   return (
-    <div className="mx-auto w-full p-0 space-y-0">
+    <div className="mx-auto w-full p-3 space-y-1">
       {(
         ( shipment.request_status !== "approver_approved" && shipment.request_status !== "approver_rejected" ) ||
         ( msLoginUser?.email.toLowerCase() === "wawa@xenoptics.com" )
