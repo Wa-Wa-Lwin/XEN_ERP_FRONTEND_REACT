@@ -71,7 +71,7 @@ const LabelAndInvoiceInformation = ({
                 <span className="text-gray-600"> | Invoice Due Date: </span>
                 <span className="font-medium">{shipment.invoice_due_date}</span>
             </div>
-            <div>
+            <div className="flex justify-left gap-1 items-center">
                 <Button
                     color="primary"
                     size="sm"
