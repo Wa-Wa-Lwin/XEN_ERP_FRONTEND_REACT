@@ -5,13 +5,15 @@ import axios from "axios";
 import { useAuth } from "@context/AuthContext";
 import { useNotification } from "@context/NotificationContext";
 import {
-  BasicInformation,
   AddressInformation,
   RatesSection,
   ParcelsSection,
   RequestHistory,
   ActionSections,
-  type ShipmentGETData
+  type ShipmentGETData,
+  ActionAndBasicInformation,
+  LabelAndInvoiceInformation,
+  PickupInformation
 } from "./shipment-details";
 
 const ShipmentDetails = () => {
@@ -528,19 +530,23 @@ const ShipmentDetails = () => {
 
   return (
     <div className="mx-auto w-full p-0 space-y-0">
-      <BasicInformation
+      <ActionAndBasicInformation
         shipment={shipment}
-        showHistory={showHistory}
-        setShowHistory={setShowHistory}
         msLoginUser={msLoginUser}
         onDuplicateShipment={handleDuplicateShipment}
+      />
+      <LabelAndInvoiceInformation
+        shipment={shipment}
         showError={showError}
         setShowError={setShowError}
         onCreateLabel={handleCreateLabel}
-        onCreatePickup={handleCreatePickup}
-        onChangePickupDateTime={handleOpenPickupModal}
         formattedError={formattedError}
         formattedLabelError={formattedLabelError}
+      />
+      <PickupInformation
+        shipment={shipment}
+        onCreatePickup={handleCreatePickup}
+        onChangePickupDateTime={handleOpenPickupModal}
         formattedPickupError={formattedPickupError}
       />
 
