@@ -82,7 +82,7 @@ const ShipmentDetails = () => {
         pick_up_date: shipmentData.pick_up_date || "",
         pick_up_start_time: convertToInputTime(shipmentData.pick_up_start_time) || "09:00",
         pick_up_end_time: convertToInputTime(shipmentData.pick_up_end_time) || "16:00",
-        pick_up_instructions: shipmentData.pick_up_instructions || ""
+        pick_up_instructions: shipmentData.pick_up_instructions || "Not Specified."
       });
 
       const allItems: any[] = [];
@@ -119,8 +119,8 @@ const ShipmentDetails = () => {
     const isApprove = action === 'approver_approved';
     const setLoadingState = isApprove ? setIsApproving : setIsRejecting;
 
-    // Use the remark parameter if provided, otherwise use the state remark
-    const remarkToUse = remarkParam !== undefined ? remarkParam : remark;
+    // Use the remark parameter (provided by ActionSections for rejections)
+    const remarkToUse = remarkParam || "";
 
     if (!isApprove && !remarkToUse.trim()) {
       showNotificationError('Remark is required when rejecting a shipment request.', 'Missing Remark');
