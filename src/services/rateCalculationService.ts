@@ -1,5 +1,20 @@
 import axios from 'axios'
 
+// Interface for DHL eCommerce rate slab
+interface DHLEcommerceRateSlab {
+  dhlEcommerceDomesticRateListID: number
+  min_weight_kg: string
+  max_weight_kg: string
+  bkk_charge_thb: string
+  upc_charge_thb: string
+}
+
+// Interface for DHL eCommerce rate list API response
+interface DHLEcommerceRateListResponse {
+  data: DHLEcommerceRateSlab[]
+  count: number
+}
+
 export interface RateCalculationFormData {
   ship_from_contact_name: string
   ship_from_company_name: string
@@ -189,6 +204,47 @@ const transformRatesForShipmentForm = (apiRates: ShippingRate[]) => {
 }
 
 /**
+ * Fetch DHL eCommerce domestic rate list from API
+ */
+const fetchDHLEcommerceRateList = async (): Promise<DHLEcommerceRateSlab[]> => {
+  try {
+    const apiUrl = import.meta.env.VITE_APP_GET_ALL_DHL_ECOMMERCE_DOMESTIC_RATE_LIST
+    if (!apiUrl) {
+      console.error('DHL eCommerce rate list API URL not configured')
+      return []
+    }
+
+    const response = await axios.get<DHLEcommerceRateListResponse>(apiUrl)
+    return response.data?.data || []
+  } catch (error) {
+    console.error('Failed to fetch DHL eCommerce rate list:', error)
+    return []
+  }
+}
+
+/**
+ * Find the appropriate rate based on weight
+ * Always uses upc_charge_thb (Upcountry rate) for all domestic shipments
+ */
+const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[]): number => {
+  // Find the rate slab that matches the weight
+  const rateSlab = rateSlabs.find(slab => {
+    const minWeight = parseFloat(slab.min_weight_kg)
+    const maxWeight = parseFloat(slab.max_weight_kg)
+    return weight >= minWeight && weight <= maxWeight
+  })
+
+  if (!rateSlab) {
+    console.warn(`No rate slab found for weight ${weight}kg`)
+    return 62 // Fallback to default rate
+  }
+
+  // Always use Upcountry rate for all domestic shipments
+  const rate = parseFloat(rateSlab.upc_charge_thb)
+  return rate
+}
+
+/**
  * Calculate total charge weight from parcels
  */
 const calculateChargeWeightThailandDomesticRate = (formData: RateCalculationFormData): number => {
@@ -204,13 +260,10 @@ const calculateChargeWeightThailandDomesticRate = (formData: RateCalculationForm
 
 /**
  * Create manual domestic rate for Thailand
- * Rate is 62 THB per kg
+ * @param chargeWeight - Weight in kg
+ * @param totalAmount - Calculated total amount in THB
  */
-const createThailandDomesticRate = (chargeWeight: number): ShippingRate => {
-  // const ratePerKg = 62
-  // const totalAmount = ratePerKg * chargeWeight
-  const totalAmount = 62
-
+const createThailandDomesticRate = (chargeWeight: number, totalAmount: number): ShippingRate => {
   return {
     shipper_account: {
       id: "fb842bff60154a2f8c84584a74d0cf69",
@@ -288,15 +341,7 @@ export const calculateShippingRates = async (
     // Calculate total weight first
     const chargeWeight = calculateChargeWeightThailandDomesticRate(formData)
 
-    // Get customs terms of trade (normalized to lowercase)
-    // const customsTerms = formData.customs_terms_of_trade?.toLowerCase() || ''
-
-    // Only show DHL eCommerce Asia if:
-    // 1. Weight is 35kg or less
-    // 2. Customs terms of trade is DDU or DDP
-    // const isValidCustomsTerms = customsTerms === 'ddu' || customsTerms === 'ddp'
-
-    // if (chargeWeight <= 35 && isValidCustomsTerms) {
+    // Only show DHL eCommerce Asia if weight is 35kg or less
     if (chargeWeight <= 35) {
       // Check if DHL eCommerce Asia rate already exists
       const hasDHLRate = apiRates.some((rate: ShippingRate) =>
@@ -305,17 +350,24 @@ export const calculateShippingRates = async (
 
       // Only add manual rate if DHL eCommerce Asia is not in the response
       if (!hasDHLRate) {
-        const manualRate = createThailandDomesticRate(chargeWeight)
+        // Fetch DHL eCommerce rate list
+        const rateSlabs = await fetchDHLEcommerceRateList()
+
+        // Calculate the rate based on weight (always uses Upcountry rate)
+        let totalAmount = 62 // Default fallback
+        if (rateSlabs.length > 0) {
+          totalAmount = findRateByWeight(chargeWeight, rateSlabs)
+          console.log(`DHL eCommerce Asia rate for ${chargeWeight}kg: ${totalAmount} THB (Upcountry rate)`)
+        } else {
+          console.warn('Failed to fetch DHL eCommerce rate list, using fallback rate of 62 THB')
+        }
+
+        const manualRate = createThailandDomesticRate(chargeWeight, totalAmount)
         apiRates = [manualRate, ...apiRates] // Add at the beginning
         console.log('Added manual Thailand domestic rate:', manualRate)
       }
     } else {
-      if (chargeWeight > 35) {
-        console.log('Skipping DHL eCommerce Asia rate - weight exceeds 35kg:', chargeWeight)
-      }
-      // if (!isValidCustomsTerms) {
-      //   console.log('Skipping DHL eCommerce Asia rate - customs terms of trade is not DDU or DDP:', customsTerms)
-      // }
+      console.log('Skipping DHL eCommerce Asia rate - weight exceeds 35kg:', chargeWeight)
     }
   }
 
