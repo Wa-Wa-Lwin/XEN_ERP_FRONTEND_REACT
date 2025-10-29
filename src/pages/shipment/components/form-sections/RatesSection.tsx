@@ -537,6 +537,17 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   </div>
                 }
               />
+              <Tab
+                key="tnt"
+                title={
+                  <div className="flex items-center gap-2">
+                    <span>TNT</span>
+                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                      {carrierCounts.tnt || 0}
+                    </span>
+                  </div>
+                }
+              />
             </Tabs>
           </>
         )}
@@ -568,8 +579,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   />
                 </Button>
               </TableColumn>
-              <TableColumn>Total Charge</TableColumn>
-              <TableColumn>Charge Weight (kg)</TableColumn>
+              <TableColumn className="text-right">Total Charge</TableColumn>
+              <TableColumn className="text-right">Charge Weight (kg)</TableColumn>
               {/* <TableColumn>Transit Time</TableColumn> */}
               <TableColumn className="flex items-center gap-1">
                 Transit Time
@@ -641,18 +652,18 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                         rate.total_charge?.currency ?? null
                       )} THB
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       {formatCurrency(
                         rate.total_charge?.amount ?? null,
                         rate.total_charge?.currency ?? null
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       {convertWeightToKg(rate.charge_weight)}
                     </TableCell>
                     <TableCell>
                       {rate.shipper_account.description === 'DHL eCommerce Asia'
-                        ? '1-3(Working) Days'
+                        ? '1-3(Working) day(s)'
                         : rate.transit_time ? `${rate.transit_time} day(s)` : '-'}
                     </TableCell>
                     <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>

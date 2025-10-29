@@ -872,7 +872,7 @@ const ShipmentEditForm = () => {
                               <strong>{previouslyChosenRate.shipper_account_description} </strong> ({previouslyChosenRate.service_name})
                               <strong> | Amount:</strong> {previouslyChosenRate.total_charge_amount} {previouslyChosenRate.total_charge_currency}
                               <strong> | Charged Weight:</strong> {previouslyChosenRate.charge_weight_value} {previouslyChosenRate.charge_weight_unit}
-                              <strong> | Transit Time:</strong> {previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' ? '1-3(Working) Days' : `${previouslyChosenRate.transit_time} (days)`}
+                              <strong> | Transit Time:</strong> {previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' ? '1-3(Working) day(s)' : `${previouslyChosenRate.transit_time} (days)`}
                             </p>
                             {/* <details className="mt-2">
                               <summary className="cursor-pointer text-sm text-blue-600">Show full details</summary>

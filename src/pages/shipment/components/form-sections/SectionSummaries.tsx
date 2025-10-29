@@ -361,7 +361,7 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
                   <div><span className="text-gray-600">Carrier:</span> <span className="font-medium">{selectedRate.shipper_account_slug.toUpperCase() || '-'}</span></div>
                   <div><span className="text-gray-600">Service:</span> <span className="font-medium">{selectedRate.shipper_account_description || '-'}</span></div>
                   <div><span className="text-gray-600">Amount:</span> <span className="font-medium">{selectedRate.total_charge_amount} {selectedRate.total_charge_currency}</span></div>
-                  <div><span className="text-gray-600">Transit Time:</span> <span className="font-medium">{selectedRate.shipper_account_description === 'DHL eCommerce Asia' ? '1-3(Working) Days' : `${selectedRate.transit_time || '-'} days`}</span></div>
+                  <div><span className="text-gray-600">Transit Time:</span> <span className="font-medium">{selectedRate.shipper_account_description === 'DHL eCommerce Asia' ? '1-3(Working) day(s)' : `${selectedRate.transit_time || '-'} days`}</span></div>
                 </div>
               </div>
             )}
@@ -374,7 +374,7 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
                   <div><span className="text-gray-600">Carrier:</span> <span className="font-medium">{previouslyChosenRate.shipper_account_slug.toUpperCase() || '-'}</span></div>
                   <div><span className="text-gray-600">Service:</span> <span className="font-medium">{previouslyChosenRate.shipper_account_description || '-'}</span></div>
                   <div><span className="text-gray-600">Amount:</span> <span className="font-medium">{previouslyChosenRate.total_charge_amount} {previouslyChosenRate.total_charge_currency}</span></div>
-                  <div><span className="text-gray-600">Transit Time:</span> <span className="font-medium">{previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' ? '1-3(Working) Days' : `${previouslyChosenRate.transit_time || '-'} days`}</span></div>
+                  <div><span className="text-gray-600">Transit Time:</span> <span className="font-medium">{previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' ? '1-3(Working) day(s)' : `${previouslyChosenRate.transit_time || '-'} days`}</span></div>
                 </div>
               </div>
             )}
