@@ -106,7 +106,12 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                             console.log('New item added to parcel, clearing rates...')
                             onClearRates()
                         }
-                        appendItem(DEFAULT_PARCEL_ITEM)
+                            // Set default currency based on shipment scope: THB for domestic, USD otherwise
+                            const newItem = {
+                                ...DEFAULT_PARCEL_ITEM,
+                                price_currency: isDomestic ? 'THB' : 'USD'
+                            }
+                            appendItem(newItem)
                         if (onWeightChange) {
                             setTimeout(onWeightChange, 100)
                         }
@@ -399,7 +404,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         name={`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`}
                                         control={control}
                                         rules={{ required: isItemFieldRequired('price_currency') ? 'Currency is required' : false }}
-                                        defaultValue="THB"
+                                        defaultValue={isDomestic ? 'THB' : 'USD'}
                                         render={({ field }) => (
                                             <Autocomplete
                                                 {...field}
@@ -407,7 +412,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                 placeholder="Select currency"
                                                 variant="flat"
                                                 size="sm"
-                                                selectedKey={field.value || "THB"}
+                                                selectedKey={field.value || (isDomestic ? 'THB' : 'USD')}
                                                 errorMessage={errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency?.message}
                                                 isInvalid={!!errors.parcels?.[parcelIndex]?.parcel_items?.[itemIndex]?.price_currency}
                                                 onSelectionChange={(key) => {
@@ -419,7 +424,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                             onClearRates()
                                                         }
                                                     } else {
-                                                        field.onChange("THB");
+                                                        field.onChange(isDomestic ? 'THB' : 'USD');
                                                     }
                                                 }}
                                                 color={!watch(`parcels.${parcelIndex}.parcel_items.${itemIndex}.price_currency`) ? "warning" : "default"}
