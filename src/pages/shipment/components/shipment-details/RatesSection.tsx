@@ -192,7 +192,11 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                     <span className="text-sm">{rate.shipper_account_description}({rate.service_name || 'N/A'})</span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">{rate.transit_time ? `${rate.transit_time} days` : 'N/A'}</span>
+                    <span className="text-sm">
+                      {rate.shipper_account_description === 'DHL eCommerce Asia'
+                        ? '1-3(Working) Days'
+                        : rate.transit_time ? `${rate.transit_time} days` : 'N/A'}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="text-sm font-semibold text-right">

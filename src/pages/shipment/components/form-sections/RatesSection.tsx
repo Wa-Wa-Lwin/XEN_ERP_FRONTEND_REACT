@@ -650,7 +650,11 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                     <TableCell>
                       {convertWeightToKg(rate.charge_weight)}
                     </TableCell>
-                    <TableCell>{rate.transit_time ? `${rate.transit_time} day(s)` : '-'}</TableCell>
+                    <TableCell>
+                      {rate.shipper_account.description === 'DHL eCommerce Asia'
+                        ? '1-3(Working) Days'
+                        : rate.transit_time ? `${rate.transit_time} day(s)` : '-'}
+                    </TableCell>
                     <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
                     <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
                     <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
