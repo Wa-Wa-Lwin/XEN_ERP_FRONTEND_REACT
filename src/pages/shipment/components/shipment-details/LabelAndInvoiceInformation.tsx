@@ -168,11 +168,11 @@ const LabelAndInvoiceInformation = ({
             color="primary"
             size="sm"
             onPress={onCreateLabel}
-            className="px-2 py-0 text-[11px] h-auto min-h-0"
+            className="px-2 py-1 text-[12px] h-auto min-h-0"
         >
             Retry Create Label
         </Button>
-        <p className="text-blue-600 text-xs font-semibold bg-blue-50 p-2 rounded">
+        <p className="text-red-600 text-xs font-semibold bg-red-50 p-2 rounded">
             <b>Details:</b> {formattedLabelError} {formattedError}
         </p>
     </div>

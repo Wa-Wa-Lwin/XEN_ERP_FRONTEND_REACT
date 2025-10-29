@@ -612,7 +612,7 @@ const ShipmentTable = () => {
                   }
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
-                  {request.topic} ({request.po_number})
+                  {request.topic} {request.po_number && `(${request.po_number})`}
                   {/* DONT_DELETE_YET */}
                   {/* {request.topic === 'Others' && request.other_topic ? <p className="text-xs text-gray-500">
                   {request.other_topic}
