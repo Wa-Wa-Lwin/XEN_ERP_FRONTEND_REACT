@@ -284,7 +284,7 @@ const ShipmentForm = () => {
                         onClearRates={handleClearRates}
                       />
                     </div>
-                    <div className="flex justify-between items-center border-t pt-4">
+                    <div className="flex justify-left items-center border-t gap-2 pt-4">
                       <div className="flex gap-2">
                         <Button
                           variant="bordered"
@@ -447,7 +447,7 @@ const ShipmentForm = () => {
                         onClearRates={handleClearRates}
                       />
                     </div>
-                    <div className="flex justify-between items-center border-t pt-4">
+                    <div className="flex justify-left items-center border-t gap-2 pt-4">
                       <div className="flex gap-2">
                         <Button
                           variant="bordered"
@@ -497,7 +497,7 @@ const ShipmentForm = () => {
                         onClearRates={handleClearRates}
                       />
                     </div>
-                    <div className="flex justify-between items-center border-t pt-4">
+                    <div className="flex justify-left items-center border-t gap-2 pt-4">
                       <div className="flex gap-2">
                         <Button
                           variant="bordered"
@@ -552,7 +552,7 @@ const ShipmentForm = () => {
                         rateCalculationError={rateCalculationError}
                       />
                     </div>
-                    <div className="flex justify-between items-center border-t pt-4">
+                    <div className="flex justify-left items-center border-t gap-2 pt-4">
                       <div className="flex gap-2">
                         <Button
                           variant="bordered"

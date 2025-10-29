@@ -313,6 +313,8 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             isInvalid={!!errors.po_date}
             // defaultValue={new Date().toISOString().split('T')[0]}
             color={!watch('po_date') ? "warning" : "default"}
+            onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+            onFocus={(e) => (e.target as HTMLInputElement).showPicker?.()}
           />
 
           {/* Only show customs fields for non-domestic shipments */}
