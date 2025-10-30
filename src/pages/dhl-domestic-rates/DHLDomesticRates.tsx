@@ -221,14 +221,15 @@ export default function DHLDomesticRates() {
       </div>
 
       {/* Table */}
-      <div className="border rounded-lg">
+      <div className="border rounded-lg max-h-[600px] overflow-y-auto relative">
         <Table
           aria-label="DHL Domestic Rates table"
+          isHeaderSticky
           classNames={{
             wrapper: 'min-h-[400px]',
           }}
         >
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-white z-10">
             <TableColumn align="center">No.</TableColumn>
             <TableColumn>MIN WEIGHT (KG)</TableColumn>
             <TableColumn>MAX WEIGHT (KG)</TableColumn>
