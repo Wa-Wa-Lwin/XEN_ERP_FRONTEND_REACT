@@ -229,6 +229,7 @@ export default function DHLDomesticRates() {
           }}
         >
           <TableHeader>
+            <TableColumn align="center">No.</TableColumn>
             <TableColumn>MIN WEIGHT (KG)</TableColumn>
             <TableColumn>MAX WEIGHT (KG)</TableColumn>
             <TableColumn>BKK CHARGE (THB)</TableColumn>
@@ -236,7 +237,7 @@ export default function DHLDomesticRates() {
             <TableColumn align="center">ACTIONS</TableColumn>
           </TableHeader>
           <TableBody
-            items={filteredRates}
+            items={filteredRates.map((item, idx) => ({ ...item, _index: idx + 1 }))}
             isLoading={isLoading}
             loadingContent={<Spinner label="Loading rates..." />}
             emptyContent={
@@ -252,8 +253,9 @@ export default function DHLDomesticRates() {
           >
             {(item) => (
               <TableRow key={item.dhlEcommerceDomesticRateListID}>
-                <TableCell>{item.min_weight_kg} kg</TableCell>
-                <TableCell>{item.max_weight_kg} kg</TableCell>
+                <TableCell align="center">{item._index}</TableCell> 
+                <TableCell>{item.min_weight_kg != null ? Number(item.min_weight_kg).toFixed(3) : '0.000'} kg</TableCell>
+                <TableCell>{item.max_weight_kg != null ? Number(item.max_weight_kg).toFixed(3) : '0.000'} kg</TableCell>
                 <TableCell>{formatCurrency(item.bkk_charge_thb)}</TableCell>
                 <TableCell>{formatCurrency(item.upc_charge_thb)}</TableCell>
                 <TableCell>
