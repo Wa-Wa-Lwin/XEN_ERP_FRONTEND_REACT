@@ -77,14 +77,19 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
             }
 
             const basePath = `parcels.${parcelIndex}.parcel_items.${currentItemIndex}`
-            setValue(`${basePath}.description`, selectedMaterial.description || '', { shouldValidate: true, shouldDirty: true })
-            setValue(`${basePath}.sku`, selectedMaterial.sku || '', { shouldValidate: true, shouldDirty: true })
-            setValue(`${basePath}.material_code`, selectedMaterial.material_code || '', { shouldValidate: true, shouldDirty: true })
+            setValue(`${basePath}.description`, selectedMaterial.description || '', { shouldValidate: false, shouldDirty: true })
+            setValue(`${basePath}.sku`, selectedMaterial.sku || '', { shouldValidate: false, shouldDirty: true })
+            setValue(`${basePath}.material_code`, selectedMaterial.material_code || '', { shouldValidate: false, shouldDirty: true })
 
             // Remove Thai wording and any alphabets from HS code, keep only numbers and dots
             const cleanedHsCode = (selectedMaterial.hscode || '').replace(/[^\d.]/g, '')
             // If cleaned HS code is empty, use default value
-            setValue(`${basePath}.hs_code`, cleanedHsCode || '12345678', { shouldValidate: true, shouldDirty: true })
+            setValue(`${basePath}.hs_code`, cleanedHsCode || '12345678', { shouldValidate: false, shouldDirty: true })
+
+            // Trigger weight and description update
+            if (onWeightChange) {
+                setTimeout(onWeightChange, 100)
+            }
         }
         setIsModalOpen(false)
         setCurrentItemIndex(null)

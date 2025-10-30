@@ -119,11 +119,11 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
         const grossWeight = calculateGrossWeight(parcelIndex)
 
         setValue(`parcels.${parcelIndex}.net_weight_value`, netWeight.toFixed(5), {
-            shouldValidate: true,
+            shouldValidate: false,
             shouldDirty: true
         })
         setValue(`parcels.${parcelIndex}.weight_value`, grossWeight.toFixed(5), {
-            shouldValidate: true,
+            shouldValidate: false,
             shouldDirty: true
         })
 
@@ -131,18 +131,19 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
         if (!manualDescriptionParcels.has(parcelIndex)) {
             const description = generateParcelDescription(parcelIndex)
             setValue(`parcels.${parcelIndex}.description`, description, {
-                shouldValidate: true,
+                shouldValidate: false,
                 shouldDirty: true
             })
         }
     }, [calculateNetWeight, calculateGrossWeight, generateParcelDescription, setValue, manualDescriptionParcels])
 
-    // Watch for changes in item weights and quantities
+    // Watch for changes in item weights, quantities, and descriptions
     useEffect(() => {
         if (watchedParcels && Array.isArray(watchedParcels)) {
             watchedParcels.forEach((parcel: any, parcelIndex: number) => {
-                // Only update if the parcel has items
-                if (parcel && parcel.parcel_items && Array.isArray(parcel.parcel_items) && parcel.parcel_items.length > 0) {
+                // Update weights and description for all parcels
+                // This includes parcels with no items (to clear description) and parcels with items
+                if (parcel) {
                     updateWeights(parcelIndex)
                 }
             })
