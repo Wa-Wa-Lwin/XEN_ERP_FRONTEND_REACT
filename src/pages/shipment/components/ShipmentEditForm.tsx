@@ -912,7 +912,8 @@ const ShipmentEditForm = () => {
                           color="success"
                           type="submit"
                           startContent={<Icon icon="solar:check-circle-bold" width={20} />}
-                          isDisabled={!previouslyChosenRate && calculatedRates.length === 0}
+                          // isDisabled={!previouslyChosenRate && calculatedRates.length === 0}
+                          isDisabled={calculatedRates.length === 0 || !selectedRateId}
                         >
                           {calculatedRates.length === 0 && !previouslyChosenRate
                             ? 'Calculate Rates First'
