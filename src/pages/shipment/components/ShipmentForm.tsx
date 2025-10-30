@@ -226,6 +226,22 @@ const ShipmentForm = () => {
         }
       }
 
+      // Additional validation: Check parcel item weights when leaving step 3 (Parcels & Items)
+      if (currentStep === 3) {
+        const formData = getValues()
+        const weightValidation = validateWeights(formData)
+
+        if (!weightValidation.isValid) {
+          setErrorModal({
+            isOpen: true,
+            title: 'Weight Validation Failed',
+            message: 'Please fix the weight issues below before proceeding to the next step.',
+            details: weightValidation.errors
+          })
+          return
+        }
+      }
+
       setCompletedSteps(prev => new Set(prev).add(currentStep))
 
       // If we're editing a previous step, return to the highest completed step
