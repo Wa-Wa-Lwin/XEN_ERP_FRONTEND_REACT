@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MicrosoftLogin from "./components/MicrosoftLogin";
 import { useAuth } from "@context/AuthContext";
-import { useParcelItemsCache } from "@hooks/useParcelItemsCache";
+import { preloadParcelItemsCache } from "@hooks/useParcelItemsCache";
 
 export default function Component() {
   const navigate = useNavigate();
@@ -51,7 +51,8 @@ export default function Component() {
       // navigate("/overview")
       navigate("/shipment")
 
-      useParcelItemsCache();
+      // Preload parcel items cache in the background
+      preloadParcelItemsCache();
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || "Login failed. Email or Password Not Correct.");
