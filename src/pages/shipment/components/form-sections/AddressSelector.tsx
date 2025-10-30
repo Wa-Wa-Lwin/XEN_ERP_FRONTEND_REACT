@@ -125,7 +125,8 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
         (address.active ?? "").toLowerCase().includes(q) ||
         (address.created_user_name ?? "").toLowerCase().includes(q) ||
         (address.updated_user_name ?? "").toLowerCase().includes(q) ||
-        (address.eori_number ?? "").toLowerCase().includes(q)
+        (address.eori_number ?? "").toLowerCase().includes(q) ||
+        (address.bind_incoterms ?? "").toLowerCase().includes(q)
       )
       setFilteredAddresses(filtered)
     }
@@ -213,6 +214,12 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
         console.log('Setting field:', field, 'to value:', value);
         setValue(field, value, setValueOptions)
       })
+
+      // Auto-bind incoterms for ship_to address
+      if (prefix === 'ship_to' && address.bind_incoterms) {
+        console.log('Auto-binding incoterms:', address.bind_incoterms);
+        setValue('customs_terms_of_trade', address.bind_incoterms, setValueOptions)
+      }
 
       // Show success message and force form re-render
       setSelectedAddressInfo(`Address "${address.company_name}" selected and auto-filled`)
@@ -376,7 +383,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
                 // Trim on blur to clean up the field
                 const trimmedValue = e.target.value.trim();
                 if (e.target.value !== trimmedValue) {
-                  setValue(`${prefix}_email`, trimmedValue, { shouldValidate: true, shouldDirty: true });      
+                  setValue(`${prefix}_email`, trimmedValue, { shouldValidate: true, shouldDirty: true });
                 }
               }}
               isRequired={isFieldRequired('email')}
@@ -388,7 +395,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               key={`${formKey}_${prefix}_email`}
               color={!watch(`${prefix}_email`) ? "warning" : "default"}
               maxLength={255}
-              minRows={1} 
+              minRows={1}
             />
             <Controller
               key={`${formKey}_${prefix}_country`}

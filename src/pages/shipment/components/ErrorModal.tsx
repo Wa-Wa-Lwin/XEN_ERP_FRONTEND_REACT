@@ -52,9 +52,9 @@ const ErrorModal = ({ isOpen, onClose, title, message, details }: ErrorModalProp
 
     if (path.includes('parcels') && path.includes('weight')) {
       return {
-        field: 'Parcel Weight',
-        message: 'Parcel weight must be greater than 0',
-        suggestion: 'Please enter a valid weight for your parcel'
+        field: 'Parcel Item Weight',
+        message: 'Parcel Item weight must be greater than 0',
+        suggestion: 'Please enter a valid weight for your parcel items'
       }
     }
 

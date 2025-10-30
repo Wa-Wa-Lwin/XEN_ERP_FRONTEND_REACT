@@ -54,7 +54,8 @@ const AddressListDetail = () => {
     tax_id: '',
     phone1: '',
     website: '',
-    eori_number: ''
+    eori_number: '',
+    bind_incoterms: '',
   })
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({})
@@ -110,7 +111,8 @@ const AddressListDetail = () => {
       tax_id: address.tax_id || '',
       phone1: address.phone1 || '',
       website: address.website || '',
-      eori_number: address.eori_number || ''
+      eori_number: address.eori_number || '',
+      bind_incoterms: address.bind_incoterms || '',      
     })
     setValidationErrors({}) // Clear any previous validation errors
     onEditOpen()
@@ -352,6 +354,7 @@ const AddressListDetail = () => {
             <div className="space-y-1">
               <InfoRow label="Tax ID" value={address.tax_id} />
               <InfoRow label="EORI Number" value={address.eori_number} />
+              <InfoRow label="Bind Incoterms" value={address.bind_incoterms} />
             </div>
           </CardBody>
         </Card>
@@ -584,6 +587,13 @@ const AddressListDetail = () => {
                 onValueChange={(value) => setFormData({ ...formData, eori_number: value })}
                 isInvalid={!!validationErrors.eori_number}
                 errorMessage={validationErrors.eori_number?.[0]}
+              />
+              <Input
+                label="Bind Incoterms"
+                value={formData.bind_incoterms}
+                onValueChange={(value) => setFormData({ ...formData, bind_incoterms: value })}
+                isInvalid={!!validationErrors.bind_incoterms}
+                errorMessage={validationErrors.bind_incoterms?.[0]}
               />
               <Input
                 label="Full Address (Auto-generated)"

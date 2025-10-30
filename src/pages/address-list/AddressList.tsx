@@ -71,7 +71,8 @@ const AddressList = () => {
     tax_id: '',
     phone1: '',
     website: '',
-    eori_number: ''
+    eori_number: '',
+    bind_incoterms: '',
   })
 
   // Automatically generate full address from address components
@@ -243,7 +244,8 @@ const AddressList = () => {
       tax_id: '',
       phone1: '',
       website: '',
-      eori_number: ''
+      eori_number: '',
+      bind_incoterms: '',
     })
     setFormErrors({})
     onOpen()
@@ -453,6 +455,9 @@ const AddressList = () => {
                   <TableColumn className="w-32">
                     <SortableHeader columnKey="contact_name" label="CONTACT" />
                   </TableColumn>
+                  <TableColumn className="w-32">
+                    <SortableHeader columnKey="bind_incoterms" label="BIND INCOTERMS" />
+                  </TableColumn>
                   <TableColumn className="w-40">
                     <SortableHeader columnKey="phone" label="PHONE" />
                   </TableColumn>
@@ -504,6 +509,11 @@ const AddressList = () => {
                       <TableCell>
                         <span className="text-sm text-default-600">
                           {address.contact_name}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-default-600">
+                          {address.bind_incoterms?.toUpperCase() || '-'}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -686,6 +696,11 @@ const AddressList = () => {
                 label="EORI Number"
                 value={formData.eori_number}
                 onValueChange={(value) => setFormData({ ...formData, eori_number: value })}
+              />
+              <Input
+                label="Bind Incoterms"
+                value={formData.bind_incoterms}
+                onValueChange={(value) => setFormData({ ...formData, bind_incoterms: value })}
               />
               <Input
                 label="Full Address (Auto-generated)"

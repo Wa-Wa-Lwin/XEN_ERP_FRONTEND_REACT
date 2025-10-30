@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner } from '@heroui/react'
+import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner, Select, SelectItem } from '@heroui/react'
+import { Controller } from 'react-hook-form'
 import { useShipmentForm } from '../hooks/useShipmentForm'
+import { CUSTOM_PURPOSES, INCOTERMS } from '../constants/form-defaults'
 import { useShipmentRateCalculation } from '../hooks/useShipmentRateCalculation'
 import { validateCalculateRatesData, validateWeights, validateShipmentScope } from '../utils/shipment-validations'
 import {
@@ -394,6 +396,72 @@ const ShipmentForm = () => {
                             onClearRates={handleClearRates}
                           />
                         </div>
+                        <hr />
+                        {/* Customs fields - only show for international shipments */}
+                        {watch('shipment_scope_type') && watch('shipment_scope_type')?.toLowerCase() !== 'domestic' && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                            <Controller
+                              name="customs_purpose"
+                              control={control}
+                              defaultValue="sample"
+                              rules={{ required: 'Customs purpose is required for international shipments' }}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  isRequired
+                                  label={<span>Customs Purpose</span>}
+                                  placeholder="Select"
+                                  errorMessage={errors.customs_purpose?.message}
+                                  isInvalid={!!errors.customs_purpose}
+                                  selectedKeys={watch('customs_purpose') ? [watch('customs_purpose')] : field.value ? [field.value] : []}
+                                  onSelectionChange={(keys) => {
+                                    const selectedKey = Array.from(keys)[0] as string
+                                    if (selectedKey) field.onChange(selectedKey)
+                                  }}
+                                  color={!watch('customs_purpose') ? "warning" : "default"}
+                                >
+                                  {CUSTOM_PURPOSES.map((option) => (
+                                    <SelectItem key={option.key} value={option.value}>
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </Select>
+                              )}
+                            />
+                            <Controller
+                              name="customs_terms_of_trade"
+                              control={control}
+                              defaultValue="exw"
+                              rules={{ required: 'Incoterms is required for international shipments' }}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  isRequired
+                                  label={<span>Incoterms</span>}
+                                  placeholder="Select"
+                                  errorMessage={errors.customs_terms_of_trade?.message}
+                                  isInvalid={!!errors.customs_terms_of_trade}
+                                  selectedKeys={watch('customs_terms_of_trade') ? [watch('customs_terms_of_trade')] : field.value ? [field.value] : []}
+                                  onSelectionChange={(keys) => {
+                                    const selectedKey = Array.from(keys)[0] as string
+                                    if (selectedKey) {
+                                      field.onChange(selectedKey)
+                                      // Clear rates since incoterms changed
+                                      handleClearRates()
+                                    }
+                                  }}
+                                  color={!watch('customs_terms_of_trade') ? "warning" : "default"}
+                                >
+                                  {INCOTERMS.map((option) => (
+                                    <SelectItem key={option.key} value={option.value}>
+                                      {option.value}
+                                    </SelectItem>
+                                  ))}
+                                </Select>
+                              )}
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex justify-between items-center border-t pt-4">

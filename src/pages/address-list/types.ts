@@ -26,4 +26,5 @@ export interface AddressListData {
   created_user_name: string | null
   updated_user_name: string | null
   eori_number: string | null
+  bind_incoterms: string | null
 }
