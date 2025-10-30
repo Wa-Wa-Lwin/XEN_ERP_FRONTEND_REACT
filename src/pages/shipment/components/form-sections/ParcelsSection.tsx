@@ -505,7 +505,18 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                     errorMessage={errors.parcels?.[parcelIndex]?.description?.message}
                                                     isInvalid={!!errors.parcels?.[parcelIndex]?.description}
                                                     isReadOnly={!manualDescriptionParcels.has(parcelIndex)}
-                                                    className={!manualDescriptionParcels.has(parcelIndex) ? "bg-gray-50" : ""}
+                                                    //border-transparent focus:border-transparent
+                                                    classNames={{
+                                                        inputWrapper: [
+                                                            !manualDescriptionParcels.has(parcelIndex)
+                                                                ? "bg-transparent hover:bg-transparent focus:bg-transparent focus-within:bg-transparent data-[hover=true]:bg-transparent border-transparent focus:border-transparent"
+                                                                : "",
+                                                            "shadow-none",
+                                                        ].join(" "),
+                                                        input: !manualDescriptionParcels.has(parcelIndex)
+                                                            ? "text-default-700 cursor-not-allowed select-none"
+                                                            : "",
+                                                    }}
                                                     color={!watch(`parcels.${parcelIndex}.description`) ? "warning" : "default"}
                                                     endContent={
                                                         !manualDescriptionParcels.has(parcelIndex) ? (
