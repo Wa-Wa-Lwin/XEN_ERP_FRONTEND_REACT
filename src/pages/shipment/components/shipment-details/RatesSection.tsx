@@ -134,11 +134,12 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
   }
 
   return (
-    <Card className="p-3 rounded-none shadow-light">
+    // <Card className="p-3 rounded-none shadow-light">
+    <Card shadow="none">
       <div className="flex justify-left gap-3 items-center mb-1">
         <div className="flex items-center gap-2">
           <Icon icon="solar:dollar-bold" width={24} className="text-blue-600" />
-          <h3 className="font-semibold text-blue-900">Shipping Rates</h3>
+          <h3 className="font-semibold">Shipping Rates</h3>
         </div>
         {shipment.rates.length > 1 && (
           <Button

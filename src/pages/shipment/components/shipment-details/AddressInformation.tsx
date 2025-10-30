@@ -9,12 +9,13 @@ interface AddressInformationProps {
 const AddressInformation = ({ shipment }: AddressInformationProps) => {
 
   return (
-    <Card className="p-3 rounded-none shadow-light">
+    // <Card className="p-3 rounded-none shadow-light">
+    <Card shadow="none">
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <Icon icon="solar:map-point-bold" width={20} className="text-blue-600" />
-            <h3 className="font-semibold text-blue-900">Addresses</h3>
+            <h3 className="font-semibold">Addresses</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>

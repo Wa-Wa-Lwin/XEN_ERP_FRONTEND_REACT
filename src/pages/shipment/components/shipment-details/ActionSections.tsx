@@ -95,7 +95,8 @@ const ActionSections = ({
   return (
     <>
       {/* Action Section */}
-      <Card className="p-3 rounded-none shadow-light">
+      {/* <Card className="p-3 rounded-none shadow-light"> */}
+      <Card shadow="none">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 flex-wrap">
             <Icon icon="solar:box-bold" width={20} className="text-blue-600" />

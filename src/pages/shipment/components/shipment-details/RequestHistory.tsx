@@ -13,7 +13,7 @@ const RequestHistory = ({ shipment, showHistory, setShowHistory }: RequestHistor
   return (
     <section className="space-y-1">
       <div className="flex justify-left gap-6 items-center p-3">
-        <h2 className="text-base font-semibold">Request History</h2>
+        <h3 className="font-semibold">Request History</h3>
         <Button
           color="primary"
           size="sm"
@@ -61,7 +61,6 @@ const RequestHistory = ({ shipment, showHistory, setShowHistory }: RequestHistor
           </div>
         )}
 
-      <hr />
     </section>
   );
 };

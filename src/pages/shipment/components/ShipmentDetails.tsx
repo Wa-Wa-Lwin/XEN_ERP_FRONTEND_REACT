@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem, Divider } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
@@ -541,6 +541,7 @@ const ShipmentDetails = () => {
         ( shipment.request_status !== "approver_approved" && shipment.request_status !== "approver_rejected" ) ||
         ( msLoginUser?.email.toLowerCase() === "wawa@xenoptics.com" )
       ) &&
+      <>      
         <ActionSections
           shipment={shipment}
           msLoginUser={msLoginUser}
@@ -550,8 +551,11 @@ const ShipmentDetails = () => {
           isRejecting={isRejecting}
           onApprovalAction={handleApprovalAction}
         />
+        <Divider className="p-1" />
+        </>
       }
       <BasicInformation shipment={shipment} />
+      <Divider className="p-1" />
       <LabelAndInvoiceInformation
         shipment={shipment}
         showError={showError}
@@ -560,29 +564,30 @@ const ShipmentDetails = () => {
         formattedError={formattedError}
         formattedLabelError={formattedLabelError}
       />
+      <Divider className="p-1" />
       <PickupInformation
         shipment={shipment}
         onCreatePickup={handleCreatePickup}
         onChangePickupDateTime={handleOpenPickupModal}
         formattedPickupError={formattedPickupError}
       />
-
+      <Divider className="p-1" />
       <AddressInformation shipment={shipment} />
-
+      <Divider className="p-1" />
       <RatesSection
         shipment={shipment}
         showAllRates={showAllRates}
         setShowAllRates={setShowAllRates}
       />
-
+      <Divider className="p-1" />
       <ParcelsSection shipment={shipment} />
-
+      <Divider className="p-1" />
       <RequestHistory
         shipment={shipment}
         showHistory={showHistory}
         setShowHistory={setShowHistory}
       />
-
+      <Divider className="p-1" />
       {/* Change Pickup DateTime Modal */}
       <Modal isOpen={isPickupModalOpen} onClose={onPickupModalClose} size="2xl">
         <ModalContent>

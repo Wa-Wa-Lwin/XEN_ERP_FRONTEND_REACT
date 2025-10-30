@@ -92,7 +92,8 @@ const PickupInformation = ({
     </>;
 
     return (
-        <Card className="p-3 rounded-none shadow-light">
+        // <Card className="p-3 rounded-none shadow-light">
+        <Card shadow="none">
             <div className="flex items-center gap-2 mb-2">
                 <Icon
                     icon="solar:calendar-bold"
