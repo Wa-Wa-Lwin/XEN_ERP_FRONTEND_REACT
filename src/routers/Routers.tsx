@@ -29,6 +29,7 @@ import UserDetail from "@pages/user-list/UserDetail";
 import CreateUser from "@pages/user-list/CreateUser";
 import EditUser from "@pages/user-list/EditUser";
 import ShipmentForm from "@pages/shipment/components/ShipmentForm";
+import DHLDomesticRates from "@pages/dhl-domestic-rates/DHLDomesticRates";
 
 
 export const routes = [
@@ -176,6 +177,15 @@ export const routes = [
             path: ":id/edit",
             element: <EditUser />,
             handle: { breadcrumb: "Edit" }
+          },
+        ]
+      },
+      { path: "rates/dhl-domestic",
+        handle: { breadcrumb: "DHL Domestic Rates" },
+        children:[
+          {
+            path: "",
+            element: <DHLDomesticRates />,
           },
         ]
       },
