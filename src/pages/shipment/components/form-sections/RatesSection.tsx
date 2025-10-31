@@ -284,6 +284,11 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return availableRates
   }
 
+  const getErrorRates = (rates: RateResponse[]) => {
+    // Only return rates with actual errors, not just info messages
+    return rates.filter(rate => rate.error_message)
+  }
+
   // Generate unique rate ID for selection using the shared function from rateCalculationService
   const getRateUniqueId = (rate: RateResponse, _index: number) => {
     // Use the same function from rateCalculationService to ensure consistency
@@ -549,6 +554,40 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 }
               />
             </Tabs>
+
+            {/* Error Rates Section - Only show when no available rates */}
+            {sortedRates.length === 0 && getErrorRates(rates).length > 0 && (
+              <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start gap-2 mb-3">
+                  <Icon icon="solar:danger-triangle-bold" className="text-yellow-600 text-xl mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-yellow-800 text-sm">
+                      Some carriers returned errors
+                    </h3>
+                    <p className="text-yellow-700 text-xs">
+                      The following carriers could not provide rates due to validation issues:
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {getErrorRates(rates).map((rate, index) => (
+                    <div key={index} className="bg-white rounded p-3 border border-yellow-200">
+                      <div className="flex items-start gap-2">
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm text-gray-800">
+                            {rate.shipper_account.description}
+                          </div>
+                          <div className="text-red-600 text-xs mt-1">
+                            <Icon icon="solar:close-circle-bold" className="inline mr-1" />
+                            {rate.error_message}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
         {rates.length > 0 && (
@@ -608,7 +647,11 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               <TableColumn>Pickup Deadline</TableColumn>
               <TableColumn>Booking Cutoff</TableColumn>
             </TableHeader>
-            <TableBody emptyContent="No available rates found. Check or change your pick up date or expected delivery date or weight.">
+            <TableBody emptyContent={
+              getErrorRates(rates).length > 0
+                ? "No valid rates available. Please review the error messages above and correct the validation issues."
+                : "No available rates found. Check or change your pick up date or expected delivery date or weight."
+            }>
               {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
               {sortedRates.map((rate, index) => {
                 const rateUniqueId = getRateUniqueId(rate, index)
