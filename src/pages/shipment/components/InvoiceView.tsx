@@ -520,8 +520,8 @@ const InvoiceView = () => {
                     }}>
                     {isFOC ? (
                       <>
-                        <strong>Purpose of Shipment: </strong>{shipment.customs_purpose.toUpperCase()}<br /><br />
-                        <strong>Incoterm:</strong> {shipment.customs_terms_of_trade.toUpperCase()}<br /><br />
+                        <strong>Purpose of Shipment: </strong>{shipment?.customs_purpose?.toUpperCase()}<br /><br />
+                        <strong>Incoterm:</strong> {shipment?.customs_terms_of_trade?.toUpperCase()}<br /><br />
                         NO COMMERCIAL VALUE, "VALUE FOR CUSTOMS PURPOSE ONLY"<br /><br />
                         This is to certify that the above named materials are properly classified,
                         described, marked, labeled and in good order and condition for transportation.
@@ -530,7 +530,7 @@ const InvoiceView = () => {
                       <>
                         <strong>Customer PO No.</strong> {shipment.po_number}<br />
                         <strong>PO Date:</strong> {shipment.po_date}<br />
-                        <strong>Incoterm:</strong> {shipment.customs_terms_of_trade.toUpperCase()}<br /><br />
+                        <strong>Incoterm:</strong> {shipment?.customs_terms_of_trade?.toUpperCase()}<br /><br />
                         {shipment.shipment_scope_type !== 'import' && (
                           <>
                             <strong>Bank Details</strong><br />
