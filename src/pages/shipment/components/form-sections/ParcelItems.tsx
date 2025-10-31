@@ -480,6 +480,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                                 // let user type freely
                                                 onChange={(e) => {
                                                     field.onChange(e.target.value);
+                                                    // Clear rates since item weight changed
+                                                    if (onClearRates) {
+                                                        console.log('Item weight changed, clearing rates...')
+                                                        onClearRates()
+                                                    }
                                                 }}
                                                 // only format when user leaves input
                                                 onBlur={(e) => {
