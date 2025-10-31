@@ -199,6 +199,19 @@ export const sectionItems: SidebarItem[] = [
       // },
     ]
   },
+  {
+    key: "rates",
+    to: "/rates",
+    title: "Rates",
+    items: [
+      {
+        key: "dhl-domestic",
+        to: "/rates/dhl-domestic",
+        icon: "mdi:truck-delivery",
+        title: "DHL Domestic Rates",
+      },
+    ]
+  },
   // {
   //   key: "aftership",
   //   to: "/aftership",

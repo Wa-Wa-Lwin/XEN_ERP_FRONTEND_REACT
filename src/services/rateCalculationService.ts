@@ -273,24 +273,42 @@ const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[]): nu
   // Normalize and sort slabs by min weight
   const sorted = rateSlabs.slice().sort((a, b) => parseFloat(a.min_weight_kg) - parseFloat(b.min_weight_kg))
 
-  // Find the rate slab that matches the weight
-  const rateSlab = sorted.find(slab => {
-    const minWeight = parseFloat(slab.min_weight_kg)
-    const maxWeight = parseFloat(slab.max_weight_kg)
-    return weight >= minWeight && weight <= maxWeight
-  })
-
-  if (rateSlab) {
-    // Always use Upcountry rate for all domestic shipments
-    return parseFloat(rateSlab.upc_charge_thb)
-  }
-
-  // No exact slab matched. Fall back to nearest boundary slab instead of a hardcoded number.
   if (sorted.length === 0) {
     console.warn('No rate slabs available to determine rate for weight', weight)
     return 62 // last resort (should not happen because DEFAULT_DHL_RATE_SLABS exists)
   }
 
+  // Find the appropriate slab by looking for the highest min_weight that is <= weight
+  // This handles floating point precision issues (e.g., 15.00002 falls between 15.000 and 15.001)
+  let matchedSlab: DHLEcommerceRateSlab | null = null
+
+  for (const slab of sorted) {
+    const minWeight = parseFloat(slab.min_weight_kg)
+    const maxWeight = parseFloat(slab.max_weight_kg)
+
+    // Round to 3 decimal places to avoid floating point precision issues
+    const roundedWeight = Math.round(weight * 1000) / 1000
+    const roundedMin = Math.round(minWeight * 1000) / 1000
+    const roundedMax = Math.round(maxWeight * 1000) / 1000
+
+    // Check if weight falls within this slab's range (with rounding)
+    if (roundedWeight >= roundedMin && roundedWeight <= roundedMax) {
+      matchedSlab = slab
+      break
+    }
+
+    // Also check if weight is slightly above max (within 0.01kg) - use this slab
+    if (roundedWeight > roundedMax && roundedWeight <= roundedMax + 0.01) {
+      matchedSlab = slab
+      break
+    }
+  }
+
+  if (matchedSlab) {
+    return parseFloat(matchedSlab.upc_charge_thb)
+  }
+
+  // If no match found, find the closest slab
   const first = sorted[0]
   const last = sorted[sorted.length - 1]
   const firstMin = parseFloat(first.min_weight_kg)
@@ -306,9 +324,15 @@ const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[]): nu
     return parseFloat(last.upc_charge_thb)
   }
 
-  // As a safe fallback use first slab upcountry rate
-  console.warn(`Weight ${weight}kg did not match any slab, using first slab rate`)
-  return parseFloat(first.upc_charge_thb)
+  // Find the nearest slab by min_weight
+  const nearestSlab = sorted.reduce((prev, curr) => {
+    const prevDiff = Math.abs(parseFloat(prev.min_weight_kg) - weight)
+    const currDiff = Math.abs(parseFloat(curr.min_weight_kg) - weight)
+    return currDiff < prevDiff ? curr : prev
+  })
+
+  console.warn(`Weight ${weight}kg did not match any slab exactly, using nearest slab (min: ${nearestSlab.min_weight_kg}kg)`)
+  return parseFloat(nearestSlab.upc_charge_thb)
 }
 
 /**
