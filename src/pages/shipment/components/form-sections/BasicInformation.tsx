@@ -297,8 +297,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
             onFocus={(e) => (e.target as HTMLInputElement).showPicker?.()}
           />
 
-
-          {/* <Controller
+          <Controller
             name="payment_terms"
             control={control}
             rules={isFieldRequired('payment_terms') ? { required: "Payment terms is required" } : undefined}
@@ -311,7 +310,6 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 errorMessage={errors.payment_terms?.message}
                 isInvalid={!!errors.payment_terms}
                 selectedKeys={field.value ? new Set([field.value]) : new Set()}
-
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string
                   if (selectedKey) {
@@ -334,8 +332,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               </Select>
 
             )}
-          /> */}
-
+          />
 
           <Textarea
             {...register('remark', { required: false })}

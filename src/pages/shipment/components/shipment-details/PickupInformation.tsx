@@ -16,8 +16,13 @@ const PickupInformation = ({
     formattedPickupError
 }: PickupInformationProps) => {
 
+    const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
+    const isDHLeCommerceAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
 
     const getPickupColor = () => {
+        if (isDHLeCommerceAsia) {
+            return "text-blue-600";
+        }
         switch (shipment.pick_up_created_status) {
             case "created_success":
                 return "text-green-600";
@@ -29,6 +34,9 @@ const PickupInformation = ({
     };
 
     const getPickupText = () => {
+        if (isDHLeCommerceAsia) {
+            return "Call";
+        }
         switch (shipment.pick_up_created_status) {
             case "created_success":
                 return "Success";
@@ -61,9 +69,6 @@ const PickupInformation = ({
     const pickupDateTime = shipment.pick_up_date
         ? `${formatDate(shipment.pick_up_date)} (${formatTime(shipment.pick_up_start_time)} - ${formatTime(shipment.pick_up_end_time)})`
         : '';
-
-    const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
-    const isDHLeCommerceAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
 
     const pickup_pending_data = <>
 

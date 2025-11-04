@@ -190,6 +190,8 @@ export const TOPIC_OPTIONS = [
   { key: 'Consign Parts', value: 'Consign Parts', label: 'Consign Parts' },
   { key: 'Return', value: 'Return', label: 'Return' },
   { key: 'Replacement', value: 'Replacement', label: 'Replacement' },
+  { key: 'Supplier Pickup', value: 'Supplier Pickup', label: 'Supplier Pickup' },
+  { key: 'Grab', value: 'Grab', label: 'Grab' },
   { key: 'Others', value: 'Others', label: 'Others' }
 ];
 

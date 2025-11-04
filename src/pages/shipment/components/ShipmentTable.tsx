@@ -43,6 +43,7 @@ const ShipmentTable = () => {
     { value: 'all', label: 'All Status' },
     { value: 'waiting', label: 'In Progress(All)' },
     { value: 'requestor_requested', label: 'Waiting Approver' },
+    { value: 'logistic_edited', label: 'Waiting Approver' },
     { value: 'send_to_logistic', label: 'Waiting Logistics' },
     { value: 'logistic_updated', label: 'Logistic Reviewed' },
     { value: 'approver_approved', label: 'Approved' },
@@ -261,6 +262,8 @@ const ShipmentTable = () => {
     switch (status) {
       case 'requestor_requested':
         return 'warning'
+      case 'logistic_edited':
+        return 'warning'  
       case 'send_to_logistic':
         return 'warning'
       case 'logistic_updated':
@@ -278,6 +281,8 @@ const ShipmentTable = () => {
     switch (status) {
       case 'requestor_requested':
         return 'WAITING APPROVER';
+      case 'logistic_edited':
+        return 'WAITING APPROVER';
       case 'send_to_logistic':
         return 'WAITING LOGISTICS';
       case 'logistic_updated':
@@ -287,7 +292,7 @@ const ShipmentTable = () => {
       case 'approver_rejected':
         return 'REJECTED';
       default:
-        return status.toUpperCase();
+        return status.replace(/_/g, ' ').toUpperCase()
     }
   };
 
