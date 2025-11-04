@@ -72,6 +72,10 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
               |&nbsp; Created:&nbsp; <b>{formatDateTime(shipment.created_date_time) || '-'}</b>&nbsp;
             </div>
 
+            <div className="inline-flex items-center">
+              |&nbsp; Payment Terms:&nbsp; <b>{shipment?.payment_terms?.toUpperCase() || '-'}</b>&nbsp;
+            </div>
+
             {/* Only show customs fields for non-domestic shipments */}
             {shipment.shipment_scope_type?.toLowerCase() !== 'domestic' && (
               <>
