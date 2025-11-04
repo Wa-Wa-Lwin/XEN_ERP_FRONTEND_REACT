@@ -18,7 +18,9 @@ const PickupInformation = ({
 
     const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
     const isDHLeCommerceAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
-    const isDHL_Express_Worldwide = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
+
+    const isDHL_Express_Worldwide = chosenRate?.service_name === 'DHL Express Worldwide';
+    // {chosenRate?.service_name}
 
     const getPickupColor = () => {
         if (isDHLeCommerceAsia || isDHL_Express_Worldwide) {
@@ -130,7 +132,7 @@ const PickupInformation = ({
                 </div>
 
                 {
-                    !isDHLeCommerceAsia &&
+                    (!isDHLeCommerceAsia && !isDHL_Express_Worldwide) &&
                     <>
                         {shipment.pick_up_created_status === "created_success" &&
                             <>
