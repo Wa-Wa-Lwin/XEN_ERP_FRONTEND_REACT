@@ -145,13 +145,16 @@ export const AddressesSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
                 <p className="text-gray-600">
                   <b>Contact : </b>{data?.ship_to_contact_name}, {data?.ship_to_phone}, {data?.ship_to_email}.
                 </p>
-                <div className="grid grid-cols gap-x-4 gap-y-1 text-sm">
-                  <div>
-                    <span className="text-gray-600">Customs Purpose: </span> <span className="font-medium">{data?.customs_purpose.toUpperCase() || '-'}</span>
-                    <span className="text-gray-600"> | </span>
-                    <span className="text-gray-600">Incoterms: </span> <span className="font-medium">{data?.customs_terms_of_trade.toUpperCase() || '-'}</span>
+                {data?.shipment_scope_type.toLowerCase() === 'domestic' &&
+                  <div className="grid grid-cols gap-x-4 gap-y-1 text-sm">
+                    <div>
+                      <span className="text-gray-600">Customs Purpose: </span> <span className="font-medium">{data?.customs_purpose.toUpperCase() || '-'}</span>
+                      <span className="text-gray-600"> | </span>
+                      <span className="text-gray-600">Incoterms: </span> <span className="font-medium">{data?.customs_terms_of_trade.toUpperCase() || '-'}</span>
+                    </div>
                   </div>
-                </div>
+                }
+
               </div>
             </div>
 
