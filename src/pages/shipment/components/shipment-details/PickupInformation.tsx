@@ -164,7 +164,7 @@ const PickupInformation = ({
 
             {isDHL_Express_Worldwide && (
                 <p className="text-blue-600 text-xs font-semibold bg-blue-50 p-2 rounded">
-                    📞 Please call DHL Express World Wide customer service to arrange pickup for this package. (Since Aftership still not suppor this function yet.)
+                    📞 Please call DHL Express World Wide customer service to arrange pickup for this package. (Since Aftership still not support this function yet.)
                     📇 Contact Logistic Team for further information.
                 </p>
             )}
