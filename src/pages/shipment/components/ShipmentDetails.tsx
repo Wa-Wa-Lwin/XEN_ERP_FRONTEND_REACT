@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem, Divider } from "@heroui/react";
+import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
@@ -538,24 +538,28 @@ const ShipmentDetails = () => {
   return (
     <div className="mx-auto w-full p-3 space-y-1">
       {(
-        ( shipment.request_status !== "approver_approved" && shipment.request_status !== "approver_rejected" ) ||
-        ( msLoginUser?.email.toLowerCase() === "wawa@xenoptics.com" )
+        (shipment.request_status !== "approver_approved" && shipment.request_status !== "approver_rejected") ||
+        (msLoginUser?.email.toLowerCase() === "wawa@xenoptics.com")
       ) &&
-      <>      
-        <ActionSections
-          shipment={shipment}
-          msLoginUser={msLoginUser}
-          onDuplicateShipment={handleDuplicateShipment}
-          onOpenLogisticsModal={onLogisticsModalOpen}
-          isApproving={isApproving}
-          isRejecting={isRejecting}
-          onApprovalAction={handleApprovalAction}
-        />
-        <Divider className="p-1" />
+        <>
+          <ActionSections
+            shipment={shipment}
+            msLoginUser={msLoginUser}
+            onDuplicateShipment={handleDuplicateShipment}
+            onOpenLogisticsModal={onLogisticsModalOpen}
+            isApproving={isApproving}
+            isRejecting={isRejecting}
+            onApprovalAction={handleApprovalAction}
+          />
+          <div className="p-1">
+            <hr />
+          </div>
         </>
       }
       <BasicInformation shipment={shipment} />
-      <Divider className="p-1" />
+      <div className="p-1">
+        <hr />
+      </div>
       <LabelAndInvoiceInformation
         shipment={shipment}
         showError={showError}
@@ -564,30 +568,42 @@ const ShipmentDetails = () => {
         formattedError={formattedError}
         formattedLabelError={formattedLabelError}
       />
-      <Divider className="p-1" />
+      <div className="p-1">
+        <hr />
+      </div>
       <PickupInformation
         shipment={shipment}
         onCreatePickup={handleCreatePickup}
         onChangePickupDateTime={handleOpenPickupModal}
         formattedPickupError={formattedPickupError}
       />
-      <Divider className="p-1" />
+      <div className="p-1">
+        <hr />
+      </div>
       <AddressInformation shipment={shipment} />
-      <Divider className="p-1" />
+      <div className="p-1">
+        <hr />
+      </div>
       <RatesSection
         shipment={shipment}
         showAllRates={showAllRates}
         setShowAllRates={setShowAllRates}
       />
-      <Divider className="p-1" />
+      <div className="p-1">
+        <hr />
+      </div>
       <ParcelsSection shipment={shipment} />
-      <Divider className="p-1" />
+      <div className="p-1">
+        <hr />
+      </div>
       <RequestHistory
         shipment={shipment}
         showHistory={showHistory}
         setShowHistory={setShowHistory}
       />
-      <Divider className="p-1" />
+      <div className="p-1">
+        <hr />
+      </div>
       {/* Change Pickup DateTime Modal */}
       <Modal isOpen={isPickupModalOpen} onClose={onPickupModalClose} size="2xl">
         <ModalContent>

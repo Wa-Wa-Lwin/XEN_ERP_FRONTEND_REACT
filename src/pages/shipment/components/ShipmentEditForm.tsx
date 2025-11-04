@@ -895,6 +895,7 @@ const ShipmentEditForm = () => {
                           register={register}
                           errors={errors}
                           serviceOption={watch('service_options')}
+                          topic={watch('topic')}
                           rateCalculationError={rateCalculationError}
                         />
                       </div>
@@ -913,13 +914,15 @@ const ShipmentEditForm = () => {
                           type="submit"
                           startContent={<Icon icon="solar:check-circle-bold" width={20} />}
                           // isDisabled={!previouslyChosenRate && calculatedRates.length === 0}
-                          isDisabled={calculatedRates.length === 0 || !selectedRateId}
+                          isDisabled={watch('topic') === 'Grab' ? !selectedRateId : (calculatedRates.length === 0 || !selectedRateId)}
                         >
-                          {calculatedRates.length === 0 && !previouslyChosenRate
-                            ? 'Calculate Rates First'
-                            : calculatedRates.length > 0 && !selectedRateId
-                              ? 'Select Rate First'
-                              : 'Preview & Update Shipment'}
+                          {watch('topic') === 'Grab'
+                            ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Update Shipment')
+                            : (calculatedRates.length === 0 && !previouslyChosenRate
+                              ? 'Calculate Rates First'
+                              : calculatedRates.length > 0 && !selectedRateId
+                                ? 'Select Rate First'
+                                : 'Preview & Update Shipment')}
                         </Button>
                       </div>
                     </CardBody>

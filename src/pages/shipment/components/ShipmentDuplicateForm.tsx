@@ -325,6 +325,7 @@ const ShipmentDuplicateForm = () => {
               register={register}
               errors={errors}
               serviceOption={watch('service_options')}
+              topic={watch('topic')}
               rateCalculationError={rateCalculationError}
             />
 
@@ -342,13 +343,15 @@ const ShipmentDuplicateForm = () => {
                 type="submit"
                 color="success"
                 startContent={<Icon icon="solar:eye-bold" width={20} />}
-                isDisabled={calculatedRates.length === 0 || !selectedRateId}
+                isDisabled={watch('topic') === 'Grab' ? !selectedRateId : (calculatedRates.length === 0 || !selectedRateId)}
               >
-                {calculatedRates.length === 0
-                  ? 'Calculate Rates First'
-                  : !selectedRateId
-                    ? 'Select Rate First'
-                    : 'Preview & Submit'}
+                {watch('topic') === 'Grab'
+                  ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Submit')
+                  : (calculatedRates.length === 0
+                    ? 'Calculate Rates First'
+                    : !selectedRateId
+                      ? 'Select Rate First'
+                      : 'Preview & Submit')}
               </Button>
             </div>
           </form>

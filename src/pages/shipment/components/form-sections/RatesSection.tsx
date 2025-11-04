@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Select, SelectItem } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
@@ -38,16 +38,22 @@ interface RatesSectionProps extends FormSectionProps {
   selectedRateId?: string
   onSelectRate: (rateId: string) => void
   serviceOption?: string
+  topic?: string
   rateCalculationError?: {
     message: string
     details?: Array<{ path: string; info: string }>
   } | null
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, topic, rateCalculationError }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
+
+  // State for manual Grab rate input
+  const [grabRateAmount, setGrabRateAmount] = useState<string>('')
+  const [grabRateCurrency, setGrabRateCurrency] = useState<string>('THB')
+  const [manualGrabRate, setManualGrabRate] = useState<RateResponse | null>(null)
   const [isLoadingRates, setIsLoadingRates] = useState(false)
   const [ratesError, setRatesError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -308,6 +314,40 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     }
   }, [rates, serviceOption, exchangeRates, selectedRateId, onSelectRate])
 
+  // Auto-create and select Grab rate when amount is entered
+  useEffect(() => {
+    if (topic === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
+      const newGrabRate: RateResponse = {
+        shipper_account: {
+          id: "fb842bff60154a2f8c84584a74d0cf69",
+          slug: "dhl-global-mail-asia",
+          description: "Grab"
+        },
+        service_type: "dhl-global-mail-asia_parcel_domestic",
+        service_name: "Grab Delivery",
+        pickup_deadline: null,
+        booking_cut_off: null,
+        delivery_date: null,
+        transit_time: null,
+        error_message: null,
+        info_message: "Manual rate entry for Grab delivery",
+        charge_weight: null,
+        total_charge: {
+          amount: parseFloat(grabRateAmount),
+          currency: grabRateCurrency
+        },
+        detailed_charges: []
+      }
+
+      // Store the manual Grab rate
+      setManualGrabRate(newGrabRate)
+
+      // Auto-select this rate
+      const rateId = getRateUniqueId(newGrabRate, 0)
+      onSelectRate(rateId)
+    }
+  }, [topic, grabRateAmount, grabRateCurrency, onSelectRate])
+
 
   // Count carriers from available rates
   const carrierCounts = useMemo(() => {
@@ -332,7 +372,13 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   // Sorted and filtered rates using useMemo
   const sortedRates = useMemo(() => {
-    let ratesToSort = getAvailableUniqueRates(rates).map(rate => ({
+    // Combine API rates with manual Grab rate if it exists
+    let allRates = [...rates]
+    if (manualGrabRate && topic === 'Grab') {
+      allRates = [manualGrabRate, ...rates]
+    }
+
+    let ratesToSort = getAvailableUniqueRates(allRates).map(rate => ({
       ...rate,
       thbAmount: rate.total_charge
         ? rate.total_charge.amount * (exchangeRates[rate.total_charge.currency?.toUpperCase()] || 1)
@@ -364,7 +410,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       })
     }
     return ratesToSort
-  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier])
+  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier, manualGrabRate, topic])
 
   return (
     <>
@@ -400,50 +446,100 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
         <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left gap-3 w-full">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold">Shipping Rates</h2>
-          {ratesError && (
+          {topic !== 'Grab' && ratesError && (
             <p className="text-red-500 text-sm mt-1">
               <Icon icon="solar:info-circle-bold" className="inline mr-1" />
               {ratesError} - Using fallback rates
             </p>
           )}
-          {lastUpdated && !ratesError && (
+          {topic !== 'Grab' && lastUpdated && !ratesError && (
             <p className="text-gray-500 text-xs mt-1">
               <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
               Exchange rates updated: {lastUpdated}
             </p>
           )}
         </div>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="light"
-            size="sm"
-            startContent={<Icon icon="solar:refresh-bold" />}
-            onPress={() => fetchExchangeRates(true)}
-            isLoading={isLoadingRates}
-            disabled={isLoadingRates}
-            title="Force refresh exchange rates"
-            className='hidden'
-          >
-            {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
-          </Button>
-          <Button
-            type="button"
-            color="primary"
-            size="sm"
-            startContent={<Icon icon="solar:calculator-bold" />}
-            onPress={onCalculateRates}
-            isLoading={isCalculating}
-            disabled={isCalculating}
-          >
-            {isCalculating ? 'Calculating...' : 'Calculate Rates'}
-          </Button>
-        </div>
+        {topic !== 'Grab' && (
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="light"
+              size="sm"
+              startContent={<Icon icon="solar:refresh-bold" />}
+              onPress={() => fetchExchangeRates(true)}
+              isLoading={isLoadingRates}
+              disabled={isLoadingRates}
+              title="Force refresh exchange rates"
+              className='hidden'
+            >
+              {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
+            </Button>
+            <Button
+              type="button"
+              color="primary"
+              size="sm"
+              startContent={<Icon icon="solar:calculator-bold" />}
+              onPress={onCalculateRates}
+              isLoading={isCalculating}
+              disabled={isCalculating}
+            >
+              {isCalculating ? 'Calculating...' : 'Calculate Rates'}
+            </Button>
+          </div>
+        )}
       </CardHeader>
 
       <CardBody className="px-0 pt-0 pb-0">
-        {rates.length === 0 ? (
+        {/* Manual Grab Rate Input - Only show when topic is "Grab" */}
+        {topic === 'Grab' && (
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start gap-2 mb-3">
+              <Icon icon="solar:hand-money-bold" className="text-blue-600 text-xl mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-blue-800 text-sm">
+                  Manual Grab Rate Entry
+                </h3>
+                <p className="text-blue-700 text-xs">
+                  Enter the Grab delivery charge manually
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
+              <Input
+                label="Total Charge Amount"
+                placeholder="Enter amount"
+                value={grabRateAmount}
+                onValueChange={setGrabRateAmount}
+                type="number"
+                step="0.01"
+                min="0"
+                startContent={
+                  <div className="pointer-events-none flex items-center">
+                    <span className="text-default-400 text-small">฿</span>
+                  </div>
+                }
+                isRequired
+              />
+              <Select
+                label="Currency"
+                placeholder="Select currency"
+                selectedKeys={[grabRateCurrency]}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  if (selectedKey) setGrabRateCurrency(selectedKey)
+                }}
+                isRequired
+              >
+                <SelectItem key="THB" value="THB">THB</SelectItem>
+                <SelectItem key="USD" value="USD">USD</SelectItem>
+                <SelectItem key="EUR" value="EUR">EUR</SelectItem>
+                <SelectItem key="GBP" value="GBP">GBP</SelectItem>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        {rates.length === 0 && !manualGrabRate && topic !== 'Grab' ? (
           <div className="text-center py-8">
             {rateCalculationError ? (
               <div className="flex flex-col items-center gap-4">
@@ -487,7 +583,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               </div>
             )}
           </div>
-        ) : (
+        ) : topic !== 'Grab' ? (
           <>
             {/* Carrier Filter Tabs */}
             <Tabs
@@ -589,8 +685,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               </div>
             )}
           </>
-        )}
-        {rates.length > 0 && (
+        ) : null}
+        {topic !== 'Grab' && (rates.length > 0 || manualGrabRate) && (
           <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
             <TableHeader>
               <TableColumn>Select</TableColumn>
