@@ -21,38 +21,40 @@ export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
               <div>
                 <span className="text-gray-600">Scope: </span>
                 <span className="font-medium">
-                  {data.shipment_scope_type
-                    ? data.shipment_scope_type.toLowerCase() === 'international'
+                  {data?.shipment_scope_type
+                    ? data?.shipment_scope_type.toLowerCase() === 'international'
                       ? 'International (Outside Thai)'
-                      : data.shipment_scope_type.toLowerCase() === 'export'
+                      : data?.shipment_scope_type.toLowerCase() === 'export'
                         ? 'International (Export)'
-                        : data.shipment_scope_type.toLowerCase() === 'import'
+                        : data?.shipment_scope_type.toLowerCase() === 'import'
                           ? 'International (Import)'
-                          : data.shipment_scope_type.toLowerCase() === 'domestic'
+                          : data?.shipment_scope_type.toLowerCase() === 'domestic'
                             ? 'Domestic'
-                            : data.shipment_scope_type
+                            : data?.shipment_scope_type
                     : '-'}
                 </span>
 
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">Topic: </span>
                 <span className="font-medium">
-                  {data.topic || '-'} {data.topic === 'Others' && `(${data.other_topic})`} {data.topic === 'For Sales' && `(${data.sales_person})`}
+                  {data?.topic || '-'} {data?.topic === 'Others' && `(${data?.other_topic})`} {data?.topic === 'For Sales' && `(${data?.sales_person})`}
                 </span>
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">Service: </span>
                 <span className="font-medium">
                   {
-                    data.service_options.toLowerCase() === 'normal'
+                    data?.service_options.toLowerCase() === 'normal'
                       ? 'Normal (Cheapest One)'
                       : 'Urgent (Choose Carrier Manually)'
                   }
 
                 </span>
                 <span className="text-gray-600"> | </span>
-                <span className="text-gray-600">PO Number: </span> <span className="font-medium">{data.po_number || '-'}</span>
+                <span className="text-gray-600">PO Number: </span> <span className="font-medium">{data?.po_number || '-'}</span>
                 <span className="text-gray-600"> | </span>
-                <span className="text-gray-600">PO Date: </span> <span className="font-medium">{data.po_date || '-'}</span>
+                <span className="text-gray-600">PO Date: </span> <span className="font-medium">{data?.po_date || '-'}</span>
+                <span className="text-gray-600"> | </span>
+                <span className="text-gray-600">Payment Terms: </span> <span className="font-medium">{data?.payment_terms?.replace(/_/g, ' ').toUpperCase() || '-'}</span>
               </div>
             </div>
           </div>
@@ -84,67 +86,75 @@ export const AddressesSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="font-medium">From: {data.ship_from_company_name || '-'}</p>
-                <p className="text-gray-600">{data.ship_from_country}, {data.ship_from_city}, {data.ship_from_state} , {data.ship_from_postal_code}, 
+                <p className="font-medium">From: {data?.ship_from_company_name || '-'}</p>
+                <p className="text-gray-600">{data?.ship_from_country}, {data?.ship_from_city}, {data?.ship_from_state} , {data?.ship_from_postal_code},
                   <br />
-                  {data.ship_from_street1 && (
+                  {data?.ship_from_street1 && (
                     <>
-                      <b>St 1 : </b>{data.ship_from_street1},<br />
+                      <b>St 1 : </b>{data?.ship_from_street1},<br />
                     </>
                   )}
-                  {data.ship_from_street2 && (
+                  {data?.ship_from_street2 && (
                     <>
-                      <b>St 2 : </b>{data.ship_from_street2},<br />
+                      <b>St 2 : </b>{data?.ship_from_street2},<br />
                     </>
                   )}
-                  {data.ship_from_street3 && (
+                  {data?.ship_from_street3 && (
                     <>
-                      <b>St 3 : </b>{data.ship_from_street3},<br />
+                      <b>St 3 : </b>{data?.ship_from_street3},<br />
                     </>
                   )}
                 </p>
                 {/* ✅ Only render this paragraph if tax_id exists */}
-                {data.ship_from_tax_id && (
-                  <p className="text-gray-600"><b>Tax ID : </b>{data.ship_from_tax_id}</p>
+                {data?.ship_from_tax_id && (
+                  <p className="text-gray-600"><b>Tax ID : </b>{data?.ship_from_tax_id}</p>
                 )}
-                {data.ship_from_eori_number && (
-                  <p className="text-gray-600"><b>EORI : </b>{data.ship_from_eori_number}</p>
+                {data?.ship_from_eori_number && (
+                  <p className="text-gray-600"><b>EORI : </b>{data?.ship_from_eori_number}</p>
                 )}
                 <p className="text-gray-600">
-                  <b>Contact : </b>{data.ship_from_contact_name}, {data.ship_from_phone}, {data.ship_from_email}.
+                  <b>Contact : </b>{data?.ship_from_contact_name}, {data?.ship_from_phone}, {data?.ship_from_email}.
                 </p>
               </div>
               <div>
-                <p className="font-medium">To: {data.ship_to_company_name || '-'}</p>
-                <p className="text-gray-600">{data.ship_to_country}, {data.ship_to_city}, {data.ship_to_state} , {data.ship_to_postal_code},
+                <p className="font-medium">To: {data?.ship_to_company_name || '-'}</p>
+                <p className="text-gray-600">{data?.ship_to_country}, {data?.ship_to_city}, {data?.ship_to_state} , {data?.ship_to_postal_code},
                   <br />
-                  {data.ship_to_street1 && (
+                  {data?.ship_to_street1 && (
                     <>
-                      <b>St 1 : </b>{data.ship_to_street1},<br />
+                      <b>St 1 : </b>{data?.ship_to_street1},<br />
                     </>
                   )}
-                  {data.ship_to_street2 && (
+                  {data?.ship_to_street2 && (
                     <>
-                      <b>St 2 : </b>{data.ship_to_street2},<br />
+                      <b>St 2 : </b>{data?.ship_to_street2},<br />
                     </>
                   )}
-                  {data.ship_to_street3 && (
+                  {data?.ship_to_street3 && (
                     <>
-                      <b>St 3 : </b>{data.ship_to_street3},<br />
+                      <b>St 3 : </b>{data?.ship_to_street3},<br />
                     </>
                   )}
                 </p>
-                {data.ship_to_tax_id && (
-                  <p className="text-gray-600"><b>Tax ID : </b>{data.ship_to_tax_id}</p>
+                {data?.ship_to_tax_id && (
+                  <p className="text-gray-600"><b>Tax ID : </b>{data?.ship_to_tax_id}</p>
                 )}
-                {data.ship_to_eori_number && (
-                  <p className="text-gray-600"><b>EORI : </b>{data.ship_to_eori_number}</p>
+                {data?.ship_to_eori_number && (
+                  <p className="text-gray-600"><b>EORI : </b>{data?.ship_to_eori_number}</p>
                 )}
                 <p className="text-gray-600">
-                  <b>Contact : </b>{data.ship_to_contact_name}, {data.ship_to_phone}, {data.ship_to_email}.
+                  <b>Contact : </b>{data?.ship_to_contact_name}, {data?.ship_to_phone}, {data?.ship_to_email}.
                 </p>
+                <div className="grid grid-cols gap-x-4 gap-y-1 text-sm">
+                  <div>
+                    <span className="text-gray-600">Customs Purpose: </span> <span className="font-medium">{data?.customs_purpose.toUpperCase() || '-'}</span>
+                    <span className="text-gray-600"> | </span>
+                    <span className="text-gray-600">Incoterms: </span> <span className="font-medium">{data?.customs_terms_of_trade.toUpperCase() || '-'}</span>
+                  </div>
+                </div>
               </div>
             </div>
+
           </div>
           <Button
             size="sm"
@@ -175,16 +185,16 @@ export const PickupInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } &
             <div className="grid grid-cols gap-x-4 gap-y-1 text-sm">
               <div>
                 <span className="text-gray-600">Pickup Date: </span>
-                <span className="font-medium">{data.pick_up_date ? new Date(data.pick_up_date).toLocaleDateString() : '-'}</span>
+                <span className="font-medium">{data?.pick_up_date ? new Date(data?.pick_up_date).toLocaleDateString() : '-'}</span>
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">Pickup Time: </span>
-                <span className="font-medium">({data.pick_up_start_time.slice(0, 5)} - {data.pick_up_end_time.slice(0, 5)})</span>
+                <span className="font-medium">({data?.pick_up_start_time.slice(0, 5)} - {data?.pick_up_end_time.slice(0, 5)})</span>
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">Expected Delivery Date: </span>
-                <span className="font-medium">{data.due_date ? new Date(data.due_date).toLocaleDateString() : '-'}</span>
+                <span className="font-medium">{data?.due_date ? new Date(data?.due_date).toLocaleDateString() : '-'}</span>
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">Instruction: </span>
-                <span className="font-medium">{data.pick_up_instructions || ' - '}</span>
+                <span className="font-medium">{data?.pick_up_instructions || ' - '}</span>
               </div>
             </div>
           </div>
@@ -204,9 +214,9 @@ export const PickupInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } &
 };
 
 export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & SectionSummaryProps) => {
-  const totalParcels = data.parcels?.length || 0;
-  const totalItems = data.parcels?.reduce((sum, p) => sum + (p.parcel_items?.length || 0), 0) || 0;
-  const totalWeight = data.parcels?.reduce((sum, p) => sum + (parseFloat(String(p.weight_value)) || 0), 0) || 0;
+  const totalParcels = data?.parcels?.length || 0;
+  const totalItems = data?.parcels?.reduce((sum, p) => sum + (p.parcel_items?.length || 0), 0) || 0;
+  const totalWeight = data?.parcels?.reduce((sum, p) => sum + (parseFloat(String(p.weight_value)) || 0), 0) || 0;
 
   return (
     <Card className="m-3">
@@ -236,7 +246,7 @@ export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & Se
           <details className="mt-2">
             <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Show full details</summary>
             <div className="mt-3">
-              {data.parcels?.map((parcel, parcelIndex) => (
+              {data?.parcels?.map((parcel, parcelIndex) => (
                 <div key={parcelIndex} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                   <h4 className="font-semibold text-sm text-gray-900 mb-2">
                     Parcel #{parcelIndex + 1}
@@ -337,8 +347,8 @@ export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & Se
 };
 
 export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, transformedRates, serviceType, onEdit }: { data: ShipmentFormData; selectedRateId: string; previouslyChosenRate?: Rate; transformedRates?: Rate[]; serviceType?: string } & SectionSummaryProps) => {
-  // Look for selected rate in transformedRates first (newly calculated), then fall back to data.rates (form data)
-  const selectedRate = transformedRates?.find(r => r.unique_id === selectedRateId) || data.rates?.find(r => r.unique_id === selectedRateId);
+  // Look for selected rate in transformedRates first (newly calculated), then fall back to data?.rates (form data)
+  const selectedRate = transformedRates?.find(r => r.unique_id === selectedRateId) || data?.rates?.find(r => r.unique_id === selectedRateId);
 
   return (
     <Card className="m-3">
