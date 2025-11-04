@@ -18,9 +18,10 @@ const PickupInformation = ({
 
     const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
     const isDHLeCommerceAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
+    const isDHL_Express_Worldwide = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
 
     const getPickupColor = () => {
-        if (isDHLeCommerceAsia) {
+        if (isDHLeCommerceAsia || isDHL_Express_Worldwide) {
             return "text-blue-600";
         }
         switch (shipment.pick_up_created_status) {
@@ -34,7 +35,7 @@ const PickupInformation = ({
     };
 
     const getPickupText = () => {
-        if (isDHLeCommerceAsia) {
+        if (isDHLeCommerceAsia || isDHL_Express_Worldwide) {
             return "Call";
         }
         switch (shipment.pick_up_created_status) {
@@ -155,6 +156,13 @@ const PickupInformation = ({
             {isDHLeCommerceAsia && (
                 <p className="text-blue-600 text-xs font-semibold bg-blue-50 p-2 rounded">
                     📞 Please call DHL eCommerce Asia customer service to arrange pickup for this package.
+                    📇 Contact Logistic Team for further information.
+                </p>
+            )}
+
+            {isDHL_Express_Worldwide && (
+                <p className="text-blue-600 text-xs font-semibold bg-blue-50 p-2 rounded">
+                    📞 Please call DHL Express World Wide customer service to arrange pickup for this package. (Since Aftership still not suppor this function yet.)
                     📇 Contact Logistic Team for further information.
                 </p>
             )}
