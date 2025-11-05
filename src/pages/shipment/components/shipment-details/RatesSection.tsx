@@ -136,7 +136,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
   return (
     <>
       {
-        shipment?.topic === 'Grab' ?
+        shipment?.service_options === 'Grab' ?
 
           <Card shadow="none">
             <div className="flex justify-left gap-3 items-center mb-1">

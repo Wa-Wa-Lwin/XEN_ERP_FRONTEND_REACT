@@ -54,6 +54,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                 <b>Other Reason - </b> {formData.other_topic || 'Not specified'} <br />
               </>
             )}
+            <b>Service Option - </b> {formData.service_options || 'Not specified'} <br />
             <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
             <b>PO Date - </b> {formData.po_date.slice(0, 10) || 'Not specified'} ({new Date(formData.po_date).toLocaleDateString('en-US', { weekday: 'short' })}) <br />
             {

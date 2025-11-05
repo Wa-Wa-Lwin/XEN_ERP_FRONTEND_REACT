@@ -42,12 +42,7 @@ export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">Service: </span>
                 <span className="font-medium">
-                  {
-                    data?.service_options.toLowerCase() === 'normal'
-                      ? 'Normal (Cheapest One)'
-                      : 'Urgent (Choose Carrier Manually)'
-                  }
-
+                  {data?.service_options}
                 </span>
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">PO Number: </span> <span className="font-medium">{data?.po_number || '-'}</span>

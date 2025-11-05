@@ -914,9 +914,9 @@ const ShipmentEditForm = () => {
                           type="submit"
                           startContent={<Icon icon="solar:check-circle-bold" width={20} />}
                           // isDisabled={!previouslyChosenRate && calculatedRates.length === 0}
-                          isDisabled={watch('topic') === 'Grab' ? !selectedRateId : (calculatedRates.length === 0 || !selectedRateId)}
+                          isDisabled={watch('service_options') === 'Grab' ? !selectedRateId : (calculatedRates.length === 0 || !selectedRateId)}
                         >
-                          {watch('topic') === 'Grab'
+                          {watch('service_options') === 'Grab'
                             ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Update Shipment')
                             : (calculatedRates.length === 0 && !previouslyChosenRate
                               ? 'Calculate Rates First'

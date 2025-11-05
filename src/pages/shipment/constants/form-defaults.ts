@@ -191,7 +191,6 @@ export const TOPIC_OPTIONS = [
   { key: 'Return', value: 'Return', label: 'Return' },
   { key: 'Replacement', value: 'Replacement', label: 'Replacement' },
   { key: 'Supplier Pickup', value: 'Supplier Pickup', label: 'Supplier Pickup' },
-  { key: 'Grab', value: 'Grab', label: 'Grab' },
   { key: 'Others', value: 'Others', label: 'Others' }
 ];
 
@@ -199,6 +198,7 @@ export const TOPIC_OPTIONS = [
 export const SERVICE_OPTIONS = [
   { key: 'Normal', value: 'Normal', label: 'Normal (Cheapest one)' },
   { key: 'Urgent', value: 'Urgent', label: 'Urgent (Will choose)' },
+  { key: 'Grab', value: 'Grab', label: 'Grab Pickup' },
 ]
 
 export const SALES_PERSON_OPTIONS = [

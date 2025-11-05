@@ -89,8 +89,11 @@ const ShipmentForm = () => {
       return
     }
 
-    // Validate that rates have been calculated
-    if (calculatedRates.length === 0) {
+    // Skip rate calculation validation for Grab (manual rate entry)
+    const isGrabService = formData.service_options === 'Grab'
+
+    // Validate that rates have been calculated (skip for Grab)
+    if (!isGrabService && calculatedRates.length === 0) {
       setErrorModal({
         isOpen: true,
         title: 'Rate Calculation Required',
@@ -100,20 +103,34 @@ const ShipmentForm = () => {
       return
     }
 
-    // Validate that a rate is selected if rates are available
-    if (calculatedRates.length > 0 && !selectedRateId) {
+    // Validate that a rate is selected
+    if (!selectedRateId) {
       setErrorModal({
         isOpen: true,
         title: 'Rate Selection Required',
-        message: 'Please select a shipping rate before proceeding to preview.',
-        details: [{ path: 'Rate Selection', info: 'Choose one of the calculated shipping rates from the rates section' }]
+        message: isGrabService
+          ? 'Please enter the Grab rate amount before proceeding to preview.'
+          : 'Please select a shipping rate before proceeding to preview.',
+        details: [{
+          path: 'Rate Selection',
+          info: isGrabService
+            ? 'Enter the Grab delivery charge in the manual rate entry section'
+            : 'Choose one of the calculated shipping rates from the rates section'
+        }]
       })
       return
     }
 
     // Only calculate rates if they haven't been calculated yet
     let formDataWithRates = formData
-    if (calculatedRates.length === 0) {
+    if (isGrabService) {
+      // For Grab, use the transformed rates (which includes the manual Grab rate)
+      formDataWithRates = {
+        ...formData,
+        rates: transformedRates
+      }
+    } else if (calculatedRates.length === 0) {
+      // For other services, calculate rates if not already done
       formDataWithRates = await calculateRates(formData)
     } else {
       // Use already stored transformed rates to avoid recalculation
@@ -651,9 +668,9 @@ const ShipmentForm = () => {
                         color="success"
                         type="submit"
                         startContent={<Icon icon="solar:eye-bold" width={20} />}
-                        isDisabled={watch('topic') === 'Grab' ? !selectedRateId : (calculatedRates.length === 0 || !selectedRateId)}
+                        isDisabled={watch('service_options') === 'Grab' ? !selectedRateId : (calculatedRates.length === 0 || !selectedRateId)}
                       >
-                        {watch('topic') === 'Grab'
+                        {watch('service_options') === 'Grab'
                           ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Submit')
                           : (calculatedRates.length === 0
                             ? 'Calculate Rates First'

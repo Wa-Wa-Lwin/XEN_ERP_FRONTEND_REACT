@@ -22,7 +22,7 @@ const PickupInformation = ({
   const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
   const isDHLAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
   const isDHLExpress = chosenRate?.service_name === 'DHL Express Worldwide';
-  const isGrabPickup = shipment.topic?.toLowerCase() === 'grab';
+  const isGrabPickup = shipment.service_options?.toLowerCase() === 'grab';
   const isExternalCall = isDHLAsia || isDHLExpress;
 
   // -------------------------------

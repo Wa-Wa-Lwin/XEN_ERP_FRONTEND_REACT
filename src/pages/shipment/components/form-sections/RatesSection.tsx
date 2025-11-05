@@ -316,7 +316,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   // Auto-create and select Grab rate when amount is entered
   useEffect(() => {
-    if (topic === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
+    if (serviceOption === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
       const newGrabRate: RateResponse = {
         shipper_account: {
           id: "fb842bff60154a2f8c84584a74d0cf69",
@@ -346,7 +346,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       const rateId = getRateUniqueId(newGrabRate, 0)
       onSelectRate(rateId)
     }
-  }, [topic, grabRateAmount, grabRateCurrency, onSelectRate])
+  }, [serviceOption, grabRateAmount, grabRateCurrency, onSelectRate])
 
 
   // Count carriers from available rates
@@ -374,7 +374,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   const sortedRates = useMemo(() => {
     // Combine API rates with manual Grab rate if it exists
     let allRates = [...rates]
-    if (manualGrabRate && topic === 'Grab') {
+    if (manualGrabRate && serviceOption === 'Grab') {
       allRates = [manualGrabRate, ...rates]
     }
 
@@ -410,7 +410,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       })
     }
     return ratesToSort
-  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier, manualGrabRate, topic])
+  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier, manualGrabRate])
 
   return (
     <>
@@ -446,20 +446,20 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
         <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left gap-3 w-full">
         <div className="flex flex-col">
-          {topic !== 'Grab' && ratesError && (
+          {serviceOption !== 'Grab' && ratesError && (
             <p className="text-red-500 text-sm mt-1">
               <Icon icon="solar:info-circle-bold" className="inline mr-1" />
               {ratesError} - Using fallback rates
             </p>
           )}
-          {topic !== 'Grab' && lastUpdated && !ratesError && (
+          {serviceOption !== 'Grab' && lastUpdated && !ratesError && (
             <p className="text-gray-500 text-xs mt-1">
               <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
               Exchange rates updated: {lastUpdated}
             </p>
           )}
         </div>
-        {topic !== 'Grab' && (
+        {serviceOption !== 'Grab' && (
           <div className="flex gap-2">
             <Button
               type="button"
@@ -490,8 +490,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       </CardHeader>
 
       <CardBody className="px-0 pt-0 pb-0">
-        {/* Manual Grab Rate Input - Only show when topic is "Grab" */}
-        {topic === 'Grab' && (
+        {/* Manual Grab Rate Input - Only show when serviceOption is "Grab" */}
+        {serviceOption === 'Grab' && (
           <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-start gap-2 mb-3">
               <Icon icon="solar:hand-money-bold" className="text-blue-600 text-xl mt-0.5" />
@@ -539,7 +539,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
           </div>
         )}
 
-        {rates.length === 0 && !manualGrabRate && topic !== 'Grab' ? (
+        {rates.length === 0 && !manualGrabRate && serviceOption !== 'Grab' ? (
           <div className="text-center py-8">
             {rateCalculationError ? (
               <div className="flex flex-col items-center gap-4">
@@ -583,7 +583,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               </div>
             )}
           </div>
-        ) : topic !== 'Grab' ? (
+        ) : serviceOption !== 'Grab' ? (
           <>
             {/* Carrier Filter Tabs */}
             <Tabs
@@ -686,7 +686,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             )}
           </>
         ) : null}
-        {topic !== 'Grab' && (rates.length > 0 || manualGrabRate) && (
+        {serviceOption !== 'Grab' && (rates.length > 0 || manualGrabRate) && (
           <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
             <TableHeader>
               <TableColumn>Select</TableColumn>
