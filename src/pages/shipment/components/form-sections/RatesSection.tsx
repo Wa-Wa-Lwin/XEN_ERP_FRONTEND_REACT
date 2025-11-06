@@ -54,6 +54,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   // State for manual Grab rate input
   const [grabRateAmount, setGrabRateAmount] = useState<string>('')
   const [grabRateCurrency, setGrabRateCurrency] = useState<string>('THB')
+  const [manualGrabRate, setManualGrabRate] = useState<RateResponse | null>(null)
   const [isLoadingRates, setIsLoadingRates] = useState(false)
   const [ratesError, setRatesError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -335,6 +336,43 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     }
   }, [rates, serviceOption, exchangeRates, selectedRateId, onSelectRate])
 
+  // Auto-create and select Grab rate when amount is entered
+  useEffect(() => {
+    if (serviceOption === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
+      const newGrabRate: RateResponse = {
+        shipper_account: {
+          id: "fb842bff60154a2f8c84584a74d0cf69",
+          slug: "dhl-global-mail-asia",
+          description: "Grab"
+        },
+        service_type: "dhl-global-mail-asia_parcel_domestic",
+        service_name: "Grab Delivery",
+        pickup_deadline: null,
+        booking_cut_off: null,
+        delivery_date: null,
+        transit_time: null,
+        error_message: null,
+        info_message: "Manual rate entry for Grab delivery",
+        charge_weight: null,
+        total_charge: {
+          amount: parseFloat(grabRateAmount),
+          currency: grabRateCurrency
+        },
+        detailed_charges: []
+      }
+
+      // Store the manual Grab rate
+      setManualGrabRate(newGrabRate)
+
+      // Auto-select this rate
+      const rateId = getRateUniqueId(newGrabRate, 0)
+      onSelectRate(rateId)
+    } else if (serviceOption !== 'Grab' && manualGrabRate) {
+      // Clear manual Grab rate if service option changes away from Grab
+      setManualGrabRate(null)
+    }
+  }, [serviceOption, grabRateAmount, grabRateCurrency, onSelectRate, manualGrabRate])
+
   // Count carriers from available rates
   const carrierCounts = useMemo(() => {
     const availableRates = getAvailableUniqueRates(rates)
@@ -358,7 +396,11 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   // Sorted and filtered rates using useMemo
   const sortedRates = useMemo(() => {
+    // Combine API rates with manual Grab rate if it exists
     let allRates = [...rates]
+    if (manualGrabRate && serviceOption === 'Grab') {
+      allRates = [manualGrabRate, ...rates]
+    }
 
     let ratesToSort = getAvailableUniqueRates(allRates).map(rate => ({
       ...rate,
@@ -392,7 +434,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       })
     }
     return ratesToSort
-  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier])
+  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier, manualGrabRate])
 
   return (
     <>
