@@ -895,36 +895,46 @@ const ShipmentEditForm = () => {
                         </div>
                         <p className="text-sm text-gray-500">Step 5 of {steps.length} - Calculate shipping rates</p>
                       </div>
-                      {/* Only show Previously Chosen Rate for non-Grab service options */}
-                      {watch('service_options') !== 'Grab' && (
-                        <div className="mb-4 p-4 bg-gray-50 rounded border">
-                          <h3 className="font-semibold mb-2">
-                            Previously Chosen Rate :
-                            {previouslyChosenRate ?
-                              <span className="text-green-600 font-semibold"> Found ✓</span> :
-                              <span className="text-red-600 font-semibold"> Not Found ✗</span>
-                            }
-                          </h3>
-                          {previouslyChosenRate ? (
+                      <div className="mb-4 p-4 bg-gray-50 rounded border">
+                        <h3 className="font-semibold mb-2">
+                          Previously Chosen Rate :
+                          {(watch('service_options') === 'Grab' && watch('grab_rate_amount')) || previouslyChosenRate ?
+                            <span className="text-green-600 font-semibold"> Found ✓</span> :
+                            <span className="text-red-600 font-semibold"> Not Found ✗</span>
+                          }
+                        </h3>
+                        {watch('service_options') === 'Grab' ? (
+                          watch('grab_rate_amount') ? (
                             <div>
                               <p className="text-sm mb-1">
-                                <strong>{previouslyChosenRate.shipper_account_description} </strong> ({previouslyChosenRate.service_name})
-                                <strong> | Amount:</strong> {previouslyChosenRate.total_charge_amount} {previouslyChosenRate.total_charge_currency}
-                                <strong> | Charged Weight:</strong> {previouslyChosenRate.charge_weight_value} {previouslyChosenRate.charge_weight_unit}
-                                <strong> | Transit Time:</strong> {previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' ? '1-3(Working) day(s)' : `${previouslyChosenRate.transit_time} (days)`}
+                                <strong>Grab</strong> (Manual Rate Entry)
+                                <strong> | Amount:</strong> {parseFloat(watch('grab_rate_amount') || '0').toFixed(2)} {watch('grab_rate_currency') || 'THB'}
                               </p>
-                              {/* <details className="mt-2">
-                                <summary className="cursor-pointer text-sm text-blue-600">Show full details</summary>
-                                <pre className="text-xs mt-2 overflow-auto">{JSON.stringify(previouslyChosenRate, null, 2)}</pre>
-                              </details> */}
                             </div>
                           ) : (
                             <p className="text-sm text-red-600 mt-2">
-                              No previously chosen rate found. Check browser console for debugging info.
+                              No Grab rate found. Please enter the Grab delivery charge.
                             </p>
-                          )}
-                        </div>
-                      )}
+                          )
+                        ) : previouslyChosenRate ? (
+                          <div>
+                            <p className="text-sm mb-1">
+                              <strong>{previouslyChosenRate.shipper_account_description} </strong> ({previouslyChosenRate.service_name})
+                              <strong> | Amount:</strong> {previouslyChosenRate.total_charge_amount} {previouslyChosenRate.total_charge_currency}
+                              <strong> | Charged Weight:</strong> {previouslyChosenRate.charge_weight_value} {previouslyChosenRate.charge_weight_unit}
+                              <strong> | Transit Time:</strong> {previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' ? '1-3(Working) day(s)' : `${previouslyChosenRate.transit_time} (days)`}
+                            </p>
+                            {/* <details className="mt-2">
+                              <summary className="cursor-pointer text-sm text-blue-600">Show full details</summary>
+                              <pre className="text-xs mt-2 overflow-auto">{JSON.stringify(previouslyChosenRate, null, 2)}</pre>
+                            </details> */}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-red-600 mt-2">
+                            No previously chosen rate found. Check browser console for debugging info.
+                          </p>
+                        )}
+                      </div>
                       <div className="mb-6">
                         <RatesSection
                           rates={calculatedRates}
