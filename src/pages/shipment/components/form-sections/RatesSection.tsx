@@ -1,15 +1,10 @@
 import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Select, SelectItem } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { useState, useEffect, useMemo } from 'react'
-import axios from 'axios'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { getRateUniqueId as generateRateId } from '@services/rateCalculationService'
-
-// Interface for exchange rate API response
-interface ExchangeRateResponse {
-  conversion_rates: Record<string, number>
-  time_last_update_unix: number
-}
+import { useExchangeRates } from '../../hooks/useExchangeRates'
+import { formatCurrency, convertToTHB, convertWeightToKg, formatDateTime } from '../../utils/rate-utils'
 
 // Interface for the API response
 interface RateResponse {
@@ -43,209 +38,37 @@ interface RatesSectionProps extends FormSectionProps {
     message: string
     details?: Array<{ path: string; info: string }>
   } | null
+  watch?: any
 }
 
+<<<<<<< HEAD
 const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
+=======
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, setValue }: RatesSectionProps) => {
+  // Use custom hook for exchange rates
+  const { exchangeRates, lastUpdated, ratesError, isLoadingRates, fetchExchangeRates } = useExchangeRates()
 
-  // State for manual Grab rate input
-  const [grabRateAmount, setGrabRateAmount] = useState<string>('')
-  const [grabRateCurrency, setGrabRateCurrency] = useState<string>('THB')
+  // Get Grab rate values from form data (persists across navigation)
+  const grabRateAmount = watch?.('grab_rate_amount') || ''
+  const grabRateCurrency = watch?.('grab_rate_currency') || 'THB'
+
+  // Helper functions to update form values
+  const setGrabRateAmount = (value: string) => setValue?.('grab_rate_amount', value)
+  const setGrabRateCurrency = (value: string) => setValue?.('grab_rate_currency', value)
+>>>>>>> 01c6477578d16b040c2c40eecac6c186c114de8d
+
   const [manualGrabRate, setManualGrabRate] = useState<RateResponse | null>(null)
-  const [isLoadingRates, setIsLoadingRates] = useState(false)
-  const [ratesError, setRatesError] = useState<string | null>(null)
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
 
-  // Inside RatesSection component, add sorting state
+  // Ref to track the last rate we set to prevent infinite loops
+  const lastSetRateRef = useRef<string>('')
+
+  // Sorting and filtering state
   const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>('thb')
   const [sortAsc, setSortAsc] = useState(true)
   const [selectedCarrier, setSelectedCarrier] = useState<string>('all')
-
-  // Cache keys
-  const CACHE_KEY = 'exchange_rates_thb'
-  const CACHE_TIMESTAMP_KEY = 'exchange_rates_timestamp'
-  const CACHE_DURATION = 60 * 60 * 1000 // 1 hour in milliseconds
-
-  // Load cached rates from localStorage
-  const loadCachedRates = (): { rates: Record<string, number> | null; timestamp: number | null } => {
-    try {
-      const cachedRates = localStorage.getItem(CACHE_KEY)
-      const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY)
-
-      if (cachedRates && cachedTimestamp) {
-        return {
-          rates: JSON.parse(cachedRates),
-          timestamp: parseInt(cachedTimestamp)
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load cached rates:', error)
-    }
-    return { rates: null, timestamp: null }
-  }
-
-  // Save rates to localStorage
-  const saveCachedRates = (rates: Record<string, number>, timestamp: number) => {
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(rates))
-      localStorage.setItem(CACHE_TIMESTAMP_KEY, timestamp.toString())
-    } catch (error) {
-      console.error('Failed to save cached rates:', error)
-    }
-  }
-
-  // Check if cached rates are still valid (less than 1 hour old)
-  const isCacheValid = (timestamp: number): boolean => {
-    const now = Date.now()
-    return (now - timestamp) < CACHE_DURATION
-  }
-
-  // Fetch exchange rates from API or cache
-  const fetchExchangeRates = async (forceRefresh = false) => {
-    setIsLoadingRates(true)
-    setRatesError(null)
-
-    // Check cache first unless force refresh
-    if (!forceRefresh) {
-      const { rates: cachedRates, timestamp: cachedTimestamp } = loadCachedRates()
-
-      if (cachedRates && cachedTimestamp && isCacheValid(cachedTimestamp)) {
-        setExchangeRates(cachedRates)
-        setLastUpdated(new Date(cachedTimestamp).toLocaleString())
-        setIsLoadingRates(false)
-        return
-      }
-    }
-
-    try {
-      // Using local API endpoint for exchange rates
-      const apiUrl = import.meta.env.VITE_APP_CONVERT_RATES_TO_THB
-      const response = await axios.get<ExchangeRateResponse>(apiUrl)
-
-      // The API response already contains rates TO THB, so use them directly
-      const thbRates: Record<string, number> = response.data.conversion_rates
-      thbRates.THB = 1.0 // Ensure THB to THB is always 1
-
-      const timestamp = Date.now()
-
-      // Save to cache and state
-      saveCachedRates(thbRates, timestamp)
-      setExchangeRates(thbRates)
-      setLastUpdated(new Date(timestamp).toLocaleString())
-      setRatesError(null)
-      console.log('Exchange rates updated:', Object.keys(thbRates))
-    } catch (error) {
-      console.error('Failed to fetch exchange rates:', error)
-
-      // Try to use cached rates even if expired as fallback
-      const { rates: cachedRates } = loadCachedRates()
-      if (cachedRates) {
-        setExchangeRates(cachedRates)
-        // Only show error if we're forcing a refresh, not on initial load
-        if (forceRefresh) {
-          setRatesError('Failed to fetch current exchange rates')
-        }
-      } else {
-        // Ultimate fallback to hardcoded rates
-        setExchangeRates({
-          USD: 35.0,
-          EUR: 38.5,
-          GBP: 43.2,
-          JPY: 0.24,
-          CNY: 4.9,
-          SGD: 26.1,
-          MYR: 7.8,
-          HKD: 4.13, // 1 HKD = 4.13 THB (approximate)
-          THB: 1.0
-        })
-        // Only show error if we're forcing a refresh, not on initial load
-        if (forceRefresh) {
-          setRatesError('Failed to fetch current exchange rates')
-        }
-      }
-    } finally {
-      setIsLoadingRates(false)
-    }
-  }
-
-  // Auto-refresh rates every hour
-  useEffect(() => {
-    // Initial load - only if no cached rates exist or cache is expired
-    const { rates: cachedRates, timestamp: cachedTimestamp } = loadCachedRates()
-
-    if (!cachedRates || !cachedTimestamp || !isCacheValid(cachedTimestamp)) {
-      // Only fetch if we don't have valid cached data
-      fetchExchangeRates()
-    } else {
-      // Use cached data and don't show error
-      setExchangeRates(cachedRates)
-      setLastUpdated(new Date(cachedTimestamp).toLocaleString())
-    }
-
-    // Set up hourly refresh interval
-    const interval = setInterval(() => {
-      fetchExchangeRates()
-    }, CACHE_DURATION)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
-    if (amount == null || !currency) return 'N/A'; // covers null and undefined
-    return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
-  };
-
-  const convertToTHB = (amount: number | undefined | null, currency: string | null) => {
-    if (amount == null || !currency) return 'N/A';
-
-    const rate = exchangeRates[currency.toUpperCase()];
-    if (!rate) {
-      console.log('Exchange rate not found for:', currency, 'Available rates:', Object.keys(exchangeRates));
-      return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency} (Rate N/A)`;
-    }
-
-    const thbAmount = amount * rate;
-    return `${thbAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  const convertWeightToKg = (weight: { value: number; unit: string } | null) => {
-    if (!weight) return '-';
-
-    let kgValue = weight.value;
-    switch (weight.unit.toLowerCase()) {
-      case 'lb':
-      case 'lbs':
-        kgValue = weight.value * 0.453592;
-        break;
-      case 'g':
-      case 'gram':
-      case 'grams':
-        kgValue = weight.value / 1000;
-        break;
-      case 'oz':
-      case 'ounce':
-      case 'ounces':
-        kgValue = weight.value * 0.0283495;
-        break;
-      case 'kg':
-      case 'kilogram':
-      case 'kilograms':
-        // Already in kg
-        break;
-      default:
-        // Assume kg if unknown unit
-        break;
-    }
-
-    return `${kgValue.toFixed(2)} kg`;
-  };
-
-  const formatDateTime = (dateTime: string | null) => {
-    if (!dateTime) return '-'
-    return new Date(dateTime).toLocaleString()
-  }
 
   const getAvailableUniqueRates = (rates: RateResponse[]) => {
     const seen = new Set<string>()
@@ -317,20 +140,50 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   // Auto-create and select Grab rate when amount is entered
   useEffect(() => {
     if (serviceOption === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
+      console.log('=== Grab rate useEffect triggered ===')
+      console.log('grabRateAmount:', grabRateAmount, 'grabRateCurrency:', grabRateCurrency)
+      console.log('setValue available:', !!setValue, 'watch available:', !!watch)
+
+      // Create a unique key for this rate to prevent infinite loops
+      const rateKey = `${grabRateAmount}-${grabRateCurrency}`
+
+      // Check if the form already has this rate to prevent infinite loops
+      if (watch) {
+        const formData = watch()
+        const currentRates = formData?.rates || []
+        console.log('Current rates in form:', currentRates)
+
+        const hasMatchingRate = currentRates.some((r: any) =>
+          r.shipper_account_id === 'grab' &&
+          parseFloat(r.total_charge_amount) === parseFloat(grabRateAmount) &&
+          r.total_charge_currency === grabRateCurrency
+        )
+
+        // Skip if we've already set this exact rate AND it still exists in the form
+        if (lastSetRateRef.current === rateKey && hasMatchingRate) {
+          console.log('Skipping duplicate rate processing for:', rateKey, '- already exists in form')
+          return
+        }
+
+        console.log('Processing Grab rate:', rateKey, '- hasMatchingRate:', hasMatchingRate)
+      } else {
+        console.log('watch not available, proceeding without duplicate check')
+      }
+
       const newGrabRate: RateResponse = {
         shipper_account: {
-          id: "fb842bff60154a2f8c84584a74d0cf69",
-          slug: "dhl-global-mail-asia",
+          id: "grab",
+          slug: "grab",
           description: "Grab"
         },
-        service_type: "dhl-global-mail-asia_parcel_domestic",
-        service_name: "Grab Delivery",
+        service_type: "Grab",
+        service_name: "Grab",
         pickup_deadline: null,
         booking_cut_off: null,
         delivery_date: null,
         transit_time: null,
         error_message: null,
-        info_message: "Manual rate entry for Grab delivery",
+        info_message: "",
         charge_weight: null,
         total_charge: {
           amount: parseFloat(grabRateAmount),
@@ -345,7 +198,68 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       // Auto-select this rate
       const rateId = getRateUniqueId(newGrabRate, 0)
       onSelectRate(rateId)
+
+      // Also add the rate to the form's rates array if setValue and watch are available
+      if (!setValue || !watch) {
+        console.warn('setValue or watch not available - cannot update form rates')
+        console.log('setValue:', !!setValue, 'watch:', !!watch)
+        return
+      }
+
+      console.log('setValue and watch are available, updating form rates...')
+      const formData = watch()
+      console.log('Current form data:', {
+        shipmentRequestID: formData.shipmentRequestID,
+        service_options: formData.service_options,
+        currentRates: formData.rates
+      })
+
+      // Calculate total charge weight from all parcels
+      const totalWeight = formData.parcels?.reduce((sum: number, parcel: any) => {
+        return sum + (Number(parcel.weight_value) || 0)
+      }, 0) || 0
+
+      // Get weight unit from first parcel (assuming all parcels use same unit)
+      const weightUnit = formData.parcels?.[0]?.weight_unit || 'kg'
+
+      // Create the rate object in the format expected by the form data structure
+      const formGrabRate = {
+        rateID: formData.shipmentRequestID || 0, // Use shipmentRequestID or 0 for new requests
+        shipment_request_id: formData.shipmentRequestID || 0,
+        shipper_account_id: 'grab',
+        shipper_account_slug: 'grab',
+        shipper_account_description: 'Grab',
+        service_type: 'Grab',
+        service_name: 'Grab',
+        pickup_deadline: null,
+        booking_cut_off: null,
+        delivery_date: null,
+        transit_time: '0',
+        error_message: null,
+        info_message: '',
+        charge_weight_value: totalWeight,
+        charge_weight_unit: weightUnit,
+        total_charge_amount: parseFloat(grabRateAmount),
+        total_charge_currency: grabRateCurrency,
+        chosen: '1',
+        unique_id: 'grab-Grab',
+        detailed_charges: null,
+        created_user_name: formData.created_user_name || '',
+        past_chosen: '0'
+      }
+
+      // Update the rates array in form data
+      setValue('rates', [formGrabRate], { shouldDirty: true, shouldValidate: true })
+      console.log('Successfully set Grab rate in form:', formGrabRate)
+
+      // Mark this rate as set
+      lastSetRateRef.current = rateKey
+    } else {
+      // Reset when conditions are not met
+      lastSetRateRef.current = ''
     }
+    // Note: setValue and watch are intentionally not in deps - they're stable from react-hook-form
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceOption, grabRateAmount, grabRateCurrency, onSelectRate])
 
 
@@ -788,7 +702,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                     <TableCell className="text-right">
                       {convertToTHB(
                         rate.total_charge?.amount ?? null,
-                        rate.total_charge?.currency ?? null
+                        rate.total_charge?.currency ?? null,
+                        exchangeRates
                       )} THB
                     </TableCell>
                     <TableCell className="text-right">

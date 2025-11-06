@@ -5,7 +5,7 @@ import type { FormSectionProps } from '../../types/shipment-form.types'
 import { useState, useEffect } from 'react'
 
 interface BasicInformationProps extends FormSectionProps {
-  watch: (name?: string) => any
+  watch: <T = any>(name?: string) => T
   onClearRates?: () => void
 }
 
@@ -245,8 +245,26 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                     if (selectedKey) {
                       field.onChange(selectedKey)
                       setSelectedServiceOptions(new Set([selectedKey]))
-                      // Clear rates since service option changed
-                      if (onClearRates) {
+
+                      // If Supplier Pickup is selected, set Payment Terms to Free Of Charge
+                      if (selectedKey === 'Supplier Pickup' && setValue) {
+                        setValue('payment_terms', 'free_of_charge', { shouldDirty: true, shouldValidate: true })
+                      }
+
+                      // If Grab Pickup is selected, initialize grab rate fields
+                      if (selectedKey === 'Grab' && setValue) {
+                        // Initialize grab rate amount and currency if not set
+                        const formData = watch()
+                        if (!formData.grab_rate_amount) {
+                          setValue('grab_rate_amount', '', { shouldDirty: true })
+                        }
+                        if (!formData.grab_rate_currency) {
+                          setValue('grab_rate_currency', 'THB', { shouldDirty: true })
+                        }
+                      }
+
+                      // Clear rates since service option changed (except for Grab)
+                      if (selectedKey !== 'Grab' && onClearRates) {
                         console.log('Service option changed, clearing rates...')
                         onClearRates()
                       }

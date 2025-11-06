@@ -348,6 +348,12 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
   // Look for selected rate in transformedRates first (newly calculated), then fall back to data?.rates (form data)
   const selectedRate = transformedRates?.find(r => r.unique_id === selectedRateId) || data?.rates?.find(r => r.unique_id === selectedRateId);
 
+  // Check if service option is Grab
+  const isGrabService = data?.service_options?.toLowerCase() === 'grab';
+
+  // For Grab, try to find the rate even if not in selectedRate
+  const grabRate = isGrabService ? (selectedRate || transformedRates?.[0] || data?.rates?.[0]) : null;
+
   return (
     <Card className="m-3">
       <CardBody>
@@ -360,7 +366,7 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
             </div>
 
             {/* Show Selected Rate (when user recalculates) */}
-            {selectedRate && (
+            {selectedRate && !isGrabService && (
               <div className="mb-3">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">
                   {serviceType?.toLowerCase() === 'normal' ? 'Cheapest Rate (Auto-selected):' : 'Selected Rate:'}
@@ -374,8 +380,17 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
               </div>
             )}
 
+            {/* Show Grab Rate */}
+            {isGrabService && grabRate && (
+              <div className="mb-3">
+                <div className="text-sm bg-blue-50 p-3 rounded border border-blue-200">
+                  <span className="font-semibold">Grab Delivery Rate: {grabRate.total_charge_amount} {grabRate.total_charge_currency}</span>
+                </div>
+              </div>
+            )}
+
             {/* Show Previously Chosen Rate (in edit mode) */}
-            {previouslyChosenRate && (
+            {previouslyChosenRate && !isGrabService && (
               <div className="mb-3">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Previously Chosen Rate:</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm bg-blue-50 p-3 rounded border border-blue-200">
@@ -388,8 +403,13 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
             )}
 
             {/* Fallback if no rates are available */}
-            {!selectedRate && !previouslyChosenRate && (
+            {!selectedRate && !previouslyChosenRate && !isGrabService && (
               <div className="text-sm text-gray-500">No rate selected</div>
+            )}
+
+            {/* Fallback for Grab if no rate found */}
+            {isGrabService && !grabRate && (
+              <div className="text-sm text-gray-500">No Grab rate entered</div>
             )}
           </div>
           <Button

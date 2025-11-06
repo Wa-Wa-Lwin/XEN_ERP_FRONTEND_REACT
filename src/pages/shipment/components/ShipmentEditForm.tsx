@@ -239,7 +239,23 @@ const ShipmentEditForm = () => {
           approver_rejected_date_time: shipmentData.approver_rejected_date_time || null,
 
           label_status: shipmentData.label_status || null,
-          pick_up_created_status: shipmentData.pick_up_created_status || null
+          pick_up_created_status: shipmentData.pick_up_created_status || null,
+
+          // Initialize Grab rate fields if service option is Grab
+          grab_rate_amount: '',
+          grab_rate_currency: 'THB'
+        }
+
+        // If service option is Grab, extract rate info from the chosen rate
+        if (shipmentData.service_options === 'Grab' && shipmentData.rates && shipmentData.rates.length > 0) {
+          const chosenGrabRate = shipmentData.rates.find((rate: any) =>
+            rate.chosen === true || rate.chosen === '1' || rate.chosen === 1
+          )
+
+          if (chosenGrabRate) {
+            formData.grab_rate_amount = String(chosenGrabRate.total_charge_amount || '')
+            formData.grab_rate_currency = chosenGrabRate.total_charge_currency || 'THB'
+          }
         }
 
         reset(formData)
@@ -289,6 +305,27 @@ const ShipmentEditForm = () => {
         message: 'Please fix the weight issues below before proceeding.',
         details: weightValidation.errors
       })
+      return
+    }
+
+    // Special handling for Grab service option
+    if (formData.service_options === 'Grab') {
+      // For Grab, check if a rate has been selected (from manual entry)
+      if (!selectedRateId) {
+        setErrorModal({
+          isOpen: true,
+          title: 'Grab Rate Required',
+          message: 'Please enter the Grab delivery charge before proceeding.',
+          details: [{ path: 'Grab Rate', info: 'Enter the amount and currency in the Rates section' }]
+        })
+        return
+      }
+
+      // Use the rates from the form data (which were set by RatesSection)
+      // Note: For Grab, transformedRates is not used because rates are manually entered
+      console.log('Grab shipment - using form rates:', formData.rates)
+      setPreviewData(formData)
+      setIsPreviewOpen(true)
       return
     }
 
@@ -897,6 +934,8 @@ const ShipmentEditForm = () => {
                           serviceOption={watch('service_options')}
                           topic={watch('topic')}
                           rateCalculationError={rateCalculationError}
+                          watch={watch}
+                          setValue={setValue}
                         />
                       </div>
                       <div className="flex justify-left items-center border-t gap-2 pt-4">

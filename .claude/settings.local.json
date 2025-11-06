@@ -11,7 +11,9 @@
       "mcp__ide__getDiagnostics",
       "Bash(dir \"C:\\Code\\xeno-shipment\\src\\pages\\shipment\\components\\shipment-details\")",
       "Bash(findstr:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(git checkout:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []
