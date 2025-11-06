@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Select, SelectItem } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { getRateUniqueId as generateRateId } from '@services/rateCalculationService'
 import { useExchangeRates } from '../../hooks/useExchangeRates'
@@ -54,6 +54,9 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   const setGrabRateCurrency = (value: string) => setValue?.('grab_rate_currency', value)
 
   const [manualGrabRate, setManualGrabRate] = useState<RateResponse | null>(null)
+
+  // Ref to track the last rate we set to prevent infinite loops
+  const lastSetRateRef = useRef<string>('')
 
   // Sorting and filtering state
   const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>('thb')
@@ -130,6 +133,14 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   // Auto-create and select Grab rate when amount is entered
   useEffect(() => {
     if (serviceOption === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
+      // Create a unique key for this rate to prevent infinite loops
+      const rateKey = `${grabRateAmount}-${grabRateCurrency}`
+
+      // Skip if we've already processed this exact rate
+      if (lastSetRateRef.current === rateKey) {
+        return
+      }
+
       const newGrabRate: RateResponse = {
         shipper_account: {
           id: "grab",
@@ -199,7 +210,13 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
         // Update the rates array in form data
         setValue('rates', [formGrabRate], { shouldDirty: true, shouldValidate: true })
+
+        // Mark this rate as set
+        lastSetRateRef.current = rateKey
       }
+    } else {
+      // Reset when conditions are not met
+      lastSetRateRef.current = ''
     }
   }, [serviceOption, grabRateAmount, grabRateCurrency, onSelectRate, setValue, watch])
 
