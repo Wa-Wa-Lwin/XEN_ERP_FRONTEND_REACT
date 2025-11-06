@@ -515,7 +515,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 <Controller
                   name="grab_rate_amount"
                   control={control}
-                  defaultValue=""
                   render={({ field }) => (
                     <Input
                       {...field}
@@ -536,10 +535,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 <Controller
                   name="grab_rate_currency"
                   control={control}
-                  defaultValue="THB"
                   render={({ field }) => (
                     <Autocomplete
-                      {...field}
                       defaultItems={CURRENCIES}
                       label="Currency"
                       placeholder="Select currency"

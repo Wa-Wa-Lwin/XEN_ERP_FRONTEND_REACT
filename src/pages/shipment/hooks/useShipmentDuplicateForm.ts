@@ -128,6 +128,10 @@ export const useShipmentDuplicateForm = () => {
           customs_terms_of_trade: shipmentData.customs_terms_of_trade || '',
           payment_terms: shipmentData.payment_terms || '',
           rates: [],
+
+          // Grab rate fields (for manual Grab rate entry)
+          grab_rate_amount: shipmentData.grab_rate_amount || '',
+          grab_rate_currency: shipmentData.grab_rate_currency || 'THB',
         }
 
         console.log('Loading duplicate shipment data from API:', duplicateData)
