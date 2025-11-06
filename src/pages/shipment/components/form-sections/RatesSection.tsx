@@ -38,8 +38,7 @@ interface RatesSectionProps extends FormSectionProps {
     message: string
     details?: Array<{ path: string; info: string }>
   } | null
-  watch?: <T = any>(name?: string) => T
-  setValue?: <T = any>(name: string, value: T, options?: { shouldDirty?: boolean; shouldValidate?: boolean }) => void
+  watch?: any
 }
 
 const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, setValue }: RatesSectionProps) => {
