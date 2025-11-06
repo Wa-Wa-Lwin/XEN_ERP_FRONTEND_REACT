@@ -30,7 +30,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
       classNames={{
         base: "max-h-[90vh]",
         body: "p-6"
-        ,backdrop: "backdrop-blur-lg bg-black/65"
+        , backdrop: "backdrop-blur-lg bg-black/65"
       }}
     >
       <ModalContent>
@@ -58,16 +58,28 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
             <b>PO Date - </b> {formData.po_date.slice(0, 10) || 'Not specified'} ({new Date(formData.po_date).toLocaleDateString('en-US', { weekday: 'short' })}) <br />
             {
-              formData?.shipment_scope_type.toLowerCase() !== "domestic" && 
+              formData?.shipment_scope_type.toLowerCase() !== "domestic" &&
               <>
                 <b>Custom Purpose - </b> {formData.customs_purpose?.toLocaleUpperCase() || 'Not specified'} <br />
                 <b>Incoterms - </b> {formData.customs_terms_of_trade?.toLocaleUpperCase() || 'Not specified'} <br />
               </>
             }
-            
+
             <b>Payment Terms - </b> {formData.payment_terms?.toLocaleUpperCase() || 'Not specified'} <br />
           </p>
           <hr />
+
+          {/* Grab Information */}
+          {
+            formData?.service_options.toLowerCase() === "grab" &&
+            <>
+              <p>
+                <h3 className="text-lg font-medium">Grab Information</h3>
+                <b> {formData?.grab_rate_amount || 'Not specified'} </b> {formData?.grab_rate_currency || 'Not specified'} <br />
+              </p>
+              <hr />
+            </>
+          }
 
           {/* Ship From Address */}
           <p>
@@ -123,6 +135,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
               <b>Instructions - </b> {formData.pick_up_instructions || 'Not specified'}
             </p>
           )}
+          <hr />
 
 
           {/* Parcels */}
