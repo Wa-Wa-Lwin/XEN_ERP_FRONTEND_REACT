@@ -1,9 +1,11 @@
-import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Select, SelectItem } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Autocomplete, AutocompleteItem } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect, useMemo } from 'react'
+import { Controller } from 'react-hook-form'
 import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { getRateUniqueId as generateRateId } from '@services/rateCalculationService'
+import { CURRENCIES } from '../../constants/currencies'
 
 // Interface for exchange rate API response
 interface ExchangeRateResponse {
@@ -46,7 +48,7 @@ interface RatesSectionProps extends FormSectionProps {
   } | null
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, setValue, register }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, setValue, register, control }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
@@ -544,21 +546,64 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 }
                 isRequired
               />
-              <Select
-                label="Currency"
-                placeholder="Select currency"
-                selectedKeys={[grabRateCurrency]}
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys)[0] as string
-                  if (selectedKey) setGrabRateCurrency(selectedKey)
-                }}
-                isRequired
-              >
-                <SelectItem key="THB" value="THB">THB</SelectItem>
-                <SelectItem key="USD" value="USD">USD</SelectItem>
-                <SelectItem key="EUR" value="EUR">EUR</SelectItem>
-                <SelectItem key="GBP" value="GBP">GBP</SelectItem>
-              </Select>
+              {control ? (
+                <Controller
+                  name="grab_rate_currency"
+                  control={control}
+                  defaultValue="THB"
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      defaultItems={CURRENCIES}
+                      label="Currency"
+                      placeholder="Select currency"
+                      variant="flat"
+                      size="md"
+                      selectedKey={field.value || grabRateCurrency}
+                      onSelectionChange={(key) => {
+                        if (key) {
+                          const currencyCode = key.toString()
+                          field.onChange(currencyCode)
+                          setGrabRateCurrency(currencyCode)
+                        } else {
+                          field.onChange('THB')
+                          setGrabRateCurrency('THB')
+                        }
+                      }}
+                      isRequired
+                    >
+                      {(currency) => (
+                        <AutocompleteItem key={currency.key} value={currency.value}>
+                          {currency.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
+                  )}
+                />
+              ) : (
+                <Autocomplete
+                  defaultItems={CURRENCIES}
+                  label="Currency"
+                  placeholder="Select currency"
+                  variant="flat"
+                  size="md"
+                  selectedKey={grabRateCurrency}
+                  onSelectionChange={(key) => {
+                    if (key) {
+                      setGrabRateCurrency(key.toString())
+                    } else {
+                      setGrabRateCurrency('THB')
+                    }
+                  }}
+                  isRequired
+                >
+                  {(currency) => (
+                    <AutocompleteItem key={currency.key} value={currency.value}>
+                      {currency.label}
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
+              )}
             </div>
           </div>
         )}
