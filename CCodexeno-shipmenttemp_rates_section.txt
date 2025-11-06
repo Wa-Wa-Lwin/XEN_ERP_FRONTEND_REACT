@@ -39,14 +39,13 @@ interface RatesSectionProps extends FormSectionProps {
   onSelectRate: (rateId: string) => void
   serviceOption?: string
   topic?: string
-  watch?: any
   rateCalculationError?: {
     message: string
     details?: Array<{ path: string; info: string }>
   } | null
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, setValue, register }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
@@ -54,30 +53,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   // State for manual Grab rate input
   const [grabRateAmount, setGrabRateAmount] = useState<string>('')
   const [grabRateCurrency, setGrabRateCurrency] = useState<string>('THB')
+  const [manualGrabRate, setManualGrabRate] = useState<RateResponse | null>(null)
   const [isLoadingRates, setIsLoadingRates] = useState(false)
   const [ratesError, setRatesError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
-
-  // Register Grab rate fields with react-hook-form
-  useEffect(() => {
-    if (register) {
-      register('grab_rate_amount')
-      register('grab_rate_currency')
-    }
-  }, [register])
-
-  // Sync local Grab rate state with form state
-  useEffect(() => {
-    if (setValue) {
-      setValue('grab_rate_amount', grabRateAmount)
-    }
-  }, [grabRateAmount, setValue])
-
-  useEffect(() => {
-    if (setValue) {
-      setValue('grab_rate_currency', grabRateCurrency)
-    }
-  }, [grabRateCurrency, setValue])
 
   // Inside RatesSection component, add sorting state
   const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>('thb')
@@ -335,6 +314,41 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     }
   }, [rates, serviceOption, exchangeRates, selectedRateId, onSelectRate])
 
+  // Auto-create and select Grab rate when amount is entered
+  useEffect(() => {
+    if (serviceOption === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
+      const newGrabRate: RateResponse = {
+        shipper_account: {
+          id: "fb842bff60154a2f8c84584a74d0cf69",
+          slug: "dhl-global-mail-asia",
+          description: "Grab"
+        },
+        service_type: "dhl-global-mail-asia_parcel_domestic",
+        service_name: "Grab Delivery",
+        pickup_deadline: null,
+        booking_cut_off: null,
+        delivery_date: null,
+        transit_time: null,
+        error_message: null,
+        info_message: "Manual rate entry for Grab delivery",
+        charge_weight: null,
+        total_charge: {
+          amount: parseFloat(grabRateAmount),
+          currency: grabRateCurrency
+        },
+        detailed_charges: []
+      }
+
+      // Store the manual Grab rate
+      setManualGrabRate(newGrabRate)
+
+      // Auto-select this rate
+      const rateId = getRateUniqueId(newGrabRate, 0)
+      onSelectRate(rateId)
+    }
+  }, [serviceOption, grabRateAmount, grabRateCurrency, onSelectRate])
+
+
   // Count carriers from available rates
   const carrierCounts = useMemo(() => {
     const availableRates = getAvailableUniqueRates(rates)
@@ -358,7 +372,11 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   // Sorted and filtered rates using useMemo
   const sortedRates = useMemo(() => {
+    // Combine API rates with manual Grab rate if it exists
     let allRates = [...rates]
+    if (manualGrabRate && serviceOption === 'Grab') {
+      allRates = [manualGrabRate, ...rates]
+    }
 
     let ratesToSort = getAvailableUniqueRates(allRates).map(rate => ({
       ...rate,
@@ -392,7 +410,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       })
     }
     return ratesToSort
-  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier])
+  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier, manualGrabRate])
 
   return (
     <>
@@ -521,7 +539,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
           </div>
         )}
 
-        {rates.length === 0 && serviceOption !== 'Grab' ? (
+        {rates.length === 0 && !manualGrabRate && serviceOption !== 'Grab' ? (
           <div className="text-center py-8">
             {rateCalculationError ? (
               <div className="flex flex-col items-center gap-4">
@@ -668,7 +686,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             )}
           </>
         ) : null}
-        {serviceOption !== 'Grab' && (rates.length > 0) && (
+        {serviceOption !== 'Grab' && (rates.length > 0 || manualGrabRate) && (
           <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
             <TableHeader>
               <TableColumn>Select</TableColumn>

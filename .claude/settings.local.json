@@ -13,7 +13,9 @@
       "Bash(findstr:*)",
       "Bash(test:*)",
       "Bash(git checkout:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(dir \"C:\\Code\\xeno-shipment\\src\\pages\\shipment\\components\\form-sections\")",
+      "Bash(C:Codexeno-shipmenttemp_rates_section.txt)"
     ],
     "deny": [],
     "ask": []

@@ -231,54 +231,74 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               control={control}
               defaultValue="Normal"
               rules={{ required: "Service option is required" }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  isRequired
-                  label={<span>Service Options</span>}
-                  placeholder="Select"
-                  errorMessage={errors.service_options?.message}
-                  isInvalid={!!errors.service_options}
-                  selectedKeys={serviceOptionsValue ? [serviceOptionsValue] : field.value ? [field.value] : []}
-                  onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string
-                    if (selectedKey) {
-                      field.onChange(selectedKey)
-                      setSelectedServiceOptions(new Set([selectedKey]))
+              render={({ field }) => {
+                const shipmentScope = watch("shipment_scope_type");
+                const filteredServiceOptions =
+                  shipmentScope === "domestic"
+                    ? SERVICE_OPTIONS
+                    : SERVICE_OPTIONS.filter(
+                      (option) =>
+                        option.key.toLowerCase() === "normal" ||
+                        option.key.toLowerCase() === "urgent"
+                    );
 
-                      // If Supplier Pickup is selected, set Payment Terms to Free Of Charge
-                      if (selectedKey === 'Supplier Pickup' && setValue) {
-                        setValue('payment_terms', 'free_of_charge', { shouldDirty: true, shouldValidate: true })
-                      }
-
-                      // If Grab Pickup is selected, initialize grab rate fields
-                      if (selectedKey === 'Grab' && setValue) {
-                        // Initialize grab rate amount and currency if not set
-                        const formData = watch()
-                        if (!formData.grab_rate_amount) {
-                          setValue('grab_rate_amount', '', { shouldDirty: true })
-                        }
-                        if (!formData.grab_rate_currency) {
-                          setValue('grab_rate_currency', 'THB', { shouldDirty: true })
-                        }
-                      }
-
-                      // Clear rates since service option changed (except for Grab)
-                      if (selectedKey !== 'Grab' && onClearRates) {
-                        console.log('Service option changed, clearing rates...')
-                        onClearRates()
-                      }
+                return (
+                  <Select
+                    {...field}
+                    isRequired
+                    label={<span>Service Options</span>}
+                    placeholder="Select"
+                    errorMessage={errors.service_options?.message}
+                    isInvalid={!!errors.service_options}
+                    selectedKeys={
+                      serviceOptionsValue
+                        ? [serviceOptionsValue]
+                        : field.value
+                          ? [field.value]
+                          : []
                     }
-                  }}
-                  color={!watch('service_options') ? "warning" : "default"}
-                >
-                  {SERVICE_OPTIONS.map((option) => (
-                    <SelectItem key={option.key} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-              )}
+                    onSelectionChange={(keys) => {
+                      const selectedKey = Array.from(keys)[0] as string;
+                      if (selectedKey) {
+                        field.onChange(selectedKey);
+                        setSelectedServiceOptions(new Set([selectedKey]));
+
+                        // If Supplier Pickup is selected, set Payment Terms to Free Of Charge
+                        if (selectedKey === "Supplier Pickup" && setValue) {
+                          setValue("payment_terms", "free_of_charge", {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }
+
+                        // If Grab Pickup is selected, initialize grab rate fields
+                        if (selectedKey === "Grab" && setValue) {
+                          const formData = watch();
+                          if (!formData.grab_rate_amount) {
+                            setValue("grab_rate_amount", "", { shouldDirty: true });
+                          }
+                          if (!formData.grab_rate_currency) {
+                            setValue("grab_rate_currency", "THB", { shouldDirty: true });
+                          }
+                        }
+
+                        // Clear rates since service option changed (except for Grab)
+                        if (selectedKey !== "Grab" && onClearRates) {
+                          console.log("Service option changed, clearing rates...");
+                          onClearRates();
+                        }
+                      }
+                    }}
+                    color={!watch("service_options") ? "warning" : "default"}
+                  >
+                    {filteredServiceOptions.map((option) => (
+                      <SelectItem key={option.key} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                );
+              }}
             />
             {selectedServiceOptions.has('Urgent') && (
               <Input
