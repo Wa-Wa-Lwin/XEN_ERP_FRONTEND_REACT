@@ -263,7 +263,7 @@ const ShipmentTable = () => {
       case 'requestor_requested':
         return 'warning'
       case 'logistic_edited':
-        return 'warning'  
+        return 'warning'
       case 'send_to_logistic':
         return 'warning'
       case 'logistic_updated':
@@ -656,6 +656,7 @@ const ShipmentTable = () => {
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {(() => {
+                    if(request.service_options === 'Grab') return <p className="font-medium text-xs text-blue-500">Grab</p>;
                     const chosenRate = request.rates?.find(rate => rate.chosen == true);
                     if (chosenRate) {
                       return (
@@ -707,46 +708,56 @@ const ShipmentTable = () => {
                 </TableCell>
 
                 <TableCell>
-                  {request.request_status === 'approver_approved' ? (
-                    <>
-                      <div>
-                        <p className={`font-medium text-xs`}>
-                          Label: <span className={`${request.label_status === 'created' ? 'text-green-500' : 'text-red-500'}`}>{request.label_status}</span>
-                        </p>
-                        {(() => {
-                          const chosenRate = request.rates?.find(rate => rate.chosen == true);
-                          return chosenRate?.shipper_account_description === 'DHL eCommerce Asia' ? (
-                            <p className="text-xs">Pickup: <span className="text-blue-500">Call</span></p>
-                          ) : (
-                            <p className="text-xs">
-                              Pickup:{' '}
-                              <span
-                                className={
-                                  request.pick_up_created_status === 'created_success'
-                                    ? 'text-green-500'
-                                    : request.pick_up_created_status === 'created_failed'
-                                      ? 'text-red-500'
-                                      : ''
-                                }
-                              >
-                                {request.pick_up_created_status === 'created_success'
-                                  ? 'created'
-                                  : request.pick_up_created_status === 'created_failed'
-                                    ? 'failed'
-                                    : '-'}
-                              </span>
-                            </p>
-                          );
-                        })()}
-                      </div>
-
-                    </>
-                  ) :
-                    (
+                  {
+                    request.service_options === 'Grab' ?
                       <>
-                        <p className='font-medium text-xs text-gray-500'>Waiting</p>
+                        <p className="text-xs text-blue-500 font-medium">Grab</p>
                       </>
-                    )}
+                      :
+                      request.request_status === 'approver_approved'
+                        ?
+                        (
+                          <>
+                            <div>
+                              <p className={`font-medium text-xs`}>
+                                Label: <span className={`${request.label_status === 'created' ? 'text-green-500' : 'text-red-500'}`}>{request.label_status}</span>
+                              </p>
+                              {(() => {
+                                const chosenRate = request.rates?.find(rate => rate.chosen == true);
+                                return chosenRate?.shipper_account_description === 'DHL eCommerce Asia' ? (
+                                  <p className="text-xs">Pickup: <span className="text-blue-500">Call</span></p>
+                                ) : (
+                                  <p className="text-xs">
+                                    Pickup:{' '}
+                                    <span
+                                      className={
+                                        request.pick_up_created_status === 'created_success'
+                                          ? 'text-green-500'
+                                          : request.pick_up_created_status === 'created_failed'
+                                            ? 'text-red-500'
+                                            : ''
+                                      }
+                                    >
+                                      {request.pick_up_created_status === 'created_success'
+                                        ? 'created'
+                                        : request.pick_up_created_status === 'created_failed'
+                                          ? 'failed'
+                                          : '-'}
+                                    </span>
+                                  </p>
+                                );
+                              })()}
+                            </div>
+
+                          </>
+                        )
+                        :
+                        (
+                          <>
+                            <p className='font-medium text-xs text-gray-500'>Waiting</p>
+                          </>
+                        )
+                  }
                   {hide_column ? renderActionButtons() : null}
                 </TableCell>
               </TableRow>

@@ -51,8 +51,7 @@ const LabelAndInvoiceInformation = ({
         }
     };
 
-
-    const label_created_data = <>
+    const invoice_and_packing_data = <>
         <div className="grid gap-2 text-sm mb-3" style={{
             gridTemplateColumns: 'repeat(8, max-content)',
             justifyContent: 'start',
@@ -90,6 +89,10 @@ const LabelAndInvoiceInformation = ({
                 </Button>
             </div>
         </div>
+    </>;
+
+    const label_created_data = <>
+        {invoice_and_packing_data}
 
         <div className="grid gap-2 text-sm mb-3" style={{
             gridTemplateColumns: 'repeat(8, max-content)',
@@ -163,48 +166,82 @@ const LabelAndInvoiceInformation = ({
     </>;
 
     const label_failed_data = <>
-    <div>
-        <Button
-            color="primary"
-            size="sm"
-            onPress={onCreateLabel}
-            className="px-2 py-1 text-[12px] h-auto min-h-0"
-        >
-            Retry Create Label
-        </Button>
-        <p className="text-red-600 text-xs font-semibold bg-red-50 p-2 rounded">
-            <b>Details:</b> {formattedLabelError} {formattedError}
-        </p>
-    </div>
+        <div>
+            <Button
+                color="primary"
+                size="sm"
+                onPress={onCreateLabel}
+                className="px-2 py-1 text-[12px] h-auto min-h-0"
+            >
+                Retry Create Label
+            </Button>
+            <p className="text-red-600 text-xs font-semibold bg-red-50 p-2 rounded">
+                <b>Details:</b> {formattedLabelError} {formattedError}
+            </p>
+        </div>
     </>;
 
     return (
-        // <Card className="p-3 rounded-none shadow-light">
-        <Card shadow="none">
-            <div className="flex items-center gap-2 mb-2">
-                <Icon
-                    icon="solar:calendar-bold"
-                    width={24}
-                    className={getLabelColor()}
-                />
+        <>
+            {
+                shipment.service_options === 'Grab' ?
+                    <>
+                        <Card shadow="none">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Icon
+                                    icon="solar:calendar-bold"
+                                    width={24}
+                                    className="text-blue-500"
+                                />
+                                <h3 className='font-semibold'>
+                                    Invoice Information
+                                </h3>
+                            </div>
+                            {
+                                shipment.approver_approved_date_time !== null ?
+                                    <>
+                                        {invoice_and_packing_data}
+                                    </>
+                                    :
+                                    <>
+                                        <p className="text-yellow-600 text-sm font-semibold bg-yellow-50 p-2 rounded">
+                                            The shipment is pending approval. Invoice information will be available once approved.
+                                        </p>
+                                    </>
+                            }
+                        </Card>
+                    </>
+                    :
+                    <>
+                        <Card shadow="none">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Icon
+                                    icon="solar:calendar-bold"
+                                    width={24}
+                                    className={getLabelColor()}
+                                />
 
-                <h3 className={`font-semibold ${getLabelColor()}`}>
-                    Label & Invoice Information ({getLabelText()})
-                </h3>
-            </div>
-            {
-                (shipment.label_status === "created" || shipment.label_status === "cancelled") &&
-                <>
-                    {label_created_data}
-                </>
+                                <h3 className={`font-semibold ${getLabelColor()}`}>
+                                    Label & Invoice Information ({getLabelText()})
+                                </h3>
+                            </div>
+                            {
+                                (shipment.label_status === "created" || shipment.label_status === "cancelled") &&
+                                <>
+                                    {label_created_data}
+                                </>
+                            }
+                            {
+                                shipment.label_status === "failed" &&
+                                <>
+                                    {label_failed_data}
+                                </>
+                            }
+                        </Card>
+                    </>
             }
-            {
-                shipment.label_status === "failed" &&
-                <>
-                    {label_failed_data}
-                </>
-            }
-        </Card>
+
+        </>
     );
 };
 
