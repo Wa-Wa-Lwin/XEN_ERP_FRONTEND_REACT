@@ -46,9 +46,16 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
             <div className="inline-flex items-center">
               |&nbsp; Service:&nbsp; <b>
                 {
-                  shipment.service_options.toLowerCase() === 'normal'
-                    ? 'Normal (Cheapest One)'
-                    : `Urgent (${shipment.urgent_reason})`
+                  (() => {
+                    switch (shipment.service_options?.toLowerCase()) {
+                      case 'normal':
+                        return 'Normal (Cheapest One)';
+                      case 'urgent':
+                        return `Urgent (${shipment.urgent_reason})`;
+                      default:
+                        return shipment.service_options || 'Unknown';
+                    }
+                  })()
                 }
               </b>&nbsp;
             </div>
