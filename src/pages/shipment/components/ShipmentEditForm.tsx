@@ -930,6 +930,7 @@ const ShipmentEditForm = () => {
                           selectedRateId={selectedRateId}
                           onSelectRate={handleRateSelection}
                           register={register}
+                          control={control}
                           errors={errors}
                           serviceOption={watch('service_options')}
                           topic={watch('topic')}

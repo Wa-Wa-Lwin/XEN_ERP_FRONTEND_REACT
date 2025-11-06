@@ -48,39 +48,20 @@ interface RatesSectionProps extends FormSectionProps {
   } | null
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, setValue, register, control }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, control }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
 
-  // State for manual Grab rate input
-  const [grabRateAmount, setGrabRateAmount] = useState<string>('')
-  const [grabRateCurrency, setGrabRateCurrency] = useState<string>('THB')
+  // State for manual Grab rate
   const [manualGrabRate, setManualGrabRate] = useState<RateResponse | null>(null)
   const [isLoadingRates, setIsLoadingRates] = useState(false)
   const [ratesError, setRatesError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
 
-  // Register Grab rate fields with react-hook-form
-  useEffect(() => {
-    if (register) {
-      register('grab_rate_amount')
-      register('grab_rate_currency')
-    }
-  }, [register])
-
-  // Sync local Grab rate state with form state
-  useEffect(() => {
-    if (setValue) {
-      setValue('grab_rate_amount', grabRateAmount)
-    }
-  }, [grabRateAmount, setValue])
-
-  useEffect(() => {
-    if (setValue) {
-      setValue('grab_rate_currency', grabRateCurrency)
-    }
-  }, [grabRateCurrency, setValue])
+  // Watch Grab rate fields from form
+  const grabRateAmount = watch ? watch('grab_rate_amount') : ''
+  const grabRateCurrency = watch ? watch('grab_rate_currency') : 'THB'
 
   // Inside RatesSection component, add sorting state
   const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>('thb')
@@ -471,82 +452,87 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       <Card shadow="none">
         {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
         <CardHeader className="px-0 pt-0 pb-1 flex-row items-center justify-left gap-3 w-full">
-        <div className="flex flex-col">
-          {serviceOption !== 'Grab' && ratesError && (
-            <p className="text-red-500 text-sm mt-1">
-              <Icon icon="solar:info-circle-bold" className="inline mr-1" />
-              {ratesError} - Using fallback rates
-            </p>
-          )}
-          {serviceOption !== 'Grab' && lastUpdated && !ratesError && (
-            <p className="text-gray-500 text-xs mt-1">
-              <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
-              Exchange rates updated: {lastUpdated}
-            </p>
-          )}
-        </div>
-        {serviceOption !== 'Grab' && (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="light"
-              size="sm"
-              startContent={<Icon icon="solar:refresh-bold" />}
-              onPress={() => fetchExchangeRates(true)}
-              isLoading={isLoadingRates}
-              disabled={isLoadingRates}
-              title="Force refresh exchange rates"
-              className='hidden'
-            >
-              {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
-            </Button>
-            <Button
-              type="button"
-              color="primary"
-              size="sm"
-              startContent={<Icon icon="solar:calculator-bold" />}
-              onPress={onCalculateRates}
-              isLoading={isCalculating}
-              disabled={isCalculating}
-            >
-              {isCalculating ? 'Calculating...' : 'Calculate Rates'}
-            </Button>
+          <div className="flex flex-col">
+            {serviceOption !== 'Grab' && ratesError && (
+              <p className="text-red-500 text-sm mt-1">
+                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+                {ratesError} - Using fallback rates
+              </p>
+            )}
+            {serviceOption !== 'Grab' && lastUpdated && !ratesError && (
+              <p className="text-gray-500 text-xs mt-1">
+                <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
+                Exchange rates updated: {lastUpdated}
+              </p>
+            )}
           </div>
-        )}
-      </CardHeader>
-
-      <CardBody className="px-0 pt-0 pb-0">
-        {/* Manual Grab Rate Input - Only show when serviceOption is "Grab" */}
-        {serviceOption === 'Grab' && (
-          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-2 mb-3">
-              <Icon icon="solar:hand-money-bold" className="text-blue-600 text-xl mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-blue-800 text-sm">
-                  Manual Grab Rate Entry
-                </h3>
-                <p className="text-blue-700 text-xs">
-                  Enter the Grab delivery charge manually
-                </p>
-              </div>
+          {serviceOption !== 'Grab' && (
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="light"
+                size="sm"
+                startContent={<Icon icon="solar:refresh-bold" />}
+                onPress={() => fetchExchangeRates(true)}
+                isLoading={isLoadingRates}
+                disabled={isLoadingRates}
+                title="Force refresh exchange rates"
+                className='hidden'
+              >
+                {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
+              </Button>
+              <Button
+                type="button"
+                color="primary"
+                size="sm"
+                startContent={<Icon icon="solar:calculator-bold" />}
+                onPress={onCalculateRates}
+                isLoading={isCalculating}
+                disabled={isCalculating}
+              >
+                {isCalculating ? 'Calculating...' : 'Calculate Rates'}
+              </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
-              <Input
-                label="Total Charge Amount"
-                placeholder="Enter amount"
-                value={grabRateAmount}
-                onValueChange={setGrabRateAmount}
-                type="number"
-                step="0.01"
-                min="0"
-                startContent={
-                  <div className="pointer-events-none flex items-center">
-                    <span className="text-default-400 text-small">฿</span>
-                  </div>
-                }
-                isRequired
-              />
-              {control ? (
+          )}
+        </CardHeader>
+
+        <CardBody className="px-0 pt-0 pb-0">
+          {/* Manual Grab Rate Input - Only show when serviceOption is "Grab" */}
+          {serviceOption === 'Grab' && (
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-2 mb-3">
+                <Icon icon="solar:hand-money-bold" className="text-blue-600 text-xl mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-blue-800 text-sm">
+                    Manual Grab Rate Entry
+                  </h3>
+                  <p className="text-blue-700 text-xs">
+                    Enter the Grab delivery charge manually
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
+                <Controller
+                  name="grab_rate_amount"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Total Charge Amount"
+                      placeholder="Enter amount"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      startContent={
+                        <div className="pointer-events-none flex items-center">
+                          <span className="text-default-400 text-small">฿</span>
+                        </div>
+                      }
+                      isRequired
+                    />
+                  )}
+                />
                 <Controller
                   name="grab_rate_currency"
                   control={control}
@@ -559,333 +545,302 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                       placeholder="Select currency"
                       variant="flat"
                       size="md"
-                      selectedKey={field.value || grabRateCurrency}
+                      selectedKey={field.value || 'THB'}
                       onSelectionChange={(key) => {
-                        if (key) {
-                          const currencyCode = key.toString()
-                          field.onChange(currencyCode)
-                          setGrabRateCurrency(currencyCode)
-                        } else {
-                          field.onChange('THB')
-                          setGrabRateCurrency('THB')
-                        }
+                        field.onChange(key ? key.toString() : 'THB')
                       }}
                       isRequired
                     >
                       {(currency) => (
                         <AutocompleteItem key={currency.key} value={currency.value}>
-                          {currency.label}
+                          {currency.key}
                         </AutocompleteItem>
                       )}
                     </Autocomplete>
                   )}
                 />
+              </div>
+            </div>
+          )}
+
+          {rates.length === 0 && serviceOption !== 'Grab' ? (
+            <div className="text-center py-8">
+              {rateCalculationError ? (
+                <div className="flex flex-col items-center gap-4">
+                  <Icon icon="solar:danger-circle-bold" className="text-6xl text-red-500 mb-2" />
+                  <div className="max-w-2xl">
+                    <h3 className="text-xl font-bold text-red-600 mb-2">
+                      Rate Calculation Failed
+                    </h3>
+                    <p className="text-red-500 mb-4">
+                      {rateCalculationError.message}
+                    </p>
+                    {rateCalculationError.details && rateCalculationError.details.length > 0 && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
+                        <h4 className="font-semibold text-red-700 mb-2">Validation Errors:</h4>
+                        <ul className="list-disc list-inside space-y-1">
+                          {rateCalculationError.details.map((detail, index) => (
+                            <li key={index} className="text-red-600 text-sm">
+                              <span className="font-medium">{detail.path}:</span> {detail.info}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <Button
+                      type="button"
+                      color="danger"
+                      variant="flat"
+                      size="sm"
+                      className="mt-4"
+                      startContent={<Icon icon="solar:refresh-bold" />}
+                      onPress={onCalculateRates}
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                </div>
               ) : (
-                <Autocomplete
-                  defaultItems={CURRENCIES}
-                  label="Currency"
-                  placeholder="Select currency"
-                  variant="flat"
-                  size="md"
-                  selectedKey={grabRateCurrency}
-                  onSelectionChange={(key) => {
-                    if (key) {
-                      setGrabRateCurrency(key.toString())
-                    } else {
-                      setGrabRateCurrency('THB')
-                    }
-                  }}
-                  isRequired
-                >
-                  {(currency) => (
-                    <AutocompleteItem key={currency.key} value={currency.value}>
-                      {currency.label}
-                    </AutocompleteItem>
-                  )}
-                </Autocomplete>
+                <div className="text-gray-500">
+                  <Icon icon="solar:calculator-bold" className="text-4xl mb-2 mx-auto" />
+                  <p>No rates calculated yet. Click "Calculate Rates" to get shipping quotes.</p>
+                </div>
               )}
             </div>
-          </div>
-        )}
-
-        {rates.length === 0 && serviceOption !== 'Grab' ? (
-          <div className="text-center py-8">
-            {rateCalculationError ? (
-              <div className="flex flex-col items-center gap-4">
-                <Icon icon="solar:danger-circle-bold" className="text-6xl text-red-500 mb-2" />
-                <div className="max-w-2xl">
-                  <h3 className="text-xl font-bold text-red-600 mb-2">
-                    Rate Calculation Failed
-                  </h3>
-                  <p className="text-red-500 mb-4">
-                    {rateCalculationError.message}
-                  </p>
-                  {rateCalculationError.details && rateCalculationError.details.length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
-                      <h4 className="font-semibold text-red-700 mb-2">Validation Errors:</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        {rateCalculationError.details.map((detail, index) => (
-                          <li key={index} className="text-red-600 text-sm">
-                            <span className="font-medium">{detail.path}:</span> {detail.info}
-                          </li>
-                        ))}
-                      </ul>
+          ) : serviceOption !== 'Grab' ? (
+            <>
+              {/* Carrier Filter Tabs */}
+              <Tabs
+                aria-label="Carrier filter"
+                selectedKey={selectedCarrier}
+                onSelectionChange={(key) => setSelectedCarrier(key as string)}
+                className="mb-4"
+                color="primary"
+                variant="underlined"
+              >
+                <Tab
+                  key="all"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span>All</span>
+                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                        {carrierCounts.all || 0}
+                      </span>
                     </div>
-                  )}
-                  <Button
-                    type="button"
-                    color="danger"
-                    variant="flat"
-                    size="sm"
-                    className="mt-4"
-                    startContent={<Icon icon="solar:refresh-bold" />}
-                    onPress={onCalculateRates}
-                  >
-                    Try Again
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-gray-500">
-                <Icon icon="solar:calculator-bold" className="text-4xl mb-2 mx-auto" />
-                <p>No rates calculated yet. Click "Calculate Rates" to get shipping quotes.</p>
-              </div>
-            )}
-          </div>
-        ) : serviceOption !== 'Grab' ? (
-          <>
-            {/* Carrier Filter Tabs */}
-            <Tabs
-              aria-label="Carrier filter"
-              selectedKey={selectedCarrier}
-              onSelectionChange={(key) => setSelectedCarrier(key as string)}
-              className="mb-4"
-              color="primary"
-              variant="underlined"
-            >
-              <Tab
-                key="all"
-                title={
-                  <div className="flex items-center gap-2">
-                    <span>All</span>
-                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                      {carrierCounts.all || 0}
-                    </span>
-                  </div>
-                }
-              />
-              <Tab
-                key="fedex"
-                title={
-                  <div className="flex items-center gap-2">
-                    <span>FedEx</span>
-                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                      {carrierCounts.fedex || 0}
-                    </span>
-                  </div>
-                }
-              />
-              <Tab
-                key="dhl"
-                title={
-                  <div className="flex items-center gap-2">
-                    <span>DHL</span>
-                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                      {carrierCounts.dhl || 0}
-                    </span>
-                  </div>
-                }
-              />
-              <Tab
-                key="ups"
-                title={
-                  <div className="flex items-center gap-2">
-                    <span>UPS</span>
-                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                      {carrierCounts.ups || 0}
-                    </span>
-                  </div>
-                }
-              />
-              <Tab
-                key="tnt"
-                title={
-                  <div className="flex items-center gap-2">
-                    <span>TNT</span>
-                    <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                      {carrierCounts.tnt || 0}
-                    </span>
-                  </div>
-                }
-              />
-            </Tabs>
+                  }
+                />
+                <Tab
+                  key="fedex"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span>FedEx</span>
+                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                        {carrierCounts.fedex || 0}
+                      </span>
+                    </div>
+                  }
+                />
+                <Tab
+                  key="dhl"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span>DHL</span>
+                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                        {carrierCounts.dhl || 0}
+                      </span>
+                    </div>
+                  }
+                />
+                <Tab
+                  key="ups"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span>UPS</span>
+                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                        {carrierCounts.ups || 0}
+                      </span>
+                    </div>
+                  }
+                />
+                <Tab
+                  key="tnt"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span>TNT</span>
+                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                        {carrierCounts.tnt || 0}
+                      </span>
+                    </div>
+                  }
+                />
+              </Tabs>
 
-            {/* Error Rates Section - Only show when no available rates */}
-            {sortedRates.length === 0 && getErrorRates(rates).length > 0 && (
-              <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-start gap-2 mb-3">
-                  <Icon icon="solar:danger-triangle-bold" className="text-yellow-600 text-xl mt-0.5" />
-                  <div>
-                    <h3 className="font-semibold text-yellow-800 text-sm">
-                      Some carriers returned errors
-                    </h3>
-                    <p className="text-yellow-700 text-xs">
-                      The following carriers could not provide rates due to validation issues:
-                    </p>
+              {/* Error Rates Section - Only show when no available rates */}
+              {sortedRates.length === 0 && getErrorRates(rates).length > 0 && (
+                <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex items-start gap-2 mb-3">
+                    <Icon icon="solar:danger-triangle-bold" className="text-yellow-600 text-xl mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-yellow-800 text-sm">
+                        Some carriers returned errors
+                      </h3>
+                      <p className="text-yellow-700 text-xs">
+                        The following carriers could not provide rates due to validation issues:
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  {getErrorRates(rates).map((rate, index) => (
-                    <div key={index} className="bg-white rounded p-3 border border-yellow-200">
-                      <div className="flex items-start gap-2">
-                        <div className="flex-1">
-                          <div className="font-semibold text-sm text-gray-800">
-                            {rate.shipper_account.description}
-                          </div>
-                          <div className="text-red-600 text-xs mt-1">
-                            <Icon icon="solar:close-circle-bold" className="inline mr-1" />
-                            {rate.error_message}
+                  <div className="space-y-2">
+                    {getErrorRates(rates).map((rate, index) => (
+                      <div key={index} className="bg-white rounded p-3 border border-yellow-200">
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1">
+                            <div className="font-semibold text-sm text-gray-800">
+                              {rate.shipper_account.description}
+                            </div>
+                            <div className="text-red-600 text-xs mt-1">
+                              <Icon icon="solar:close-circle-bold" className="inline mr-1" />
+                              {rate.error_message}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </>
-        ) : null}
-        {serviceOption !== 'Grab' && (rates.length > 0) && (
-          <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
-            <TableHeader>
-              <TableColumn>Select</TableColumn>
-              <TableColumn>Carrier</TableColumn>
-              <TableColumn>Service</TableColumn>
-              <TableColumn className="text-right flex items-center gap-1">
-                Estimated THB
-                <Button
-                  className="h-5 w-5 min-w-0"
-                  variant="light"
-                  isIconOnly
-                  onPress={() => {
-                    if (sortBy === 'thb') setSortAsc(!sortAsc)
-                    else { setSortBy('thb'); setSortAsc(true) }
-                  }}
-                >
-                  <Icon
-                    icon={sortBy === 'thb'
-                      ? sortAsc
-                        ? "solar:arrow-up-bold"   // lowest → highest
-                        : "solar:arrow-down-bold" // highest → lowest
-                      : "solar:arrow-up-bold" // default when not sorting by THB
-                    }
-                    className="w-3 h-3"
-                  />
-                </Button>
-              </TableColumn>
-              <TableColumn className="text-right">Total Charge</TableColumn>
-              <TableColumn className="text-right">Charge Weight (kg)</TableColumn>
-              {/* <TableColumn>Transit Time</TableColumn> */}
-              <TableColumn className="flex items-center gap-1">
-                Transit Time
-                <Button
-                  className="h-5 w-5 min-w-0"
-                  variant="light"
-                  isIconOnly
-                  onPress={() => {
-                    if (sortBy === 'transit') setSortAsc(!sortAsc)
-                    else { setSortBy('transit'); setSortAsc(true) }
-                  }}
-                >
-                  <Icon
-                    icon={sortBy === 'transit'
-                      ? sortAsc
-                        ? "solar:arrow-up-bold"
-                        : "solar:arrow-down-bold"
-                      : "solar:arrow-up-bold"
-                    }
-                    className="w-3 h-3"
-                  />
-                </Button>
-              </TableColumn>
-              <TableColumn>Delivery Date</TableColumn>
-              <TableColumn>Pickup Deadline</TableColumn>
-              <TableColumn>Booking Cutoff</TableColumn>
-            </TableHeader>
-            <TableBody emptyContent={
-              getErrorRates(rates).length > 0
-                ? "No valid rates available. Please review the error messages above and correct the validation issues."
-                : "No available rates found. Check or change your pick up date or expected delivery date or weight."
-            }>
-              {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
-              {sortedRates.map((rate, index) => {
-                const rateUniqueId = getRateUniqueId(rate, index)
-                const isSelected = selectedRateId === rateUniqueId
-                return (
-                  <TableRow
-                    key={rateUniqueId}
-                    className={isSelected ? 'bg-green-50 border-green-200' : ''}
+              )}
+            </>
+          ) : null}
+          {serviceOption !== 'Grab' && (rates.length > 0) && (
+            <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
+              <TableHeader>
+                <TableColumn>Select</TableColumn>
+                <TableColumn>Carrier</TableColumn>
+                <TableColumn>Service</TableColumn>
+                <TableColumn className="text-right flex items-center gap-1">
+                  Estimated THB
+                  <Button
+                    className="h-5 w-5 min-w-0"
+                    variant="light"
+                    isIconOnly
+                    onPress={() => {
+                      if (sortBy === 'thb') setSortAsc(!sortAsc)
+                      else { setSortBy('thb'); setSortAsc(true) }
+                    }}
                   >
-                    <TableCell>
-                      {isSelected ? (
-                        <Button
-                          size="sm"
-                          color="success"
-                          variant="solid"
-                          disabled
-                          startContent={<Icon icon="solar:check-circle-bold" />}
-                        >
-                          {serviceOption === 'Normal' ? 'Cheapest' : 'Selected'}
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          color="primary"
-                          variant="flat"
-                          onPress={() => {
-                            onSelectRate(rateUniqueId)
-                          }}
-                          disabled={!!rate.error_message || !rate.total_charge?.amount}
-                          startContent={<Icon icon="solar:check-circle-line-duotone" />}
-                        >
-                          Select
-                        </Button>
-                      )}
-                    </TableCell>
-                    <TableCell>{rate.shipper_account.description}</TableCell>
-                    <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
-                    <TableCell className="text-right">
-                      {convertToTHB(
-                        rate.total_charge?.amount ?? null,
-                        rate.total_charge?.currency ?? null
-                      )} THB
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(
-                        rate.total_charge?.amount ?? null,
-                        rate.total_charge?.currency ?? null
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {convertWeightToKg(rate.charge_weight)}
-                    </TableCell>
-                    <TableCell>
-                      {rate.shipper_account.description === 'DHL eCommerce Asia'
-                        ? '1-3(Working) day(s)'
-                        : rate.transit_time ? `${rate.transit_time} day(s)` : '-'}
-                    </TableCell>
-                    <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
-                    <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
-                    <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
+                    <Icon
+                      icon={sortBy === 'thb'
+                        ? sortAsc
+                          ? "solar:arrow-up-bold"   // lowest → highest
+                          : "solar:arrow-down-bold" // highest → lowest
+                        : "solar:arrow-up-bold" // default when not sorting by THB
+                      }
+                      className="w-3 h-3"
+                    />
+                  </Button>
+                </TableColumn>
+                <TableColumn className="text-right">Total Charge</TableColumn>
+                <TableColumn className="text-right">Charge Weight (kg)</TableColumn>
+                {/* <TableColumn>Transit Time</TableColumn> */}
+                <TableColumn className="flex items-center gap-1">
+                  Transit Time
+                  <Button
+                    className="h-5 w-5 min-w-0"
+                    variant="light"
+                    isIconOnly
+                    onPress={() => {
+                      if (sortBy === 'transit') setSortAsc(!sortAsc)
+                      else { setSortBy('transit'); setSortAsc(true) }
+                    }}
+                  >
+                    <Icon
+                      icon={sortBy === 'transit'
+                        ? sortAsc
+                          ? "solar:arrow-up-bold"
+                          : "solar:arrow-down-bold"
+                        : "solar:arrow-up-bold"
+                      }
+                      className="w-3 h-3"
+                    />
+                  </Button>
+                </TableColumn>
+                <TableColumn>Delivery Date</TableColumn>
+                <TableColumn>Pickup Deadline</TableColumn>
+                <TableColumn>Booking Cutoff</TableColumn>
+              </TableHeader>
+              <TableBody emptyContent={
+                getErrorRates(rates).length > 0
+                  ? "No valid rates available. Please review the error messages above and correct the validation issues."
+                  : "No available rates found. Check or change your pick up date or expected delivery date or weight."
+              }>
+                {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
+                {sortedRates.map((rate, index) => {
+                  const rateUniqueId = getRateUniqueId(rate, index)
+                  const isSelected = selectedRateId === rateUniqueId
+                  return (
+                    <TableRow
+                      key={rateUniqueId}
+                      className={isSelected ? 'bg-green-50 border-green-200' : ''}
+                    >
+                      <TableCell>
+                        {isSelected ? (
+                          <Button
+                            size="sm"
+                            color="success"
+                            variant="solid"
+                            disabled
+                            startContent={<Icon icon="solar:check-circle-bold" />}
+                          >
+                            {serviceOption === 'Normal' ? 'Cheapest' : 'Selected'}
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            color="primary"
+                            variant="flat"
+                            onPress={() => {
+                              onSelectRate(rateUniqueId)
+                            }}
+                            disabled={!!rate.error_message || !rate.total_charge?.amount}
+                            startContent={<Icon icon="solar:check-circle-line-duotone" />}
+                          >
+                            Select
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell>{rate.shipper_account.description}</TableCell>
+                      <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
+                      <TableCell className="text-right">
+                        {convertToTHB(
+                          rate.total_charge?.amount ?? null,
+                          rate.total_charge?.currency ?? null
+                        )} THB
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(
+                          rate.total_charge?.amount ?? null,
+                          rate.total_charge?.currency ?? null
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {convertWeightToKg(rate.charge_weight)}
+                      </TableCell>
+                      <TableCell>
+                        {rate.shipper_account.description === 'DHL eCommerce Asia'
+                          ? '1-3(Working) day(s)'
+                          : rate.transit_time ? `${rate.transit_time} day(s)` : '-'}
+                      </TableCell>
+                      <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
+                      <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
+                      <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
 
-          </Table>
-        )}
-      </CardBody>
-    </Card>
+            </Table>
+          )}
+        </CardBody>
+      </Card>
     </>
   )
 }
