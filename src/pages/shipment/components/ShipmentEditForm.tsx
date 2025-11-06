@@ -402,10 +402,10 @@ const ShipmentEditForm = () => {
 
       // Determine send_status based on current request_status
       let sendStatus: string = ""
-        
-      if(msLoginUser.email === previewData.approver_user_mail?.toLowerCase()) {
+
+      if (msLoginUser.email === previewData.approver_user_mail?.toLowerCase()) {
         sendStatus = 'approver_edited'
-      } else if(user?.logisticRole === "1" ) {
+      } else if (user?.logisticRole === "1") {
         sendStatus = 'logistic_edited'
       } else {
         sendStatus = 'logistic_edited' // 'fallback_error'
@@ -532,7 +532,7 @@ const ShipmentEditForm = () => {
   // Helper function to get the highest completed step
   const getHighestCompletedStep = (): { stepNumber: number; stepName: string } | null => {
     if (completedSteps.size === 0) return null
-    const maxStep = Math.max(...Array.from(completedSteps))+1
+    const maxStep = Math.max(...Array.from(completedSteps)) + 1
     return {
       stepNumber: maxStep,
       stepName: steps[maxStep]?.name || ''
@@ -600,15 +600,18 @@ const ShipmentEditForm = () => {
     <>
       <Card shadow="none" className="p-0 m-0 bg-transparent">
         <CardBody className="p-0">
-          <div className="flex justify-left items-center mb-4 gap-6 p-2">
-            <Button
-              color="warning"
-              variant="bordered"
-              onPress={() => navigate(`/shipment/${shipmentId}`)}
-            >
-              Back
-            </Button>
+          <div className="flex justify-between items-center mb-0 p-2">
             <h1 className="text-2xl font-bold px-5">Edit Shipment Request ID - {shipmentId}</h1>
+            <div className="flex gap-2">
+              <Button
+                className="bg-red-500 text-white hover:bg-red-700"
+                variant="bordered"
+                type="button"
+                onPress={() => navigate(`/shipment/${shipmentId}`)}
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
 
           <form
@@ -953,15 +956,6 @@ const ShipmentEditForm = () => {
                         />
                       </div>
                       <div className="flex justify-left items-center border-t gap-2 pt-4">
-                        <div className="flex gap-2">
-                          <Button
-                            variant="bordered"
-                            type="button"
-                            onPress={() => navigate(`/shipment/${shipmentId}`)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
                         <Button
                           color="success"
                           type="submit"
@@ -982,18 +976,18 @@ const ShipmentEditForm = () => {
                   </Card>
                 </>
               ) :
-               completedSteps.has(3) && (selectedRateId || previouslyChosenRate) && (
-                <div className="pb-1">
-                  <RatesSummary
-                    data={getValues()}
-                    selectedRateId={selectedRateId}
-                    previouslyChosenRate={previouslyChosenRate}
-                    transformedRates={transformedRates}
-                    serviceType={watch('service_options')}
-                    onEdit={() => handleEditStep(4)}
-                  />
-                </div>
-              )}              
+                completedSteps.has(3) && (selectedRateId || previouslyChosenRate) && (
+                  <div className="pb-1">
+                    <RatesSummary
+                      data={getValues()}
+                      selectedRateId={selectedRateId}
+                      previouslyChosenRate={previouslyChosenRate}
+                      transformedRates={transformedRates}
+                      serviceType={watch('service_options')}
+                      onEdit={() => handleEditStep(4)}
+                    />
+                  </div>
+                )}
             </div>
           </form>
         </CardBody>

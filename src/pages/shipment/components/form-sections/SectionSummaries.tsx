@@ -351,8 +351,17 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
   // Check if service option is Grab
   const isGrabService = data?.service_options?.toLowerCase() === 'grab';
 
-  // For Grab, try to find the rate even if not in selectedRate
-  const grabRate = isGrabService ? (selectedRate || transformedRates?.[0] || data?.rates?.[0]) : null;
+  // For Grab, try to find the rate from rates array OR construct from grab_rate_amount/grab_rate_currency
+  const grabRate = isGrabService ? (
+    selectedRate ||
+    transformedRates?.[0] ||
+    data?.rates?.[0] ||
+    // Fallback: construct rate from manual grab fields
+    (data?.grab_rate_amount ? {
+      total_charge_amount: parseFloat(data.grab_rate_amount),
+      total_charge_currency: data.grab_rate_currency || 'THB'
+    } : null)
+  ) : null;
 
   return (
     <Card className="m-3">
