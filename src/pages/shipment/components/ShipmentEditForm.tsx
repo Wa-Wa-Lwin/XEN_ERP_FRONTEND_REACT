@@ -321,12 +321,10 @@ const ShipmentEditForm = () => {
         return
       }
 
-      // Use the transformed rates which include the manual Grab rate
-      const formDataWithRates = {
-        ...formData,
-        rates: transformedRates
-      }
-      setPreviewData(formDataWithRates)
+      // Use the rates from the form data (which were set by RatesSection)
+      // Note: For Grab, transformedRates is not used because rates are manually entered
+      console.log('Grab shipment - using form rates:', formData.rates)
+      setPreviewData(formData)
       setIsPreviewOpen(true)
       return
     }

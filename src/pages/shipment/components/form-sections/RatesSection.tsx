@@ -133,12 +133,34 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   // Auto-create and select Grab rate when amount is entered
   useEffect(() => {
     if (serviceOption === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
+      console.log('=== Grab rate useEffect triggered ===')
+      console.log('grabRateAmount:', grabRateAmount, 'grabRateCurrency:', grabRateCurrency)
+      console.log('setValue available:', !!setValue, 'watch available:', !!watch)
+
       // Create a unique key for this rate to prevent infinite loops
       const rateKey = `${grabRateAmount}-${grabRateCurrency}`
 
-      // Skip if we've already processed this exact rate
-      if (lastSetRateRef.current === rateKey) {
-        return
+      // Check if the form already has this rate to prevent infinite loops
+      if (watch) {
+        const formData = watch()
+        const currentRates = formData?.rates || []
+        console.log('Current rates in form:', currentRates)
+
+        const hasMatchingRate = currentRates.some((r: any) =>
+          r.shipper_account_id === 'grab' &&
+          parseFloat(r.total_charge_amount) === parseFloat(grabRateAmount) &&
+          r.total_charge_currency === grabRateCurrency
+        )
+
+        // Skip if we've already set this exact rate AND it still exists in the form
+        if (lastSetRateRef.current === rateKey && hasMatchingRate) {
+          console.log('Skipping duplicate rate processing for:', rateKey, '- already exists in form')
+          return
+        }
+
+        console.log('Processing Grab rate:', rateKey, '- hasMatchingRate:', hasMatchingRate)
+      } else {
+        console.log('watch not available, proceeding without duplicate check')
       }
 
       const newGrabRate: RateResponse = {
@@ -171,54 +193,67 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       onSelectRate(rateId)
 
       // Also add the rate to the form's rates array if setValue and watch are available
-      if (setValue && watch) {
-        const formData = watch()
-
-        // Calculate total charge weight from all parcels
-        const totalWeight = formData.parcels?.reduce((sum: number, parcel: any) => {
-          return sum + (Number(parcel.weight_value) || 0)
-        }, 0) || 0
-
-        // Get weight unit from first parcel (assuming all parcels use same unit)
-        const weightUnit = formData.parcels?.[0]?.weight_unit || 'kg'
-
-        // Create the rate object in the format expected by the form data structure
-        const formGrabRate = {
-          rateID: formData.shipmentRequestID || 0, // Use shipmentRequestID or 0 for new requests
-          shipment_request_id: formData.shipmentRequestID || 0,
-          shipper_account_id: 'grab',
-          shipper_account_slug: 'grab',
-          shipper_account_description: 'Grab',
-          service_type: 'Grab',
-          service_name: 'Grab',
-          pickup_deadline: null,
-          booking_cut_off: null,
-          delivery_date: null,
-          transit_time: '0',
-          error_message: null,
-          info_message: '',
-          charge_weight_value: totalWeight,
-          charge_weight_unit: weightUnit,
-          total_charge_amount: parseFloat(grabRateAmount),
-          total_charge_currency: grabRateCurrency,
-          chosen: '1',
-          unique_id: 'grab-Grab',
-          detailed_charges: null,
-          created_user_name: formData.created_user_name || '',
-          past_chosen: '0'
-        }
-
-        // Update the rates array in form data
-        setValue('rates', [formGrabRate], { shouldDirty: true, shouldValidate: true })
-
-        // Mark this rate as set
-        lastSetRateRef.current = rateKey
+      if (!setValue || !watch) {
+        console.warn('setValue or watch not available - cannot update form rates')
+        console.log('setValue:', !!setValue, 'watch:', !!watch)
+        return
       }
+
+      console.log('setValue and watch are available, updating form rates...')
+      const formData = watch()
+      console.log('Current form data:', {
+        shipmentRequestID: formData.shipmentRequestID,
+        service_options: formData.service_options,
+        currentRates: formData.rates
+      })
+
+      // Calculate total charge weight from all parcels
+      const totalWeight = formData.parcels?.reduce((sum: number, parcel: any) => {
+        return sum + (Number(parcel.weight_value) || 0)
+      }, 0) || 0
+
+      // Get weight unit from first parcel (assuming all parcels use same unit)
+      const weightUnit = formData.parcels?.[0]?.weight_unit || 'kg'
+
+      // Create the rate object in the format expected by the form data structure
+      const formGrabRate = {
+        rateID: formData.shipmentRequestID || 0, // Use shipmentRequestID or 0 for new requests
+        shipment_request_id: formData.shipmentRequestID || 0,
+        shipper_account_id: 'grab',
+        shipper_account_slug: 'grab',
+        shipper_account_description: 'Grab',
+        service_type: 'Grab',
+        service_name: 'Grab',
+        pickup_deadline: null,
+        booking_cut_off: null,
+        delivery_date: null,
+        transit_time: '0',
+        error_message: null,
+        info_message: '',
+        charge_weight_value: totalWeight,
+        charge_weight_unit: weightUnit,
+        total_charge_amount: parseFloat(grabRateAmount),
+        total_charge_currency: grabRateCurrency,
+        chosen: '1',
+        unique_id: 'grab-Grab',
+        detailed_charges: null,
+        created_user_name: formData.created_user_name || '',
+        past_chosen: '0'
+      }
+
+      // Update the rates array in form data
+      setValue('rates', [formGrabRate], { shouldDirty: true, shouldValidate: true })
+      console.log('Successfully set Grab rate in form:', formGrabRate)
+
+      // Mark this rate as set
+      lastSetRateRef.current = rateKey
     } else {
       // Reset when conditions are not met
       lastSetRateRef.current = ''
     }
-  }, [serviceOption, grabRateAmount, grabRateCurrency, onSelectRate, setValue, watch])
+    // Note: setValue and watch are intentionally not in deps - they're stable from react-hook-form
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceOption, grabRateAmount, grabRateCurrency, onSelectRate])
 
 
   // Count carriers from available rates
