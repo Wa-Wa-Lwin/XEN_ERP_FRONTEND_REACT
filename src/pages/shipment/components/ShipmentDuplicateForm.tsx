@@ -344,6 +344,8 @@ const ShipmentDuplicateForm = () => {
               serviceOption={watch('service_options')}
               topic={watch('topic')}
               rateCalculationError={rateCalculationError}
+              watch={watch}
+              setValue={setValue}
             />
 
             {/* Form Actions */}

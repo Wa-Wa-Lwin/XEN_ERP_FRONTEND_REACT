@@ -133,6 +133,10 @@ export interface ShipmentFormData {
   parcels: Parcel[]
   rates: Rate[]
 
+  // Grab rate fields (for manual Grab delivery rate entry)
+  grab_rate_amount?: string
+  grab_rate_currency?: string
+
   // Pickup info
   pick_up_status: boolean
   pick_up_date: string

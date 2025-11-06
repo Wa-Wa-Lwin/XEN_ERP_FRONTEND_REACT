@@ -43,16 +43,23 @@ interface RatesSectionProps extends FormSectionProps {
     message: string
     details?: Array<{ path: string; info: string }>
   } | null
+  watch?: any
+  setValue?: any
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, topic, rateCalculationError }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, topic, rateCalculationError, watch, setValue }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
 
-  // State for manual Grab rate input
-  const [grabRateAmount, setGrabRateAmount] = useState<string>('')
-  const [grabRateCurrency, setGrabRateCurrency] = useState<string>('THB')
+  // Get Grab rate values from form data (persists across navigation)
+  const grabRateAmount = watch?.('grab_rate_amount') || ''
+  const grabRateCurrency = watch?.('grab_rate_currency') || 'THB'
+
+  // Helper functions to update form values
+  const setGrabRateAmount = (value: string) => setValue?.('grab_rate_amount', value)
+  const setGrabRateCurrency = (value: string) => setValue?.('grab_rate_currency', value)
+
   const [manualGrabRate, setManualGrabRate] = useState<RateResponse | null>(null)
   const [isLoadingRates, setIsLoadingRates] = useState(false)
   const [ratesError, setRatesError] = useState<string | null>(null)

@@ -245,6 +245,12 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                     if (selectedKey) {
                       field.onChange(selectedKey)
                       setSelectedServiceOptions(new Set([selectedKey]))
+
+                      // If Supplier Pickup is selected, set Payment Terms to Free Of Charge
+                      if (selectedKey === 'Supplier Pickup' && setValue) {
+                        setValue('payment_terms', 'free_of_charge', { shouldDirty: true, shouldValidate: true })
+                      }
+
                       // Clear rates since service option changed
                       if (onClearRates) {
                         console.log('Service option changed, clearing rates...')

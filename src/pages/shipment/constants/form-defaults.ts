@@ -122,6 +122,11 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
     past_chosen: true,
     created_user_name: ''
   }],
+
+  // Grab rate fields (for manual Grab delivery rate entry)
+  grab_rate_amount: '',
+  grab_rate_currency: 'THB',
+
   pick_up_status: true,
   pick_up_date: defaultPickupValues.pickupDate,
   pick_up_start_time: defaultPickupValues.startTime,
@@ -190,7 +195,6 @@ export const TOPIC_OPTIONS = [
   { key: 'Consign Parts', value: 'Consign Parts', label: 'Consign Parts' },
   { key: 'Return', value: 'Return', label: 'Return' },
   { key: 'Replacement', value: 'Replacement', label: 'Replacement' },
-  { key: 'Supplier Pickup', value: 'Supplier Pickup', label: 'Supplier Pickup' },
   { key: 'Others', value: 'Others', label: 'Others' }
 ];
 
@@ -199,6 +203,7 @@ export const SERVICE_OPTIONS = [
   { key: 'Normal', value: 'Normal', label: 'Normal (Cheapest one)' },
   { key: 'Urgent', value: 'Urgent', label: 'Urgent (Will choose)' },
   { key: 'Grab', value: 'Grab', label: 'Grab Pickup' },
+  { key: 'Supplier Pickup', value: 'Supplier Pickup', label: 'Supplier Pickup' },
 ]
 
 export const SALES_PERSON_OPTIONS = [
