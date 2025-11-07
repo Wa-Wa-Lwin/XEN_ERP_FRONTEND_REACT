@@ -475,9 +475,8 @@ const ShipmentEditForm = () => {
       if (response.status === 200) {
         success('Shipment request updated successfully!', 'Success')
         setIsPreviewOpen(false)
-        setTimeout(() => {
-          navigate(`/shipment/${shipmentId}`)
-        }, 100)
+        // Force full page reload to ensure UI updates
+        window.location.href = `/xeno-shipment/shipment/${shipmentId}`
       }
     } catch (error) {
       console.error('Error updating shipment:', error)

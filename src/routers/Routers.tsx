@@ -53,7 +53,7 @@ export const routes = [
             path: "request-form",
             element: <ShipmentForm />,
             handle: { breadcrumb: "New Request Form" },
-          },      
+          },
           {
             path: "duplicate/:shipmentId",
             element: <ShipmentDuplicateForm />,

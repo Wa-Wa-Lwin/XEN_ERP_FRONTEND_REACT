@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
@@ -22,6 +22,7 @@ import { ISO_3_COUNTRIES } from '../constants/iso3countries';
 const ShipmentDetails = () => {
   const { shipmentId } = useParams<{ shipmentId?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [shipment, setShipment] = useState<ShipmentGETData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +109,7 @@ const ShipmentDetails = () => {
 
   useEffect(() => {
     fetchShipment();
-  }, [shipmentId]);
+  }, [shipmentId, location.key]); // location.key changes on every navigation
 
   const handleApprovalAction = async (action: 'approver_approved' | 'approver_rejected', remarkParam?: string) => {
     if (!msLoginUser || !shipmentId) {
