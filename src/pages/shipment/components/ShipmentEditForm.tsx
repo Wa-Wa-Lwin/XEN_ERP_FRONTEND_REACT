@@ -319,6 +319,27 @@ const ShipmentEditForm = () => {
       return
     }
 
+    // Validate pickup date is not in the past
+    if (formData.pick_up_date) {
+      const pickupDate = new Date(formData.pick_up_date)
+      const todayStart = new Date(today) // Using the 'today' variable from line 92
+
+      if (pickupDate < todayStart) {
+        setErrorModal({
+          isOpen: true,
+          title: 'Invalid Pickup Date',
+          message: 'The pickup date cannot be earlier than today.',
+          details: [
+            {
+              path: 'Pickup Date',
+              info: `Selected: ${formData.pick_up_date} | Today: ${today} - Please select today or a future date.`
+            }
+          ]
+        })
+        return
+      }
+    }
+
     // Special handling for Supplier Pickup - no rates needed
     if (formData.service_options === 'Supplier Pickup') {
       // For Supplier Pickup, skip rate calculation entirely
