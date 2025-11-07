@@ -572,64 +572,7 @@ const ShipmentEditForm = () => {
     }
   }
 
-  // Helper function to get the highest completed step
-  const getHighestCompletedStep = (): { stepNumber: number; stepName: string } | null => {
-    if (completedSteps.size === 0) return null
-    const maxStep = Math.max(...Array.from(completedSteps)) + 1
-    return {
-      stepNumber: maxStep,
-      stepName: steps[maxStep]?.name || ''
-    }
-  }
-
-  // Step Navigation Handlers
-  const handleNextStep = async () => {
-    const isValid = await trigger()
-    if (isValid) {
-      // Additional validation: Check shipment scope when leaving step 1 (Addresses)
-      if (currentStep === 1) {
-        const formData = getValues()
-        const scopeValidation = validateShipmentScope(formData)
-
-        if (!scopeValidation.isValid && scopeValidation.error) {
-          setErrorModal({
-            isOpen: true,
-            title: scopeValidation.error.title,
-            message: scopeValidation.error.message,
-            details: scopeValidation.error.details
-          })
-          return
-        }
-      }
-
-      setCompletedSteps(prev => new Set(prev).add(currentStep))
-
-      // Determine max step based on service option
-      const serviceOption = watch('service_options')
-      const maxStep = serviceOption === 'Supplier Pickup' ? 3 : steps.length - 1
-
-      // If we're editing a previous step, return to the highest completed step
-      // Otherwise, proceed to the next sequential step
-      const highestCompleted = getHighestCompletedStep()
-      if (highestCompleted && currentStep < highestCompleted.stepNumber) {
-        setCurrentStep(Math.min(highestCompleted.stepNumber, maxStep))
-      } else {
-        setCurrentStep(prev => Math.min(prev + 1, maxStep))
-      }
-    }
-  }
-
-  const handlePreviousStep = () => {
-    // If we're editing a previous step, return to the highest completed step
-    // Otherwise, go to the previous sequential step
-    const highestCompleted = getHighestCompletedStep()
-    if (highestCompleted && currentStep < highestCompleted.stepNumber) {
-      setCurrentStep(highestCompleted.stepNumber)
-    } else {
-      setCurrentStep(prev => Math.max(prev - 1, 0))
-    }
-  }
-
+  // Step Navigation Handler - Only for editing completed steps via summary cards
   const handleEditStep = (stepId: number) => {
     // Navigate to the step to edit
     setCurrentStep(stepId)
@@ -689,27 +632,12 @@ const ShipmentEditForm = () => {
                       />
                     </div>
                     <div className="flex justify-left items-center border-t gap-2 pt-4">
-                      <div className="flex gap-2">
-                        <Button
-                          variant="bordered"
-                          onPress={handlePreviousStep}
-                          isDisabled={currentStep === 0}
-                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
-                        >
-                          Previous
-                        </Button>
-                      </div>
                       <Button
-                        color="primary"
-                        onPress={handleNextStep}
-                        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                        color="success"
+                        type="submit"
+                        startContent={<Icon icon="solar:check-circle-bold" width={20} />}
                       >
-                        {(() => {
-                          const highestCompleted = getHighestCompletedStep()
-                          return highestCompleted && currentStep < highestCompleted.stepNumber
-                            ? `Return to ${highestCompleted.stepName}`
-                            : 'Next Step'
-                        })()}
+                        Preview & Update Shipment
                       </Button>
                     </div>
                   </CardBody>
@@ -800,27 +728,13 @@ const ShipmentEditForm = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center border-t pt-4">
-                      <div className="flex gap-2">
-                        <Button
-                          variant="bordered"
-                          onPress={handlePreviousStep}
-                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
-                        >
-                          Previous
-                        </Button>
-                      </div>
+                    <div className="flex justify-left items-center border-t pt-4">
                       <Button
-                        color="primary"
-                        onPress={handleNextStep}
-                        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                        color="success"
+                        type="submit"
+                        startContent={<Icon icon="solar:check-circle-bold" width={20} />}
                       >
-                        {(() => {
-                          const highestCompleted = getHighestCompletedStep()
-                          return highestCompleted && currentStep < highestCompleted.stepNumber
-                            ? `Return to ${highestCompleted.stepName}`
-                            : 'Next Step'
-                        })()}
+                        Preview & Update Shipment
                       </Button>
                     </div>
                   </CardBody>
@@ -852,26 +766,12 @@ const ShipmentEditForm = () => {
                       />
                     </div>
                     <div className="flex justify-left items-center border-t gap-2 pt-4">
-                      <div className="flex gap-2">
-                        <Button
-                          variant="bordered"
-                          onPress={handlePreviousStep}
-                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
-                        >
-                          Previous
-                        </Button>
-                      </div>
                       <Button
-                        color="primary"
-                        onPress={handleNextStep}
-                        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                        color="success"
+                        type="submit"
+                        startContent={<Icon icon="solar:check-circle-bold" width={20} />}
                       >
-                        {(() => {
-                          const highestCompleted = getHighestCompletedStep()
-                          return highestCompleted && currentStep < highestCompleted.stepNumber
-                            ? `Return to ${highestCompleted.stepName}`
-                            : 'Next Step'
-                        })()}
+                        Preview & Update Shipment
                       </Button>
                     </div>
                   </CardBody>
@@ -902,37 +802,13 @@ const ShipmentEditForm = () => {
                       />
                     </div>
                     <div className="flex justify-left items-center border-t gap-2 pt-4">
-                      <div className="flex gap-2">
-                        <Button
-                          variant="bordered"
-                          onPress={handlePreviousStep}
-                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
-                        >
-                          Previous
-                        </Button>
-                      </div>
-                      {watch('service_options') === 'Supplier Pickup' ? (
-                        <Button
-                          color="success"
-                          type="submit"
-                          startContent={<Icon icon="solar:check-circle-bold" width={20} />}
-                        >
-                          Preview & Update Shipment
-                        </Button>
-                      ) : (
-                        <Button
-                          color="primary"
-                          onPress={handleNextStep}
-                          endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
-                        >
-                          {(() => {
-                            const highestCompleted = getHighestCompletedStep()
-                            return highestCompleted && currentStep < highestCompleted.stepNumber
-                              ? `Return to ${highestCompleted.stepName}`
-                              : 'Next Step'
-                          })()}
-                        </Button>
-                      )}
+                      <Button
+                        color="success"
+                        type="submit"
+                        startContent={<Icon icon="solar:check-circle-bold" width={20} />}
+                      >
+                        Preview & Update Shipment
+                      </Button>
                     </div>
                   </CardBody>
                 </Card>
