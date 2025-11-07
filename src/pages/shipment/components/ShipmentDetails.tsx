@@ -588,11 +588,15 @@ const ShipmentDetails = () => {
       {
         shipment?.service_options === 'Grab' ?
           <>
-            <div className="flex justify-left gap-3 items-center mb-1">
+            <div className="flex flex-col justify-left gap-3 items-left mb-1">
               <div className="flex items-center gap-2">
                 <Icon icon="solar:dollar-bold" width={24} className="text-blue-600" />
                 <h3 className="font-semibold">Grab Information</h3>
               </div>
+              <span className="text-sm">
+                <b>Total Charge: </b>
+                {shipment?.grab_rate_amount} {shipment?.grab_rate_currency}
+              </span>
             </div>
           </>
           :
@@ -604,13 +608,6 @@ const ShipmentDetails = () => {
             />
           </>
       }
-
-      <div className="ml-8">
-        <span className="text-sm">
-          <b>Total Charge: </b>
-          {shipment?.grab_rate_amount} {shipment?.grab_rate_currency}
-        </span>
-      </div>
 
       <div className="p-1">
         <hr />

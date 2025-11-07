@@ -348,8 +348,9 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
   // Look for selected rate in transformedRates first (newly calculated), then fall back to data?.rates (form data)
   const selectedRate = transformedRates?.find(r => r.unique_id === selectedRateId) || data?.rates?.find(r => r.unique_id === selectedRateId);
 
-  // Check if service option is Grab
+  // Check if service option is Grab or Supplier Pickup
   const isGrabService = data?.service_options?.toLowerCase() === 'grab';
+  const isSupplierPickup = data?.service_options === 'Supplier Pickup';
 
   // For Grab, try to find the rate from rates array OR construct from grab_rate_amount/grab_rate_currency
   const grabRate = isGrabService ? (
@@ -389,6 +390,15 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
               </div>
             )}
 
+            {/* Show Supplier Pickup */}
+            {isSupplierPickup && (
+              <div className="mb-3">
+                <div className="text-sm bg-purple-50 p-3 rounded border border-purple-200">
+                  <span className="font-semibold">Supplier Pickup - No rate calculation required</span>
+                </div>
+              </div>
+            )}
+
             {/* Show Grab Rate */}
             {isGrabService && grabRate && (
               <div className="mb-3">
@@ -399,7 +409,7 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
             )}
 
             {/* Show Previously Chosen Rate (in edit mode) */}
-            {previouslyChosenRate && !isGrabService && (
+            {previouslyChosenRate && !isGrabService && !isSupplierPickup && (
               <div className="mb-3">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Previously Chosen Rate:</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm bg-blue-50 p-3 rounded border border-blue-200">
@@ -412,7 +422,7 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
             )}
 
             {/* Fallback if no rates are available */}
-            {!selectedRate && !previouslyChosenRate && !isGrabService && (
+            {!selectedRate && !previouslyChosenRate && !isGrabService && !isSupplierPickup && (
               <div className="text-sm text-gray-500">No rate selected</div>
             )}
 

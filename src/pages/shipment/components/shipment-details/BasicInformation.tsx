@@ -80,7 +80,7 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
             </div>
 
             <div className="inline-flex items-center">
-              |&nbsp; Payment Terms:&nbsp; <b>{shipment?.payment_terms?.toUpperCase() || '-'}</b>&nbsp;
+              |&nbsp; Payment Terms:&nbsp; <b>{shipment?.payment_terms?.replace(/_/g, ' ').toUpperCase() || '-'}</b>&nbsp;
             </div>
 
             {/* Only show customs fields for non-domestic shipments */}

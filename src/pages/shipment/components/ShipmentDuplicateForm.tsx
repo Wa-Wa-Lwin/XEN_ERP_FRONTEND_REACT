@@ -69,11 +69,12 @@ const ShipmentDuplicateForm = () => {
       return
     }
 
-    // Skip rate calculation validation for Grab (manual rate entry)
+    // Skip rate calculation validation for Grab (manual rate entry) and Supplier Pickup
     const isGrabService = formData.service_options === 'Grab'
+    const isSupplierPickup = formData.service_options === 'Supplier Pickup'
 
-    // Validate that rates have been calculated (skip for Grab)
-    if (!isGrabService && calculatedRates.length === 0) {
+    // Validate that rates have been calculated (skip for Grab and Supplier Pickup)
+    if (!isGrabService && !isSupplierPickup && calculatedRates.length === 0) {
       setErrorModal({
         isOpen: true,
         title: 'Rate Calculation Required',
@@ -83,8 +84,8 @@ const ShipmentDuplicateForm = () => {
       return
     }
 
-    // Validate that a rate is selected
-    if (!selectedRateId) {
+    // Validate that a rate is selected (skip for Supplier Pickup)
+    if (!isSupplierPickup && !selectedRateId) {
       setErrorModal({
         isOpen: true,
         title: 'Rate Selection Required',
@@ -103,7 +104,13 @@ const ShipmentDuplicateForm = () => {
 
     // Only calculate rates if they haven't been calculated yet
     let formDataWithRates = formData
-    if (isGrabService) {
+    if (isSupplierPickup) {
+      // For Supplier Pickup, no rates needed - just use form data with empty rates
+      formDataWithRates = {
+        ...formData,
+        rates: []
+      }
+    } else if (isGrabService) {
       // For Grab, use the transformed rates (which includes the manual Grab rate)
       formDataWithRates = {
         ...formData,
@@ -363,15 +370,21 @@ const ShipmentDuplicateForm = () => {
                 type="submit"
                 color="success"
                 startContent={<Icon icon="solar:eye-bold" width={20} />}
-                isDisabled={watch('service_options') === 'Grab' ? !selectedRateId : (calculatedRates.length === 0 || !selectedRateId)}
+                isDisabled={
+                  watch('service_options') === 'Supplier Pickup' ? false :
+                  watch('service_options') === 'Grab' ? !selectedRateId :
+                  (calculatedRates.length === 0 || !selectedRateId)
+                }
               >
-                {watch('service_options') === 'Grab'
-                  ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Submit')
-                  : (calculatedRates.length === 0
-                    ? 'Calculate Rates First'
-                    : !selectedRateId
-                      ? 'Select Rate First'
-                      : 'Preview & Submit')}
+                {watch('service_options') === 'Supplier Pickup'
+                  ? 'Preview & Submit'
+                  : watch('service_options') === 'Grab'
+                    ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Submit')
+                    : (calculatedRates.length === 0
+                      ? 'Calculate Rates First'
+                      : !selectedRateId
+                        ? 'Select Rate First'
+                        : 'Preview & Submit')}
               </Button>
             </div>
           </form>

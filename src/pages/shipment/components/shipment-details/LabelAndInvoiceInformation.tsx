@@ -184,7 +184,7 @@ const LabelAndInvoiceInformation = ({
     return (
         <>
             {
-                shipment.service_options === 'Grab' ?
+                shipment.service_options === 'Grab' || shipment.service_options === 'Supplier Pickup' ?
                     <>
                         <Card shadow="none">
                             <div className="flex items-center gap-2 mb-2">
@@ -194,7 +194,7 @@ const LabelAndInvoiceInformation = ({
                                     className="text-blue-500"
                                 />
                                 <h3 className='font-semibold'>
-                                    Invoice Information
+                                    Invoice & Packing Slip Information
                                 </h3>
                             </div>
                             {
@@ -205,7 +205,7 @@ const LabelAndInvoiceInformation = ({
                                     :
                                     <>
                                         <p className="text-yellow-600 text-sm font-semibold bg-yellow-50 p-2 rounded">
-                                            The shipment is pending approval. Invoice information will be available once approved.
+                                            The shipment is pending approval. The information and documents will be available once approved.
                                         </p>
                                     </>
                             }

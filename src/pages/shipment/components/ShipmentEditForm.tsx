@@ -308,6 +308,18 @@ const ShipmentEditForm = () => {
       return
     }
 
+    // Special handling for Supplier Pickup - no rates needed
+    if (formData.service_options === 'Supplier Pickup') {
+      // For Supplier Pickup, skip rate calculation entirely
+      const formDataWithoutRates = {
+        ...formData,
+        rates: []
+      }
+      setPreviewData(formDataWithoutRates)
+      setIsPreviewOpen(true)
+      return
+    }
+
     // Special handling for Grab service option
     if (formData.service_options === 'Grab') {
       // For Grab, check if a rate has been selected (from manual entry)
@@ -864,18 +876,28 @@ const ShipmentEditForm = () => {
                           Previous
                         </Button>
                       </div>
-                      <Button
-                        color="primary"
-                        onPress={handleNextStep}
-                        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
-                      >
-                        {(() => {
-                          const highestCompleted = getHighestCompletedStep()
-                          return highestCompleted && currentStep < highestCompleted.stepNumber
-                            ? `Return to ${highestCompleted.stepName}`
-                            : 'Next Step'
-                        })()}
-                      </Button>
+                      {watch('service_options') === 'Supplier Pickup' ? (
+                        <Button
+                          color="success"
+                          type="submit"
+                          startContent={<Icon icon="solar:check-circle-bold" width={20} />}
+                        >
+                          Preview & Update Shipment
+                        </Button>
+                      ) : (
+                        <Button
+                          color="primary"
+                          onPress={handleNextStep}
+                          endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                        >
+                          {(() => {
+                            const highestCompleted = getHighestCompletedStep()
+                            return highestCompleted && currentStep < highestCompleted.stepNumber
+                              ? `Return to ${highestCompleted.stepName}`
+                              : 'Next Step'
+                          })()}
+                        </Button>
+                      )}
                     </div>
                   </CardBody>
                 </Card>
@@ -961,22 +983,28 @@ const ShipmentEditForm = () => {
                           type="submit"
                           startContent={<Icon icon="solar:check-circle-bold" width={20} />}
                           // isDisabled={!previouslyChosenRate && calculatedRates.length === 0}
-                          isDisabled={watch('service_options') === 'Grab' ? !selectedRateId : (calculatedRates.length === 0 || !selectedRateId)}
+                          isDisabled={
+                            watch('service_options') === 'Supplier Pickup' ? false :
+                            watch('service_options') === 'Grab' ? !selectedRateId :
+                            (calculatedRates.length === 0 && !previouslyChosenRate)
+                          }
                         >
-                          {watch('service_options') === 'Grab'
-                            ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Update Shipment')
-                            : (calculatedRates.length === 0 && !previouslyChosenRate
-                              ? 'Calculate Rates First'
-                              : calculatedRates.length > 0 && !selectedRateId
-                                ? 'Select Rate First'
-                                : 'Preview & Update Shipment')}
+                          {watch('service_options') === 'Supplier Pickup'
+                            ? 'Preview & Update Shipment'
+                            : watch('service_options') === 'Grab'
+                              ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Update Shipment')
+                              : (calculatedRates.length === 0 && !previouslyChosenRate
+                                ? 'Calculate Rates First'
+                                : calculatedRates.length > 0 && !selectedRateId
+                                  ? 'Select Rate First'
+                                  : 'Preview & Update Shipment')}
                         </Button>
                       </div>
                     </CardBody>
                   </Card>
                 </>
               ) :
-                completedSteps.has(3) && (selectedRateId || previouslyChosenRate) && (
+                completedSteps.has(3) && (selectedRateId || previouslyChosenRate || watch('service_options') === 'Supplier Pickup') && (
                   <div className="pb-1">
                     <RatesSummary
                       data={getValues()}
