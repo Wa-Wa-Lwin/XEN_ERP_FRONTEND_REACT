@@ -77,6 +77,7 @@ const ShipmentEditForm = () => {
   })
 
   // Step/Section Management - Start at last step in edit mode
+  // For Supplier Pickup, step 3 is the last step; otherwise, step 4
   const [currentStep, setCurrentStep] = useState<number>(4)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set([0, 1, 2, 3]))
   const [previouslyChosenRate, setPreviouslyChosenRate] = useState<any>(null)
@@ -293,6 +294,16 @@ const ShipmentEditForm = () => {
 
     fetchShipment()
   }, [shipmentId])
+
+  // Adjust current step when service option changes
+  useEffect(() => {
+    const serviceOption = watch('service_options')
+
+    // If Supplier Pickup and currently on step 4, move back to step 3
+    if (serviceOption === 'Supplier Pickup' && currentStep === 4) {
+      setCurrentStep(3)
+    }
+  }, [watch('service_options'), currentStep])
 
   const handlePreview = async (data: ShipmentFormData) => {
     const formData = data
@@ -572,13 +583,17 @@ const ShipmentEditForm = () => {
 
       setCompletedSteps(prev => new Set(prev).add(currentStep))
 
+      // Determine max step based on service option
+      const serviceOption = watch('service_options')
+      const maxStep = serviceOption === 'Supplier Pickup' ? 3 : steps.length - 1
+
       // If we're editing a previous step, return to the highest completed step
       // Otherwise, proceed to the next sequential step
       const highestCompleted = getHighestCompletedStep()
       if (highestCompleted && currentStep < highestCompleted.stepNumber) {
-        setCurrentStep(highestCompleted.stepNumber)
+        setCurrentStep(Math.min(highestCompleted.stepNumber, maxStep))
       } else {
-        setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
+        setCurrentStep(prev => Math.min(prev + 1, maxStep))
       }
     }
   }
@@ -618,7 +633,7 @@ const ShipmentEditForm = () => {
                 className="bg-red-500 text-white hover:bg-red-700"
                 variant="bordered"
                 type="button"
-                onPress={() => navigate(`/shipment/${shipmentId}`)}
+                onPress={() => window.location.href = `/xeno-shipment/shipment/${shipmentId}`}
               >
                 Cancel
               </Button>
@@ -906,8 +921,8 @@ const ShipmentEditForm = () => {
                 </div>
               )}
 
-              {/* Step 4: Shipping Rates */}
-              {currentStep === 4 ? (
+              {/* Step 4: Shipping Rates - Hidden for Supplier Pickup */}
+              {watch('service_options') !== 'Supplier Pickup' && currentStep === 4 ? (
                 <>
                   {/* Rate Calculation Section */}
                   <Card className="border-2 border-primary shadow-lg m-1">
@@ -1003,7 +1018,8 @@ const ShipmentEditForm = () => {
                   </Card>
                 </>
               ) :
-                completedSteps.has(3) && (selectedRateId || previouslyChosenRate || watch('service_options') === 'Supplier Pickup') && (
+                // Show RatesSummary only if NOT Supplier Pickup
+                watch('service_options') !== 'Supplier Pickup' && completedSteps.has(3) && (selectedRateId || previouslyChosenRate) && (
                   <div className="pb-1">
                     <RatesSummary
                       data={getValues()}
