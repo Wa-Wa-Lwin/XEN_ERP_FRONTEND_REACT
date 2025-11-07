@@ -41,7 +41,7 @@ const ShipmentEditForm = () => {
     defaultValues: DEFAULT_FORM_VALUES
   })
 
-  const { register, control, handleSubmit, watch, setValue, getValues, reset, trigger, formState: { errors } } = formMethods
+  const { register, control, handleSubmit, watch, setValue, getValues, reset, formState: { errors } } = formMethods
 
   // Watch for changes in critical fields that affect rates
   const watchedFields = watch([
@@ -79,7 +79,7 @@ const ShipmentEditForm = () => {
   // Step/Section Management - Start at last step in edit mode
   // For Supplier Pickup, step 3 is the last step; otherwise, step 4
   const [currentStep, setCurrentStep] = useState<number>(4)
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set([0, 1, 2, 3]))
+  const [completedSteps] = useState<Set<number>>(new Set([0, 1, 2, 3]))
   const [previouslyChosenRate, setPreviouslyChosenRate] = useState<any>(null)
 
   const steps = [
