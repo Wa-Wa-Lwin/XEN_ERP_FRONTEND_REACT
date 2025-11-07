@@ -308,36 +308,43 @@ const ShipmentEditForm = () => {
   const handlePreview = async (data: ShipmentFormData) => {
     const formData = data
 
+    // Collect all validation errors
+    const allErrors: Array<{ path: string; info: string }> = []
+
+    // 1. Weight validation
     const weightValidation = validateWeights(formData)
     if (!weightValidation.isValid) {
-      setErrorModal({
-        isOpen: true,
-        title: 'Weight Validation Failed',
-        message: 'Please fix the weight issues below before proceeding.',
-        details: weightValidation.errors
-      })
-      return
+      allErrors.push(...weightValidation.errors)
     }
 
-    // Validate pickup date is not in the past
+    // 2. Validate pickup date is not in the past
     if (formData.pick_up_date) {
       const pickupDate = new Date(formData.pick_up_date)
-      const todayStart = new Date(today) // Using the 'today' variable from line 92
+      const todayStart = new Date(today)
 
       if (pickupDate < todayStart) {
-        setErrorModal({
-          isOpen: true,
-          title: 'Invalid Pickup Date',
-          message: 'The pickup date cannot be earlier than today.',
-          details: [
-            {
-              path: 'Pickup Date',
-              info: `Selected: ${formData.pick_up_date} | Today: ${today} - Please select today or a future date.`
-            }
-          ]
+        allErrors.push({
+          path: 'Pickup Date',
+          info: `Selected: ${formData.pick_up_date} | Today: ${today} - Please select today or a future date.`
         })
-        return
       }
+    }
+
+    // 3. Validate shipment scope matches ship from/to countries
+    const scopeValidation = validateShipmentScope(formData)
+    if (!scopeValidation.isValid && scopeValidation.error) {
+      allErrors.push(...scopeValidation.error.details)
+    }
+
+    // If there are any validation errors, show them all at once
+    if (allErrors.length > 0) {
+      setErrorModal({
+        isOpen: true,
+        title: 'Validation Failed',
+        message: 'Please fix the following issues before proceeding:',
+        details: allErrors
+      })
+      return
     }
 
     // Special handling for Supplier Pickup - no rates needed
