@@ -61,8 +61,8 @@ export const useShipmentEditForm = ({
         const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api'
         const response = await axios.get(`${apiUrl}/shipments/${shipmentId}`, {
           headers: {
-            'x-user-email': msLoginUser?.mail || user?.email || '',
-            'x-user-name': msLoginUser?.displayName || user?.name || ''
+            'x-user-email': msLoginUser?.email || user?.email || '',
+            'x-user-name': msLoginUser?.name || user?.username || ''
           }
         })
 
