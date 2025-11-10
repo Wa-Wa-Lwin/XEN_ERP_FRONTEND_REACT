@@ -23,6 +23,9 @@ const PickupInformation = ({
   const isDHLAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
   const isDHLExpress = chosenRate?.service_name === 'DHL Express Worldwide';
   const isGrabPickup = shipment.service_options?.toLowerCase() === 'grab';
+  const isFedEx = chosenRate?.shipper_account_description?.toLowerCase().includes('fedex') ||
+    chosenRate?.service_name?.toLowerCase().includes('fedex');
+  const isFedExAutoPickup = isFedEx && shipment.label_status === 'created';
   const isExternalCall = isDHLAsia || isDHLExpress;
 
   // -------------------------------
@@ -40,11 +43,17 @@ const PickupInformation = ({
     default: 'Pending',
   };
 
-  const getPickupColor = () =>
-    isExternalCall ? 'text-blue-600' : pickupColors[shipment.pick_up_created_status || 'default'];
+  const getPickupColor = () => {
+    if (isFedExAutoPickup) return 'text-green-600';
+    if (isExternalCall) return 'text-blue-600';
+    return pickupColors[shipment.pick_up_created_status || 'default'];
+  };
 
-  const getPickupText = () =>
-    isExternalCall ? 'Call' : pickupLabels[shipment.pick_up_created_status || 'default'];
+  const getPickupText = () => {
+    if (isFedExAutoPickup && shipment.pick_up_created_status !== 'created_success' && shipment.pick_up_created_status !== 'created_failed') return 'Auto-Scheduled';
+    if (isExternalCall) return 'Call';
+    return pickupLabels[shipment.pick_up_created_status || 'default'];
+  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Not specified';
@@ -88,19 +97,40 @@ const PickupInformation = ({
   );
 
   const errorBox = (
-    <div className="col-span-full">
-      <p className="text-red-600 font-semibold bg-yellow-50 p-2 rounded break-words max-w-full whitespace-normal">
-        ⚠️ Error Detail: {formattedPickupError}
-      </p>
-      <Button color="primary" size="sm" onPress={onCreatePickup}>
-        Retry Create Pickup
-      </Button>
-    </div>
+    <>
+      <div className="col-span-full">
+        <p className="text-red-600 font-semibold bg-yellow-50 p-2 rounded break-words max-w-full whitespace-normal">
+          ⚠️ Error Detail: {formattedPickupError}
+        </p>
+        <Button color="primary" size="sm" onPress={onCreatePickup}>
+          Retry Create Pickup
+        </Button>
+      </div>
+
+      {onChangePickupDateTime && (
+        <div className="col-span-full">
+          <Button
+            color="warning"
+            size="sm"
+            onPress={onChangePickupDateTime}
+            startContent={<Icon icon="solar:calendar-bold" width={16} />}
+          >
+            Change Pickup Date/Time
+          </Button>
+        </div>
+      )}
+    </>
   );
 
   const externalCallNotice = (message: string) => (
     <p className="text-blue-600 text-xs font-semibold bg-blue-50 p-2 rounded">
       📞 {message} <br /> 📇 Contact Logistic Team for further information.
+    </p>
+  );
+
+  const fedexAutoPickupNotice = (
+    <p className="text-blue-600 text-xs font-semibold bg-blue-50 p-2 rounded">
+      Automated Pickup: 🤖 System will automatically schedule pickup and the Pickup Confirmation Number will be available on {new Date(new Date(shipment.pick_up_date).getTime() - 86400000).toLocaleDateString()}.
     </p>
   );
 
@@ -161,20 +191,6 @@ const PickupInformation = ({
             )}
 
             {shipment.pick_up_created_status === 'created_failed' && errorBox}
-
-            {shipment.pick_up_created_status !== 'created_success' &&
-              onChangePickupDateTime && (
-                <div className="col-span-full">
-                  <Button
-                    color="warning"
-                    size="sm"
-                    onPress={onChangePickupDateTime}
-                    startContent={<Icon icon="solar:calendar-bold" width={16} />}
-                  >
-                    Change Pickup Date/Time
-                  </Button>
-                </div>
-              )}
           </>
         )}
       </div>
@@ -184,6 +200,8 @@ const PickupInformation = ({
 
       {isDHLExpress &&
         externalCallNotice('Please call DHL Express Worldwide customer service to arrange pickup for this package (Aftership not supported yet).')}
+
+      {isFedExAutoPickup && fedexAutoPickupNotice}
     </Card>
   );
 };
