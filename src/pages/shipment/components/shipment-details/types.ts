@@ -43,6 +43,9 @@ export interface ShipmentGETData {
   pick_up_error_msg?: string
   grab_rate_amount?: string
   grab_rate_currency?: string
+  billing?: string
+  recipient_shipper_account_number?: string
+  recipient_shipper_account_country_code?: string
   // Flattened ship_from properties
   ship_from_contact_name: string
   ship_from_company_name: string

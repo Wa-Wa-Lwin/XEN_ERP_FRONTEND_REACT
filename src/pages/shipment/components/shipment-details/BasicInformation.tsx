@@ -83,6 +83,16 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
               |&nbsp; Payment Terms:&nbsp; <b>{shipment?.payment_terms?.replace(/_/g, ' ').toUpperCase() || '-'}</b>&nbsp;
             </div>
 
+            <div className="inline-flex items-center">
+              |&nbsp; Billing:&nbsp; <b>{shipment?.billing?.toUpperCase() || 'SHIPPER'}</b>&nbsp;
+            </div>
+
+            {shipment?.billing?.toLowerCase() === "recipient" && (
+              <div className="inline-flex items-center">
+                |&nbsp; Recipient Shipper Account No:&nbsp; <b>{shipment?.recipient_shipper_account_number?.toUpperCase() || '-'}</b>&nbsp;
+              </div>
+            )}
+
             {/* Only show customs fields for non-domestic shipments */}
             {shipment.shipment_scope_type?.toLowerCase() !== 'domestic' && (
               <>

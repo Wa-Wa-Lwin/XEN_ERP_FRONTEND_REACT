@@ -450,85 +450,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         </ModalContent>
       </Modal>
 
-      <Card shadow="none">
-        {/* Billing Section - Show after rates are calculated OR in edit mode */}
-        {(sortedRates.length > 0 || isEditMode) && (
-          <div className="mt-0 p-4 bg-gray-50 border border-gray-200">
-            <div className="flex items-start gap-2 mb-3">
-              <Icon icon="solar:wallet-bold" className="text-blue-600 text-xl mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-blue-800 text-sm">
-                  Billing Information
-                </h3>
-                <p className="text-blue-700 text-xs">
-                  Specify who will be billed for this shipment
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <Controller
-                name="billing"
-                control={control}
-                defaultValue="shipper"
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    label="Billing Party"
-                    placeholder="Select billing party"
-                    selectedKeys={field.value ? [field.value] : ['shipper']}
-                    onSelectionChange={(keys) => {
-                      const selectedKey = Array.from(keys)[0] as string
-                      if (selectedKey) field.onChange(selectedKey)
-                    }}
-                    isRequired
-                  >
-                    <SelectItem key="shipper" value="shipper">
-                      Shipper
-                    </SelectItem>
-                    <SelectItem key="third_party" value="third_party">
-                      Third Party
-                    </SelectItem>
-                    <SelectItem key="recipient" value="recipient">
-                      Recipient
-                    </SelectItem>
-                  </Select>
-                )}
-              />
-              {/* Show recipient fields only when billing is "recipient" */}
-              {watch && watch('billing') === 'recipient' && (
-                <>
-                  <Controller
-                    name="recipient_shipper_account_number"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Recipient Account Number"
-                        placeholder="Enter account number"
-                        isRequired={watch('billing') === 'recipient'}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="recipient_shipper_account_country_code"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Country Code"
-                        placeholder="e.g., US, TH"
-                        maxLength={10}
-                        isRequired={watch('billing') === 'recipient'}
-                      />
-                    )}
-                  />
-                </>
-              )}
-            </div>
-          </div>
-        )}
+      <Card shadow="none" className="rounded-none">
+        
         {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-        <CardHeader className="px-0 pt-2 pb-1 flex-row items-center justify-left gap-3 w-full">
+        <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
           <div className="flex flex-col">
             {serviceOption !== 'Grab' && ratesError && (
               <p className="text-red-500 text-sm mt-1">
@@ -915,6 +840,82 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </>
           )}
         </CardBody>
+        {/* Billing Section - Show after rates are calculated OR in edit mode */}
+        {(sortedRates.length > 0 || isEditMode) && (
+          <div className="mt-2 p-4 bg-gray-20 border border-gray-200">
+            <div className="flex items-start gap-2 mb-3">
+              <Icon icon="solar:wallet-bold" className="text-blue-600 text-xl mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-blue-800 text-sm">
+                  Billing Information
+                </h3>
+                <p className="text-blue-700 text-xs">
+                  Specify who will be billed for this shipment
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Controller
+                name="billing"
+                control={control}
+                defaultValue="shipper"
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    label="Billing Party"
+                    placeholder="Select billing party"
+                    selectedKeys={field.value ? [field.value] : ['shipper']}
+                    onSelectionChange={(keys) => {
+                      const selectedKey = Array.from(keys)[0] as string
+                      if (selectedKey) field.onChange(selectedKey)
+                    }}
+                    isRequired
+                  >
+                    <SelectItem key="shipper" value="shipper">
+                      Shipper
+                    </SelectItem>
+                    <SelectItem key="third_party" value="third_party">
+                      Third Party
+                    </SelectItem>
+                    <SelectItem key="recipient" value="recipient">
+                      Recipient
+                    </SelectItem>
+                  </Select>
+                )}
+              />
+              {/* Show recipient fields only when billing is "recipient" */}
+              {watch && watch('billing') === 'recipient' && (
+                <>
+                  <Controller
+                    name="recipient_shipper_account_number"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        label="Recipient Account Number"
+                        placeholder="Enter account number"
+                        isRequired={watch('billing') === 'recipient'}
+                      />
+                    )}
+                  />
+                  {/* <Controller
+                    name="recipient_shipper_account_country_code"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        label="Country Code"
+                        placeholder="e.g., US, TH"
+                        maxLength={10}
+                        isRequired={watch('billing') === 'recipient'}
+                      />
+                    )}
+                  /> */}
+                </>
+              )}
+            </div>
+          </div>
+        )}
         
       </Card>
     </>
