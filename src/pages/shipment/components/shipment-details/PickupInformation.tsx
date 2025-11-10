@@ -163,7 +163,18 @@ const PickupInformation = ({
             {shipment.pick_up_created_status === 'created_failed' && errorBox}
 
             {shipment.pick_up_created_status !== 'created_success' &&
-              onChangePickupDateTime && <></>}
+              onChangePickupDateTime && (
+                <div className="col-span-full">
+                  <Button
+                    color="warning"
+                    size="sm"
+                    onPress={onChangePickupDateTime}
+                    startContent={<Icon icon="solar:calendar-bold" width={16} />}
+                  >
+                    Change Pickup Date/Time
+                  </Button>
+                </div>
+              )}
           </>
         )}
       </div>
