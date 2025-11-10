@@ -249,7 +249,12 @@ const ShipmentEditForm = () => {
 
           // Initialize Grab rate fields - try to get from direct fields first, then from chosen rate
           grab_rate_amount: shipmentData.grab_rate_amount || '',
-          grab_rate_currency: shipmentData.grab_rate_currency || 'THB'
+          grab_rate_currency: shipmentData.grab_rate_currency || 'THB',
+
+          // Billing
+          billing: shipmentData.billing || 'shipper',
+          recipient_shipper_account_number: shipmentData.recipient_shipper_account_number || '',
+          recipient_shipper_account_country_code: shipmentData.recipient_shipper_account_country_code || ''
         }
 
         // If service option is Grab and grab_rate_amount is empty, try to extract from the chosen rate
@@ -984,6 +989,7 @@ const ShipmentEditForm = () => {
                           rateCalculationError={rateCalculationError}
                           watch={watch}
                           setValue={setValue}
+                          isEditMode={true}
                         />
                       </div>
                       <div className="flex justify-left items-center border-t gap-2 pt-4">

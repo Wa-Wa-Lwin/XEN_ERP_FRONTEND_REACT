@@ -127,6 +127,11 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   grab_rate_amount: '',
   grab_rate_currency: 'THB',
 
+  // Billing
+  billing: 'shipper',
+  recipient_shipper_account_number: '',
+  recipient_shipper_account_country_code: '',
+
   pick_up_status: true,
   pick_up_date: defaultPickupValues.pickupDate,
   pick_up_start_time: defaultPickupValues.startTime,

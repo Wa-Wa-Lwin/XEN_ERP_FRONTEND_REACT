@@ -212,6 +212,23 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             </p>
           )}
 
+          {/* Billing Information */}
+          {formData?.billing && (
+            <>
+              <hr />
+              <p>
+                <h3 className="text-lg font-medium">Billing Information</h3>
+                <b>Billing Party - </b> {formData.billing === 'shipper' ? 'Shipper' : formData.billing === 'third_party' ? 'Third Party' : 'Recipient'} <br />
+                {formData.billing === 'recipient' && (
+                  <>
+                    <b>Recipient Account Number - </b> {formData.recipient_shipper_account_number || 'Not specified'} <br />
+                    <b>Country Code - </b> {formData.recipient_shipper_account_country_code || 'Not specified'} <br />
+                  </>
+                )}
+              </p>
+            </>
+          )}
+
           {/* DONT DELETE YET */}
           {/* All Available Rates */}
           {/* {formData.rates && formData.rates.length > 0 && (
