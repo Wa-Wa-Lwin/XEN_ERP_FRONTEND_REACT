@@ -47,7 +47,11 @@ const ShipmentEditForm = () => {
   const watchedFields = watch([
     'ship_from_country', 'ship_from_postal_code', 'ship_from_city', 'ship_from_state', 'ship_from_street1', 'ship_from_company_name',
     'ship_to_country', 'ship_to_postal_code', 'ship_to_city', 'ship_to_state', 'ship_to_street1', 'ship_to_company_name',
-    'parcels'
+    'parcels',
+    'service_options',
+    'insurance_enabled', 'insurance_insured_value_amount', 'insurance_insured_value_currency',
+    'customs_purpose', 'customs_terms_of_trade', 'payment_terms',
+    'shipment_scope_type'
   ])
 
   // Use the shared rate calculation hook (with skipInitialClearOnEdit enabled)
@@ -285,9 +289,9 @@ const ShipmentEditForm = () => {
         // Don't clear rates in edit mode - we want to show the previously selected rate
         setInitialLoadComplete()
 
-        // Set initial snapshot for rate validation (if there's a previously chosen rate)
-        // This allows us to detect if addresses change after loading
-        if (chosenRate && formData.service_options !== 'Supplier Pickup') {
+        // ALWAYS set initial snapshot for rate validation (not just if there's a previously chosen rate)
+        // This allows us to detect if ANY data changes after loading
+        if (formData.service_options !== 'Supplier Pickup') {
           // Create snapshot directly from loaded formData, not from watchedFields
           // because watchedFields might not be updated yet
           const initialSnapshot = [
@@ -303,7 +307,15 @@ const ShipmentEditForm = () => {
             formData.ship_to_state,
             formData.ship_to_street1,
             formData.ship_to_company_name,
-            formData.parcels
+            formData.parcels,
+            formData.service_options,
+            formData.insurance_enabled,
+            formData.insurance_insured_value_amount,
+            formData.insurance_insured_value_currency,
+            formData.customs_purpose,
+            formData.customs_terms_of_trade,
+            formData.payment_terms,
+            formData.shipment_scope_type
           ]
           setRateCalculationSnapshot(initialSnapshot)
         }
@@ -381,50 +393,62 @@ const ShipmentEditForm = () => {
 
     // 4. Rate validations (only if NOT Supplier Pickup)
     if (formData.service_options !== 'Supplier Pickup') {
-      // 4a. Check if critical fields changed since rate was selected (for non-Grab services)
-      // This applies whether using a previously chosen rate OR newly calculated rates
-      if (formData.service_options !== 'Grab' && rateCalculationSnapshot) {
-        const currentSnapshot = JSON.stringify(watchedFields)
-        const savedSnapshot = JSON.stringify(rateCalculationSnapshot)
-
-        console.log('=== Rate Validation Debug ===')
-        console.log('Current watchedFields:', watchedFields)
-        console.log('Saved rateCalculationSnapshot:', rateCalculationSnapshot)
-        console.log('Current Snapshot String:', currentSnapshot)
-        console.log('Saved Snapshot String:', savedSnapshot)
-        console.log('Are they equal?', currentSnapshot === savedSnapshot)
-
-        if (currentSnapshot !== savedSnapshot) {
-          console.log('DIFFERENCE DETECTED - Adding error')
+      // 4a. For Grab service, check if rate was entered
+      if (formData.service_options === 'Grab') {
+        if (!selectedRateId) {
           allErrors.push({
-            path: 'Rate Recalculation Required',
-            info: 'Address or parcel information has changed since the rate was selected. Please recalculate and select a new rate before proceeding.'
+            path: 'Grab Rate',
+            info: 'Please enter the Grab delivery charge in the Rates section'
           })
         }
-      }
+      } else {
+        // 4b. For non-Grab services: ALWAYS require rates to match current data
+        // Check if critical fields changed since rate was calculated/loaded
+        const hasSnapshot = rateCalculationSnapshot !== null && rateCalculationSnapshot !== undefined
 
-      // 4b. For Grab, check if rate was entered
-      if (formData.service_options === 'Grab' && !selectedRateId) {
-        allErrors.push({
-          path: 'Grab Rate',
-          info: 'Please enter the Grab delivery charge in the Rates section'
-        })
-      }
+        if (!hasSnapshot) {
+          // No snapshot means form just loaded - this shouldn't happen but handle it
+          allErrors.push({
+            path: 'Rate Calculation Required',
+            info: 'Please calculate shipping rates before proceeding.'
+          })
+        } else {
+          const currentSnapshot = JSON.stringify(watchedFields)
+          const savedSnapshot = JSON.stringify(rateCalculationSnapshot)
 
-      // 4c. If user recalculated rates, check if they selected one
-      if (formData.service_options !== 'Grab' && calculatedRates.length > 0 && !selectedRateId) {
-        allErrors.push({
-          path: 'Rate Selection',
-          info: 'Please select one of the calculated shipping rates from the rates section'
-        })
-      }
+          console.log('=== Rate Validation Debug ===')
+          console.log('Current watchedFields:', watchedFields)
+          console.log('Saved rateCalculationSnapshot:', rateCalculationSnapshot)
+          console.log('Current Snapshot String:', currentSnapshot)
+          console.log('Saved Snapshot String:', savedSnapshot)
+          console.log('Are they equal?', currentSnapshot === savedSnapshot)
 
-      // 4d. If no new rates calculated and no previous rate exists
-      if (formData.service_options !== 'Grab' && calculatedRates.length === 0 && !previouslyChosenRate) {
-        allErrors.push({
-          path: 'Rate',
-          info: 'No rate available for this shipment. Please calculate rates or contact support.'
-        })
+          // If data has changed since last rate calculation/load
+          if (currentSnapshot !== savedSnapshot) {
+            console.log('DIFFERENCE DETECTED - Adding error')
+            allErrors.push({
+              path: 'Rate Recalculation Required',
+              info: 'Shipment information has changed since the rate was calculated. Please recalculate and select a new rate before proceeding.'
+            })
+          } else {
+            // Data hasn't changed - ensure we have a valid rate
+            // Either a newly calculated rate OR the original previously chosen rate
+            const hasValidRate = (calculatedRates.length > 0 && selectedRateId) || previouslyChosenRate
+
+            if (!hasValidRate) {
+              allErrors.push({
+                path: 'Rate Required',
+                info: 'No shipping rate available. Please calculate rates or contact support.'
+              })
+            } else if (calculatedRates.length > 0 && !selectedRateId) {
+              // User calculated new rates but didn't select one
+              allErrors.push({
+                path: 'Rate Selection Required',
+                info: 'You have calculated new rates but have not selected one. Please select a shipping rate from the rates section.'
+              })
+            }
+          }
+        }
       }
     }
 
