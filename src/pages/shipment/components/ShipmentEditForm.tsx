@@ -254,7 +254,12 @@ const ShipmentEditForm = () => {
           // Billing
           billing: shipmentData.billing || 'shipper',
           recipient_shipper_account_number: shipmentData.recipient_shipper_account_number || '',
-          recipient_shipper_account_country_code: shipmentData.recipient_shipper_account_country_code || ''
+          recipient_shipper_account_country_code: shipmentData.recipient_shipper_account_country_code || '',
+
+          // Customize Invoice
+          use_customize_invoice: shipmentData.use_customize_invoice || false,
+          customize_invoice_url: shipmentData.customize_invoice_url || '',
+          customize_invoice_file: null
         }
 
         // If service option is Grab and grab_rate_amount is empty, try to extract from the chosen rate
@@ -433,7 +438,7 @@ const ShipmentEditForm = () => {
             console.log('DIFFERENCE DETECTED - Adding error')
             allErrors.push({
               path: 'Rate Recalculation Required',
-              info: 'Shipment information has changed since the rate was calculated. Please recalculate and select a new rate before proceeding.'
+              info: 'Shipment information has changed since the rate was calculated. Please recalculate and select a new rate before proceeding for updating.'
             })
           } else {
             // Data hasn't changed - ensure we have a valid rate
@@ -594,9 +599,101 @@ const ShipmentEditForm = () => {
 
       const apiUrl = `${editUrl}${shipmentId}`
 
-      const response = await axios.put(apiUrl, finalData, {
-        headers: { 'Content-Type': 'application/json' }
-      })
+      // Check if there's a file to upload
+      const hasFile = previewData.customize_invoice_file instanceof File
+
+      let response
+      if (hasFile) {
+        // Use FormData for file upload
+        const formData = new FormData()
+
+        // Append the file first
+        formData.append('customize_invoice_file', previewData.customize_invoice_file as File)
+
+        // Helper function to append nested objects to FormData
+        const appendFormData = (data: any, parentKey: string) => {
+          if (data && typeof data === 'object' && !(data instanceof File) && !(data instanceof Date)) {
+            if (Array.isArray(data)) {
+              data.forEach((item, index) => {
+                appendFormData(item, `${parentKey}[${index}]`)
+              })
+            } else {
+              Object.keys(data).forEach((key) => {
+                appendFormData(data[key], `${parentKey}[${key}]`)
+              })
+            }
+          } else if (data !== null && data !== undefined) {
+            // Convert boolean to 1 or 0 for Laravel validation
+            if (typeof data === 'boolean') {
+              formData.append(parentKey, data ? '1' : '0')
+            } else {
+              formData.append(parentKey, String(data))
+            }
+          }
+        }
+
+        // Debug: Log finalData to see what we're working with
+        console.log('Final Data before FormData conversion:', finalData)
+
+        // Append all fields from finalData
+        Object.entries(finalData).forEach(([key, value]) => {
+          // Skip file fields and nested ship_from/ship_to objects (we use flattened fields instead)
+          if (key === 'customize_invoice_file' ||
+              key === 'ship_from' || key === 'ship_to') {
+            return
+          }
+
+          // Handle arrays (parcels, rates)
+          if (Array.isArray(value)) {
+            if (value.length > 0) {
+              appendFormData(value, key)
+            }
+          } else if (value !== null && value !== undefined) {
+            // Handle primitive values and ensure they're properly typed
+            const valueType = typeof value
+
+            if (valueType === 'boolean') {
+              formData.append(key, value ? '1' : '0')
+            } else if (valueType === 'number') {
+              formData.append(key, String(value))
+            } else if (valueType === 'string') {
+              // Include empty strings too - let Laravel validate them
+              formData.append(key, value as string)
+            } else if (value instanceof File) {
+              // Handle File objects
+              formData.append(key, value)
+            } else if (valueType === 'object') {
+              // Skip other objects (like Date objects or nested structures)
+              console.warn(`Skipping object field: ${key}`, value)
+            }
+          }
+        })
+
+        // Add use_customize_invoice flag explicitly
+        formData.append('use_customize_invoice', previewData.use_customize_invoice ? '1' : '0')
+
+        // Debug: Log FormData contents
+        console.log('FormData contents:')
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]))
+        }
+
+        response = await axios.put(apiUrl, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+      } else {
+        // Use JSON for non-file updates
+        // Preserve existing customize_invoice_url if no new file is uploaded
+        const dataToSend = {
+          ...finalData,
+          customize_invoice_url: previewData.customize_invoice_url || null,
+          use_customize_invoice: previewData.use_customize_invoice || false
+        }
+
+        response = await axios.put(apiUrl, dataToSend, {
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
 
       if (response.status === 200) {
         success('Shipment request updated successfully!', 'Success')

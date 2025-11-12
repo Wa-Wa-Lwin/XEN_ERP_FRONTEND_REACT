@@ -50,6 +50,23 @@ export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
                 <span className="text-gray-600">PO Date: </span> <span className="font-medium">{data?.po_date || '-'}</span>
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">Payment Terms: </span> <span className="font-medium">{data?.payment_terms?.replace(/_/g, ' ').toUpperCase() || '-'}</span>
+                {
+                  data?.customize_invoice_url &&
+                  <>
+                    <span className="text-gray-600"> | </span>
+                    <span className="text-gray-600">Customized Invoice: </span>
+                    <span className="font-medium">
+                      <a
+                        href={`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${data?.customize_invoice_url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline ml-1"
+                      >
+                        View File
+                      </a>
+                    </span>
+                  </>
+                }
               </div>
             </div>
           </div>

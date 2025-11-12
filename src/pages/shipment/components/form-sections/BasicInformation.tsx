@@ -2,7 +2,7 @@ import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem, Checkb
 import { Controller } from 'react-hook-form'
 import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS } from '../../constants/form-defaults'
 import type { FormSectionProps } from '../../types/shipment-form.types'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface BasicInformationProps extends FormSectionProps {
   watch: <T = any>(name?: string) => T
@@ -14,6 +14,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
   const [selectedTopic, setSelectedTopic] = useState<Set<string>>(new Set());
   const [selectedServiceOptions, setSelectedServiceOptions] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Watch the send_to field to conditionally apply validation
   const sendTo = watch('send_to');
@@ -30,6 +31,8 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
   const salesPersonValue = watch('sales_person');
   const shipmentScopeValue = watch('shipment_scope_type');
   const useCustomizeInvoice = watch('use_customize_invoice');
+  const customizeInvoiceUrl = watch('customize_invoice_url');
+  const customizeInvoiceFile = watch('customize_invoice_file');
 
   // Update local state when form values change (for duplicated data)
   useEffect(() => {
@@ -43,6 +46,15 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
       setSelectedServiceOptions(new Set([serviceOptionsValue]));
     }
   }, [serviceOptionsValue]);
+
+  // Sync selectedFile with form state to persist file across section navigation
+  useEffect(() => {
+    if (customizeInvoiceFile instanceof File) {
+      setSelectedFile(customizeInvoiceFile);
+    } else if (!customizeInvoiceFile) {
+      setSelectedFile(null);
+    }
+  }, [customizeInvoiceFile]);
 
   // Helper function to set request status based on send_to value
   const setRequestStatusValue = (sendToValue: string) => {
@@ -375,6 +387,17 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
           />
 
           <div className="flex flex-col gap-3">
+            {/* Show existing uploaded invoice if editing */}
+            {customizeInvoiceUrl && (
+              <a
+                href={`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${customizeInvoiceUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 text-sm underline"
+              >
+                View Existing Invoice
+              </a>
+            )}
             <Controller
               name="use_customize_invoice"
               control={control}
@@ -382,15 +405,19 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 <Checkbox
                   isSelected={field.value}
                   onValueChange={(isSelected) => {
-                    field.onChange(isSelected)
+                    field.onChange(isSelected);
                     if (!isSelected) {
                       // Clear file when unchecked
-                      setValue?.('customize_invoice_file', null)
-                      setSelectedFile(null)
+                      setValue?.('customize_invoice_file', null);
+                      setSelectedFile(null);
+                      // Clear the file input
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                      }
                     }
                   }}
                 >
-                  Upload Customize Invoice
+                  {customizeInvoiceUrl ? 'Update Customize Invoice' : 'Upload Customize Invoice'}
                 </Checkbox>
               )}
             />
@@ -400,7 +427,18 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 <label className="text-sm font-medium">
                   Invoice File (PDF only, max 10MB)
                 </label>
+                {selectedFile && (
+                  <div className="mb-2 p-3 bg-green-50 border border-green-200 rounded-md">
+                    <p className="text-xs text-green-700 font-semibold mb-1">
+                      ✓ File Selected:
+                    </p>
+                    <p className="text-xs text-gray-700">
+                      {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                  </div>
+                )}
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept=".pdf"
                   onChange={(e) => {
@@ -434,8 +472,8 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                     cursor-pointer"
                 />
                 {selectedFile && (
-                  <p className="text-xs text-gray-600">
-                    Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                  <p className="text-xs text-gray-500 italic">
+                    Note: The file input may appear empty due to browser security, but your file is still selected (shown above).
                   </p>
                 )}
               </div>

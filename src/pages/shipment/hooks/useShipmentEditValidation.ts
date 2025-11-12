@@ -82,7 +82,7 @@ export const validateShipmentEdit = (
         console.log('DIFFERENCE DETECTED - Adding error')
         allErrors.push({
           path: 'Rate Recalculation Required',
-          info: 'Address or parcel information has changed since the rate was selected. Please recalculate and select a new rate before proceeding.'
+          info: 'Address or parcel information has changed since the rate was selected. Please recalculate and select a new rate before proceeding!'
         })
       }
     }

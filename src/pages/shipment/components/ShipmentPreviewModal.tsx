@@ -66,6 +66,14 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             }
 
             <b>Payment Terms - </b> {formData.payment_terms?.replace(/_/g,' ').toLocaleUpperCase() || 'Not specified'} <br />
+            {
+              formData?.customize_invoice_url &&
+              <>
+                <b>Customize Invoice URL - </b> {formData.customize_invoice_url.split('/').pop()} 
+                <br />
+              </>
+            }
+            <b>Payment Terms - </b> {formData.payment_terms?.replace(/_/g,' ').toLocaleUpperCase() || 'Not specified'} <br />
           </p>
           <hr />
 
