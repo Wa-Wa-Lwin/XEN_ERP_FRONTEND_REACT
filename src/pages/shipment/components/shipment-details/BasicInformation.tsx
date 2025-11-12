@@ -98,10 +98,13 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
                 </b>&nbsp;
               </div>
             )}
-
-            <div className="inline-flex items-center">
-              |&nbsp; Billing:&nbsp; <b>{shipment?.billing?.toUpperCase() || 'SHIPPER'}</b>&nbsp;
-            </div>
+            {
+              shipment?.billing !== "" && shipment?.service_options?.toLowerCase() !== "grab" && shipment?.service_options?.toLowerCase() !== "supplier pickup" && (
+                <div className="inline-flex items-center">
+                  |&nbsp; Billing:&nbsp; <b>{shipment?.billing?.toUpperCase() || 'SHIPPER'}</b>&nbsp;
+                </div>
+              )
+            }
 
             {shipment?.billing?.toLowerCase() === "recipient" && (
               <div className="inline-flex items-center">
