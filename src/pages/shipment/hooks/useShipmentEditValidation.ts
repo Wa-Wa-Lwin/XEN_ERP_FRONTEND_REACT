@@ -87,12 +87,19 @@ export const validateShipmentEdit = (
       }
     }
 
-    // 4b. For Grab, check if rate was entered
+    // 4b. For Grab, check if rate was entered or already exists
     if (formData.service_options === 'Grab' && !selectedRateId) {
-      allErrors.push({
-        path: 'Grab Rate',
-        info: 'Please enter the Grab delivery charge in the Rates section'
-      })
+      // Check if there's already a grab_rate_amount in the form (from previous save)
+      const hasExistingGrabRate = formData.grab_rate_amount &&
+                                   formData.grab_rate_amount !== '' &&
+                                   parseFloat(formData.grab_rate_amount) > 0
+
+      if (!hasExistingGrabRate) {
+        allErrors.push({
+          path: 'Grab Rate',
+          info: 'Please enter the Grab delivery charge in the Rates section'
+        })
+      }
     }
 
     // 4c. If user recalculated rates, check if they selected one

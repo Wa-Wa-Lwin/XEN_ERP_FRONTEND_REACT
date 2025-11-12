@@ -403,9 +403,21 @@ const ShipmentEditForm = () => {
 
     // 4. Rate validations (only if NOT Supplier Pickup)
     if (formData.service_options !== 'Supplier Pickup') {
-      // 4a. For Grab service, check if rate was entered
+      // 4a. For Grab service, check if rate was entered or already exists
       if (formData.service_options === 'Grab') {
-        if (!selectedRateId) {
+        // Only require entering rate if no existing rate and no newly entered rate
+        const hasExistingGrabRate = formData.grab_rate_amount &&
+                                     formData.grab_rate_amount !== '' &&
+                                     parseFloat(formData.grab_rate_amount) > 0
+
+        console.log('=== Grab Rate Validation Debug ===')
+        console.log('selectedRateId:', selectedRateId)
+        console.log('formData.grab_rate_amount:', formData.grab_rate_amount)
+        console.log('formData.grab_rate_currency:', formData.grab_rate_currency)
+        console.log('hasExistingGrabRate:', hasExistingGrabRate)
+        console.log('Will show error?', !selectedRateId && !hasExistingGrabRate)
+
+        if (!selectedRateId && !hasExistingGrabRate) {
           allErrors.push({
             path: 'Grab Rate',
             info: 'Please enter the Grab delivery charge in the Rates section'
@@ -1087,7 +1099,10 @@ const ShipmentEditForm = () => {
                 </>
               ) :
                 // Show RatesSummary only if NOT Supplier Pickup
-                serviceOption !== 'Supplier Pickup' && completedSteps.has(3) && (selectedRateId || previouslyChosenRate) && (
+                // For Grab, always show even without selectedRate (user needs to enter rate manually)
+                serviceOption !== 'Supplier Pickup' && completedSteps.has(3) && (
+                  serviceOption === 'Grab' || selectedRateId || previouslyChosenRate
+                ) && (
                   <div className="pb-1">
                     <RatesSummary
                       data={getValues()}
