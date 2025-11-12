@@ -46,6 +46,9 @@ export interface ShipmentGETData {
   billing?: string
   recipient_shipper_account_number?: string
   recipient_shipper_account_country_code?: string
+  // Customize Invoice
+  use_customize_invoice?: boolean
+  customize_invoice_url?: string
   // Flattened ship_from properties
   ship_from_contact_name: string
   ship_from_company_name: string

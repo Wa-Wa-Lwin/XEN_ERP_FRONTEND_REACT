@@ -83,6 +83,22 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
               |&nbsp; Payment Terms:&nbsp; <b>{shipment?.payment_terms?.replace(/_/g, ' ').toUpperCase() || '-'}</b>&nbsp;
             </div>
 
+            {shipment?.customize_invoice_url && (
+              <div className="inline-flex items-center">
+                |&nbsp; Custom Invoice:&nbsp;
+                <b>
+                  <a
+                    href={`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${shipment.customize_invoice_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline ml-1"
+                  >
+                    Download PDF
+                  </a>
+                </b>&nbsp;
+              </div>
+            )}
+
             <div className="inline-flex items-center">
               |&nbsp; Billing:&nbsp; <b>{shipment?.billing?.toUpperCase() || 'SHIPPER'}</b>&nbsp;
             </div>

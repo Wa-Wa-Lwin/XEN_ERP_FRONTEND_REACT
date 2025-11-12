@@ -159,6 +159,11 @@ export interface ShipmentFormData {
   recipient_shipper_account_number?: string
   recipient_shipper_account_country_code?: string
 
+  // Customize Invoice
+  use_customize_invoice?: boolean
+  customize_invoice_file?: File | null
+  customize_invoice_url?: string
+
   created_user_id: string;
   created_user_name: string;
   created_user_mail: string;

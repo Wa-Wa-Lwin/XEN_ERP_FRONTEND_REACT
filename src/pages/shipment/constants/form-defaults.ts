@@ -132,6 +132,11 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   recipient_shipper_account_number: '',
   recipient_shipper_account_country_code: '',
 
+  // Customize Invoice
+  use_customize_invoice: false,
+  customize_invoice_file: null,
+  customize_invoice_url: '',
+
   pick_up_status: true,
   pick_up_date: defaultPickupValues.pickupDate,
   pick_up_start_time: defaultPickupValues.startTime,
