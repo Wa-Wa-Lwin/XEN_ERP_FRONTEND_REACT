@@ -604,22 +604,22 @@ const ShipmentEditForm = () => {
 
       let response
       if (hasFile) {
-        // Use FormData for file upload
+        // Use FormData for file upload (same approach as create form)
         const formData = new FormData()
 
-        // Append the file first
+        // Add the file first
         formData.append('customize_invoice_file', previewData.customize_invoice_file as File)
 
-        // Helper function to append nested objects to FormData
-        const appendFormData = (data: any, parentKey: string) => {
-          if (data && typeof data === 'object' && !(data instanceof File) && !(data instanceof Date)) {
+        // Helper function to append nested objects to FormData - same as create form
+        const appendToFormData = (data: any, parentKey = '') => {
+          if (data && typeof data === 'object' && !(data instanceof File)) {
             if (Array.isArray(data)) {
               data.forEach((item, index) => {
-                appendFormData(item, `${parentKey}[${index}]`)
+                appendToFormData(item, `${parentKey}[${index}]`)
               })
             } else {
               Object.keys(data).forEach((key) => {
-                appendFormData(data[key], `${parentKey}[${key}]`)
+                appendToFormData(data[key], parentKey ? `${parentKey}[${key}]` : key)
               })
             }
           } else if (data !== null && data !== undefined) {
@@ -632,54 +632,37 @@ const ShipmentEditForm = () => {
           }
         }
 
-        // Debug: Log finalData to see what we're working with
-        console.log('Final Data before FormData conversion:', finalData)
+        // Add all fields to FormData with proper nested array notation
+        Object.keys(finalData).forEach((key) => {
+          // Skip the file field as it's already added, and skip nested ship_from/ship_to objects
+          if (key === 'customize_invoice_file' || key === 'ship_from' || key === 'ship_to') return
 
-        // Append all fields from finalData
-        Object.entries(finalData).forEach(([key, value]) => {
-          // Skip file fields and nested ship_from/ship_to objects (we use flattened fields instead)
-          if (key === 'customize_invoice_file' ||
-              key === 'ship_from' || key === 'ship_to') {
-            return
-          }
-
-          // Handle arrays (parcels, rates)
-          if (Array.isArray(value)) {
-            if (value.length > 0) {
-              appendFormData(value, key)
-            }
-          } else if (value !== null && value !== undefined) {
-            // Handle primitive values and ensure they're properly typed
-            const valueType = typeof value
-
-            if (valueType === 'boolean') {
-              formData.append(key, value ? '1' : '0')
-            } else if (valueType === 'number') {
-              formData.append(key, String(value))
-            } else if (valueType === 'string') {
-              // Include empty strings too - let Laravel validate them
-              formData.append(key, value as string)
-            } else if (value instanceof File) {
-              // Handle File objects
-              formData.append(key, value)
-            } else if (valueType === 'object') {
-              // Skip other objects (like Date objects or nested structures)
-              console.warn(`Skipping object field: ${key}`, value)
-            }
-          }
+          const value = finalData[key as keyof typeof finalData]
+          appendToFormData(value, key)
         })
 
-        // Add use_customize_invoice flag explicitly
+        // Explicitly add use_customize_invoice
         formData.append('use_customize_invoice', previewData.use_customize_invoice ? '1' : '0')
 
         // Debug: Log FormData contents
-        console.log('FormData contents:')
+        console.log('=== FormData Debug ===')
+        console.log('Total entries:', Array.from(formData.entries()).length)
+        if (previewData.customize_invoice_file) {
+          console.log('File size:', previewData.customize_invoice_file.size, 'bytes (',
+                      (previewData.customize_invoice_file.size / 1024 / 1024).toFixed(2), 'MB)')
+        }
+        console.log('FormData entries:')
         for (let pair of formData.entries()) {
           console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]))
         }
+        console.log('=== End FormData Debug ===')
 
-        response = await axios.put(apiUrl, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+        // Backend route is POST, not PUT
+        response = await axios.post(apiUrl, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 60000, // 60 second timeout for large file uploads
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity
         })
       } else {
         // Use JSON for non-file updates
@@ -690,7 +673,7 @@ const ShipmentEditForm = () => {
           use_customize_invoice: previewData.use_customize_invoice || false
         }
 
-        response = await axios.put(apiUrl, dataToSend, {
+        response = await axios.post(apiUrl, dataToSend, {
           headers: { 'Content-Type': 'application/json' }
         })
       }

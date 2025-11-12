@@ -387,8 +387,8 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
           />
 
           <div className="flex flex-col gap-3">
-            {/* Show existing uploaded invoice if editing */}
-            {customizeInvoiceUrl && (
+            {/* Show existing uploaded invoice if editing AND no new file selected */}
+            {customizeInvoiceUrl && !selectedFile && (
               <a
                 href={`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${customizeInvoiceUrl}`}
                 target="_blank"
