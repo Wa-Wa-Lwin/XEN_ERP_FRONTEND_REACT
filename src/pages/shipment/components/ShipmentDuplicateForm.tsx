@@ -1,14 +1,21 @@
 import { useState } from 'react'
-import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner } from '@heroui/react'
+import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner, Select, SelectItem } from '@heroui/react'
+import { Controller } from 'react-hook-form'
 import { useShipmentDuplicateForm } from '../hooks/useShipmentDuplicateForm'
 import { useShipmentRateCalculation } from '../hooks/useShipmentRateCalculation'
-import { validateCalculateRatesData, validateWeights } from '../utils/shipment-validations'
+import { validateCalculateRatesData, validateWeights, validateShipmentScope } from '../utils/shipment-validations'
+import { CUSTOM_PURPOSES, INCOTERMS } from '../constants/form-defaults'
 import {
   BasicInformation,
   AddressSelector,
   PickupInformation,
   ParcelsSection,
-  RatesSection
+  RatesSection,
+  BasicInfoSummary,
+  AddressesSummary,
+  PickupInfoSummary,
+  ParcelsSummary,
+  RatesSummary
 } from './form-sections'
 import ShipmentPreviewModal from './ShipmentPreviewModal'
 import ErrorModal from './ErrorModal'
@@ -16,7 +23,7 @@ import type { ShipmentFormData } from '../types/shipment-form.types'
 import { Icon } from '@iconify/react/dist/iconify.js'
 
 const ShipmentDuplicateForm = () => {
-  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, isLoading, today, getValues, watch, reset } = useShipmentDuplicateForm()
+  const { register, control, handleSubmit, setValue, errors, onSubmit, isSubmitting, isLoading, today, getValues, watch, reset, trigger } = useShipmentDuplicateForm()
 
   // Watch for changes in critical fields that affect rates
   const watchedFields = watch([
@@ -40,6 +47,19 @@ const ShipmentDuplicateForm = () => {
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [previewData, setPreviewData] = useState<ShipmentFormData | null>(null)
+
+  // Step/Section Management
+  const [currentStep, setCurrentStep] = useState<number>(0)
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
+
+  const steps = [
+    { id: 0, name: 'Basic Information', icon: 'solar:box-bold' },
+    { id: 1, name: 'Addresses', icon: 'solar:map-point-bold' },
+    { id: 2, name: 'Pickup Information', icon: 'solar:calendar-bold' },
+    { id: 3, name: 'Parcels & Items', icon: 'solar:box-minimalistic-bold' },
+    { id: 4, name: 'Shipping Rates', icon: 'solar:dollar-bold' }
+  ]
+
   const [errorModal, setErrorModal] = useState<{
     isOpen: boolean
     title: string
@@ -52,6 +72,81 @@ const ShipmentDuplicateForm = () => {
     details: []
   })
   const [refreshCounter, setRefreshCounter] = useState(0)
+
+  // Helper function to get the highest completed step
+  const getHighestCompletedStep = (): { stepNumber: number; stepName: string } | null => {
+    if (completedSteps.size === 0) return null
+    const maxStep = Math.max(...Array.from(completedSteps)) + 1
+    return {
+      stepNumber: maxStep,
+      stepName: steps[maxStep]?.name || ''
+    }
+  }
+
+  // Step Navigation Handlers
+  const handleNextStep = async () => {
+    const isValid = await trigger()
+    if (isValid) {
+      // Additional validation: Check shipment scope when leaving step 1 (Addresses)
+      if (currentStep === 1) {
+        const formData = getValues()
+        const scopeValidation = validateShipmentScope(formData)
+
+        if (!scopeValidation.isValid && scopeValidation.error) {
+          setErrorModal({
+            isOpen: true,
+            title: scopeValidation.error.title,
+            message: scopeValidation.error.message,
+            details: scopeValidation.error.details
+          })
+          return
+        }
+      }
+
+      // Additional validation: Check parcel item weights when leaving step 3 (Parcels & Items)
+      if (currentStep === 3) {
+        const formData = getValues()
+        const weightValidation = validateWeights(formData)
+
+        if (!weightValidation.isValid) {
+          setErrorModal({
+            isOpen: true,
+            title: 'Weight Validation Failed',
+            message: 'Please fix the weight issues below before proceeding to the next step.',
+            details: weightValidation.errors
+          })
+          return
+        }
+      }
+
+      setCompletedSteps(prev => new Set(prev).add(currentStep))
+
+      // If we're editing a previous step, return to the highest completed step
+      // Otherwise, proceed to the next sequential step
+      const highestCompleted = getHighestCompletedStep()
+      if (highestCompleted && currentStep < highestCompleted.stepNumber) {
+        setCurrentStep(highestCompleted.stepNumber)
+      } else {
+        setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
+      }
+    }
+  }
+
+  const handlePreviousStep = () => {
+    // If we're editing a previous step, return to the highest completed step
+    // Otherwise, go to the previous sequential step
+    const highestCompleted = getHighestCompletedStep()
+    if (highestCompleted && currentStep < highestCompleted.stepNumber) {
+      setCurrentStep(highestCompleted.stepNumber)
+    } else {
+      setCurrentStep(prev => Math.max(prev - 1, 0))
+    }
+  }
+
+  const handleEditStep = (stepId: number) => {
+    // Navigate to the step to edit
+    setCurrentStep(stepId)
+  }
 
   const handlePreview = async (data: ShipmentFormData) => {
     // Use the data from form submission instead of getValues()
@@ -200,22 +295,6 @@ const ShipmentDuplicateForm = () => {
     }
   }
 
-  const handleClearForm = () => {
-    // Clear calculated rates and selected rate first
-    handleClearRates()
-    // Close any open modals
-    setIsPreviewOpen(false)
-    setErrorModal({
-      isOpen: false,
-      title: '',
-      message: '',
-      details: []
-    })
-    // Reset the form to initial values using react-hook-form's reset
-    reset()
-    setRefreshCounter(prev => prev + 1)
-  }
-
   if (isLoading) {
     return (
       <Card shadow="none" className="p-5 m-0 bg-transparent">
@@ -229,163 +308,427 @@ const ShipmentDuplicateForm = () => {
 
   return (
     <>
-      <Card shadow="none" className="p-5 m-0 bg-transparent">
+      <Card shadow="none" className="m-0 bg-transparent">
         <CardBody className="p-0">
           <form
-            onSubmit={handleSubmit(handlePreview)}
+            onSubmit={handleSubmit(handlePreview, () => { })}
             className="space-y-4"
           >
-            {/* Form Header */}
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">Duplicate Shipment Request</h2>
-                <p className="text-sm text-gray-500">Create a new shipment based on an existing one</p>
-              </div>
-            </div>
+            {/* All Sections with Active Section Inline */}
+            <div className="space-y-3">
+              {/* Step 0: Basic Information */}
+              {currentStep === 0 ? (
+                <Card className="border-2 border-primary shadow-lg m-1">
+                  <CardBody className="p-6">
+                    <div className="mb-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Icon icon={steps[0].icon} width={28} className="text-primary" />
+                        <h2 className="text-xl font-bold text-primary">{steps[0].name}</h2>
+                      </div>
+                      <p className="text-sm text-gray-500">Step 1 of {steps.length}</p>
+                    </div>
+                    <div className="mb-6">
+                      <BasicInformation
+                        register={register}
+                        errors={errors}
+                        control={control}
+                        watch={watch}
+                        setValue={setValue}
+                        onClearRates={handleClearRates}
+                      />
+                    </div>
+                    <div className="flex justify-left items-center border-t gap-2 pt-4">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="bordered"
+                          onPress={handlePreviousStep}
+                          isDisabled={currentStep === 0}
+                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
+                        >
+                          Previous
+                        </Button>
+                      </div>
+                      <Button
+                        color="primary"
+                        onPress={handleNextStep}
+                        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                      >
+                        {(() => {
+                          const highestCompleted = getHighestCompletedStep()
+                          return highestCompleted && currentStep < highestCompleted.stepNumber
+                            ? `Return to ${highestCompleted.stepName}`
+                            : 'Next Step'
+                        })()}
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+              ) : completedSteps.has(0) && (
+                <BasicInfoSummary data={getValues()} onEdit={() => handleEditStep(0)} />
+              )}
 
-            {/* Form Sections */}
-            <BasicInformation
-              register={register}
-              errors={errors}
-              control={control}
-              watch={watch}
-              setValue={setValue}
-              onClearRates={handleClearRates}
-            />
+              {/* Step 1: Addresses */}
+              {currentStep === 1 ? (
+                <Card className="border-2 border-primary shadow-lg m-1">
+                  <CardBody className="p-6">
+                    <div className="mb-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Icon icon={steps[1].icon} width={28} className="text-primary" />
+                        <h2 className="text-xl font-bold text-primary">{steps[1].name}</h2>
+                      </div>
+                      <p className="text-sm text-gray-500">Step 2 of {steps.length}</p>
+                    </div>
+                    <div className="mb-6">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 items-center">
+                          <AddressSelector
+                            register={register}
+                            errors={errors}
+                            control={control}
+                            setValue={setValue}
+                            title="Ship From Address"
+                            prefix="ship_from"
+                            forceRefresh={refreshCounter}
+                            watch={watch}
+                            onClearRates={handleClearRates}
+                          />
+                          <div className="flex justify-center my-4 md:my-0">
+                            <Button
+                              size="sm"
+                              variant="bordered"
+                              color="primary"
+                              startContent={<Icon icon="solar:refresh-bold" />}
+                              onPress={() => {
+                                const currentValues = getValues();
+                                const swappedValues = {
+                                  ...currentValues,
+                                  ship_from_company_name: currentValues.ship_to_company_name,
+                                  ship_from_contact_name: currentValues.ship_to_contact_name,
+                                  ship_from_phone: currentValues.ship_to_phone,
+                                  ship_from_email: currentValues.ship_to_email,
+                                  ship_from_country: currentValues.ship_to_country,
+                                  ship_from_city: currentValues.ship_to_city,
+                                  ship_from_state: currentValues.ship_to_state,
+                                  ship_from_postal_code: currentValues.ship_to_postal_code,
+                                  ship_from_street1: currentValues.ship_to_street1,
+                                  ship_from_street2: currentValues.ship_to_street2,
+                                  ship_from_tax_id: currentValues.ship_to_tax_id,
+                                  ship_from_eori_number: currentValues.ship_to_eori_number,
+                                  ship_to_company_name: currentValues.ship_from_company_name,
+                                  ship_to_contact_name: currentValues.ship_from_contact_name,
+                                  ship_to_phone: currentValues.ship_from_phone,
+                                  ship_to_email: currentValues.ship_from_email,
+                                  ship_to_country: currentValues.ship_from_country,
+                                  ship_to_city: currentValues.ship_from_city,
+                                  ship_to_state: currentValues.ship_from_state,
+                                  ship_to_postal_code: currentValues.ship_from_postal_code,
+                                  ship_to_street1: currentValues.ship_from_street1,
+                                  ship_to_street2: currentValues.ship_from_street2,
+                                  ship_to_tax_id: currentValues.ship_from_tax_id,
+                                  ship_to_eori_number: currentValues.ship_from_eori_number,
+                                };
+                                reset(swappedValues);
+                                handleClearRates();
+                                setRefreshCounter(prev => prev + 1);
+                              }}
+                            >
+                              Swap
+                            </Button>
+                          </div>
+                          <AddressSelector
+                            register={register}
+                            errors={errors}
+                            control={control}
+                            setValue={setValue}
+                            title="Ship To Address"
+                            prefix="ship_to"
+                            forceRefresh={refreshCounter}
+                            watch={watch}
+                            onClearRates={handleClearRates}
+                          />
+                        </div>
+                        <hr />
+                        {/* Customs fields - only show for international shipments */}
+                        {watch('shipment_scope_type') && watch('shipment_scope_type')?.toLowerCase() !== 'domestic' && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                            <Controller
+                              name="customs_purpose"
+                              control={control}
+                              defaultValue="sample"
+                              rules={{ required: 'Customs purpose is required for international shipments' }}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  isRequired
+                                  label={<span>Customs Purpose</span>}
+                                  placeholder="Select"
+                                  errorMessage={errors.customs_purpose?.message}
+                                  isInvalid={!!errors.customs_purpose}
+                                  selectedKeys={watch('customs_purpose') ? [watch('customs_purpose')] : field.value ? [field.value] : []}
+                                  onSelectionChange={(keys) => {
+                                    const selectedKey = Array.from(keys)[0] as string
+                                    if (selectedKey) field.onChange(selectedKey)
+                                  }}
+                                  color={!watch('customs_purpose') ? "warning" : "default"}
+                                >
+                                  {CUSTOM_PURPOSES.map((option) => (
+                                    <SelectItem key={option.key} value={option.value}>
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </Select>
+                              )}
+                            />
+                            <Controller
+                              name="customs_terms_of_trade"
+                              control={control}
+                              defaultValue="exw"
+                              rules={{ required: 'Incoterms is required for international shipments' }}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  isRequired
+                                  label={<span>Incoterms</span>}
+                                  placeholder="Select"
+                                  errorMessage={errors.customs_terms_of_trade?.message}
+                                  isInvalid={!!errors.customs_terms_of_trade}
+                                  selectedKeys={watch('customs_terms_of_trade') ? [watch('customs_terms_of_trade')] : field.value ? [field.value] : []}
+                                  onSelectionChange={(keys) => {
+                                    const selectedKey = Array.from(keys)[0] as string
+                                    if (selectedKey) {
+                                      field.onChange(selectedKey)
+                                      // Clear rates since incoterms changed
+                                      handleClearRates()
+                                    }
+                                  }}
+                                  color={!watch('customs_terms_of_trade') ? "warning" : "default"}
+                                >
+                                  {INCOTERMS.map((option) => (
+                                    <SelectItem key={option.key} value={option.value}>
+                                      {option.value}
+                                    </SelectItem>
+                                  ))}
+                                </Select>
+                              )}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center border-t pt-4">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="bordered"
+                          onPress={handlePreviousStep}
+                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
+                        >
+                          Previous
+                        </Button>
+                      </div>
+                      <Button
+                        color="primary"
+                        onPress={handleNextStep}
+                        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                      >
+                        {(() => {
+                          const highestCompleted = getHighestCompletedStep()
+                          return highestCompleted && currentStep < highestCompleted.stepNumber
+                            ? `Return to ${highestCompleted.stepName}`
+                            : 'Next Step'
+                        })()}
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+              ) : completedSteps.has(1) && (
+                <AddressesSummary data={getValues()} onEdit={() => handleEditStep(1)} />
+              )}
 
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 items-center">
-              <AddressSelector
-                register={register}
-                errors={errors}
-                control={control}
-                setValue={setValue}
-                title="Ship From Address"
-                prefix="ship_from"
-                forceRefresh={refreshCounter}
-                watch={watch}
-                onClearRates={handleClearRates}
-              />
-              <div className="flex justify-center my-4 md:my-0">
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  color="primary"
-                  startContent={<Icon icon="solar:refresh-bold" />}
-                  onPress={() => {
-                    const currentValues = getValues();
-                    const swappedValues = {
-                      ...currentValues,
-                      ship_from_company_name: currentValues.ship_to_company_name,
-                      ship_from_contact_name: currentValues.ship_to_contact_name,
-                      ship_from_phone: currentValues.ship_to_phone,
-                      ship_from_email: currentValues.ship_to_email,
-                      ship_from_country: currentValues.ship_to_country,
-                      ship_from_city: currentValues.ship_to_city,
-                      ship_from_state: currentValues.ship_to_state,
-                      ship_from_postal_code: currentValues.ship_to_postal_code,
-                      ship_from_street1: currentValues.ship_to_street1,
-                      ship_from_street2: currentValues.ship_to_street2,
-                      ship_from_tax_id: currentValues.ship_to_tax_id,
-                      ship_from_eori_number: currentValues.ship_to_eori_number,
-                      ship_to_company_name: currentValues.ship_from_company_name,
-                      ship_to_contact_name: currentValues.ship_from_contact_name,
-                      ship_to_phone: currentValues.ship_from_phone,
-                      ship_to_email: currentValues.ship_from_email,
-                      ship_to_country: currentValues.ship_from_country,
-                      ship_to_city: currentValues.ship_from_city,
-                      ship_to_state: currentValues.ship_from_state,
-                      ship_to_postal_code: currentValues.ship_from_postal_code,
-                      ship_to_street1: currentValues.ship_from_street1,
-                      ship_to_street2: currentValues.ship_from_street2,
-                      ship_to_tax_id: currentValues.ship_from_tax_id,
-                      ship_to_eori_number: currentValues.ship_from_eori_number,
-                    };
-                    reset(swappedValues);
-                    handleClearRates();
-                    setRefreshCounter(prev => prev + 1);
-                  }}
-                >
-                  Swap
-                </Button>
-              </div>
-              <AddressSelector
-                register={register}
-                errors={errors}
-                control={control}
-                setValue={setValue}
-                title="Ship To Address"
-                prefix="ship_to"
-                forceRefresh={refreshCounter}
-                watch={watch}
-                onClearRates={handleClearRates}
-              />
-            </div>
+              {/* Step 2: Pickup Information */}
+              {currentStep === 2 ? (
+                <Card className="border-2 border-primary shadow-lg m-1">
+                  <CardBody className="p-6">
+                    <div className="mb-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Icon icon={steps[2].icon} width={28} className="text-primary" />
+                        <h2 className="text-xl font-bold text-primary">{steps[2].name}</h2>
+                      </div>
+                      <p className="text-sm text-gray-500">Step 3 of {steps.length}</p>
+                    </div>
+                    <div className="mb-6">
+                      <PickupInformation
+                        register={register}
+                        control={control}
+                        errors={errors}
+                        today={today}
+                        setValue={setValue}
+                        watch={watch}
+                        onClearRates={handleClearRates}
+                      />
+                    </div>
+                    <div className="flex justify-left items-center border-t gap-2 pt-4">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="bordered"
+                          onPress={handlePreviousStep}
+                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
+                        >
+                          Previous
+                        </Button>
+                      </div>
+                      <Button
+                        color="primary"
+                        onPress={handleNextStep}
+                        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                      >
+                        {(() => {
+                          const highestCompleted = getHighestCompletedStep()
+                          return highestCompleted && currentStep < highestCompleted.stepNumber
+                            ? `Return to ${highestCompleted.stepName}`
+                            : 'Next Step'
+                        })()}
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+              ) : completedSteps.has(2) && (
+                <PickupInfoSummary data={getValues()} onEdit={() => handleEditStep(2)} />
+              )}
 
-            <PickupInformation
-              register={register}
-              control={control}
-              errors={errors}
-              today={today}
-              setValue={setValue}
-              watch={watch}
-              onClearRates={handleClearRates}
-            />
+              {/* Step 3: Parcels & Items */}
+              {currentStep === 3 ? (
+                <Card className="border-2 border-primary shadow-lg m-1">
+                  <CardBody className="p-6">
+                    <div className="mb-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Icon icon={steps[3].icon} width={28} className="text-primary" />
+                        <h2 className="text-xl font-bold text-primary">{steps[3].name}</h2>
+                      </div>
+                      <p className="text-sm text-gray-500">Step 4 of {steps.length}</p>
+                    </div>
+                    <div className="mb-6">
+                      <ParcelsSection
+                        register={register}
+                        errors={errors}
+                        control={control}
+                        setValue={setValue}
+                        watch={watch}
+                        onClearRates={handleClearRates}
+                      />
+                    </div>
+                    <div className="flex justify-left items-center border-t gap-2 pt-4">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="bordered"
+                          onPress={handlePreviousStep}
+                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
+                        >
+                          Previous
+                        </Button>
+                      </div>
+                      {watch('service_options') === 'Supplier Pickup' ? (
+                        <Button
+                          color="success"
+                          type="submit"
+                          startContent={<Icon icon="solar:eye-bold" width={20} />}
+                        >
+                          Preview & Submit
+                        </Button>
+                      ) : (
+                        <Button
+                          color="primary"
+                          onPress={handleNextStep}
+                          endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                        >
+                          {(() => {
+                            const highestCompleted = getHighestCompletedStep()
+                            return highestCompleted && currentStep < highestCompleted.stepNumber
+                              ? `Return to ${highestCompleted.stepName}`
+                              : 'Next Step'
+                          })()}
+                        </Button>
+                      )}
+                    </div>
+                  </CardBody>
+                </Card>
+              ) : completedSteps.has(3) && (
+                <div className="pb-1">
+                  <ParcelsSummary data={getValues()} onEdit={() => handleEditStep(3)} />
+                </div>
+              )}
 
-            <ParcelsSection
-              register={register}
-              errors={errors}
-              control={control}
-              setValue={setValue}
-              watch={watch}
-              onClearRates={handleClearRates}
-            />
-
-            <RatesSection
-              rates={calculatedRates}
-              onCalculateRates={handleCalculateRate}
-              isCalculating={isCalculatingRate}
-              selectedRateId={selectedRateId}
-              onSelectRate={handleRateSelection}
-              register={register}
-              control={control}
-              errors={errors}
-              serviceOption={watch('service_options')}
-              topic={watch('topic')}
-              rateCalculationError={rateCalculationError}
-              watch={watch}
-              setValue={setValue}
-            />
-
-            {/* Form Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button
-                type="button"
-                variant="flat"
-                color="default"
-                onPress={handleClearForm}
-              >
-                Clear Form
-              </Button>
-              <Button
-                type="submit"
-                color="success"
-                startContent={<Icon icon="solar:eye-bold" width={20} />}
-                isDisabled={
-                  watch('service_options') === 'Supplier Pickup' ? false :
-                  watch('service_options') === 'Grab' ? !selectedRateId :
-                  (calculatedRates.length === 0 || !selectedRateId)
-                }
-              >
-                {watch('service_options') === 'Supplier Pickup'
-                  ? 'Preview & Submit'
-                  : watch('service_options') === 'Grab'
-                    ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Submit')
-                    : (calculatedRates.length === 0
-                      ? 'Calculate Rates First'
-                      : !selectedRateId
-                        ? 'Select Rate First'
-                        : 'Preview & Submit')}
-              </Button>
+              {/* Step 4: Shipping Rates */}
+              {currentStep === 4 ? (
+                <Card className="border-2 border-primary shadow-lg m-1">
+                  <CardBody className="p-6">
+                    <div className="mb-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Icon icon={steps[4].icon} width={28} className="text-primary" />
+                        <h2 className="text-xl font-bold text-primary">{steps[4].name}</h2>
+                      </div>
+                      <p className="text-sm text-gray-500">Step 5 of {steps.length}</p>
+                    </div>
+                    <div className="mb-6">
+                      <RatesSection
+                        rates={calculatedRates}
+                        onCalculateRates={handleCalculateRate}
+                        isCalculating={isCalculatingRate}
+                        selectedRateId={selectedRateId}
+                        onSelectRate={handleRateSelection}
+                        register={register}
+                        control={control}
+                        errors={errors}
+                        serviceOption={watch('service_options')}
+                        topic={watch('topic')}
+                        rateCalculationError={rateCalculationError}
+                        watch={watch}
+                        setValue={setValue}
+                      />
+                    </div>
+                    <div className="flex justify-left items-center border-t gap-2 pt-4">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="bordered"
+                          onPress={handlePreviousStep}
+                          startContent={<Icon icon="solar:arrow-left-linear" width={20} />}
+                        >
+                          Previous
+                        </Button>
+                      </div>
+                      <Button
+                        color="success"
+                        type="submit"
+                        startContent={<Icon icon="solar:eye-bold" width={20} />}
+                        isDisabled={
+                          watch('service_options') === 'Supplier Pickup' ? false :
+                          watch('service_options') === 'Grab' ? !selectedRateId :
+                          (calculatedRates.length === 0 || !selectedRateId)
+                        }
+                      >
+                        {watch('service_options') === 'Supplier Pickup'
+                          ? 'Preview & Submit'
+                          : watch('service_options') === 'Grab'
+                            ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Submit')
+                            : (calculatedRates.length === 0
+                              ? 'Calculate Rates First'
+                              : !selectedRateId
+                                ? 'Select Rate First'
+                                : 'Preview & Submit')}
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+              ) : completedSteps.has(3) && (selectedRateId || watch('service_options') === 'Supplier Pickup') && (
+                <div className="pb-1">
+                  <RatesSummary
+                    data={getValues()}
+                    selectedRateId={selectedRateId}
+                    transformedRates={transformedRates}
+                    serviceType={watch('service_options')}
+                    onEdit={() => handleEditStep(4)}
+                  />
+                </div>
+              )}
             </div>
           </form>
         </CardBody>
