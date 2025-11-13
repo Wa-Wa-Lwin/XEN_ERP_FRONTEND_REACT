@@ -124,7 +124,16 @@ const ActionSections = ({
                 Update Logistics Info
               </Button>
             )}
-            {(msLoginUser?.email === 'wawa@xenoptics.com' ||
+            <Button
+              color="secondary"
+              size="sm"
+              variant="bordered"
+              startContent={<Icon icon="solar:copy-bold" />}
+              onPress={onDuplicateShipment}
+            >
+              Duplicate
+            </Button>
+            {/* {(msLoginUser?.email === 'wawa@xenoptics.com' ||
               msLoginUser?.email === 'susu@xenoptics.com' ||
               msLoginUser?.email === 'thinzar@xenoptics.com') &&
               onDuplicateShipment && (
@@ -137,7 +146,7 @@ const ActionSections = ({
                 >
                   Developer Only: Duplicate Shipment Request
                 </Button>
-              )}
+              )} */}
           </div>
 
           {/* Approval Actions - Top Right Corner */}
