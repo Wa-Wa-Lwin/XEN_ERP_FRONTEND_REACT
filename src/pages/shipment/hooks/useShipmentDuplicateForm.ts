@@ -194,7 +194,7 @@ export const useShipmentDuplicateForm = () => {
         return ''
       }
 
-      const formData = {
+      const submissionData = {
         ...data,
         // Format pickup times to ensure they match API requirements
         pick_up_start_time: formatTimeForAPI(data.pick_up_start_time || ''),
@@ -208,10 +208,67 @@ export const useShipmentDuplicateForm = () => {
         approver_user_mail: approver?.email || msLoginUser.email
       }
 
-      const response = await axios.post(
-        import.meta.env.VITE_APP_ADD_NEW_SHIPMENT_REQUEST,
-        formData
-      )
+      // Check if we have a file to upload
+      const hasFile = data.use_customize_invoice && data.customize_invoice_file instanceof File
+
+      let response
+      if (hasFile) {
+        // Use FormData for file upload
+        const formData = new FormData()
+
+        // Add the file
+        formData.append('customize_invoice_file', data.customize_invoice_file as File)
+
+        // Helper function to append nested objects to FormData
+        const appendFormData = (data: any, parentKey = '') => {
+          if (data && typeof data === 'object' && !(data instanceof File)) {
+            if (Array.isArray(data)) {
+              data.forEach((item, index) => {
+                appendFormData(item, `${parentKey}[${index}]`)
+              })
+            } else {
+              Object.keys(data).forEach((key) => {
+                appendFormData(data[key], parentKey ? `${parentKey}[${key}]` : key)
+              })
+            }
+          } else if (data !== null && data !== undefined) {
+            // Convert boolean to 1 or 0 for Laravel validation
+            if (typeof data === 'boolean') {
+              formData.append(parentKey, data ? '1' : '0')
+            } else {
+              formData.append(parentKey, String(data))
+            }
+          }
+        }
+
+        // Add all fields to FormData with proper nested array notation
+        Object.keys(submissionData).forEach((key) => {
+          // Skip the file field as it's already added
+          if (key === 'customize_invoice_file') return
+
+          const value = submissionData[key as keyof typeof submissionData]
+          appendFormData(value, key)
+        })
+
+        response = await axios.post(
+          import.meta.env.VITE_APP_ADD_NEW_SHIPMENT_REQUEST,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        )
+      } else {
+        // Use regular JSON payload when no file
+        // Remove customize_invoice_file from payload to avoid validation errors
+        const { customize_invoice_file, ...dataWithoutFile } = submissionData
+
+        response = await axios.post(
+          import.meta.env.VITE_APP_ADD_NEW_SHIPMENT_REQUEST,
+          dataWithoutFile
+        )
+      }
 
       if (response.status === 200 || response.status === 201) {
         success('Duplicate shipment request created successfully!', 'Success')

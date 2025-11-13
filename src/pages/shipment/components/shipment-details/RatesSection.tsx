@@ -194,7 +194,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                     </TableCell>
                     <TableCell>
                       <span className="text-sm">
-                        {rate.shipper_account_description === 'DHL eCommerce Asia'
+                        {rate.shipper_account_description === 'DHL eCommerce Asia' || rate.shipper_account_description === 'FedEx Domestic Thailand'
                           ? '1-3(Working) day(s)'
                           : rate.transit_time ? `${rate.transit_time} days` : 'N/A'}
                       </span>

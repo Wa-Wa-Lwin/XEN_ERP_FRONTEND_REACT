@@ -152,9 +152,12 @@ export const useShipmentForm = () => {
         )
       } else {
         // Use regular JSON payload when no file
+        // Remove customize_invoice_file from payload to avoid validation errors
+        const { customize_invoice_file, ...dataWithoutFile } = submissionData
+
         response = await axios.post(
           import.meta.env.VITE_APP_ADD_NEW_SHIPMENT_REQUEST,
-          submissionData
+          dataWithoutFile
         )
       }
 
