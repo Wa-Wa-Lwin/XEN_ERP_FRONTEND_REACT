@@ -78,9 +78,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
   };
 
   return (
-
-
-    <Card shadow="none">
+    <Card shadow="none" className='rounded-none'>
       <CardHeader className="px-0 pt-0 pb-1">
         <h2 className="text-lg font-semibold">Basic Information</h2>
       </CardHeader>
