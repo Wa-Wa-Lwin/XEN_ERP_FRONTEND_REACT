@@ -385,6 +385,20 @@ const ShipmentEditForm = () => {
     // Collect all validation errors
     const allErrors: Array<{ path: string; info: string }> = []
 
+    // 0. Validate customize invoice file
+    if (formData.use_customize_invoice) {
+      const hasValidFile = formData.customize_invoice_file instanceof File
+      const hasExistingInvoiceUrl = formData.customize_invoice_url && formData.customize_invoice_url !== ''
+
+      // In edit mode, allow if there's an existing invoice URL OR a new file is selected
+      if (!hasValidFile && !hasExistingInvoiceUrl) {
+        allErrors.push({
+          path: 'Customize Invoice',
+          info: 'You have checked "Update Customize Invoice" but no file was selected. Please select a PDF file to upload, or uncheck the option.'
+        })
+      }
+    }
+
     // 1. Weight validation
     const weightValidation = validateWeights(formData)
     if (!weightValidation.isValid) {

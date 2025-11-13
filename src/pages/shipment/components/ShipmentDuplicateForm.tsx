@@ -152,6 +152,23 @@ const ShipmentDuplicateForm = () => {
     // Use the data from form submission instead of getValues()
     const formData = data
 
+    // Validate customize invoice file
+    if (formData.use_customize_invoice) {
+      const hasValidFile = formData.customize_invoice_file instanceof File
+      if (!hasValidFile) {
+        setErrorModal({
+          isOpen: true,
+          title: 'Customize Invoice File Required',
+          message: 'You have checked "Upload Customize Invoice" but no file was selected.',
+          details: [{
+            path: 'Customize Invoice',
+            info: 'Please select a PDF file to upload, or uncheck the "Upload Customize Invoice" option.'
+          }]
+        })
+        return
+      }
+    }
+
     // Validate weights first
     const weightValidation = validateWeights(formData)
     if (!weightValidation.isValid) {
@@ -247,10 +264,15 @@ const ShipmentDuplicateForm = () => {
         }))
       }))
 
+      // Clean up customize_invoice_file if not a valid File
       const finalData = {
         ...previewData,
         parcels: normalizedParcels,
-        rates: updatedRates
+        rates: updatedRates,
+        // If use_customize_invoice is false or file is not valid, set to null
+        customize_invoice_file: (previewData.use_customize_invoice && previewData.customize_invoice_file instanceof File)
+          ? previewData.customize_invoice_file
+          : null
       }
 
       setIsPreviewOpen(false)

@@ -18,7 +18,12 @@
       "Bash(C:Codexeno-shipmenttemp_rates_section.txt)",
       "Bash(timeout /t 3)",
       "Bash(timeout:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(Remove-Item -LiteralPath \"\\?\\C:\\Code\\xeno-shipment\\nul\" -Force)",
+      "Bash(powershell.exe -Command \"Remove-Item -LiteralPath ''\\?\\C:\\Code\\xeno-shipment\\nul'' -Force\")",
+      "Bash(git clean:*)",
+      "Bash(cmd.exe /c \"del /F /Q \\\\.\\C:\\Code\\xeno-shipment\\nul\")",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
