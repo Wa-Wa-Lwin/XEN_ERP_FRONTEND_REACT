@@ -257,7 +257,8 @@ const ShipmentEditForm = () => {
           recipient_shipper_account_country_code: shipmentData.recipient_shipper_account_country_code || '',
 
           // Customize Invoice
-          use_customize_invoice: shipmentData.use_customize_invoice || false,
+          // In edit mode, always default to false - user must explicitly check to upload a new invoice
+          use_customize_invoice: false,
           customize_invoice_url: shipmentData.customize_invoice_url || '',
           customize_invoice_file: null
         }
@@ -356,6 +357,9 @@ const ShipmentEditForm = () => {
       return // Service option hasn't changed, don't auto-navigate
     }
 
+    // Check if we're changing FROM Supplier Pickup to another service
+    const isChangingFromSupplierPickup = previousServiceOptionRef.current === 'Supplier Pickup' && serviceOption !== 'Supplier Pickup'
+
     // Update the ref to track the new value
     previousServiceOptionRef.current = serviceOption
 
@@ -364,8 +368,13 @@ const ShipmentEditForm = () => {
       setCurrentStep(-1)
     }
 
+    // If changing FROM Supplier Pickup to another service, move to step 4 (rates) regardless of current step
+    // This ensures users can calculate rates when switching from Supplier Pickup
+    if (isChangingFromSupplierPickup) {
+      setCurrentStep(4)
+    }
     // If changing FROM Supplier Pickup to another service and on step 3, move to step 4 (rates)
-    if (serviceOption !== 'Supplier Pickup' && currentStep === 3) {
+    else if (serviceOption !== 'Supplier Pickup' && currentStep === 3) {
       setCurrentStep(4)
     }
   }, [serviceOption, currentStep])
@@ -1099,20 +1108,47 @@ const ShipmentEditForm = () => {
                 </>
               ) :
                 // Show RatesSummary only if NOT Supplier Pickup
-                // For Grab, always show even without selectedRate (user needs to enter rate manually)
                 serviceOption !== 'Supplier Pickup' && completedSteps.has(3) && (
-                  serviceOption === 'Grab' || selectedRateId || previouslyChosenRate
-                ) && (
-                  <div className="pb-1">
-                    <RatesSummary
-                      data={getValues()}
-                      selectedRateId={selectedRateId}
-                      previouslyChosenRate={previouslyChosenRate}
-                      transformedRates={transformedRates}
-                      serviceType={watch('service_options')}
-                      onEdit={() => handleEditStep(4)}
-                    />
-                  </div>
+                  // For Grab, always show even without selectedRate (user needs to enter rate manually)
+                  // For other services, show if there's a rate OR show placeholder to prompt editing
+                  (serviceOption === 'Grab' || selectedRateId || previouslyChosenRate) ? (
+                    <div className="pb-1">
+                      <RatesSummary
+                        data={getValues()}
+                        selectedRateId={selectedRateId}
+                        previouslyChosenRate={previouslyChosenRate}
+                        transformedRates={transformedRates}
+                        serviceType={watch('service_options')}
+                        onEdit={() => handleEditStep(4)}
+                      />
+                    </div>
+                  ) : (
+                    // Show placeholder when no rate exists (e.g., changed from Supplier Pickup)
+                    <Card className="border-2 border-orange-300 bg-orange-50 shadow-sm m-1">
+                      <CardBody className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Icon icon="solar:danger-triangle-bold" className="text-orange-600 text-2xl" />
+                            <div>
+                              <h3 className="font-bold text-orange-800">Shipping Rates Required</h3>
+                              <p className="text-sm text-orange-700">
+                                No shipping rate available. Please calculate and select a rate.
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            color="warning"
+                            variant="flat"
+                            size="sm"
+                            onPress={() => handleEditStep(4)}
+                            startContent={<Icon icon="solar:calculator-bold" width={20} />}
+                          >
+                            Calculate Rates
+                          </Button>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  )
                 )}
             </div>
 
