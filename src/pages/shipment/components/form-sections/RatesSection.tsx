@@ -874,9 +874,9 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                     <SelectItem key="shipper" value="shipper">
                       Shipper
                     </SelectItem>
-                    <SelectItem key="third_party" value="third_party">
+                    {/* <SelectItem key="third_party" value="third_party">
                       Third Party
-                    </SelectItem>
+                    </SelectItem> */}
                     <SelectItem key="recipient" value="recipient">
                       Recipient
                     </SelectItem>

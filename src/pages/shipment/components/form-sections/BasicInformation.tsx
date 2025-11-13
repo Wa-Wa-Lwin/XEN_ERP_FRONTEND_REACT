@@ -416,6 +416,9 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                       }
                     }
                   }}
+                  classNames={{
+                    label: "text-sm font-normal text-gray-700" 
+                  }}
                 >
                   {customizeInvoiceUrl ? 'Update Customize Invoice' : 'Upload Customize Invoice'}
                 </Checkbox>
