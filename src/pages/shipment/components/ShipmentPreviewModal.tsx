@@ -73,7 +73,6 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                 <br />
               </>
             }
-            <b>Payment Terms - </b> {formData.payment_terms?.replace(/_/g,' ').toLocaleUpperCase() || 'Not specified'} <br />
           </p>
           <hr />
 
