@@ -106,12 +106,8 @@ const ShipmentForm = () => {
       return
     }
 
-    // Skip rate calculation validation for Grab (manual rate entry) and Supplier Pickup
-    const isGrabService = formData.service_options === 'Grab'
-    const isSupplierPickup = formData.service_options === 'Supplier Pickup'
-
-    // Validate that rates have been calculated (skip for Grab and Supplier Pickup)
-    if (!isGrabService && !isSupplierPickup && calculatedRates.length === 0) {
+    // Validate that rates have been calculated
+    if (calculatedRates.length === 0) {
       setErrorModal({
         isOpen: true,
         title: 'Rate Calculation Required',
@@ -121,19 +117,15 @@ const ShipmentForm = () => {
       return
     }
 
-    // Validate that a rate is selected (skip for Supplier Pickup)
-    if (!isSupplierPickup && !selectedRateId) {
+    // Validate that a rate is selected
+    if (!selectedRateId) {
       setErrorModal({
         isOpen: true,
         title: 'Rate Selection Required',
-        message: isGrabService
-          ? 'Please enter the Grab rate amount before proceeding to preview.'
-          : 'Please select a shipping rate before proceeding to preview.',
+        message: 'Please select a shipping rate before proceeding to preview.',
         details: [{
           path: 'Rate Selection',
-          info: isGrabService
-            ? 'Enter the Grab delivery charge in the manual rate entry section'
-            : 'Choose one of the calculated shipping rates from the rates section'
+          info: 'Choose one of the calculated shipping rates from the rates section'
         }]
       })
       return
@@ -141,20 +133,8 @@ const ShipmentForm = () => {
 
     // Only calculate rates if they haven't been calculated yet
     let formDataWithRates = formData
-    if (isSupplierPickup) {
-      // For Supplier Pickup, no rates needed - just use form data with empty rates
-      formDataWithRates = {
-        ...formData,
-        rates: []
-      }
-    } else if (isGrabService) {
-      // For Grab, use the transformed rates (which includes the manual Grab rate)
-      formDataWithRates = {
-        ...formData,
-        rates: transformedRates
-      }
-    } else if (calculatedRates.length === 0) {
-      // For other services, calculate rates if not already done
+    if (calculatedRates.length === 0) {
+      // Calculate rates if not already done
       formDataWithRates = await calculateRates(formData)
     } else {
       // Use already stored transformed rates to avoid recalculation
@@ -637,28 +617,18 @@ const ShipmentForm = () => {
                           Previous
                         </Button>
                       </div>
-                      {watch('service_options') === 'Supplier Pickup' ? (
-                        <Button
-                          color="success"
-                          type="submit"
-                          startContent={<Icon icon="solar:eye-bold" width={20} />}
-                        >
-                          Preview & Submit
-                        </Button>
-                      ) : (
-                        <Button
-                          color="primary"
-                          onPress={handleNextStep}
-                          endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
-                        >
-                          {(() => {
-                            const highestCompleted = getHighestCompletedStep()
-                            return highestCompleted && currentStep < highestCompleted.stepNumber
-                              ? `Return to ${highestCompleted.stepName}`
-                              : 'Next Step'
-                          })()}
-                        </Button>
-                      )}
+                      <Button
+                        color="primary"
+                        onPress={handleNextStep}
+                        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                      >
+                        {(() => {
+                          const highestCompleted = getHighestCompletedStep()
+                          return highestCompleted && currentStep < highestCompleted.stepNumber
+                            ? `Return to ${highestCompleted.stepName}`
+                            : 'Next Step'
+                        })()}
+                      </Button>
                     </div>
                   </CardBody>
                 </Card>
@@ -710,26 +680,18 @@ const ShipmentForm = () => {
                         color="success"
                         type="submit"
                         startContent={<Icon icon="solar:eye-bold" width={20} />}
-                        isDisabled={
-                          watch('service_options') === 'Supplier Pickup' ? false :
-                          watch('service_options') === 'Grab' ? !selectedRateId :
-                          (calculatedRates.length === 0 || !selectedRateId)
-                        }
+                        isDisabled={calculatedRates.length === 0 || !selectedRateId}
                       >
-                        {watch('service_options') === 'Supplier Pickup'
-                          ? 'Preview & Submit'
-                          : watch('service_options') === 'Grab'
-                            ? (!selectedRateId ? 'Enter Grab Rate First' : 'Preview & Submit')
-                            : (calculatedRates.length === 0
-                              ? 'Calculate Rates First'
-                              : !selectedRateId
-                                ? 'Select Rate First'
-                                : 'Preview & Submit')}
+                        {calculatedRates.length === 0
+                          ? 'Calculate Rates First'
+                          : !selectedRateId
+                            ? 'Select Rate First'
+                            : 'Preview & Submit'}
                       </Button>
                     </div>
                   </CardBody>
                 </Card>
-              ) : completedSteps.has(3) && (selectedRateId || watch('service_options') === 'Supplier Pickup') && (
+              ) : completedSteps.has(3) && selectedRateId && (
                 <div className="pb-1">
                   <RatesSummary
                     data={getValues()}

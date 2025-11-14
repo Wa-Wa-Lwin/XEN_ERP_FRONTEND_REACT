@@ -26,6 +26,7 @@ export const DEFAULT_FORM_VALUES: ShipmentFormData = {
   shipment_scope_type: '',
   request_status: 'requestor_requested',
   service_options: 'Normal',
+  shipping_options: 'calculate_rates',
   urgent_reason: '',
   remark: '',
   topic: '',
@@ -212,8 +213,6 @@ export const TOPIC_OPTIONS = [
 export const SERVICE_OPTIONS = [
   { key: 'Normal', value: 'Normal', label: 'Normal (Cheapest one)' },
   { key: 'Urgent', value: 'Urgent', label: 'Urgent (Will choose)' },
-  { key: 'Grab', value: 'Grab', label: 'Grab Pickup' },
-  { key: 'Supplier Pickup', value: 'Supplier Pickup', label: 'Supplier Pickup' },
 ]
 
 export const SALES_PERSON_OPTIONS = [

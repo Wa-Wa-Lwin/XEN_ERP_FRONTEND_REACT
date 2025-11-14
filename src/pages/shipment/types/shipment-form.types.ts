@@ -56,6 +56,7 @@ export interface ShipmentFormData {
 
   // Basic shipment info
   service_options: string
+  shipping_options: string
   urgent_reason: string
   request_status: string
   remark: string

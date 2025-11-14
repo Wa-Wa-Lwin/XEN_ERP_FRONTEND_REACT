@@ -28,6 +28,19 @@ const PickupInformation = ({
   const isFedExAutoPickup = isFedEx && shipment.label_status === 'created';
   const isExternalCall = isDHLAsia || isDHLExpress;
 
+  // Check if shipment is not domestic and created date is more than 2 days before pickup date
+  const isNotDomestic = shipment.shipment_scope_type?.toLowerCase() !== 'domestic';
+  const isCreatedMoreThan2DaysBeforePickup = () => {
+    if (!shipment.created_date_time || !shipment.pick_up_date) return false;
+    const createdDate = new Date(shipment.created_date_time);
+    const pickupDate = new Date(shipment.pick_up_date);
+    const diffInMs = pickupDate.getTime() - createdDate.getTime();
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    return diffInDays > 2;
+  };
+
+  const shouldShowFedexAutoPickupNotice = isFedExAutoPickup && isNotDomestic && isCreatedMoreThan2DaysBeforePickup();
+
   // -------------------------------
   // UI helper functions
   // -------------------------------
@@ -201,7 +214,7 @@ const PickupInformation = ({
       {isDHLExpress &&
         externalCallNotice('Please call DHL Express Worldwide customer service to arrange pickup for this package (Aftership not supported yet).')}
 
-      {isFedExAutoPickup && fedexAutoPickupNotice}
+      {shouldShowFedexAutoPickupNotice && fedexAutoPickupNotice}
     </Card>
   );
 };

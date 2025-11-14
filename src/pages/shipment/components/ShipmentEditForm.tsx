@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Button, Card, CardBody, Modal, ModalContent, ModalBody, Spinner } from '@heroui/react'
 import axios from 'axios'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -123,6 +123,7 @@ const ShipmentEditForm = () => {
 
           // Basic shipment info
           service_options: shipmentData.service_options || '',
+          shipping_options: shipmentData.shipping_options || 'calculate_rates',
           urgent_reason: shipmentData.urgent_reason || '',
           request_status: shipmentData.request_status || '',
           remark: shipmentData.remark || '',
@@ -263,18 +264,6 @@ const ShipmentEditForm = () => {
           customize_invoice_file: null
         }
 
-        // If service option is Grab and grab_rate_amount is empty, try to extract from the chosen rate
-        if (shipmentData.service_options === 'Grab' && !formData.grab_rate_amount && shipmentData.rates && shipmentData.rates.length > 0) {
-          const chosenGrabRate = shipmentData.rates.find((rate: any) =>
-            rate.chosen === true || rate.chosen === '1' || rate.chosen === 1
-          )
-
-          if (chosenGrabRate) {
-            formData.grab_rate_amount = String(chosenGrabRate.total_charge_amount || '')
-            formData.grab_rate_currency = chosenGrabRate.total_charge_currency || 'THB'
-          }
-        }
-
         reset(formData)
 
         // Store the previously chosen rate for display only
@@ -302,34 +291,32 @@ const ShipmentEditForm = () => {
 
         // ALWAYS set initial snapshot for rate validation (not just if there's a previously chosen rate)
         // This allows us to detect if ANY data changes after loading
-        if (formData.service_options !== 'Supplier Pickup') {
-          // Create snapshot directly from loaded formData, not from watchedFields
-          // because watchedFields might not be updated yet
-          const initialSnapshot = [
-            formData.ship_from_country,
-            formData.ship_from_postal_code,
-            formData.ship_from_city,
-            formData.ship_from_state,
-            formData.ship_from_street1,
-            formData.ship_from_company_name,
-            formData.ship_to_country,
-            formData.ship_to_postal_code,
-            formData.ship_to_city,
-            formData.ship_to_state,
-            formData.ship_to_street1,
-            formData.ship_to_company_name,
-            formData.parcels,
-            formData.service_options,
-            formData.insurance_enabled,
-            formData.insurance_insured_value_amount,
-            formData.insurance_insured_value_currency,
-            formData.customs_purpose,
-            formData.customs_terms_of_trade,
-            formData.payment_terms,
-            formData.shipment_scope_type
-          ]
-          setRateCalculationSnapshot(initialSnapshot)
-        }
+        // Create snapshot directly from loaded formData, not from watchedFields
+        // because watchedFields might not be updated yet
+        const initialSnapshot = [
+          formData.ship_from_country,
+          formData.ship_from_postal_code,
+          formData.ship_from_city,
+          formData.ship_from_state,
+          formData.ship_from_street1,
+          formData.ship_from_company_name,
+          formData.ship_to_country,
+          formData.ship_to_postal_code,
+          formData.ship_to_city,
+          formData.ship_to_state,
+          formData.ship_to_street1,
+          formData.ship_to_company_name,
+          formData.parcels,
+          formData.service_options,
+          formData.insurance_enabled,
+          formData.insurance_insured_value_amount,
+          formData.insurance_insured_value_currency,
+          formData.customs_purpose,
+          formData.customs_terms_of_trade,
+          formData.payment_terms,
+          formData.shipment_scope_type
+        ]
+        setRateCalculationSnapshot(initialSnapshot)
 
         // Set initial step to -1 to show all summaries
         // Users can click "Edit" on any section to modify it
@@ -345,39 +332,6 @@ const ShipmentEditForm = () => {
 
     fetchShipment()
   }, [shipmentId])
-
-  // Watch service_options to auto-navigate between steps
-  const serviceOption = watch('service_options')
-  const previousServiceOptionRef = useRef(serviceOption)
-
-  // Adjust current step when service option changes (ONLY when service option actually changes)
-  useEffect(() => {
-    // Only auto-navigate if the service option actually changed (not when user manually edits steps)
-    if (previousServiceOptionRef.current === serviceOption) {
-      return // Service option hasn't changed, don't auto-navigate
-    }
-
-    // Check if we're changing FROM Supplier Pickup to another service
-    const isChangingFromSupplierPickup = previousServiceOptionRef.current === 'Supplier Pickup' && serviceOption !== 'Supplier Pickup'
-
-    // Update the ref to track the new value
-    previousServiceOptionRef.current = serviceOption
-
-    // If changing TO Supplier Pickup and currently on step 4, move to summary view
-    if (serviceOption === 'Supplier Pickup' && currentStep === 4) {
-      setCurrentStep(-1)
-    }
-
-    // If changing FROM Supplier Pickup to another service, move to step 4 (rates) regardless of current step
-    // This ensures users can calculate rates when switching from Supplier Pickup
-    if (isChangingFromSupplierPickup) {
-      setCurrentStep(4)
-    }
-    // If changing FROM Supplier Pickup to another service and on step 3, move to step 4 (rates)
-    else if (serviceOption !== 'Supplier Pickup' && currentStep === 3) {
-      setCurrentStep(4)
-    }
-  }, [serviceOption, currentStep])
 
   const handlePreview = async (data: ShipmentFormData) => {
     const formData = data
@@ -424,75 +378,50 @@ const ShipmentEditForm = () => {
       allErrors.push(...scopeValidation.error.details)
     }
 
-    // 4. Rate validations (only if NOT Supplier Pickup)
-    if (formData.service_options !== 'Supplier Pickup') {
-      // 4a. For Grab service, check if rate was entered or already exists
-      if (formData.service_options === 'Grab') {
-        // Only require entering rate if no existing rate and no newly entered rate
-        const hasExistingGrabRate = formData.grab_rate_amount &&
-                                     formData.grab_rate_amount !== '' &&
-                                     parseFloat(formData.grab_rate_amount) > 0
+    // 4. Rate validations - ALWAYS require rates to match current data
+    // Check if critical fields changed since rate was calculated/loaded
+    const hasSnapshot = rateCalculationSnapshot !== null && rateCalculationSnapshot !== undefined
 
-        console.log('=== Grab Rate Validation Debug ===')
-        console.log('selectedRateId:', selectedRateId)
-        console.log('formData.grab_rate_amount:', formData.grab_rate_amount)
-        console.log('formData.grab_rate_currency:', formData.grab_rate_currency)
-        console.log('hasExistingGrabRate:', hasExistingGrabRate)
-        console.log('Will show error?', !selectedRateId && !hasExistingGrabRate)
+    if (!hasSnapshot) {
+      // No snapshot means form just loaded - this shouldn't happen but handle it
+      allErrors.push({
+        path: 'Rate Calculation Required',
+        info: 'Please calculate shipping rates before proceeding.'
+      })
+    } else {
+      const currentSnapshot = JSON.stringify(watchedFields)
+      const savedSnapshot = JSON.stringify(rateCalculationSnapshot)
 
-        if (!selectedRateId && !hasExistingGrabRate) {
-          allErrors.push({
-            path: 'Grab Rate',
-            info: 'Please enter the Grab delivery charge in the Rates section'
-          })
-        }
+      console.log('=== Rate Validation Debug ===')
+      console.log('Current watchedFields:', watchedFields)
+      console.log('Saved rateCalculationSnapshot:', rateCalculationSnapshot)
+      console.log('Current Snapshot String:', currentSnapshot)
+      console.log('Saved Snapshot String:', savedSnapshot)
+      console.log('Are they equal?', currentSnapshot === savedSnapshot)
+
+      // If data has changed since last rate calculation/load
+      if (currentSnapshot !== savedSnapshot) {
+        console.log('DIFFERENCE DETECTED - Adding error')
+        allErrors.push({
+          path: 'Rate Recalculation Required',
+          info: 'Shipment information has changed since the rate was calculated. Please recalculate and select a new rate before proceeding for updating.'
+        })
       } else {
-        // 4b. For non-Grab services: ALWAYS require rates to match current data
-        // Check if critical fields changed since rate was calculated/loaded
-        const hasSnapshot = rateCalculationSnapshot !== null && rateCalculationSnapshot !== undefined
+        // Data hasn't changed - ensure we have a valid rate
+        // Either a newly calculated rate OR the original previously chosen rate
+        const hasValidRate = (calculatedRates.length > 0 && selectedRateId) || previouslyChosenRate
 
-        if (!hasSnapshot) {
-          // No snapshot means form just loaded - this shouldn't happen but handle it
+        if (!hasValidRate) {
           allErrors.push({
-            path: 'Rate Calculation Required',
-            info: 'Please calculate shipping rates before proceeding.'
+            path: 'Rate Required',
+            info: 'No shipping rate available. Please calculate rates or contact support.'
           })
-        } else {
-          const currentSnapshot = JSON.stringify(watchedFields)
-          const savedSnapshot = JSON.stringify(rateCalculationSnapshot)
-
-          console.log('=== Rate Validation Debug ===')
-          console.log('Current watchedFields:', watchedFields)
-          console.log('Saved rateCalculationSnapshot:', rateCalculationSnapshot)
-          console.log('Current Snapshot String:', currentSnapshot)
-          console.log('Saved Snapshot String:', savedSnapshot)
-          console.log('Are they equal?', currentSnapshot === savedSnapshot)
-
-          // If data has changed since last rate calculation/load
-          if (currentSnapshot !== savedSnapshot) {
-            console.log('DIFFERENCE DETECTED - Adding error')
-            allErrors.push({
-              path: 'Rate Recalculation Required',
-              info: 'Shipment information has changed since the rate was calculated. Please recalculate and select a new rate before proceeding for updating.'
-            })
-          } else {
-            // Data hasn't changed - ensure we have a valid rate
-            // Either a newly calculated rate OR the original previously chosen rate
-            const hasValidRate = (calculatedRates.length > 0 && selectedRateId) || previouslyChosenRate
-
-            if (!hasValidRate) {
-              allErrors.push({
-                path: 'Rate Required',
-                info: 'No shipping rate available. Please calculate rates or contact support.'
-              })
-            } else if (calculatedRates.length > 0 && !selectedRateId) {
-              // User calculated new rates but didn't select one
-              allErrors.push({
-                path: 'Rate Selection Required',
-                info: 'You have calculated new rates but have not selected one. Please select a shipping rate from the rates section.'
-              })
-            }
-          }
+        } else if (calculatedRates.length > 0 && !selectedRateId) {
+          // User calculated new rates but didn't select one
+          allErrors.push({
+            path: 'Rate Selection Required',
+            info: 'You have calculated new rates but have not selected one. Please select a shipping rate from the rates section.'
+          })
         }
       }
     }
@@ -509,25 +438,6 @@ const ShipmentEditForm = () => {
     }
 
     // All validations passed - proceed with preview
-
-    // Special handling for Supplier Pickup - no rates needed
-    if (formData.service_options === 'Supplier Pickup') {
-      const formDataWithoutRates = {
-        ...formData,
-        rates: []
-      }
-      setPreviewData(formDataWithoutRates)
-      setIsPreviewOpen(true)
-      return
-    }
-
-    // Special handling for Grab service option
-    if (formData.service_options === 'Grab') {
-      console.log('Grab shipment - using form rates:', formData.rates)
-      setPreviewData(formData)
-      setIsPreviewOpen(true)
-      return
-    }
 
     // Handle calculated rates or previously chosen rate
     if (calculatedRates.length > 0) {
@@ -1036,8 +946,8 @@ const ShipmentEditForm = () => {
                 </div>
               )}
 
-              {/* Step 4: Shipping Rates - Hidden for Supplier Pickup */}
-              {serviceOption !== 'Supplier Pickup' && currentStep === 4 ? (
+              {/* Step 4: Shipping Rates */}
+              {currentStep === 4 ? (
                 <>
                   {/* Rate Calculation Section */}
                   <Card className="border-2 border-primary shadow-lg m-1">
@@ -1052,25 +962,12 @@ const ShipmentEditForm = () => {
                       <div className="mb-4 p-4 bg-gray-50 rounded border">
                         <h3 className="font-semibold mb-2">
                           Previously Chosen Rate :
-                          {(watch('service_options') === 'Grab' && watch('grab_rate_amount')) || previouslyChosenRate ?
+                          {previouslyChosenRate ?
                             <span className="text-green-600 font-semibold"> Found ✓</span> :
                             <span className="text-red-600 font-semibold"> Not Found ✗</span>
                           }
                         </h3>
-                        {watch('service_options') === 'Grab' ? (
-                          watch('grab_rate_amount') ? (
-                            <div>
-                              <p className="text-sm mb-1">
-                                <strong>Grab</strong> (Manual Rate Entry)
-                                <strong> | Amount:</strong> {parseFloat(watch('grab_rate_amount') || '0').toFixed(2)} {watch('grab_rate_currency') || 'THB'}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-sm text-red-600 mt-2">
-                              No Grab rate found. Please enter the Grab delivery charge.
-                            </p>
-                          )
-                        ) : previouslyChosenRate ? (
+                        {previouslyChosenRate ? (
                           <div>
                             <p className="text-sm mb-1">
                               <strong>{previouslyChosenRate.shipper_account_description} </strong> ({previouslyChosenRate.service_name})
@@ -1078,10 +975,6 @@ const ShipmentEditForm = () => {
                               <strong> | Charged Weight:</strong> {previouslyChosenRate.charge_weight_value} {previouslyChosenRate.charge_weight_unit}
                               <strong> | Transit Time:</strong> {previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' || previouslyChosenRate.shipper_account_description === 'FedEx Domestic Thailand' ? '1-3(Working) day(s)' : `${previouslyChosenRate.transit_time} (days)`}
                             </p>
-                            {/* <details className="mt-2">
-                              <summary className="cursor-pointer text-sm text-blue-600">Show full details</summary>
-                              <pre className="text-xs mt-2 overflow-auto">{JSON.stringify(previouslyChosenRate, null, 2)}</pre>
-                            </details> */}
                           </div>
                         ) : (
                           <p className="text-sm text-red-600 mt-2">
@@ -1121,11 +1014,9 @@ const ShipmentEditForm = () => {
                   </Card>
                 </>
               ) :
-                // Show RatesSummary only if NOT Supplier Pickup
-                serviceOption !== 'Supplier Pickup' && completedSteps.has(3) && (
-                  // For Grab, always show even without selectedRate (user needs to enter rate manually)
-                  // For other services, show if there's a rate OR show placeholder to prompt editing
-                  (serviceOption === 'Grab' || selectedRateId || previouslyChosenRate) ? (
+                // Show RatesSummary when step is completed
+                completedSteps.has(3) && (
+                  (selectedRateId || previouslyChosenRate) ? (
                     <div className="pb-1">
                       <RatesSummary
                         data={getValues()}
@@ -1137,7 +1028,7 @@ const ShipmentEditForm = () => {
                       />
                     </div>
                   ) : (
-                    // Show placeholder when no rate exists (e.g., changed from Supplier Pickup)
+                    // Show placeholder when no rate exists
                     <Card className="border-2 border-orange-300 bg-orange-50 shadow-sm m-1">
                       <CardBody className="p-4">
                         <div className="flex items-center justify-between">

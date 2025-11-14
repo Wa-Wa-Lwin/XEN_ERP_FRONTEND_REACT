@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Autocomplete, AutocompleteItem, Select, SelectItem } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Autocomplete, AutocompleteItem, Select, SelectItem, RadioGroup, Radio } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect, useMemo } from 'react'
 import { Controller } from 'react-hook-form'
@@ -422,6 +422,34 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   return (
     <>
+      {/* Shipping Options Radio */}
+      <div className="mb-4 p-4 rounded-none">
+        <Controller
+          name="shipping_options"
+          control={control}
+          defaultValue="calculate_rates"
+          render={({ field }) => (
+            <RadioGroup
+              value={field.value || 'calculate_rates'}
+              onValueChange={field.onChange}
+              orientation="horizontal"
+              classNames={{
+                wrapper: "gap-4"
+              }}
+            >
+              <Radio value="calculate_rates"> Calculate Rates
+              </Radio>
+              <Radio value="grab_pickup">
+                Grab Pickup
+              </Radio>
+              <Radio value="supplier_pickup">
+                Supplier Pickup
+              </Radio>
+            </RadioGroup>
+          )}
+        />
+      </div>
+
       {/* Calculating Modal */}
       <Modal
         isOpen={isCalculating}
@@ -451,7 +479,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       </Modal>
 
       <Card shadow="none" className="rounded-none">
-        
+
         {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
         <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
           <div className="flex flex-col">
@@ -916,7 +944,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </div>
           </div>
         )}
-        
+
       </Card>
     </>
   )
