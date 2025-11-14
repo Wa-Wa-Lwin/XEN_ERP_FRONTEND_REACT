@@ -774,7 +774,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   <TableColumn>Carrier</TableColumn>
                   <TableColumn>Service</TableColumn>
                   <TableColumn className="text-right flex items-center gap-1">
-                    Total Charge 
+                    Total Charge(Estimated THB)
                     {/* Estimated THB */}
                     <Button
                       className="h-5 w-5 min-w-0"
@@ -883,7 +883,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                           {convertWeightToKg(rate.charge_weight)}
                         </TableCell>
                         <TableCell>
-                          {rate.shipper_account.description === 'DHL eCommerce Asia'
+                          {rate.shipper_account.description === 'DHL eCommerce Asia' || rate.shipper_account.description === 'FedEx Domestic Thailand'
                             ? '1-3(Working) day(s)'
                             : rate.transit_time ? `${rate.transit_time} day(s)` : '-'}
                         </TableCell>

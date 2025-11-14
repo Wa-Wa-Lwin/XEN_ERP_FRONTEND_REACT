@@ -168,8 +168,11 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
               <TableColumn className="min-w-[120px]">Rate ID</TableColumn>
               <TableColumn className="min-w-[150px]">Carrier(Service)</TableColumn>
               <TableColumn className="min-w-[100px]">Transit Time</TableColumn>
-              <TableColumn className="min-w-[120px] text-right">Estimate THB</TableColumn>
-              <TableColumn className="min-w-[120px]">Cost</TableColumn>
+              <TableColumn className="min-w-[120px] text-right">
+                Total Charge(Estimated THB) 
+                {/* Estimate THB */}
+              </TableColumn>
+              {/* <TableColumn className="min-w-[120px]">Cost</TableColumn> */}
               <TableColumn className="min-w-[100px]">Charge Weight</TableColumn>
               <TableColumn className="min-w-[150px]">Pickup Deadline</TableColumn>
               <TableColumn className="min-w-[150px]">Booking Cut Off</TableColumn>
@@ -204,13 +207,13 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                         {convertToTHB(rate.total_charge_amount, rate.total_charge_currency)}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <div className="text-sm font-semibold">
                         {rate.total_charge_amount && rate.total_charge_currency
                           ? `${rate.total_charge_amount} ${rate.total_charge_currency}`
                           : 'N/A'}
                       </div>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <span className="text-sm">
                         {rate.charge_weight_value && rate.charge_weight_unit
