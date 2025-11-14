@@ -197,10 +197,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return () => clearInterval(interval)
   }, [])
 
-  const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
-    if (amount == null || !currency) return 'N/A'; // covers null and undefined
-    return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
-  };
+  // const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
+  //   if (amount == null || !currency) return 'N/A'; // covers null and undefined
+  //   return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
+  // };
 
   const convertToTHB = (amount: number | undefined | null, currency: string | null) => {
     if (amount == null || !currency) return 'N/A';
@@ -774,7 +774,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   <TableColumn>Carrier</TableColumn>
                   <TableColumn>Service</TableColumn>
                   <TableColumn className="text-right flex items-center gap-1">
-                    Estimated THB
+                    Total Charge 
+                    {/* Estimated THB */}
                     <Button
                       className="h-5 w-5 min-w-0"
                       variant="light"
@@ -795,7 +796,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                       />
                     </Button>
                   </TableColumn>
-                  <TableColumn className="text-right">Total Charge</TableColumn>
+                  {/* <TableColumn className="text-right">Total Charge</TableColumn> */}
                   <TableColumn className="text-right">Charge Weight (kg)</TableColumn>
                   {/* <TableColumn>Transit Time</TableColumn> */}
                   <TableColumn className="flex items-center gap-1">
@@ -872,12 +873,12 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                             rate.total_charge?.currency ?? null
                           )} THB
                         </TableCell>
-                        <TableCell className="text-right">
+                        {/* <TableCell className="text-right">
                           {formatCurrency(
                             rate.total_charge?.amount ?? null,
                             rate.total_charge?.currency ?? null
                           )}
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell className="text-right">
                           {convertWeightToKg(rate.charge_weight)}
                         </TableCell>
