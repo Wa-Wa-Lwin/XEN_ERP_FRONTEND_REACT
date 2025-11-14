@@ -83,6 +83,10 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
               |&nbsp; Payment Terms:&nbsp; <b>{shipment?.payment_terms?.replace(/_/g, ' ').toUpperCase() || '-'}</b>&nbsp;
             </div>
 
+            <div className="inline-flex items-center">
+              |&nbsp; Shipping Option:&nbsp; <b>{shipment?.shipping_options?.replace(/_/g, ' ').toUpperCase() || '-'}</b>&nbsp;
+            </div>
+
             {shipment?.customize_invoice_url && (
               <div className="inline-flex items-center">
                 |&nbsp; Custom Invoice:&nbsp;
@@ -99,9 +103,9 @@ const BasicInformation = ({ shipment }: BasicInformationProps) => {
               </div>
             )}
             {
-              shipment?.billing !== "" && shipment?.service_options?.toLowerCase() !== "grab" && shipment?.service_options?.toLowerCase() !== "supplier pickup" && (
+              shipment?.billing !== "" && shipment?.shipping_options?.toLowerCase() !== "grab_pickup" && shipment?.shipping_options?.toLowerCase() !== "supplier_pickup" && (
                 <div className="inline-flex items-center">
-                  |&nbsp; Billing:&nbsp; <b>{shipment?.billing?.toUpperCase() || 'SHIPPER'}</b>&nbsp;
+                  |&nbsp; Billing:&nbsp; <b>{shipment?.billing?.toUpperCase() || 'Not specified'}</b>&nbsp;
                 </div>
               )
             }
