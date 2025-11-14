@@ -478,57 +478,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         </ModalContent>
       </Modal>
 
-      <Card shadow="none" className="rounded-none">
-
-        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-        <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
-          <div className="flex flex-col">
-            {serviceOption !== 'Grab' && ratesError && (
-              <p className="text-red-500 text-sm mt-1">
-                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
-                {ratesError} - Using fallback rates
-              </p>
-            )}
-            {serviceOption !== 'Grab' && lastUpdated && !ratesError && (
-              <p className="text-gray-500 text-xs mt-1">
-                <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
-                Exchange rates updated: {lastUpdated}
-              </p>
-            )}
-          </div>
-          {serviceOption !== 'Grab' && (
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="light"
-                size="sm"
-                startContent={<Icon icon="solar:refresh-bold" />}
-                onPress={() => fetchExchangeRates(true)}
-                isLoading={isLoadingRates}
-                disabled={isLoadingRates}
-                title="Force refresh exchange rates"
-                className='hidden'
-              >
-                {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
-              </Button>
-              <Button
-                type="button"
-                color="primary"
-                size="sm"
-                startContent={<Icon icon="solar:calculator-bold" />}
-                onPress={onCalculateRates}
-                isLoading={isCalculating}
-                disabled={isCalculating}
-              >
-                {isCalculating ? 'Calculating...' : 'Calculate Rates'}
-              </Button>
-            </div>
-          )}
-        </CardHeader>
-
-        <CardBody className="px-0 pt-0 pb-0">
-          {/* Manual Grab Rate Input - Only show when serviceOption is "Grab" */}
-          {serviceOption === 'Grab' && (
+      {/* Manual Grab Rate Input - Show when shipping_options is "grab_pickup" */}
+      {watch && watch('shipping_options') === 'grab_pickup' && (
+        <Card shadow="none" className="rounded-none">
+          <CardBody className="px-0 pt-0 pb-0">
             <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-start gap-2 mb-3">
                 <Icon icon="solar:hand-money-bold" className="text-blue-600 text-xl mt-0.5" />
@@ -588,8 +541,60 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 />
               </div>
             </div>
-          )}
+          </CardBody>
+        </Card>
+      )}
 
+      {watch && watch('shipping_options') === 'calculate_rates' && (
+        <Card shadow="none" className="rounded-none">
+
+        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+        <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
+          <div className="flex flex-col">
+            {serviceOption !== 'Grab' && ratesError && (
+              <p className="text-red-500 text-sm mt-1">
+                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+                {ratesError} - Using fallback rates
+              </p>
+            )}
+            {serviceOption !== 'Grab' && lastUpdated && !ratesError && (
+              <p className="text-gray-500 text-xs mt-1">
+                <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
+                Exchange rates updated: {lastUpdated}
+              </p>
+            )}
+          </div>
+          {serviceOption !== 'Grab' && (
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="light"
+                size="sm"
+                startContent={<Icon icon="solar:refresh-bold" />}
+                onPress={() => fetchExchangeRates(true)}
+                isLoading={isLoadingRates}
+                disabled={isLoadingRates}
+                title="Force refresh exchange rates"
+                className='hidden'
+              >
+                {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
+              </Button>
+              <Button
+                type="button"
+                color="primary"
+                size="sm"
+                startContent={<Icon icon="solar:calculator-bold" />}
+                onPress={onCalculateRates}
+                isLoading={isCalculating}
+                disabled={isCalculating}
+              >
+                {isCalculating ? 'Calculating...' : 'Calculate Rates'}
+              </Button>
+            </div>
+          )}
+        </CardHeader>
+
+        <CardBody className="px-0 pt-0 pb-0">
           {rates.length === 0 && serviceOption !== 'Grab' ? (
             <div className="text-center py-8">
               {rateCalculationError ? (
@@ -946,6 +951,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         )}
 
       </Card>
+      )}
     </>
   )
 }

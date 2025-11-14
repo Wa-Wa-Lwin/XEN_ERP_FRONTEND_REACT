@@ -1081,6 +1081,7 @@ const ShipmentEditForm = () => {
           formData={previewData}
           isSubmitting={isSubmitting}
           selectedRateId={selectedRateId || previouslyChosenRate?.unique_id || ''}
+          shippingOptions={watch('shipping_options')}
         />
       )}
 

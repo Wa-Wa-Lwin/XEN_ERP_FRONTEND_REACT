@@ -727,6 +727,7 @@ const ShipmentDuplicateForm = () => {
           formData={previewData}
           isSubmitting={isSubmitting}
           selectedRateId={selectedRateId}
+          shippingOptions={watch('shipping_options')}
         />
       )}
 
