@@ -22,7 +22,8 @@ const PickupInformation = ({
   const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
   const isDHLAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
   const isDHLExpress = chosenRate?.service_name === 'DHL Express Worldwide';
-  const isGrabPickup = shipment.service_options?.toLowerCase() === 'grab';
+  const isGrabPickup = shipment.shipping_options?.toLowerCase() === 'grab_pickup';
+  const isSupplierPickup = shipment.shipping_options?.toLowerCase() === 'supplier_pickup';
   const isFedEx = chosenRate?.shipper_account_description?.toLowerCase().includes('fedex') ||
     chosenRate?.service_name?.toLowerCase().includes('fedex');
   const isFedExAutoPickup = isFedEx && shipment.label_status === 'created';
@@ -150,7 +151,7 @@ const PickupInformation = ({
   // -------------------------------
   // Render logic
   // -------------------------------
-  if (isGrabPickup) {
+  if (isGrabPickup || isSupplierPickup) {
     return (
       <>
         <div className="flex items-center gap-2 mb-2">

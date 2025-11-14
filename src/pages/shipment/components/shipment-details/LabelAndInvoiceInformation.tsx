@@ -181,24 +181,38 @@ const LabelAndInvoiceInformation = ({
         </div>
     </>;
 
+    // Check if shipping option is grab_pickup or supplier_pickup
+    const isGrabPickup = shipment.shipping_options?.toLowerCase() === 'grab_pickup';
+    const isSupplierPickup = shipment.shipping_options?.toLowerCase() === 'supplier_pickup';
+    const isApproved = shipment.request_status === 'approver_approved';
+
+    // Get status text and color for grab/supplier pickup
+    const getGrabSupplierStatus = () => {
+        return isApproved ? 'Success' : 'Pending';
+    };
+
+    const getGrabSupplierColor = () => {
+        return isApproved ? 'text-green-600' : 'text-yellow-600';
+    };
+
     return (
         <>
             {
-                shipment.service_options === 'Grab' || shipment.service_options === 'Supplier Pickup' ?
+                isGrabPickup || isSupplierPickup ?
                     <>
                         <Card shadow="none">
                             <div className="flex items-center gap-2 mb-2">
                                 <Icon
                                     icon="solar:calendar-bold"
                                     width={24}
-                                    className="text-blue-500"
+                                    className={getGrabSupplierColor()}
                                 />
-                                <h3 className='font-semibold'>
-                                    Invoice & Packing Slip Information
+                                <h3 className={`font-semibold ${getGrabSupplierColor()}`}>
+                                    Invoice & Packing Slip Information ({getGrabSupplierStatus()})
                                 </h3>
                             </div>
                             {
-                                shipment.approver_approved_date_time !== null ?
+                                isApproved ?
                                     <>
                                         {invoice_and_packing_data}
                                     </>
