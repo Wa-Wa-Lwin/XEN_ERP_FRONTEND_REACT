@@ -707,7 +707,7 @@ const ShipmentForm = () => {
                           watch('shipping_options') === 'calculate_rates'
                             ? (calculatedRates.length === 0 || !selectedRateId)
                             : watch('shipping_options') === 'grab_pickup'
-                              ? (!watch('grab_rate_amount') || parseFloat(watch('grab_rate_amount')) <= 0)
+                              ? (!watch('grab_rate_amount') || parseFloat(watch('grab_rate_amount') || '0') <= 0)
                               : false // supplier_pickup - no validation needed
                         }
                       >
@@ -718,7 +718,7 @@ const ShipmentForm = () => {
                               ? 'Select Rate First'
                               : 'Preview & Submit')
                           : watch('shipping_options') === 'grab_pickup'
-                            ? (!watch('grab_rate_amount') || parseFloat(watch('grab_rate_amount')) <= 0
+                            ? (!watch('grab_rate_amount') || parseFloat(watch('grab_rate_amount') || '0') <= 0
                               ? 'Input Grab Information First'
                               : 'Preview & Submit')
                             : 'Preview & Submit'} {/* supplier_pickup */}

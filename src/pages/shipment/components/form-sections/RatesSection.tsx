@@ -435,6 +435,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               classNames={{
                 wrapper: "gap-4"
               }}
+              isDisabled={serviceOption?.toLowerCase() !== 'urgent'}
             >
               <Radio value="calculate_rates"> Calculate Rates
               </Radio>
@@ -447,6 +448,12 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </RadioGroup>
           )}
         />
+        {serviceOption?.toLowerCase() === 'normal' && (
+          <p className="text-xs text-gray-500 mt-2">
+            <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+            Shipping options are only available for Urgent service. Normal service automatically uses Calculate Rates.
+          </p>
+        )}
       </div>
 
       {/* Supplier Pickup Message - Show when shipping_options is "supplier_pickup" */}
