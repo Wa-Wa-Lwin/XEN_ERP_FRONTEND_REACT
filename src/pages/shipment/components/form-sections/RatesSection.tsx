@@ -42,14 +42,13 @@ interface RatesSectionProps extends FormSectionProps {
   serviceOption?: string
   topic?: string
   watch?: any
-  isEditMode?: boolean
   rateCalculationError?: {
     message: string
     details?: Array<{ path: string; info: string }>
   } | null
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, control, isEditMode }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, control }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
@@ -449,6 +448,24 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
           )}
         />
       </div>
+
+      {/* Supplier Pickup Message - Show when shipping_options is "supplier_pickup" */}
+      {watch && watch('shipping_options') === 'supplier_pickup' && (
+        <Card shadow="none" className="rounded-none">
+          <CardBody className="px-0 pt-0 pb-0">
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-start gap-2 mb-3">
+                <Icon icon="solar:box-bold" className="text-green-600 text-xl mt-0.5" />
+                <div>
+                  <p className="text-green-800 text-sm">
+                    This is Supplier Pickup option. The supplier will arrange the pickup and delivery of the shipment. FREE OF CHARGE.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      )}
 
       {/* Calculating Modal */}
       <Modal
@@ -873,9 +890,9 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </>
           )}
         </CardBody>
-        {/* Billing Section - Show after rates are calculated OR in edit mode */}
-        {(sortedRates.length > 0 || isEditMode) && (
-          <div className="mt-2 p-4 bg-gray-20 border border-gray-200">
+        {/* Billing Section - Show only after rates are calculated and displayed */}
+        {sortedRates.length > 0 && (
+          <div className="mt-2 p-4 bg-gray-20 border-t border-gray-200">
             <div className="flex items-start gap-2 mb-3">
               <Icon icon="solar:wallet-bold" className="text-blue-600 text-xl mt-0.5" />
               <div>

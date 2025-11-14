@@ -997,7 +997,6 @@ const ShipmentEditForm = () => {
                           rateCalculationError={rateCalculationError}
                           watch={watch}
                           setValue={setValue}
-                          isEditMode={true}
                         />
                       </div>
                       <div className="flex justify-left items-center border-t gap-2 pt-4">

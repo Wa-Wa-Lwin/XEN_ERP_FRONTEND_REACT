@@ -106,42 +106,65 @@ const ShipmentForm = () => {
       return
     }
 
-    // Validate that rates have been calculated
-    if (calculatedRates.length === 0) {
-      setErrorModal({
-        isOpen: true,
-        title: 'Rate Calculation Required',
-        message: 'Please calculate shipping rates before proceeding to preview.',
-        details: [{ path: 'Rates', info: 'Click "Calculate Rates" button to get available shipping options' }]
-      })
-      return
-    }
+    // Validate based on shipping_options
+    const shippingOptions = formData.shipping_options || 'calculate_rates'
 
-    // Validate that a rate is selected
-    if (!selectedRateId) {
-      setErrorModal({
-        isOpen: true,
-        title: 'Rate Selection Required',
-        message: 'Please select a shipping rate before proceeding to preview.',
-        details: [{
-          path: 'Rate Selection',
-          info: 'Choose one of the calculated shipping rates from the rates section'
-        }]
-      })
-      return
-    }
-
-    // Only calculate rates if they haven't been calculated yet
-    let formDataWithRates = formData
-    if (calculatedRates.length === 0) {
-      // Calculate rates if not already done
-      formDataWithRates = await calculateRates(formData)
-    } else {
-      // Use already stored transformed rates to avoid recalculation
-      formDataWithRates = {
-        ...formData,
-        rates: transformedRates
+    if (shippingOptions === 'calculate_rates') {
+      // Validate that rates have been calculated
+      if (calculatedRates.length === 0) {
+        setErrorModal({
+          isOpen: true,
+          title: 'Rate Calculation Required',
+          message: 'Please calculate shipping rates before proceeding to preview.',
+          details: [{ path: 'Rates', info: 'Click "Calculate Rates" button to get available shipping options' }]
+        })
+        return
       }
+
+      // Validate that a rate is selected
+      if (!selectedRateId) {
+        setErrorModal({
+          isOpen: true,
+          title: 'Rate Selection Required',
+          message: 'Please select a shipping rate before proceeding to preview.',
+          details: [{
+            path: 'Rate Selection',
+            info: 'Choose one of the calculated shipping rates from the rates section'
+          }]
+      })
+      return
+    }
+    } else if (shippingOptions === 'grab_pickup') {
+      // Validate that grab rate amount is entered
+      if (!formData.grab_rate_amount || parseFloat(formData.grab_rate_amount) <= 0) {
+        setErrorModal({
+          isOpen: true,
+          title: 'Grab Information Required',
+          message: 'Please enter Grab delivery charge before proceeding to preview.',
+          details: [{ path: 'Grab Rate', info: 'Enter the total charge amount for Grab delivery' }]
+        })
+        return
+      }
+    }
+    // No validation needed for supplier_pickup
+
+    // Prepare data based on shipping_options
+    let formDataWithRates = formData
+
+    if (shippingOptions === 'calculate_rates') {
+      if (calculatedRates.length === 0) {
+        // Calculate rates if not already done
+        formDataWithRates = await calculateRates(formData)
+      } else {
+        // Use already stored transformed rates to avoid recalculation
+        formDataWithRates = {
+          ...formData,
+          rates: transformedRates
+        }
+      }
+    } else {
+      // For grab_pickup and supplier_pickup, just use formData as is
+      formDataWithRates = formData
     }
 
     setPreviewData(formDataWithRates)
@@ -680,13 +703,25 @@ const ShipmentForm = () => {
                         color="success"
                         type="submit"
                         startContent={<Icon icon="solar:eye-bold" width={20} />}
-                        isDisabled={calculatedRates.length === 0 || !selectedRateId}
+                        isDisabled={
+                          watch('shipping_options') === 'calculate_rates'
+                            ? (calculatedRates.length === 0 || !selectedRateId)
+                            : watch('shipping_options') === 'grab_pickup'
+                              ? (!watch('grab_rate_amount') || parseFloat(watch('grab_rate_amount')) <= 0)
+                              : false // supplier_pickup - no validation needed
+                        }
                       >
-                        {calculatedRates.length === 0
-                          ? 'Calculate Rates First'
-                          : !selectedRateId
-                            ? 'Select Rate First'
-                            : 'Preview & Submit'}
+                        {watch('shipping_options') === 'calculate_rates'
+                          ? (calculatedRates.length === 0
+                            ? 'Calculate Rates First'
+                            : !selectedRateId
+                              ? 'Select Rate First'
+                              : 'Preview & Submit')
+                          : watch('shipping_options') === 'grab_pickup'
+                            ? (!watch('grab_rate_amount') || parseFloat(watch('grab_rate_amount')) <= 0
+                              ? 'Input Grab Information First'
+                              : 'Preview & Submit')
+                            : 'Preview & Submit'} {/* supplier_pickup */}
                       </Button>
                     </div>
                   </CardBody>
