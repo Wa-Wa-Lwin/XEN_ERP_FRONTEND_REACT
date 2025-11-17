@@ -24,6 +24,9 @@ const WarehouseTable = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Filter states
+  const [dateFilter, setDateFilter] = useState<'all' | 'upcoming'>('upcoming')
+
   // Pagination states
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
@@ -60,14 +63,32 @@ const WarehouseTable = () => {
     fetchShipmentRequests()
   }, [fetchShipmentRequests])
 
+  // Filter by date
+  const filteredRequests = useMemo(() => {
+    if (dateFilter === 'all') {
+      return shipmentRequests
+    }
+
+    // Filter for upcoming shipments (today or future)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // Reset to start of day
+
+    return shipmentRequests.filter(request => {
+      if (!request.pick_up_date) return false
+      const pickupDate = new Date(request.pick_up_date)
+      pickupDate.setHours(0, 0, 0, 0) // Reset to start of day
+      return pickupDate >= today
+    })
+  }, [shipmentRequests, dateFilter])
+
   // Pagination logic
   const paginatedData = useMemo(() => {
     const startIndex = (page - 1) * pageSize
     const endIndex = startIndex + pageSize
-    return shipmentRequests.slice(startIndex, endIndex)
-  }, [shipmentRequests, page, pageSize])
+    return filteredRequests.slice(startIndex, endIndex)
+  }, [filteredRequests, page, pageSize])
 
-  const totalPages = Math.ceil(shipmentRequests.length / pageSize)
+  const totalPages = Math.ceil(filteredRequests.length / pageSize)
 
   const handlePageSizeChange = (value: string) => {
     setPageSize(Number(value))
@@ -133,7 +154,33 @@ const WarehouseTable = () => {
       <div className="mb-4 space-y-4">
         <div className="flex justify-between items-center">
           <div className="p-0 flex items-center">
-            <h2 className="text-xl font-semibold">Warehouse - Approved Shipments with Labels</h2>
+            <h2 className="text-xl font-semibold">Xen Logistic System - Warehouse</h2>
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant={dateFilter === 'all' ? 'solid' : 'bordered'}
+              color={dateFilter === 'all' ? 'primary' : 'default'}
+              onPress={() => {
+                setDateFilter('all')
+                setPage(1) // Reset to first page when changing filter
+              }}
+            >
+              All
+            </Button>
+            <Button
+              size="sm"
+              variant={dateFilter === 'upcoming' ? 'solid' : 'bordered'}
+              color={dateFilter === 'upcoming' ? 'primary' : 'default'}
+              onPress={() => {
+                setDateFilter('upcoming')
+                setPage(1) // Reset to first page when changing filter
+              }}
+            >
+              Upcoming
+            </Button>
           </div>
         </div>
       </div>
@@ -143,6 +190,7 @@ const WarehouseTable = () => {
           aria-label="Warehouse shipment requests table"
           className="min-w-full text-xs md:text-sm overflow-x-auto"
           removeWrapper
+          isStriped
         >
           <TableHeader className="sticky top-0 z-20 bg-white shadow-sm text-sm">
             <TableColumn>ID</TableColumn>
@@ -163,7 +211,7 @@ const WarehouseTable = () => {
               return (
                 <TableRow
                   key={request.shipmentRequestID}
-                  className="border-b border-gray-200 hover:bg-blue-100 cursor-pointer transition-colors duration-150"
+                  className="cursor-pointer hover:bg-blue-100 transition-colors duration-150"
                   onClick={(event) => handleRowClick(request.shipmentRequestID, event)}
                 >
                   {/* ID */}
@@ -335,8 +383,8 @@ const WarehouseTable = () => {
             ))}
           </Select>
           <span className="text-sm text-gray-600">
-            Showing {Math.min((page - 1) * pageSize + 1, shipmentRequests.length)} to{' '}
-            {Math.min(page * pageSize, shipmentRequests.length)} of {shipmentRequests.length} entries
+            Showing {Math.min((page - 1) * pageSize + 1, filteredRequests.length)} to{' '}
+            {Math.min(page * pageSize, filteredRequests.length)} of {filteredRequests.length} entries
           </span>
         </div>
 
