@@ -31,6 +31,7 @@ import EditUser from "@pages/user-list/EditUser";
 import ShipmentForm from "@pages/shipment/components/ShipmentForm";
 import DHLDomesticRates from "@pages/dhl-domestic-rates/DHLDomesticRates";
 import Warehouse from "@pages/warehouse/Warehouse";
+import WarehouseShipmentDetail from "@pages/warehouse/components/WarehouseShipmentDetail";
 
 
 export const routes = [
@@ -196,6 +197,11 @@ export const routes = [
           {
             path: "",
             element: <Warehouse />,
+          },
+          {
+            path: ":id",
+            element: <WarehouseShipmentDetail />,
+            handle: { breadcrumb: (match: any) => `Shipment ${match.params.id}` }
           },
         ]
       },

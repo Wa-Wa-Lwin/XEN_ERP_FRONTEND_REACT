@@ -100,7 +100,7 @@ const WarehouseTable = () => {
     if ((event.target as HTMLElement).closest('a, button, [role="button"]')) {
       return
     }
-    navigate(`/shipment/${shipmentRequestID}`)
+    navigate(`/warehouse/${shipmentRequestID}`)
   }
 
   const formatDate = (dateString: string) => {
