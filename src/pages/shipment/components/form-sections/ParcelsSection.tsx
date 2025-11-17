@@ -713,12 +713,47 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     </label>
                                     {selectedFile && (
                                         <div className="mb-2 p-3 bg-green-50 border border-green-200 rounded-md">
-                                            <p className="text-xs text-green-700 font-semibold mb-1">
-                                                ✓ File Selected:
-                                            </p>
-                                            <p className="text-xs text-gray-700">
-                                                {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-                                            </p>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <p className="text-xs text-green-700 font-semibold mb-1">
+                                                        ✓ File Selected:
+                                                    </p>
+                                                    <p className="text-xs text-gray-700">
+                                                        {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                                                    </p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        color="primary"
+                                                        variant="flat"
+                                                        startContent={<Icon icon="solar:eye-bold" />}
+                                                        onPress={() => {
+                                                            const fileUrl = URL.createObjectURL(selectedFile)
+                                                            window.open(fileUrl, '_blank')
+                                                        }}
+                                                    >
+                                                        View
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        color="danger"
+                                                        variant="flat"
+                                                        startContent={<Icon icon="solar:trash-bin-minimalistic-bold" />}
+                                                        onPress={() => {
+                                                            setSelectedFile(null)
+                                                            setValue?.('customize_invoice_file', null)
+                                                            if (fileInputRef.current) {
+                                                                fileInputRef.current.value = ''
+                                                            }
+                                                        }}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
                                     <input
