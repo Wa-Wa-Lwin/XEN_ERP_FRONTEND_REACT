@@ -22,11 +22,25 @@ const PickupInformation = ({
   const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
   const isDHLAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
   const isDHLExpress = chosenRate?.service_name === 'DHL Express Worldwide';
-  const isGrabPickup = shipment.service_options?.toLowerCase() === 'grab';
+  const isGrabPickup = shipment.shipping_options?.toLowerCase() === 'grab_pickup';
+  const isSupplierPickup = shipment.shipping_options?.toLowerCase() === 'supplier_pickup';
   const isFedEx = chosenRate?.shipper_account_description?.toLowerCase().includes('fedex') ||
     chosenRate?.service_name?.toLowerCase().includes('fedex');
   const isFedExAutoPickup = isFedEx && shipment.label_status === 'created';
   const isExternalCall = isDHLAsia || isDHLExpress;
+
+  // Check if shipment is not domestic and created date is more than 2 days before pickup date
+  const isNotDomestic = shipment.shipment_scope_type?.toLowerCase() !== 'domestic';
+  const isCreatedMoreThan2DaysBeforePickup = () => {
+    if (!shipment.created_date_time || !shipment.pick_up_date) return false;
+    const createdDate = new Date(shipment.created_date_time);
+    const pickupDate = new Date(shipment.pick_up_date);
+    const diffInMs = pickupDate.getTime() - createdDate.getTime();
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    return diffInDays > 2;
+  };
+
+  const shouldShowFedexAutoPickupNotice = isFedExAutoPickup && isNotDomestic && isCreatedMoreThan2DaysBeforePickup();
 
   // -------------------------------
   // UI helper functions
@@ -137,7 +151,7 @@ const PickupInformation = ({
   // -------------------------------
   // Render logic
   // -------------------------------
-  if (isGrabPickup) {
+  if (isGrabPickup || isSupplierPickup) {
     return (
       <>
         <div className="flex items-center gap-2 mb-2">
@@ -201,7 +215,7 @@ const PickupInformation = ({
       {isDHLExpress &&
         externalCallNotice('Please call DHL Express Worldwide customer service to arrange pickup for this package (Aftership not supported yet).')}
 
-      {isFedExAutoPickup && fedexAutoPickupNotice}
+      {shouldShowFedexAutoPickupNotice && fedexAutoPickupNotice}
     </Card>
   );
 };

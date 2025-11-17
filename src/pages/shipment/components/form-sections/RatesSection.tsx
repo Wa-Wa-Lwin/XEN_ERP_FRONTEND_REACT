@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Autocomplete, AutocompleteItem, Select, SelectItem } from '@heroui/react'
+import { Card, CardHeader, CardBody, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tabs, Tab, Modal, ModalContent, ModalBody, Input, Autocomplete, AutocompleteItem, Select, SelectItem, RadioGroup, Radio } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useEffect, useMemo } from 'react'
 import { Controller } from 'react-hook-form'
@@ -42,14 +42,13 @@ interface RatesSectionProps extends FormSectionProps {
   serviceOption?: string
   topic?: string
   watch?: any
-  isEditMode?: boolean
   rateCalculationError?: {
     message: string
     details?: Array<{ path: string; info: string }>
   } | null
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, control, isEditMode }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, control }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
@@ -198,10 +197,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return () => clearInterval(interval)
   }, [])
 
-  const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
-    if (amount == null || !currency) return 'N/A'; // covers null and undefined
-    return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
-  };
+  // const formatCurrency = (amount: number | undefined | null, currency: string | null) => {
+  //   if (amount == null || !currency) return 'N/A'; // covers null and undefined
+  //   return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
+  // };
 
   const convertToTHB = (amount: number | undefined | null, currency: string | null) => {
     if (amount == null || !currency) return 'N/A';
@@ -422,6 +421,59 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   return (
     <>
+      {/* Shipping Options Radio */}
+      <div className="mb-4 p-4 rounded-none">
+        <Controller
+          name="shipping_options"
+          control={control}
+          defaultValue="calculate_rates"
+          render={({ field }) => (
+            <RadioGroup
+              value={field.value || 'calculate_rates'}
+              onValueChange={field.onChange}
+              orientation="horizontal"
+              classNames={{
+                wrapper: "gap-4"
+              }}
+              isDisabled={serviceOption?.toLowerCase() !== 'urgent'}
+            >
+              <Radio value="calculate_rates"> Calculate Rates
+              </Radio>
+              <Radio value="grab_pickup">
+                Grab Pickup
+              </Radio>
+              <Radio value="supplier_pickup">
+                Supplier Pickup
+              </Radio>
+            </RadioGroup>
+          )}
+        />
+        {serviceOption?.toLowerCase() === 'normal' && (
+          <p className="text-xs text-gray-500 mt-2">
+            <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+            Shipping options are only available for Urgent service. Normal service automatically uses Calculate Rates.
+          </p>
+        )}
+      </div>
+
+      {/* Supplier Pickup Message - Show when shipping_options is "supplier_pickup" */}
+      {watch && watch('shipping_options') === 'supplier_pickup' && (
+        <Card shadow="none" className="rounded-none">
+          <CardBody className="px-0 pt-0 pb-0">
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-start gap-2 mb-3">
+                <Icon icon="solar:box-bold" className="text-green-600 text-xl mt-0.5" />
+                <div>
+                  <p className="text-green-800 text-sm">
+                    This is Supplier Pickup option. The supplier will arrange the pickup and delivery of the shipment. FREE OF CHARGE.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
       {/* Calculating Modal */}
       <Modal
         isOpen={isCalculating}
@@ -450,57 +502,10 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         </ModalContent>
       </Modal>
 
-      <Card shadow="none" className="rounded-none">
-        
-        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-        <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
-          <div className="flex flex-col">
-            {serviceOption !== 'Grab' && ratesError && (
-              <p className="text-red-500 text-sm mt-1">
-                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
-                {ratesError} - Using fallback rates
-              </p>
-            )}
-            {serviceOption !== 'Grab' && lastUpdated && !ratesError && (
-              <p className="text-gray-500 text-xs mt-1">
-                <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
-                Exchange rates updated: {lastUpdated}
-              </p>
-            )}
-          </div>
-          {serviceOption !== 'Grab' && (
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="light"
-                size="sm"
-                startContent={<Icon icon="solar:refresh-bold" />}
-                onPress={() => fetchExchangeRates(true)}
-                isLoading={isLoadingRates}
-                disabled={isLoadingRates}
-                title="Force refresh exchange rates"
-                className='hidden'
-              >
-                {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
-              </Button>
-              <Button
-                type="button"
-                color="primary"
-                size="sm"
-                startContent={<Icon icon="solar:calculator-bold" />}
-                onPress={onCalculateRates}
-                isLoading={isCalculating}
-                disabled={isCalculating}
-              >
-                {isCalculating ? 'Calculating...' : 'Calculate Rates'}
-              </Button>
-            </div>
-          )}
-        </CardHeader>
-
-        <CardBody className="px-0 pt-0 pb-0">
-          {/* Manual Grab Rate Input - Only show when serviceOption is "Grab" */}
-          {serviceOption === 'Grab' && (
+      {/* Manual Grab Rate Input - Show when shipping_options is "grab_pickup" */}
+      {watch && watch('shipping_options') === 'grab_pickup' && (
+        <Card shadow="none" className="rounded-none">
+          <CardBody className="px-0 pt-0 pb-0">
             <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-start gap-2 mb-3">
                 <Icon icon="solar:hand-money-bold" className="text-blue-600 text-xl mt-0.5" />
@@ -560,8 +565,60 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 />
               </div>
             </div>
-          )}
+          </CardBody>
+        </Card>
+      )}
 
+      {watch && watch('shipping_options') === 'calculate_rates' && (
+        <Card shadow="none" className="rounded-none">
+
+        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+        <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
+          <div className="flex flex-col">
+            {serviceOption !== 'Grab' && ratesError && (
+              <p className="text-red-500 text-sm mt-1">
+                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+                {ratesError} - Using fallback rates
+              </p>
+            )}
+            {serviceOption !== 'Grab' && lastUpdated && !ratesError && (
+              <p className="text-gray-500 text-xs mt-1">
+                <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
+                Exchange rates updated: {lastUpdated}
+              </p>
+            )}
+          </div>
+          {serviceOption !== 'Grab' && (
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="light"
+                size="sm"
+                startContent={<Icon icon="solar:refresh-bold" />}
+                onPress={() => fetchExchangeRates(true)}
+                isLoading={isLoadingRates}
+                disabled={isLoadingRates}
+                title="Force refresh exchange rates"
+                className='hidden'
+              >
+                {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
+              </Button>
+              <Button
+                type="button"
+                color="primary"
+                size="sm"
+                startContent={<Icon icon="solar:calculator-bold" />}
+                onPress={onCalculateRates}
+                isLoading={isCalculating}
+                disabled={isCalculating}
+              >
+                {isCalculating ? 'Calculating...' : 'Calculate Rates'}
+              </Button>
+            </div>
+          )}
+        </CardHeader>
+
+        <CardBody className="px-0 pt-0 pb-0">
           {rates.length === 0 && serviceOption !== 'Grab' ? (
             <div className="text-center py-8">
               {rateCalculationError ? (
@@ -717,7 +774,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   <TableColumn>Carrier</TableColumn>
                   <TableColumn>Service</TableColumn>
                   <TableColumn className="text-right flex items-center gap-1">
-                    Estimated THB
+                    Total Charge(Estimated THB)
+                    {/* Estimated THB */}
                     <Button
                       className="h-5 w-5 min-w-0"
                       variant="light"
@@ -738,7 +796,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                       />
                     </Button>
                   </TableColumn>
-                  <TableColumn className="text-right">Total Charge</TableColumn>
+                  {/* <TableColumn className="text-right">Total Charge</TableColumn> */}
                   <TableColumn className="text-right">Charge Weight (kg)</TableColumn>
                   {/* <TableColumn>Transit Time</TableColumn> */}
                   <TableColumn className="flex items-center gap-1">
@@ -815,17 +873,17 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                             rate.total_charge?.currency ?? null
                           )} THB
                         </TableCell>
-                        <TableCell className="text-right">
+                        {/* <TableCell className="text-right">
                           {formatCurrency(
                             rate.total_charge?.amount ?? null,
                             rate.total_charge?.currency ?? null
                           )}
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell className="text-right">
                           {convertWeightToKg(rate.charge_weight)}
                         </TableCell>
                         <TableCell>
-                          {rate.shipper_account.description === 'DHL eCommerce Asia'
+                          {rate.shipper_account.description === 'DHL eCommerce Asia' || rate.shipper_account.description === 'FedEx Domestic Thailand'
                             ? '1-3(Working) day(s)'
                             : rate.transit_time ? `${rate.transit_time} day(s)` : '-'}
                         </TableCell>
@@ -840,9 +898,9 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </>
           )}
         </CardBody>
-        {/* Billing Section - Show after rates are calculated OR in edit mode */}
-        {(sortedRates.length > 0 || isEditMode) && (
-          <div className="mt-2 p-4 bg-gray-20 border border-gray-200">
+        {/* Billing Section - Show only after rates are calculated and displayed */}
+        {sortedRates.length > 0 && (
+          <div className="mt-2 p-4 bg-gray-20 border-t border-gray-200">
             <div className="flex items-start gap-2 mb-3">
               <Icon icon="solar:wallet-bold" className="text-blue-600 text-xl mt-0.5" />
               <div>
@@ -916,8 +974,9 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             </div>
           </div>
         )}
-        
+
       </Card>
+      )}
     </>
   )
 }

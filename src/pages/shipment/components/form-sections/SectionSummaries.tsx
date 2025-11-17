@@ -50,31 +50,6 @@ export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
                 <span className="text-gray-600">PO Date: </span> <span className="font-medium">{data?.po_date || '-'}</span>
                 <span className="text-gray-600"> | </span>
                 <span className="text-gray-600">Payment Terms: </span> <span className="font-medium">{data?.payment_terms?.replace(/_/g, ' ').toUpperCase() || '-'}</span>
-                {
-                  (data?.customize_invoice_url || data?.customize_invoice_file) &&
-                  <>
-                    <span className="text-gray-600"> | </span>
-                    <span className="text-gray-600">Customized Invoice: </span>
-                    <span className="font-medium">
-                      {data?.customize_invoice_file instanceof File ? (
-                        // New file selected (will be uploaded on form submission)
-                        <span className="text-green-600 ml-1">
-                          ✓ {data.customize_invoice_file.name} ({(data.customize_invoice_file.size / 1024 / 1024).toFixed(2)} MB)
-                        </span>
-                      ) : data?.customize_invoice_url ? (
-                        // Existing file URL from server
-                        <a
-                          href={`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${data?.customize_invoice_url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline ml-1"
-                        >
-                          View Invoice File
-                        </a>
-                      ) : null}
-                    </span>
-                  </>
-                }
               </div>
             </div>
           </div>
@@ -266,6 +241,29 @@ export const ParcelsSummary = ({ data, onEdit }: { data: ShipmentFormData } & Se
             <div><span className="text-gray-600">Items:</span> <span className="font-medium">{totalItems}</span></div>
             <div><span className="text-gray-600">Total Weight:</span> <span className="font-medium">{totalWeight.toFixed(2)} kg</span></div>
           </div>
+          {(data?.customize_invoice_url || data?.customize_invoice_file) && (
+            <div className="text-sm mb-3">
+              <span className="text-gray-600">Customized Invoice: </span>
+              <span className="font-medium">
+                {data?.customize_invoice_file instanceof File ? (
+                  // New file selected (will be uploaded on form submission)
+                  <span className="text-green-600">
+                    ✓ {data.customize_invoice_file.name} ({(data.customize_invoice_file.size / 1024 / 1024).toFixed(2)} MB)
+                  </span>
+                ) : data?.customize_invoice_url ? (
+                  // Existing file URL from server
+                  <a
+                    href={`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${data?.customize_invoice_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    View Invoice File
+                  </a>
+                ) : null}
+              </span>
+            </div>
+          )}
           <details className="mt-2">
             <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Show full details</summary>
             <div className="mt-3">
@@ -373,12 +371,14 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
   // Look for selected rate in transformedRates first (newly calculated), then fall back to data?.rates (form data)
   const selectedRate = transformedRates?.find(r => r.unique_id === selectedRateId) || data?.rates?.find(r => r.unique_id === selectedRateId);
 
-  // Check if service option is Grab or Supplier Pickup
-  const isGrabService = data?.service_options?.toLowerCase() === 'grab';
-  const isSupplierPickup = data?.service_options === 'Supplier Pickup';
+  // Check shipping options
+  const shippingOption = data?.shipping_options || 'calculate_rates';
+  const isCalculateRates = shippingOption === 'calculate_rates';
+  const isGrabPickup = shippingOption === 'grab_pickup';
+  const isSupplierPickup = shippingOption === 'supplier_pickup';
 
-  // For Grab, try to find the rate from rates array OR construct from grab_rate_amount/grab_rate_currency
-  const grabRate = isGrabService ? (
+  // For Grab Pickup, try to find the rate from rates array OR construct from grab_rate_amount/grab_rate_currency
+  const grabRate = isGrabPickup ? (
     selectedRate ||
     transformedRates?.[0] ||
     data?.rates?.[0] ||
@@ -400,8 +400,8 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
               <Icon icon="solar:check-circle-bold" width={20} className="text-green-600" />
             </div>
 
-            {/* Show Selected Rate (when user recalculates) */}
-            {selectedRate && !isGrabService && (
+            {/* Show Selected Rate - Calculate Rates option */}
+            {selectedRate && isCalculateRates && (
               <div className="mb-3">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">
                   {serviceType?.toLowerCase() === 'normal' ? 'Cheapest Rate (Auto-selected):' : 'Selected Rate:'}
@@ -418,23 +418,25 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
             {/* Show Supplier Pickup */}
             {isSupplierPickup && (
               <div className="mb-3">
-                <div className="text-sm bg-purple-50 p-3 rounded border border-purple-200">
-                  <span className="font-semibold">Supplier Pickup - No rate calculation required</span>
+                <div className="text-sm bg-green-50 p-3 rounded border border-green-200">
+                  <span className="font-semibold">Supplier Pickup - FREE OF CHARGE</span>
+                  <p className="text-xs text-gray-600 mt-1">The supplier will arrange the pickup and delivery of the shipment.</p>
                 </div>
               </div>
             )}
 
-            {/* Show Grab Rate */}
-            {isGrabService && grabRate && (
+            {/* Show Grab Pickup Rate */}
+            {isGrabPickup && grabRate && (
               <div className="mb-3">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Grab Pickup Rate:</h4>
                 <div className="text-sm bg-blue-50 p-3 rounded border border-blue-200">
-                  <span className="font-semibold">Grab Delivery Rate: {grabRate.total_charge_amount} {grabRate.total_charge_currency}</span>
+                  <span className="font-semibold">Total Charge: {grabRate.total_charge_amount} {grabRate.total_charge_currency}</span>
                 </div>
               </div>
             )}
 
-            {/* Show Previously Chosen Rate (in edit mode) */}
-            {previouslyChosenRate && !isGrabService && !isSupplierPickup && (
+            {/* Show Previously Chosen Rate (in edit mode, only for calculate_rates) */}
+            {previouslyChosenRate && isCalculateRates && (
               <div className="mb-3">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Previously Chosen Rate:</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm bg-blue-50 p-3 rounded border border-blue-200">
@@ -446,13 +448,13 @@ export const RatesSummary = ({ data, selectedRateId, previouslyChosenRate, trans
               </div>
             )}
 
-            {/* Fallback if no rates are available */}
-            {!selectedRate && !previouslyChosenRate && !isGrabService && !isSupplierPickup && (
+            {/* Fallback if no rates are available for calculate_rates */}
+            {!selectedRate && !previouslyChosenRate && isCalculateRates && (
               <div className="text-sm text-gray-500">No rate selected</div>
             )}
 
-            {/* Fallback for Grab if no rate found */}
-            {isGrabService && !grabRate && (
+            {/* Fallback for Grab Pickup if no rate found */}
+            {isGrabPickup && !grabRate && (
               <div className="text-sm text-gray-500">No Grab rate entered</div>
             )}
           </div>

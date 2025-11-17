@@ -587,7 +587,7 @@ const ShipmentDetails = () => {
       </div>
 
       {
-        shipment?.service_options === 'Grab' ?
+        shipment?.shipping_options === 'grab_pickup' ?
           <>
             <div className="flex flex-col justify-left gap-3 items-left mb-1">
               <div className="flex items-center gap-2">
@@ -601,13 +601,27 @@ const ShipmentDetails = () => {
             </div>
           </>
           :
-          <>
-            <RatesSection
-              shipment={shipment}
-              showAllRates={showAllRates}
-              setShowAllRates={setShowAllRates}
-            />
-          </>
+          shipment?.shipping_options === 'supplier_pickup' ?
+            <>
+              <div className="flex flex-col justify-left gap-3 items-left mb-1">
+                <div className="flex items-center gap-2">
+                  <Icon icon="solar:dollar-bold" width={24} className="text-blue-600" />
+                  <h3 className="font-semibold">Shipping Options</h3>
+                </div>
+                <span className="text-sm">
+                  <b>Supplier Pickup: </b>
+                   The supplier will arrange the pickup and delivery of the shipment. FREE OF CHARGE.
+                </span>
+              </div>
+            </>
+            :
+            <>
+              <RatesSection
+                shipment={shipment}
+                showAllRates={showAllRates}
+                setShowAllRates={setShowAllRates}
+              />
+            </>
       }
 
       <div className="p-1">

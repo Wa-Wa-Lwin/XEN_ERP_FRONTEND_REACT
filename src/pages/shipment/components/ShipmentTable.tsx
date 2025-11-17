@@ -656,8 +656,8 @@ const ShipmentTable = () => {
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap sm:whitespace-normal break-words py-0  text-gray-700">
                   {(() => {
-                    if (request.service_options === 'Grab') return <p className="font-medium text-xs text-blue-500">Grab</p>;
-                    if (request.service_options === 'Supplier Pickup') return <p className="font-medium text-xs text-blue-500">Supplier Pickup</p>;
+                    if (request?.shipping_options?.toLowerCase() === 'grab_pickup') return <p className="font-medium text-xs text-blue-500">Grab Pickup</p>;
+                    if (request?.shipping_options?.toLowerCase() === 'supplier_pickup') return <p className="font-medium text-xs text-blue-500">Supplier Pickup</p>;
                     const chosenRate = request.rates?.find(rate => rate.chosen == true);
                     if (chosenRate) {
                       return (

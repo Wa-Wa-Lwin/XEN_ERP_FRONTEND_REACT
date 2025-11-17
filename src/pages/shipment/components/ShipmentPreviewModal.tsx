@@ -9,9 +9,10 @@ interface ShipmentPreviewModalProps {
   formData: ShipmentFormData
   isSubmitting: boolean
   selectedRateId?: string
+  shippingOptions?: string
 }
 
-const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitting, selectedRateId }: ShipmentPreviewModalProps) => {
+const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitting, selectedRateId, shippingOptions }: ShipmentPreviewModalProps) => {
 
   // Debug logging
   console.log('Preview Modal - selectedRateId:', selectedRateId)
@@ -192,8 +193,20 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             )}
           </div>
 
-          {/* Selected Shipping Rate */}
-          {selectedRate && (
+          {/* Selected Shipping Rate - Only show when shipping_options is calculate_rates */}
+          <div>
+            <h3 className="text-lg font-medium mb-2">
+              Shipping Options
+            </h3>
+          
+          <b>Shipping Options - </b> {
+              shippingOptions === 'calculate_rates' ? 'Calculate Rates' :
+              shippingOptions === 'grab_pickup' ? 'Grab Pickup' :
+              shippingOptions === 'supplier_pickup' ? 'Supplier Pickup' :
+              'Not specified'
+            } <br />
+          </div>
+          {selectedRate && shippingOptions === 'calculate_rates' && (
             <p>
               <h3 className="text-lg font-medium text-green-600">
                 <Icon icon="solar:check-circle-bold" className="inline mr-2" />
@@ -219,8 +232,8 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             </p>
           )}
 
-          {/* Billing Information */}
-          {formData?.billing && (
+          {/* Billing Information - Only show when shipping_options is calculate_rates */}
+          {formData?.billing && shippingOptions === 'calculate_rates' && (
             <>
               <hr />
               <p>

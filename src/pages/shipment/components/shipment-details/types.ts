@@ -5,9 +5,10 @@ export interface DetailRowProps {
 
 export interface ShipmentGETData {
   send_to?: string
-  due_date?: string 
+  due_date?: string
   shipmentRequestID: number
   service_options: string
+  shipping_options?: string
   request_status: string
   created_user_name: string
   created_user_mail: string
