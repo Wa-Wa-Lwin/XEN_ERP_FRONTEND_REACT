@@ -16,7 +16,7 @@ import {
 import { Icon } from "@iconify/react";
 import axios from 'axios'
 import type { ShipmentFormData, ShipmentRequestsResponse } from '@pages/shipment/types/shipment-form.types';
-import { countries } from '@/utils/countries';
+import { countries } from '@utils/countries';
 
 const WarehouseTable = () => {
   const navigate = useNavigate()
