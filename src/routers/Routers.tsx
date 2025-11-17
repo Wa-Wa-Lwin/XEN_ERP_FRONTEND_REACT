@@ -30,6 +30,7 @@ import CreateUser from "@pages/user-list/CreateUser";
 import EditUser from "@pages/user-list/EditUser";
 import ShipmentForm from "@pages/shipment/components/ShipmentForm";
 import DHLDomesticRates from "@pages/dhl-domestic-rates/DHLDomesticRates";
+import Warehouse from "@pages/warehouse/Warehouse";
 
 
 export const routes = [
@@ -186,6 +187,15 @@ export const routes = [
           {
             path: "",
             element: <DHLDomesticRates />,
+          },
+        ]
+      },
+      { path: "warehouse",
+        handle: { breadcrumb: "Warehouse" },
+        children:[
+          {
+            path: "",
+            element: <Warehouse />,
           },
         ]
       },

@@ -177,6 +177,9 @@ export interface ShipmentFormData {
   approver_rejected_date_time: string | null;
 
   label_status: string | null;
+  label_id?: string;
+  files_label_url?: string;
+  tracking_numbers?: string;
   pick_up_created_status: string | null;
 }
 

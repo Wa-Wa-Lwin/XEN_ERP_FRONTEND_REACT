@@ -140,6 +140,19 @@ export const sectionItems: SidebarItem[] = [
     ],
   },
   {
+    key: "warehouse",
+    title: "Warehouse",
+    to: "/warehouse",
+    items: [
+      {
+        key: "warehouse",
+        to: "/warehouse",
+        icon: "solar:box-minimalistic-bold",
+        title: "Warehouse",
+      },
+    ],
+  },
+  {
     key: "items",
     title: "Items",
     to: "/items",
