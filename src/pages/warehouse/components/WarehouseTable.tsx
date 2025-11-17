@@ -16,7 +16,7 @@ import {
 import { Icon } from "@iconify/react";
 import axios from 'axios'
 import type { ShipmentFormData, ShipmentRequestsResponse } from '@pages/shipment/types/shipment-form.types';
-import { countries } from '@utils/countries';
+// import { countries } from '@utils/countries';
 
 const WarehouseTable = () => {
   const navigate = useNavigate()
@@ -122,10 +122,10 @@ const WarehouseTable = () => {
     return `${parseInt(hours, 10)}:${minutes}`;
   }
 
-  const getCountryName = (countryCode: string): string => {
-    const country = countries.find(c => c.code === countryCode)
-    return country ? country.name : countryCode
-  }
+  // const getCountryName = (countryCode: string): string => {
+  //   const country = countries.find(c => c.code === countryCode)
+  //   return country ? country.name : countryCode
+  // }
 
   if (loading) {
     return (
@@ -188,25 +188,25 @@ const WarehouseTable = () => {
       <div className="overflow-x-auto border border-gray-200 rounded-lg max-h-[500px] sm:max-h-[550px] lg:max-h-[680px]">
         <Table
           aria-label="Warehouse shipment requests table"
-          className="min-w-full text-xs md:text-sm overflow-x-auto"
+          className="text-xs md:text-sm w-auto"
           removeWrapper
           isStriped
         >
           <TableHeader className="sticky top-0 z-20 bg-white shadow-sm text-sm">
-            <TableColumn>ID</TableColumn>
-            <TableColumn>Requestor</TableColumn>
-            <TableColumn>Pickup Date</TableColumn>
-            <TableColumn>Scope</TableColumn>
-            <TableColumn>Topic (PO)</TableColumn>
+            <TableColumn className="w-20">ID</TableColumn>
+            <TableColumn className="w-32">Requestor</TableColumn>
+            <TableColumn className="w-36">Pickup Date</TableColumn>
+            <TableColumn className="w-24">Scope</TableColumn>
+            {/* <TableColumn>Topic (PO)</TableColumn>
             <TableColumn>From</TableColumn>
-            <TableColumn>To</TableColumn>
-            <TableColumn>Carrier</TableColumn>
-            <TableColumn>Label</TableColumn>
-            <TableColumn>Packing Slip</TableColumn>
+            <TableColumn>To</TableColumn> */}
+            <TableColumn className="w-48">Carrier</TableColumn>
+            <TableColumn className="w-32">Label</TableColumn>
+            <TableColumn className="w-40">Packing Slip</TableColumn>
           </TableHeader>
           <TableBody>
             {paginatedData.map((request) => {
-              const chosenRate = request.rates?.find(rate => rate.chosen == true);
+              const chosenRate = request.rates?.find(rate => rate.chosen);
 
               return (
                 <TableRow
@@ -256,17 +256,17 @@ const WarehouseTable = () => {
                   </TableCell>
 
                   {/* Topic (PO) */}
-                  <TableCell className="text-sm py-2">
+                  {/* <TableCell className="text-sm py-2">
                     <div>
                       <p className="font-medium">{request.topic}</p>
                       {request.po_number && (
                         <p className="text-xs text-gray-600">PO: {request.po_number}</p>
                       )}
                     </div>
-                  </TableCell>
+                  </TableCell> */}
 
                   {/* From */}
-                  <TableCell className="text-sm py-2">
+                  {/* <TableCell className="text-sm py-2">
                     <div>
                       <p className="font-medium">
                         {request.ship_from?.company_name
@@ -278,10 +278,10 @@ const WarehouseTable = () => {
                         ({request.ship_from?.country ? getCountryName(request.ship_from.country) : ''})
                       </p>
                     </div>
-                  </TableCell>
+                  </TableCell> */}
 
                   {/* To */}
-                  <TableCell className="text-sm py-2">
+                  {/* <TableCell className="text-sm py-2">
                     <div>
                       <p className="font-medium">
                         {request.ship_to?.company_name
@@ -293,7 +293,7 @@ const WarehouseTable = () => {
                         ({request.ship_to?.country ? getCountryName(request.ship_to.country) : ''})
                       </p>
                     </div>
-                  </TableCell>
+                  </TableCell> */}
 
                   {/* Carrier */}
                   <TableCell className="text-sm py-2">
@@ -319,9 +319,6 @@ const WarehouseTable = () => {
                   {/* Label */}
                   <TableCell className="text-sm py-2">
                     <div className="flex flex-col gap-1">
-                      {/* <p className="text-xs text-gray-600">
-                        ID: <span className="font-medium">{request.label_id || 'N/A'}</span>
-                      </p> */}
                       <Button
                         size="sm"
                         color="primary"

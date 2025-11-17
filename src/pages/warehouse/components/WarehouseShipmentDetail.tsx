@@ -4,12 +4,15 @@ import { Card, CardBody, CardHeader, Button, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
 import { countries } from '@utils/countries'
+import { useAuth } from '@context/AuthContext'
 import type { ShipmentGETData } from '@pages/shipment/components/shipment-details/types'
 
 const WarehouseShipmentDetail = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { msLoginUser } = useAuth()
   const [shipment, setShipment] = useState<ShipmentGETData | null>(null)
+  const [rawResponse, setRawResponse] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,7 +28,10 @@ const WarehouseShipmentDetail = () => {
         }
 
         const response = await axios.get<any>(`${apiUrl}${id}`)
-        console.log('API Response:', response.data)
+        console.log('Full API Response:', response)
+        console.log('Response Data:', response.data)
+        console.log('Shipment Request:', response.data?.shipment_request)
+        setRawResponse(response.data)
         setShipment(response.data.shipment_request)
       } catch (err) {
         console.error('Error fetching shipment detail:', err)
@@ -89,7 +95,7 @@ const WarehouseShipmentDetail = () => {
     )
   }
 
-  const chosenRate = shipment.rates?.find(rate => rate.chosen === 1)
+  const chosenRate = shipment.rates?.find(rate => rate.chosen) 
 
   return (
     <>
@@ -220,6 +226,24 @@ const WarehouseShipmentDetail = () => {
             </div>
           </CardBody>
         </Card>
+
+        {/* Raw API Response Card - Only for wawa@xenoptics.com */}
+        {msLoginUser?.email?.toLowerCase() === 'wawa@xenoptics.com' && (
+          <Card>
+            <CardHeader className="pb-2">
+              <h2 className="text-lg font-semibold">Raw API Response</h2>
+            </CardHeader>
+            <CardBody>
+              <div className="bg-gray-50 p-4 rounded-lg overflow-auto max-h-[600px]">
+                <pre className="text-xs font-mono">
+                  {rawResponse === null
+                    ? 'No response data (rawResponse is null)'
+                    : JSON.stringify(rawResponse, null, 2)}
+                </pre>
+              </div>
+            </CardBody>
+          </Card>
+        )}
 
       </div>
     </>

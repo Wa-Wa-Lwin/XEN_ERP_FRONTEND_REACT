@@ -120,8 +120,8 @@ export interface ShipmentGETData {
   pick_up_instructions: string
 
   rates?: Array<{
-    chosen: number
-    past_chosen: number
+    chosen: boolean
+    past_chosen: boolean
     shipper_account_id?: string
     shipper_account_slug?: string
     shipper_account_description: string
