@@ -26,6 +26,24 @@ const LabelAndInvoiceInformation = ({
     const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
     const masterTrackingNumber = trackingNumbers.length > 0 ? trackingNumbers[0] : null;
 
+    // Check if the label URL is base64 encoded (for FedEx Domestic Thailand)
+    const isBase64Label = shipment.files_label_url && !shipment.files_label_url.startsWith('http');
+
+    const handleViewLabel = () => {
+        if (!shipment.files_label_url) return;
+
+        if (isBase64Label) {
+            // For base64 encoded labels (FedEx Domestic Thailand)
+            const pdfWindow = window.open("");
+            pdfWindow?.document.write(
+                `<iframe width='100%' height='100%' src='data:application/pdf;base64,${shipment.files_label_url}'></iframe>`
+            );
+        } else {
+            // For regular URL labels
+            window.open(shipment.files_label_url, "_blank");
+        }
+    };
+
     const getLabelColor = () => {
         switch (shipment.label_status) {
             case "created":
@@ -108,7 +126,7 @@ const LabelAndInvoiceInformation = ({
                 <Button
                     color="primary"
                     size="sm"
-                    onPress={() => window.open(shipment.files_label_url, "_blank")}
+                    onPress={handleViewLabel}
                     className="px-2 py-0 text-[11px] h-auto min-h-0"
                 >
                     View Label

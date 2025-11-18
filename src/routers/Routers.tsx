@@ -32,6 +32,8 @@ import ShipmentForm from "@pages/shipment/components/ShipmentForm";
 import DHLDomesticRates from "@pages/dhl-domestic-rates/DHLDomesticRates";
 import Warehouse from "@pages/warehouse/Warehouse";
 import WarehouseShipmentDetail from "@pages/warehouse/components/WarehouseShipmentDetail";
+import FedExDomestic from "@pages/fedex-domestic/FedExDomestic";
+import FedExDomesticDetail from "@pages/fedex-domestic/FedExDomesticDetail";
 
 
 export const routes = [
@@ -201,6 +203,20 @@ export const routes = [
           {
             path: ":id",
             element: <WarehouseShipmentDetail />,
+            handle: { breadcrumb: (match: any) => `Shipment ${match.params.id}` }
+          },
+        ]
+      },
+      { path: "fedex-domestic",
+        handle: { breadcrumb: "FedEx Domestic" },
+        children:[
+          {
+            path: "",
+            element: <FedExDomestic />,
+          },
+          {
+            path: ":id",
+            element: <FedExDomesticDetail />,
             handle: { breadcrumb: (match: any) => `Shipment ${match.params.id}` }
           },
         ]

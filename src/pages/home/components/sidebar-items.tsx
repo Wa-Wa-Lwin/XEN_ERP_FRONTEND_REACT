@@ -223,6 +223,12 @@ export const sectionItems: SidebarItem[] = [
         icon: "mdi:truck-delivery",
         title: "DHL Domestic Rates",
       },
+      {
+        key: "fedex-domestic",
+        to: "/fedex-domestic",
+        icon: "mdi:truck-fast",
+        title: "FedEx Domestic",
+      },
     ]
   },
   // {
