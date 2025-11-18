@@ -212,25 +212,25 @@ export const sectionItems: SidebarItem[] = [
       // },
     ]
   },
-  // {
-  //   key: "rates",
-  //   to: "/rates",
-  //   title: "Rates",
-  //   items: [
-  //     {
-  //       key: "dhl-domestic",
-  //       to: "/rates/dhl-domestic",
-  //       icon: "mdi:truck-delivery",
-  //       title: "DHL Domestic Rates",
-  //     },
-  //     {
-  //       key: "fedex-domestic",
-  //       to: "/fedex-domestic",
-  //       icon: "mdi:truck-fast",
-  //       title: "FedEx Domestic",
-  //     },
-  //   ]
-  // },
+  {
+    key: "rates",
+    to: "/rates",
+    title: "Rates",
+    items: [
+      {
+        key: "dhl-domestic",
+        to: "/rates/dhl-domestic",
+        icon: "mdi:truck-delivery",
+        title: "DHL Domestic Rates",
+      },
+      {
+        key: "fedex-domestic",
+        to: "/fedex-domestic",
+        icon: "mdi:truck-fast",
+        title: "FedEx Domestic",
+      },
+    ]
+  },
   // {
   //   key: "aftership",
   //   to: "/aftership",

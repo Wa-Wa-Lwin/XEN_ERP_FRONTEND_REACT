@@ -325,8 +325,23 @@ const WarehouseTable = () => {
                         variant="flat"
                         startContent={<Icon icon="solar:eye-bold" />}
                         onPress={() => {
-                          if (request.files_label_url) {
-                            window.open(request.files_label_url, '_blank')
+                          if (!request.files_label_url) return;
+
+                          const chosenRate = request.rates?.find(rate => rate.chosen);
+                          // Check if it's base64 by seeing if it doesn't start with http/https
+                          const isBase64Label = !request.files_label_url.startsWith('http') ||
+                                               (chosenRate?.shipper_account_slug === 'fedex' &&
+                                                chosenRate?.shipper_account_description === 'FedEx Domestic Thailand');
+
+                          if (isBase64Label) {
+                            // For base64 encoded labels (FedEx Domestic Thailand)
+                            const pdfWindow = window.open("");
+                            pdfWindow?.document.write(
+                              `<iframe width='100%' height='100%' src='data:application/pdf;base64,${request.files_label_url}'></iframe>`
+                            );
+                          } else {
+                            // For regular URL labels
+                            window.open(request.files_label_url, "_blank");
                           }
                         }}
                         isDisabled={!request.files_label_url}
