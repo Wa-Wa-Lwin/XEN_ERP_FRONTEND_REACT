@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem, Chip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
@@ -410,6 +410,34 @@ const ShipmentDetails = () => {
     navigate(`/shipment/duplicate/${shipmentId}`);
   };
 
+  const handleViewInvoice = () => {
+    if (!shipmentId) return;
+    navigate(`/shipment/invoice/${shipmentId}`);
+  };
+
+  const handleViewPackingSlip = () => {
+    if (!shipmentId) return;
+    navigate(`/shipment/packing-slip/${shipmentId}`);
+  };
+
+  const handleViewLabel = () => {
+    if (!shipment?.files_label_url) return;
+
+    // Check if the label URL is base64 encoded (for FedEx Domestic Thailand)
+    const isBase64Label = !shipment.files_label_url.startsWith('http');
+
+    if (isBase64Label) {
+      // For base64 encoded labels
+      const pdfWindow = window.open("");
+      pdfWindow?.document.write(
+        `<iframe width='100%' height='100%' src='data:application/pdf;base64,${shipment.files_label_url}'></iframe>`
+      );
+    } else {
+      // For regular URL labels
+      window.open(shipment.files_label_url, "_blank");
+    }
+  };
+
   const handleOpenPickupModal = () => {
     // Helper to convert time from H:i:s format to HH:mm for input type="time"
     const convertToInputTime = (time: string) => {
@@ -536,8 +564,46 @@ const ShipmentDetails = () => {
     );
   }
 
+  const getStatusConfig = (status: string) => {
+    const statusLower = status.toLowerCase();
+
+    if (statusLower.includes('approved')) {
+      return { color: 'success' as const, icon: 'solar:check-circle-bold' };
+    }
+    if (statusLower.includes('rejected') || statusLower.includes('cancel')) {
+      return { color: 'danger' as const, icon: 'solar:close-circle-bold' };
+    }
+    if (statusLower.includes('logistic')) {
+      return { color: 'warning' as const, icon: 'solar:box-bold' };
+    }
+    if (statusLower.includes('requested')) {
+      return { color: 'primary' as const, icon: 'solar:document-add-bold' };
+    }
+    if (statusLower.includes('edited')) {
+      return { color: 'secondary' as const, icon: 'solar:pen-bold' };
+    }
+    return { color: 'default' as const, icon: 'solar:info-circle-bold' };
+  };
+
+
+  const statusConfig = getStatusConfig(shipment.request_status);
+
   return (
-    <div className="mx-auto w-full p-3 space-y-1">
+    <div className="mx-auto w-full p-6 space-y-1">
+      <div className="flex items-center gap-3 mb-2">
+        <h1 className="text-2xl font-bold">
+          Shipment #{shipment.shipmentRequestID}
+        </h1>
+        <Chip
+          color={statusConfig.color}
+          variant="flat"
+          size="md"
+          startContent={<Icon icon={statusConfig.icon} width={18} />}
+          className="font-semibold"
+        >
+          {shipment.request_status.replace(/_/g, ' ').toUpperCase()}
+        </Chip>
+      </div>
       {(
         (shipment.request_status !== "approver_approved" && shipment.request_status !== "approver_rejected") ||
         (msLoginUser?.email.toLowerCase() === "wawa@xenoptics.com")
@@ -551,6 +617,9 @@ const ShipmentDetails = () => {
             isApproving={isApproving}
             isRejecting={isRejecting}
             onApprovalAction={handleApprovalAction}
+            onViewInvoice={handleViewInvoice}
+            onViewLabel={handleViewLabel}
+            onViewPackingSlip={handleViewPackingSlip}
           />
           <div className="p-1">
             <hr />
@@ -610,7 +679,7 @@ const ShipmentDetails = () => {
                 </div>
                 <span className="text-sm">
                   <b>Supplier Pickup: </b>
-                   The supplier will arrange the pickup and delivery of the shipment. FREE OF CHARGE.
+                  The supplier will arrange the pickup and delivery of the shipment. FREE OF CHARGE.
                 </span>
               </div>
             </>

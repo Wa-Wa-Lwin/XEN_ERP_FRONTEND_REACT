@@ -13,6 +13,9 @@ interface ActionSectionsProps {
   isApproving?: boolean;
   isRejecting?: boolean;
   onApprovalAction?: (action: 'approver_approved' | 'approver_rejected', remark?: string) => void;
+  onViewInvoice?: () => void;
+  onViewLabel?: () => void;
+  onViewPackingSlip?: () => void;
 }
 
 const ActionSections = ({
@@ -23,6 +26,9 @@ const ActionSections = ({
   isApproving,
   isRejecting,
   onApprovalAction,
+  onViewInvoice,
+  onViewLabel,
+  onViewPackingSlip,
 }: ActionSectionsProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -133,6 +139,39 @@ const ActionSections = ({
             >
               Duplicate
             </Button>
+            {onViewInvoice && shipment.invoice_no && (
+              <Button
+                color="primary"
+                size="sm"
+                variant="bordered"
+                startContent={<Icon icon="solar:document-text-bold" />}
+                onPress={onViewInvoice}
+              >
+                View Invoice
+              </Button>
+            )}
+            {onViewLabel && shipment.label_status === "created" && shipment.files_label_url && (
+              <Button
+                color="primary"
+                size="sm"
+                variant="bordered"
+                startContent={<Icon icon="solar:tag-bold" />}
+                onPress={onViewLabel}
+              >
+                View Label
+              </Button>
+            )}
+            {onViewPackingSlip && shipment.invoice_no && (
+              <Button
+                color="primary"
+                size="sm"
+                variant="bordered"
+                startContent={<Icon icon="solar:document-bold" />}
+                onPress={onViewPackingSlip}
+              >
+                View Packing Slip
+              </Button>
+            )}
           </div>
 
           {/* Approval Actions - Top Right Corner */}
