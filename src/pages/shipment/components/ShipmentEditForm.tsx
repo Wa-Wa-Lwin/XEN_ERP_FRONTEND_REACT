@@ -1009,7 +1009,7 @@ const ShipmentEditForm = () => {
                             </div>
                           ) : (
                             <p className="text-sm text-red-600 mt-2">
-                              No previously chosen rate found. Check browser console for debugging info.
+                              No previously chosen rate found.
                             </p>
                           )}
                         </div>
