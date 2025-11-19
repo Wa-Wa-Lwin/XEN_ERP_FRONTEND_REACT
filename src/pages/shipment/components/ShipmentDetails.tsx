@@ -603,25 +603,18 @@ const ShipmentDetails = () => {
           {shipment.request_status.replace(/_/g, ' ').toUpperCase()}
         </Chip>
       </div>
-      {(
-        (shipment.request_status !== "approver_approved" && shipment.request_status !== "approver_rejected") ||
-        (msLoginUser?.email.toLowerCase() === "wawa@xenoptics.com")
-      ) &&
-        <>
-          <ActionSections
-            shipment={shipment}
-            msLoginUser={msLoginUser}
-            onDuplicateShipment={handleDuplicateShipment}
-            onOpenLogisticsModal={onLogisticsModalOpen}
-            isApproving={isApproving}
-            isRejecting={isRejecting}
-            onApprovalAction={handleApprovalAction}
-            onViewInvoice={handleViewInvoice}
-            onViewLabel={handleViewLabel}
-            onViewPackingSlip={handleViewPackingSlip}
-          />
-        </>
-      }
+      <ActionSections
+        shipment={shipment}
+        msLoginUser={msLoginUser}
+        onDuplicateShipment={handleDuplicateShipment}
+        onOpenLogisticsModal={onLogisticsModalOpen}
+        isApproving={isApproving}
+        isRejecting={isRejecting}
+        onApprovalAction={handleApprovalAction}
+        onViewInvoice={handleViewInvoice}
+        onViewLabel={handleViewLabel}
+        onViewPackingSlip={handleViewPackingSlip}
+      />
       <BasicInformation
         shipment={shipment}
         onCreatePickup={handleCreatePickup}
