@@ -710,14 +710,8 @@ const ShipmentTable = () => {
 
                 <TableCell>
                   {(() => {
-                    if (request.service_options === 'Grab') {
-                      return <p className="text-xs text-blue-500 font-medium">Grab</p>;
-                    }
-
-                    if (request.service_options === 'Supplier Pickup') {
-                      return <p className="text-xs text-blue-500 font-medium">Supplier Pickup</p>;
-                    }
-
+                    if (request?.shipping_options?.toLowerCase() === 'grab_pickup') return <p className="font-medium text-xs text-blue-500">Grab Pickup</p>;
+                    if (request?.shipping_options?.toLowerCase() === 'supplier_pickup') return <p className="font-medium text-xs text-blue-500">Supplier Pickup</p>;
                     if (request.request_status === 'approver_approved') {
                       const chosenRate = request.rates?.find(rate => rate.chosen == true);
                       const isDHL = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
