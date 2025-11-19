@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem, Chip } from "@heroui/react";
+import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Select, SelectItem, Autocomplete, AutocompleteItem, Chip, Card } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { useAuth } from "@context/AuthContext";
@@ -409,6 +409,34 @@ const ShipmentDetails = () => {
     navigate(`/shipment/duplicate/${shipmentId}`);
   };
 
+  const handleViewInvoice = () => {
+    if (!shipment || !shipmentId) return;
+    navigate(`/shipment/invoice/${shipmentId}`);
+  };
+
+  const handleViewPackingSlip = () => {
+    if (!shipment || !shipmentId) return;
+    navigate(`/shipment/packing-slip/${shipmentId}`);
+  };
+
+  const handleViewLabel = () => {
+    if (!shipment?.files_label_url) return;
+
+    // Check if the label URL is base64 encoded (for FedEx Domestic Thailand)
+    const isBase64Label = !shipment.files_label_url.startsWith('http');
+
+    if (isBase64Label) {
+      // For base64 encoded labels (FedEx Domestic Thailand)
+      const pdfWindow = window.open("");
+      pdfWindow?.document.write(
+        `<iframe width='100%' height='100%' src='data:application/pdf;base64,${shipment.files_label_url}'></iframe>`
+      );
+    } else {
+      // For regular URL labels
+      window.open(shipment.files_label_url, "_blank");
+    }
+  };
+
   const handleOpenPickupModal = () => {
     // Helper to convert time from H:i:s format to HH:mm for input type="time"
     const convertToInputTime = (time: string) => {
@@ -560,7 +588,7 @@ const ShipmentDetails = () => {
   const statusConfig = getStatusConfig(shipment.request_status);
 
   return (
-    <div className="mx-auto w-full p-6 space-y-1">
+    <div className="mx-auto w-full p-6 space-y-3">
       <div className="flex items-center gap-3 mb-2">
         <h1 className="text-2xl font-bold">
           Shipment #{shipment.shipmentRequestID}
@@ -588,10 +616,10 @@ const ShipmentDetails = () => {
             isApproving={isApproving}
             isRejecting={isRejecting}
             onApprovalAction={handleApprovalAction}
+            onViewInvoice={handleViewInvoice}
+            onViewLabel={handleViewLabel}
+            onViewPackingSlip={handleViewPackingSlip}
           />
-          <div className="p-1">
-            <hr />
-          </div>
         </>
       }
       <BasicInformation
@@ -614,41 +642,49 @@ const ShipmentDetails = () => {
       
 
       {
-        shipment?.shipping_options === 'grab_pickup' ?
-          <>
-            <div className="flex flex-col justify-left gap-3 items-left mb-1">
-              <div className="flex items-center gap-2">
-                <Icon icon="solar:dollar-bold" width={24} className="text-blue-600" />
-                <h3 className="font-semibold">Grab Information</h3>
-              </div>
-              <span className="text-sm">
-                <b>Total Charge: </b>
-                {shipment?.grab_rate_amount} {shipment?.grab_rate_currency}
-              </span>
+        shipment?.shipping_options === 'grab_pickup' ? (
+          <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
+            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200">
+              <Icon icon="solar:delivery-bold" width={22} className="text-purple-600" />
+              <h3 className="font-semibold text-blue-900 text-base">Grab Delivery Information</h3>              
             </div>
-          </>
-          :
-          shipment?.shipping_options === 'supplier_pickup' ?
-            <>
-              <div className="flex flex-col justify-left gap-3 items-left mb-1">
-                <div className="flex items-center gap-2">
-                  <Icon icon="solar:dollar-bold" width={24} className="text-blue-600" />
-                  <h3 className="font-semibold">Shipping Options</h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-lg border border-purple-100">
+                <Icon icon="solar:wallet-bold" width={20} className="text-purple-600" />
+                <div className="flex-1">
+                  <span className="text-xs text-gray-600 font-medium">Total Charge</span>
+                  <p className="text-lg font-bold text-purple-700">
+                    {shipment?.grab_rate_amount} {shipment?.grab_rate_currency}
+                  </p>
                 </div>
-                <span className="text-sm">
-                  <b>Supplier Pickup: </b>
-                  The supplier will arrange the pickup and delivery of the shipment. FREE OF CHARGE.
-                </span>
               </div>
-            </>
-            :
-            <>
-              <RatesSection
-                shipment={shipment}
-                showAllRates={showAllRates}
-                setShowAllRates={setShowAllRates}
-              />
-            </>
+            </div>
+          </Card>
+        ) : shipment?.shipping_options === 'supplier_pickup' ? (
+          <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
+            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200">
+              <Icon icon="solar:box-minimalistic-bold" width={22} className="text-green-600" />
+              <h3 className="font-semibold text-blue-900 text-base">Shipping Information</h3>              
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-start gap-3 bg-green-50 p-4 rounded-lg border border-green-100">
+                <Icon icon="solar:check-circle-bold" width={24} className="text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-green-800 mb-1">Free Supplier Pickup</p>
+                  <p className="text-sm text-gray-700">
+                    The supplier will arrange the pickup and delivery of the shipment at no additional cost.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ) : (
+          <RatesSection
+            shipment={shipment}
+            showAllRates={showAllRates}
+            setShowAllRates={setShowAllRates}
+          />
+        )
       }
 
       

@@ -12,7 +12,7 @@ interface RequestHistoryProps {
 const RequestHistory = ({ shipment, showHistory, setShowHistory }: RequestHistoryProps) => {
   return (
     <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+      <div className="flex items-center justify-left gap-2 mb-4 border-gray-200">
         <div className="flex items-center gap-2">
           <Icon icon="solar:history-bold" width={22} className="text-blue-600" />
           <h3 className="font-semibold text-blue-900 text-base">Request History</h3>

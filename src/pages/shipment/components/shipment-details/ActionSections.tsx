@@ -98,15 +98,24 @@ const ActionSections = ({
     onApprovalAction?.("approver_rejected", rejectRemark);
   };
 
+  // Check if shipping option is grab_pickup or supplier_pickup
+  const isGrabPickup = shipment.shipping_options?.toLowerCase() === 'grab_pickup';
+  const isSupplierPickup = shipment.shipping_options?.toLowerCase() === 'supplier_pickup';
+
+  // Get tracking numbers and chosen rate
+  const trackingNumbers = shipment.tracking_numbers
+    ? shipment.tracking_numbers.split(',').map(id => id.trim()).filter(id => id.length > 0)
+    : [];
+  const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
+  const masterTrackingNumber = trackingNumbers.length > 0 ? trackingNumbers[0] : null;
+
   return (
     <>
       {/* Action Section */}
       {/* <Card className="p-3 rounded-none shadow-light"> */}
-      <Card shadow="none">
+      <Card shadow="none" className="rounded-none">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 flex-wrap">
-            <Icon icon="solar:box-bold" width={20} className="text-blue-600" />
-            <h3 className="font-semibold text-blue-900">Action</h3>
             {canEdit && (
               <Button
                 color="primary"
@@ -150,7 +159,18 @@ const ActionSections = ({
                 View Invoice
               </Button>
             )}
-            {onViewLabel && shipment.label_status === "created" && shipment.files_label_url && (
+            {onViewPackingSlip && shipment.invoice_no && (
+              <Button
+                color="primary"
+                size="sm"
+                variant="bordered"
+                startContent={<Icon icon="solar:document-bold" />}
+                onPress={onViewPackingSlip}
+              >
+                View Packing Slip
+              </Button>
+            )}
+            {!isGrabPickup && !isSupplierPickup && onViewLabel && shipment.label_status === "created" && shipment.files_label_url && (
               <Button
                 color="primary"
                 size="sm"
@@ -161,15 +181,38 @@ const ActionSections = ({
                 View Label
               </Button>
             )}
-            {onViewPackingSlip && shipment.invoice_no && (
+            {/* Track buttons for each tracking number */}
+            {!isGrabPickup && !isSupplierPickup && trackingNumbers.length > 0 && chosenRate?.shipper_account_slug && (
+              <>
+                {trackingNumbers.map((trackingId, index) => (
+                  <Button
+                    key={index}
+                    color="secondary"
+                    size="sm"
+                    variant="bordered"
+                    startContent={<Icon icon="solar:map-point-wave-bold" width={16} />}
+                    onPress={() => {
+                      const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${trackingId}`;
+                      window.open(trackingUrl, "_blank");
+                    }}
+                  >
+                    Track {trackingNumbers.length > 1 ? `#${index + 1}` : ''}
+                  </Button>
+                ))}
+              </>
+            )}
+            {/* Master tracking button if multiple tracking numbers */}
+            {!isGrabPickup && !isSupplierPickup && trackingNumbers.length > 1 && masterTrackingNumber && chosenRate?.shipper_account_slug && (
               <Button
                 color="primary"
                 size="sm"
-                variant="bordered"
-                startContent={<Icon icon="solar:document-bold" />}
-                onPress={onViewPackingSlip}
+                startContent={<Icon icon="solar:map-point-wave-bold" width={16} />}
+                onPress={() => {
+                  const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${masterTrackingNumber}`;
+                  window.open(trackingUrl, "_blank");
+                }}
               >
-                View Packing Slip
+                Track Master
               </Button>
             )}
           </div>
