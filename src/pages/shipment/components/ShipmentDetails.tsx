@@ -637,7 +637,7 @@ const ShipmentDetails = () => {
       {
         shipment?.shipping_options === 'grab_pickup' ? (
           <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
-            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200">
+            <div className="flex items-center gap-2 mb-3 border-gray-200">
               <Icon icon="solar:delivery-bold" width={22} className="text-purple-600" />
               <h3 className="font-semibold text-blue-900 text-base">Grab Delivery Information</h3>              
             </div>
@@ -655,7 +655,7 @@ const ShipmentDetails = () => {
           </Card>
         ) : shipment?.shipping_options === 'supplier_pickup' ? (
           <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
-            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200">
+            <div className="flex items-center gap-2 mb-3 border-gray-200">
               <Icon icon="solar:box-minimalistic-bold" width={22} className="text-green-600" />
               <h3 className="font-semibold text-blue-900 text-base">Shipping Information</h3>              
             </div>
