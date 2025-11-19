@@ -989,29 +989,32 @@ const ShipmentEditForm = () => {
                         </div>
                         <p className="text-sm text-gray-500">Step 5 of {steps.length} - Calculate shipping rates</p>
                       </div>
-                      <div className="mb-4 p-4 bg-gray-50 rounded border">
-                        <h3 className="font-semibold mb-2">
-                          Previously Chosen Rate :
-                          {previouslyChosenRate ?
-                            <span className="text-green-600 font-semibold"> Found ✓</span> :
-                            <span className="text-red-600 font-semibold"> Not Found ✗</span>
-                          }
-                        </h3>
-                        {previouslyChosenRate ? (
-                          <div>
-                            <p className="text-sm mb-1">
-                              <strong>{previouslyChosenRate.shipper_account_description} </strong> ({previouslyChosenRate.service_name})
-                              <strong> | Amount:</strong> {previouslyChosenRate.total_charge_amount} {previouslyChosenRate.total_charge_currency}
-                              <strong> | Charged Weight:</strong> {previouslyChosenRate.charge_weight_value} {previouslyChosenRate.charge_weight_unit}
-                              <strong> | Transit Time:</strong> {previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' || previouslyChosenRate.shipper_account_description === 'FedEx Domestic Thailand' ? '1-3(Working) day(s)' : `${previouslyChosenRate.transit_time} (days)`}
+                      {watch('shipping_options') === 'calculate_rates' && (
+                        <div className="mb-4 p-4 bg-gray-50 rounded border">
+                          <h3 className="font-semibold mb-2">
+                            Previously Chosen Rate :
+                            {previouslyChosenRate ?
+                              <span className="text-green-600 font-semibold"> Found ✓</span> :
+                              <span className="text-red-600 font-semibold"> Not Found ✗</span>
+                            }
+                          </h3>
+                          {previouslyChosenRate ? (
+                            <div>
+                              <p className="text-sm mb-1">
+                                <strong>{previouslyChosenRate.shipper_account_description} </strong> ({previouslyChosenRate.service_name})
+                                <strong> | Amount:</strong> {previouslyChosenRate.total_charge_amount} {previouslyChosenRate.total_charge_currency}
+                                <strong> | Charged Weight:</strong> {previouslyChosenRate.charge_weight_value} {previouslyChosenRate.charge_weight_unit}
+                                <strong> | Transit Time:</strong> {previouslyChosenRate.shipper_account_description === 'DHL eCommerce Asia' || previouslyChosenRate.shipper_account_description === 'FedEx Domestic Thailand' ? '1-3(Working) day(s)' : `${previouslyChosenRate.transit_time} (days)`}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-red-600 mt-2">
+                              No previously chosen rate found. Check browser console for debugging info.
                             </p>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-red-600 mt-2">
-                            No previously chosen rate found. Check browser console for debugging info.
-                          </p>
-                        )}
-                      </div>
+                          )}
+                        </div>
+                      )}
+                      
                       <div className="mb-6">
                         <RatesSection
                           rates={calculatedRates}
@@ -1043,46 +1046,118 @@ const ShipmentEditForm = () => {
                   </Card>
                 </>
               ) :
-                // Show RatesSummary when step is completed
+                // Show rates section when step is completed
                 completedSteps.has(3) && (
-                  (selectedRateId || previouslyChosenRate) ? (
-                    <div className="pb-1">
-                      <RatesSummary
-                        data={getValues()}
-                        selectedRateId={selectedRateId}
-                        previouslyChosenRate={previouslyChosenRate}
-                        transformedRates={transformedRates}
-                        serviceType={watch('service_options')}
-                        onEdit={() => handleEditStep(4)}
-                      />
-                    </div>
-                  ) : (
-                    // Show placeholder when no rate exists
-                    <Card className="border-2 border-orange-300 bg-orange-50 shadow-sm m-1">
-                      <CardBody className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Icon icon="solar:danger-triangle-bold" className="text-orange-600 text-2xl" />
-                            <div>
-                              <h3 className="font-bold text-orange-800">Shipping Rates Required</h3>
-                              <p className="text-sm text-orange-700">
-                                No shipping rate available. Please calculate and select a rate.
-                              </p>
-                            </div>
+                  (() => {
+                    const shippingOption = watch('shipping_options') || 'calculate_rates'
+
+                    // For calculate_rates: show rate summary or error
+                    if (shippingOption === 'calculate_rates') {
+                      if (selectedRateId || previouslyChosenRate) {
+                        return (
+                          <div className="pb-1">
+                            <RatesSummary
+                              data={getValues()}
+                              selectedRateId={selectedRateId}
+                              previouslyChosenRate={previouslyChosenRate}
+                              transformedRates={transformedRates}
+                              serviceType={watch('service_options')}
+                              onEdit={() => handleEditStep(4)}
+                            />
                           </div>
-                          <Button
-                            color="warning"
-                            variant="flat"
-                            size="sm"
-                            onPress={() => handleEditStep(4)}
-                            startContent={<Icon icon="solar:calculator-bold" width={20} />}
-                          >
-                            Calculate Rates
-                          </Button>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  )
+                        )
+                      } else {
+                        return (
+                          <Card className="border-2 border-orange-300 bg-orange-50 shadow-sm m-1">
+                            <CardBody className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <Icon icon="solar:danger-triangle-bold" className="text-orange-600 text-2xl" />
+                                  <div>
+                                    <h3 className="font-bold text-orange-800">Shipping Rates Required</h3>
+                                    <p className="text-sm text-orange-700">
+                                      No shipping rate available. Please calculate and select a rate.
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  color="warning"
+                                  variant="flat"
+                                  size="sm"
+                                  onPress={() => handleEditStep(4)}
+                                  startContent={<Icon icon="solar:calculator-bold" width={20} />}
+                                >
+                                  Calculate Rates
+                                </Button>
+                              </div>
+                            </CardBody>
+                          </Card>
+                        )
+                      }
+                    }
+
+                    // For grab_pickup: show grab info card
+                    if (shippingOption === 'grab_pickup') {
+                      return (
+                        <Card className="border-2 border-purple-300 bg-purple-50 shadow-sm m-1">
+                          <CardBody className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <Icon icon="solar:delivery-bold" className="text-purple-600 text-2xl" />
+                                <div>
+                                  <h3 className="font-bold text-purple-800">Grab Pickup Selected</h3>
+                                  <p className="text-sm text-purple-700">
+                                    Delivery Amount: {watch('grab_rate_amount') || '0'} {watch('grab_rate_currency') || 'THB'}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                color="secondary"
+                                variant="flat"
+                                size="sm"
+                                onPress={() => handleEditStep(4)}
+                                startContent={<Icon icon="solar:pen-bold" width={20} />}
+                              >
+                                Edit
+                              </Button>
+                            </div>
+                          </CardBody>
+                        </Card>
+                      )
+                    }
+
+                    // For supplier_pickup: show supplier info card
+                    if (shippingOption === 'supplier_pickup') {
+                      return (
+                        <Card className="border-2 border-green-300 bg-green-50 shadow-sm m-1">
+                          <CardBody className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <Icon icon="solar:box-minimalistic-bold" className="text-green-600 text-2xl" />
+                                <div>
+                                  <h3 className="font-bold text-green-800">Supplier Pickup Selected</h3>
+                                  <p className="text-sm text-green-700">
+                                    Free delivery arranged by supplier
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                color="success"
+                                variant="flat"
+                                size="sm"
+                                onPress={() => handleEditStep(4)}
+                                startContent={<Icon icon="solar:pen-bold" width={20} />}
+                              >
+                                Edit
+                              </Button>
+                            </div>
+                          </CardBody>
+                        </Card>
+                      )
+                    }
+
+                    return null
+                  })()
                 )}
             </div>
 
