@@ -13,8 +13,7 @@ import {
   ActionSections,
   type ShipmentGETData,
   BasicInformation,
-  LabelAndInvoiceInformation,
-  PickupInformation
+  LabelAndInvoiceInformation
 } from "./shipment-details";
 import { INCOTERMS, CUSTOM_PURPOSES } from '../constants/form-defaults';
 import { ISO_3_COUNTRIES } from '../constants/iso3countries';
@@ -410,34 +409,6 @@ const ShipmentDetails = () => {
     navigate(`/shipment/duplicate/${shipmentId}`);
   };
 
-  const handleViewInvoice = () => {
-    if (!shipmentId) return;
-    navigate(`/shipment/invoice/${shipmentId}`);
-  };
-
-  const handleViewPackingSlip = () => {
-    if (!shipmentId) return;
-    navigate(`/shipment/packing-slip/${shipmentId}`);
-  };
-
-  const handleViewLabel = () => {
-    if (!shipment?.files_label_url) return;
-
-    // Check if the label URL is base64 encoded (for FedEx Domestic Thailand)
-    const isBase64Label = !shipment.files_label_url.startsWith('http');
-
-    if (isBase64Label) {
-      // For base64 encoded labels
-      const pdfWindow = window.open("");
-      pdfWindow?.document.write(
-        `<iframe width='100%' height='100%' src='data:application/pdf;base64,${shipment.files_label_url}'></iframe>`
-      );
-    } else {
-      // For regular URL labels
-      window.open(shipment.files_label_url, "_blank");
-    }
-  };
-
   const handleOpenPickupModal = () => {
     // Helper to convert time from H:i:s format to HH:mm for input type="time"
     const convertToInputTime = (time: string) => {
@@ -617,19 +588,19 @@ const ShipmentDetails = () => {
             isApproving={isApproving}
             isRejecting={isRejecting}
             onApprovalAction={handleApprovalAction}
-            onViewInvoice={handleViewInvoice}
-            onViewLabel={handleViewLabel}
-            onViewPackingSlip={handleViewPackingSlip}
           />
           <div className="p-1">
             <hr />
           </div>
         </>
       }
-      <BasicInformation shipment={shipment} />
-      <div className="p-1">
-        <hr />
-      </div>
+      <BasicInformation
+        shipment={shipment}
+        onCreatePickup={handleCreatePickup}
+        onChangePickupDateTime={handleOpenPickupModal}
+        formattedPickupError={formattedPickupError}
+      />
+
       <LabelAndInvoiceInformation
         shipment={shipment}
         showError={showError}
@@ -638,22 +609,9 @@ const ShipmentDetails = () => {
         formattedError={formattedError}
         formattedLabelError={formattedLabelError}
       />
-      <div className="p-1">
-        <hr />
-      </div>
-      <PickupInformation
-        shipment={shipment}
-        onCreatePickup={handleCreatePickup}
-        onChangePickupDateTime={handleOpenPickupModal}
-        formattedPickupError={formattedPickupError}
-      />
-      <div className="p-1">
-        <hr />
-      </div>
+
       <AddressInformation shipment={shipment} />
-      <div className="p-1">
-        <hr />
-      </div>
+      
 
       {
         shipment?.shipping_options === 'grab_pickup' ?
@@ -693,21 +651,15 @@ const ShipmentDetails = () => {
             </>
       }
 
-      <div className="p-1">
-        <hr />
-      </div>
+      
       <ParcelsSection shipment={shipment} />
-      <div className="p-1">
-        <hr />
-      </div>
+      
       <RequestHistory
         shipment={shipment}
         showHistory={showHistory}
         setShowHistory={setShowHistory}
       />
-      <div className="p-1">
-        <hr />
-      </div>
+      
       {/* Change Pickup DateTime Modal */}
       <Modal isOpen={isPickupModalOpen} onClose={onPickupModalClose} size="2xl">
         <ModalContent>
