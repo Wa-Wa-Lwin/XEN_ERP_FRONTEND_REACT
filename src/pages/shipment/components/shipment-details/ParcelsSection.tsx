@@ -14,7 +14,7 @@ const ParcelsSection = ({ shipment }: ParcelsSectionProps) => {
   return (
     <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+      <div className="flex items-center gap-2 mb-4 border-gray-200">
         <Icon icon="solar:box-minimalistic-bold" width={22} className="text-blue-600" />
         <h3 className="font-semibold text-blue-900 text-base">Parcels & Items</h3>
         <Chip size="sm" color="primary" variant="flat">{shipment.parcels.length}</Chip>

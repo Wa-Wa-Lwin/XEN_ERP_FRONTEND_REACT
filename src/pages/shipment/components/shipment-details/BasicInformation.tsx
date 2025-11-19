@@ -189,7 +189,7 @@ const BasicInformation = ({
           </>
         )}
 
-        <div className="flex items-center gap-3">
+        <div className="col-span-full flex items-center gap-3 mt-2">
           <Icon icon="solar:calendar-bold" width={20} className="text-blue-600" />
           <h4 className="font-semibold text-blue-900 text-sm">Pickup</h4>
 

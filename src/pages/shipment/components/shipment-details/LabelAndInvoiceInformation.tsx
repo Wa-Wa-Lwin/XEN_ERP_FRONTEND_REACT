@@ -1,6 +1,6 @@
 import { Button, Card, Chip } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import type { ShipmentGETData } from './types';
 
 interface LabelAndInvoiceInformationProps {
@@ -18,31 +18,31 @@ const LabelAndInvoiceInformation = ({
     formattedError,
     formattedLabelError
 }: LabelAndInvoiceInformationProps) => {
-    const navigate = useNavigate();
-    const trackingNumbers = shipment.tracking_numbers
-        ? shipment.tracking_numbers.split(',').map(id => id.trim()).filter(id => id.length > 0)
-        : [];
+    // const navigate = useNavigate();
+    // const trackingNumbers = shipment.tracking_numbers
+    //     ? shipment.tracking_numbers.split(',').map(id => id.trim()).filter(id => id.length > 0)
+    //     : [];
 
-    const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
-    const masterTrackingNumber = trackingNumbers.length > 0 ? trackingNumbers[0] : null;
+    // const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
+    // const masterTrackingNumber = trackingNumbers.length > 0 ? trackingNumbers[0] : null;
 
     // Check if the label URL is base64 encoded (for FedEx Domestic Thailand)
-    const isBase64Label = shipment.files_label_url && !shipment.files_label_url.startsWith('http');
+    // const isBase64Label = shipment.files_label_url && !shipment.files_label_url.startsWith('http');
 
-    const handleViewLabel = () => {
-        if (!shipment.files_label_url) return;
+    // const handleViewLabel = () => {
+    //     if (!shipment.files_label_url) return;
 
-        if (isBase64Label) {
-            // For base64 encoded labels (FedEx Domestic Thailand)
-            const pdfWindow = window.open("");
-            pdfWindow?.document.write(
-                `<iframe width='100%' height='100%' src='data:application/pdf;base64,${shipment.files_label_url}'></iframe>`
-            );
-        } else {
-            // For regular URL labels
-            window.open(shipment.files_label_url, "_blank");
-        }
-    };
+    //     if (isBase64Label) {
+    //         // For base64 encoded labels (FedEx Domestic Thailand)
+    //         const pdfWindow = window.open("");
+    //         pdfWindow?.document.write(
+    //             `<iframe width='100%' height='100%' src='data:application/pdf;base64,${shipment.files_label_url}'></iframe>`
+    //         );
+    //     } else {
+    //         // For regular URL labels
+    //         window.open(shipment.files_label_url, "_blank");
+    //     }
+    // };
 
     const getLabelChipConfig = () => {
         switch (shipment.label_status) {
@@ -88,7 +88,7 @@ const LabelAndInvoiceInformation = ({
                     </>
                 }
             </div>
-            <div className="flex gap-2 flex-wrap">
+            {/* <div className="flex gap-2 flex-wrap">
                 <Button
                     color="primary"
                     size="sm"
@@ -118,7 +118,6 @@ const LabelAndInvoiceInformation = ({
                             View Label
                         </Button>
 
-                        {/* Track buttons for each tracking number */}
                         {trackingNumbers.length > 0 && chosenRate?.shipper_account_slug && (
                             <>
                                 {trackingNumbers.map((trackingId, index) => (
@@ -155,7 +154,7 @@ const LabelAndInvoiceInformation = ({
                     </>
                 }
 
-            </div>
+            </div> */}
         </div>
     );
 

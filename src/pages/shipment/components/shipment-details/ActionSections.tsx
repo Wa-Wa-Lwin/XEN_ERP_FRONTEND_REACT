@@ -119,8 +119,7 @@ const ActionSections = ({
             {canEdit && (
               <Button
                 color="primary"
-                size="sm"
-                variant="bordered"
+                size="md"
                 startContent={<Icon icon="solar:pen-bold" />}
                 onPress={() => navigate(`/shipment/edit/${shipment.shipmentRequestID}`)}
               >
@@ -130,7 +129,7 @@ const ActionSections = ({
             {canUpdateLogistics && onOpenLogisticsModal && (
               <Button
                 color="primary"
-                size="sm"
+                size="md"
                 variant="shadow"
                 className="font-bold"
                 startContent={<Icon icon="solar:box-bold-duotone" width={18} />}
@@ -141,8 +140,7 @@ const ActionSections = ({
             )}
             <Button
               color="secondary"
-              size="sm"
-              variant="bordered"
+              size="md"
               startContent={<Icon icon="solar:copy-bold" />}
               onPress={onDuplicateShipment}
             >
@@ -151,8 +149,7 @@ const ActionSections = ({
             {onViewInvoice && shipment.invoice_no && (
               <Button
                 color="primary"
-                size="sm"
-                variant="bordered"
+                size="md"
                 startContent={<Icon icon="solar:document-text-bold" />}
                 onPress={onViewInvoice}
               >
@@ -162,8 +159,7 @@ const ActionSections = ({
             {onViewPackingSlip && shipment.invoice_no && (
               <Button
                 color="primary"
-                size="sm"
-                variant="bordered"
+                size="md"
                 startContent={<Icon icon="solar:document-bold" />}
                 onPress={onViewPackingSlip}
               >
@@ -173,8 +169,7 @@ const ActionSections = ({
             {!isGrabPickup && !isSupplierPickup && onViewLabel && shipment.label_status === "created" && shipment.files_label_url && (
               <Button
                 color="primary"
-                size="sm"
-                variant="bordered"
+                size="md"
                 startContent={<Icon icon="solar:tag-bold" />}
                 onPress={onViewLabel}
               >
@@ -188,8 +183,7 @@ const ActionSections = ({
                   <Button
                     key={index}
                     color="secondary"
-                    size="sm"
-                    variant="bordered"
+                    size="md"
                     startContent={<Icon icon="solar:map-point-wave-bold" width={16} />}
                     onPress={() => {
                       const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${trackingId}`;
@@ -205,7 +199,7 @@ const ActionSections = ({
             {!isGrabPickup && !isSupplierPickup && trackingNumbers.length > 1 && masterTrackingNumber && chosenRate?.shipper_account_slug && (
               <Button
                 color="primary"
-                size="sm"
+                size="md"
                 startContent={<Icon icon="solar:map-point-wave-bold" width={16} />}
                 onPress={() => {
                   const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${masterTrackingNumber}`;
@@ -228,7 +222,7 @@ const ActionSections = ({
               )}
               <Button
                 color="success"
-                size="sm"
+                size="md"
                 variant="shadow"
                 className="font-bold"
                 onPress={handleApprovalClick}
@@ -240,7 +234,7 @@ const ActionSections = ({
               </Button>
               <Button
                 color="danger"
-                size="sm"
+                size="md"
                 variant="shadow"
                 className="font-bold"
                 onPress={handleRejectClick}
@@ -366,7 +360,7 @@ const ActionSections = ({
         isOpen={isApproving || isRejecting}
         hideCloseButton
         isDismissable={false}
-        size="sm"
+        size="md"
         backdrop="blur"
       >
         <ModalContent>
