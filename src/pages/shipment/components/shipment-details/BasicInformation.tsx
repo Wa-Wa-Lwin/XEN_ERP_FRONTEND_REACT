@@ -10,24 +10,6 @@ interface BasicInformationProps {
   formattedPickupError?: string;
 }
 
-const getStatusConfig = (status: string) => {
-  const statusLower = status.toLowerCase();
-
-  if (statusLower.includes('approved')) {
-    return { color: 'success' as const, icon: 'solar:check-circle-bold' };
-  }
-  if (statusLower.includes('rejected') || statusLower.includes('cancel')) {
-    return { color: 'danger' as const, icon: 'solar:close-circle-bold' };
-  }
-  if (statusLower.includes('pending') || statusLower.includes('waiting')) {
-    return { color: 'warning' as const, icon: 'solar:clock-circle-bold' };
-  }
-  if (statusLower.includes('draft')) {
-    return { color: 'default' as const, icon: 'solar:document-bold' };
-  }
-  return { color: 'primary' as const, icon: 'solar:info-circle-bold' };
-};
-
 const getPickupStatusConfig = (shipment: ShipmentGETData) => {
   const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
   const isDHLAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
@@ -58,7 +40,6 @@ const BasicInformation = ({
   onChangePickupDateTime,
   formattedPickupError
 }: BasicInformationProps) => {
-  const statusConfig = getStatusConfig(shipment.request_status);
   const pickupStatusConfig = getPickupStatusConfig(shipment);
 
   // Pickup-related helpers
@@ -118,15 +99,6 @@ const BasicInformation = ({
             Basic Information
           </h3>
         </div>
-        <Chip
-          color={statusConfig.color}
-          variant="flat"
-          size="sm"
-          startContent={<Icon icon={statusConfig.icon} width={16} />}
-          className="font-semibold"
-        >
-          {shipment.request_status.toUpperCase().replace(/_/g, ' ')}
-        </Chip>
       </div>
 
       {/* Details Grid */}

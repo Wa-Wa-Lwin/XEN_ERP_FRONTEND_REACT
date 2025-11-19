@@ -57,21 +57,36 @@ const LabelAndInvoiceInformation = ({
         }
     };
 
-    const invoice_and_packing_data = (
+    // Check if shipping option is grab_pickup or supplier_pickup
+    const isGrabPickup = shipment.shipping_options?.toLowerCase() === 'grab_pickup';
+    const isSupplierPickup = shipment.shipping_options?.toLowerCase() === 'supplier_pickup';
+    const isApproved = shipment.request_status === 'approver_approved';
+
+    const label_created_data = (
         <div className="space-y-4">
             <div className="grid md:grid-cols-3 gap-4 text-sm">
                 <div>
-                    <span className="text-gray-600 font-medium">Invoice No: </span>
+                    <span className="text-gray-600 font-medium">Invoice : </span>
                     <span className="font-semibold text-gray-900">{shipment.invoice_no}</span>
-                </div>
-                <div>
-                    <span className="text-gray-600 font-medium">Invoice Date: </span>
+                    <span className="text-gray-600 font-medium"> | </span>
+                    <span className="text-gray-600 font-medium"> Date: </span>
                     <span className="font-semibold text-gray-900">{shipment.invoice_date}</span>
-                </div>
-                <div>
-                    <span className="text-gray-600 font-medium">Due Date: </span>
+                    <span className="text-gray-600 font-medium"> | </span>
+                    <span className="text-gray-600 font-medium">Due: </span>
                     <span className="font-semibold text-gray-900">{shipment.invoice_due_date}</span>
                 </div>
+                {
+                    !isGrabPickup && !isSupplierPickup && <>
+                        <div>
+                            <span className="text-gray-600 font-medium">Label ID: </span>
+                            <span className="font-semibold text-gray-900">{shipment.label_id}</span>
+                        </div>
+                        <div>
+                            <span className="text-gray-600 font-medium">Tracking Number: </span>
+                            <span className="font-semibold text-gray-900">{shipment.tracking_numbers}</span>
+                        </div>
+                    </>
+                }
             </div>
             <div className="flex gap-2 flex-wrap">
                 <Button
@@ -91,71 +106,55 @@ const LabelAndInvoiceInformation = ({
                 >
                     View Packing Slip
                 </Button>
-            </div>
-        </div>
-    );
 
-    const label_created_data = (
-        <div className="space-y-4">
-            {invoice_and_packing_data}
-
-            <div className="border-t border-gray-200 pt-4 space-y-4">
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <span className="text-gray-600 font-medium">Label ID: </span>
-                        <span className="font-semibold text-gray-900">{shipment.label_id}</span>
-                    </div>
-                    <div>
-                        <span className="text-gray-600 font-medium">Tracking Number: </span>
-                        <span className="font-semibold text-gray-900">{shipment.tracking_numbers}</span>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                    <Button
-                        color="primary"
-                        size="sm"
-                        onPress={handleViewLabel}
-                        startContent={<Icon icon="solar:tag-bold" width={16} />}
-                    >
-                        View Label
-                    </Button>
-
-                    {/* Track buttons for each tracking number */}
-                    {trackingNumbers.length > 0 && chosenRate?.shipper_account_slug && (
-                        <>
-                            {trackingNumbers.map((trackingId, index) => (
-                                <Button
-                                    key={index}
-                                    color="secondary"
-                                    size="sm"
-                                    variant="bordered"
-                                    startContent={<Icon icon="solar:map-point-wave-bold" width={16} />}
-                                    onPress={() => {
-                                        const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${trackingId}`;
-                                        window.open(trackingUrl, "_blank");
-                                    }}
-                                >
-                                    Track {trackingNumbers.length > 1 ? `#${index + 1}` : ''}
-                                </Button>
-                            ))}
-                        </>
-                    )}
-
-                    {trackingNumbers.length > 1 && masterTrackingNumber && chosenRate?.shipper_account_slug && (
+                {
+                    !isGrabPickup && !isSupplierPickup && <>
                         <Button
                             color="primary"
                             size="sm"
-                            startContent={<Icon icon="solar:map-point-wave-bold" width={16} />}
-                            onPress={() => {
-                                const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${masterTrackingNumber}`;
-                                window.open(trackingUrl, "_blank");
-                            }}
+                            onPress={handleViewLabel}
+                            startContent={<Icon icon="solar:tag-bold" width={16} />}
                         >
-                            Track Master
+                            View Label
                         </Button>
-                    )}
-                </div>
+
+                        {/* Track buttons for each tracking number */}
+                        {trackingNumbers.length > 0 && chosenRate?.shipper_account_slug && (
+                            <>
+                                {trackingNumbers.map((trackingId, index) => (
+                                    <Button
+                                        key={index}
+                                        color="secondary"
+                                        size="sm"
+                                        variant="bordered"
+                                        startContent={<Icon icon="solar:map-point-wave-bold" width={16} />}
+                                        onPress={() => {
+                                            const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${trackingId}`;
+                                            window.open(trackingUrl, "_blank");
+                                        }}
+                                    >
+                                        Track {trackingNumbers.length > 1 ? `#${index + 1}` : ''}
+                                    </Button>
+                                ))}
+                            </>
+                        )}
+
+                        {trackingNumbers.length > 1 && masterTrackingNumber && chosenRate?.shipper_account_slug && (
+                            <Button
+                                color="primary"
+                                size="sm"
+                                startContent={<Icon icon="solar:map-point-wave-bold" width={16} />}
+                                onPress={() => {
+                                    const trackingUrl = `https://www.aftership.com/track?c=${chosenRate.shipper_account_slug}&t=${masterTrackingNumber}`;
+                                    window.open(trackingUrl, "_blank");
+                                }}
+                            >
+                                Track Master
+                            </Button>
+                        )}
+                    </>
+                }
+
             </div>
         </div>
     );
@@ -179,72 +178,35 @@ const LabelAndInvoiceInformation = ({
         </div>
     );
 
-    // Check if shipping option is grab_pickup or supplier_pickup
-    const isGrabPickup = shipment.shipping_options?.toLowerCase() === 'grab_pickup';
-    const isSupplierPickup = shipment.shipping_options?.toLowerCase() === 'supplier_pickup';
-    const isApproved = shipment.request_status === 'approver_approved';
+
 
     const labelChipConfig = getLabelChipConfig();
 
     return (
         <>
-            {isGrabPickup || isSupplierPickup ? (
-                <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                        <div className="flex items-center gap-2">
-                            <Icon icon="solar:document-text-bold" width={22} className="text-blue-600" />
-                            <h3 className="font-semibold text-blue-900 text-base">
-                                Invoice & Packing Slip Information
-                            </h3>
-                        </div>
-                        <Chip
-                            color={isApproved ? 'success' : 'warning'}
-                            variant="flat"
-                            size="sm"
-                            startContent={<Icon icon={isApproved ? 'solar:check-circle-bold' : 'solar:clock-circle-bold'} width={16} />}
-                            className="font-semibold"
-                        >
-                            {isApproved ? 'Approved' : 'Pending'}
-                        </Chip>
-                    </div>
-
-                    {isApproved ? (
-                        invoice_and_packing_data
-                    ) : (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <p className="text-yellow-700 text-sm flex items-start gap-2">
-                                <Icon icon="solar:clock-circle-bold" width={18} className="flex-shrink-0 mt-0.5" />
-                                <span>
-                                    The shipment is pending approval. The information and documents will be available once approved.
-                                </span>
-                            </p>
-                        </div>
-                    )}
-                </Card>
-            ) : (
-                <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                        <div className="flex items-center gap-2">
-                            <Icon icon="solar:tag-bold" width={22} className="text-blue-600" />
-                            <h3 className="font-semibold text-blue-900 text-base">
-                                Label & Invoice Information
-                            </h3>
-                        </div>
-                        <Chip
-                            color={labelChipConfig.color}
-                            variant="flat"
-                            size="sm"
-                            startContent={<Icon icon={labelChipConfig.icon} width={16} />}
-                            className="font-semibold"
-                        >
-                            {labelChipConfig.text}
-                        </Chip>
-                    </div>
-
-                    {(shipment.label_status === "created" || shipment.label_status === "cancelled") && label_created_data}
-                    {shipment.label_status === "failed" && label_failed_data}
-                </Card>
-            )}
+            <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
+                <div className="flex items-center justify-left gap-1 mb-2 pb-3 border-gray-200">
+                    <Icon icon="solar:tag-bold" width={22} className="text-blue-600" />
+                    <h3 className="font-semibold text-blue-900 text-base">
+                        Label & Invoice Information
+                    </h3>
+                    <Chip
+                        color={labelChipConfig.color}
+                        variant="flat"
+                        size="sm"
+                        startContent={<Icon icon={labelChipConfig.icon} width={16} />}
+                        className="font-semibold"
+                    >
+                        {labelChipConfig.text}
+                    </Chip>
+                </div>
+                {
+                    isApproved && <>
+                        {(shipment.label_status === "created" || shipment.label_status === "cancelled") && label_created_data}
+                        {shipment.label_status === "failed" && label_failed_data}
+                    </>
+                }                
+            </Card>
         </>
     );
 };
