@@ -77,10 +77,12 @@ const LabelAndInvoiceInformation = ({
                 </div>
                 {
                     !isGrabPickup && !isSupplierPickup && <>
-                        <div>
-                            <span className="text-gray-600 font-medium">Label ID: </span>
-                            <span className="font-semibold text-gray-900">{shipment.label_id}</span>
-                        </div>
+                        {shipment.label_id &&
+                            <div>
+                                <span className="text-gray-600 font-medium">Label ID: </span>
+                                <span className="font-semibold text-gray-900">{shipment.label_id}</span>
+                            </div>
+                        }
                         <div>
                             <span className="text-gray-600 font-medium">Tracking Number: </span>
                             <span className="font-semibold text-gray-900">{shipment.tracking_numbers}</span>
@@ -204,7 +206,7 @@ const LabelAndInvoiceInformation = ({
                         {(shipment.label_status === "created" || shipment.label_status === "cancelled") && label_created_data}
                         {shipment.label_status === "failed" && label_failed_data}
                     </>
-                }                
+                }
             </Card>
         </>
     );
