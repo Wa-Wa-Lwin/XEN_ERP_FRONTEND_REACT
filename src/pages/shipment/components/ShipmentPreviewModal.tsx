@@ -201,7 +201,7 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
           
           <b>Shipping Options - </b> {
               shippingOptions === 'calculate_rates' ? 'Calculate Rates' :
-              shippingOptions === 'grab_pickup' ? 'Grab Pickup' :
+              shippingOptions === 'grab_pickup' ? `Grab Pickup - ${formData?.grab_rate_amount || 'Not specified'} ${formData?.grab_rate_currency || ''}` :
               shippingOptions === 'supplier_pickup' ? 'Supplier Pickup' :
               'Not specified'
             } <br />

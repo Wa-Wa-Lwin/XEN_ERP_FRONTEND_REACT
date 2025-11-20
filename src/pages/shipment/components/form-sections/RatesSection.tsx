@@ -58,10 +58,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   const [ratesError, setRatesError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
 
-  // Watch Grab rate fields from form
-  const grabRateAmount = watch ? watch('grab_rate_amount') : ''
-  const grabRateCurrency = watch ? watch('grab_rate_currency') : 'THB'
-
   // Inside RatesSection component, add sorting state
   const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>('thb')
   const [sortAsc, setSortAsc] = useState(true)
