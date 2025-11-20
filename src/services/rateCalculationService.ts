@@ -336,17 +336,91 @@ const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[]): nu
 }
 
 /**
- * Calculate total charge weight from parcels
+ * Calculate volumetric weight for a parcel
+ * Formula: (width × length × height in cm) / 5000
+ * @param width - Width value
+ * @param height - Height value
+ * @param depth - Depth/Length value
+ * @param dimensionUnit - Unit of dimensions (cm or in)
+ * @returns Volumetric weight in kg
+ */
+const calculateVolumetricWeight = (
+  width: number | string,
+  height: number | string,
+  depth: number | string,
+  dimensionUnit: string
+): number => {
+  let widthCm = parseFloat(String(width)) || 0
+  let heightCm = parseFloat(String(height)) || 0
+  let depthCm = parseFloat(String(depth)) || 0
+
+  // Convert to cm if dimensions are in inches
+  if (dimensionUnit.toLowerCase() === 'in') {
+    widthCm = widthCm * 2.54
+    heightCm = heightCm * 2.54
+    depthCm = depthCm * 2.54
+  }
+
+  // Calculate volumetric weight: (width × length × height) / 5000
+  const volumetricWeightKg = (widthCm * heightCm * depthCm) / 5000
+
+  return volumetricWeightKg
+}
+
+/**
+ * Convert weight to kg
+ * @param weight - Weight value
+ * @param weightUnit - Unit of weight (kg or lb)
+ * @returns Weight in kg
+ */
+const convertWeightToKg = (weight: number | string, weightUnit: string): number => {
+  let weightKg = parseFloat(String(weight)) || 0
+
+  // Convert to kg if weight is in pounds
+  if (weightUnit.toLowerCase() === 'lb') {
+    weightKg = weightKg * 0.453592
+  }
+
+  return weightKg
+}
+
+/**
+ * Calculate total charge weight from parcels for DHL eCommerce
+ * Every parcel is charged based on the greater of the actual weight or the volumetric weight
+ * (calculated as width × length × height in centimeters divided by 5,000).
+ * The greater weight will be used to calculate the service charge.
  */
 const calculateChargeWeightThailandDomesticRate = (formData: RateCalculationFormData): number => {
   if (!formData.parcels || formData.parcels.length === 0) {
     return 1 // Default to 1kg if no parcels
   }
 
-  return formData.parcels.reduce((total, parcel) => {
-    const weight = parseFloat(String(parcel.weight_value)) || 0
-    return total + weight
-  }, 0) || 1 // Default to 1kg if total is 0
+  const totalChargeWeight = formData.parcels.reduce((total, parcel) => {
+    // Calculate actual weight in kg
+    const actualWeightKg = convertWeightToKg(parcel.weight_value, parcel.weight_unit)
+
+    // Calculate volumetric weight in kg
+    const volumetricWeightKg = calculateVolumetricWeight(
+      parcel.width,
+      parcel.height,
+      parcel.depth,
+      parcel.dimension_unit
+    )
+
+    // Take the larger of actual weight or volumetric weight
+    const chargeWeight = Math.max(actualWeightKg, volumetricWeightKg)
+
+    console.log(`Parcel charge weight calculation:`, {
+      actualWeight: `${actualWeightKg.toFixed(2)} kg`,
+      volumetricWeight: `${volumetricWeightKg.toFixed(2)} kg`,
+      chargeWeight: `${chargeWeight.toFixed(2)} kg (using ${chargeWeight === actualWeightKg ? 'actual' : 'volumetric'})`,
+      dimensions: `${parcel.width}×${parcel.height}×${parcel.depth} ${parcel.dimension_unit}`
+    })
+
+    return total + chargeWeight
+  }, 0)
+
+  return totalChargeWeight || 1 // Default to 1kg if total is 0
 }
 
 /**
