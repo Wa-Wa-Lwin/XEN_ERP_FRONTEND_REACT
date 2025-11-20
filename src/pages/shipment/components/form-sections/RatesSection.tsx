@@ -54,7 +54,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   })
 
   // State for manual Grab rate
-  const [manualGrabRate, setManualGrabRate] = useState<RateResponse | null>(null)
   const [isLoadingRates, setIsLoadingRates] = useState(false)
   const [ratesError, setRatesError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -319,43 +318,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     }
   }, [rates, serviceOption, exchangeRates, selectedRateId, onSelectRate])
 
-  // Auto-create and select Grab rate when amount is entered
-  useEffect(() => {
-    if (serviceOption === 'Grab' && grabRateAmount && parseFloat(grabRateAmount) > 0) {
-      const newGrabRate: RateResponse = {
-        shipper_account: {
-          id: "fb842bff60154a2f8c84584a74d0cf69",
-          slug: "dhl-global-mail-asia",
-          description: "Grab"
-        },
-        service_type: "dhl-global-mail-asia_parcel_domestic",
-        service_name: "Grab Delivery",
-        pickup_deadline: null,
-        booking_cut_off: null,
-        delivery_date: null,
-        transit_time: null,
-        error_message: null,
-        info_message: "Manual rate entry for Grab delivery",
-        charge_weight: null,
-        total_charge: {
-          amount: parseFloat(grabRateAmount),
-          currency: grabRateCurrency
-        },
-        detailed_charges: []
-      }
-
-      // Store the manual Grab rate
-      setManualGrabRate(newGrabRate)
-
-      // Auto-select this rate
-      const rateId = getRateUniqueId(newGrabRate, 0)
-      onSelectRate(rateId)
-    } else if (serviceOption !== 'Grab' && manualGrabRate) {
-      // Clear manual Grab rate if service option changes away from Grab
-      setManualGrabRate(null)
-    }
-  }, [serviceOption, grabRateAmount, grabRateCurrency, onSelectRate, manualGrabRate])
-
   // Count carriers from available rates
   const carrierCounts = useMemo(() => {
     const availableRates = getAvailableUniqueRates(rates)
@@ -381,9 +343,6 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   const sortedRates = useMemo(() => {
     // Combine API rates with manual Grab rate if it exists
     let allRates = [...rates]
-    if (manualGrabRate && serviceOption === 'Grab') {
-      allRates = [manualGrabRate, ...rates]
-    }
 
     let ratesToSort = getAvailableUniqueRates(allRates).map(rate => ({
       ...rate,
@@ -417,7 +376,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       })
     }
     return ratesToSort
-  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier, manualGrabRate])
+  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier])
 
   return (
     <>
@@ -575,20 +534,20 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
         <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
           <div className="flex flex-col">
-            {serviceOption !== 'Grab' && ratesError && (
+            {ratesError && (
               <p className="text-red-500 text-sm mt-1">
                 <Icon icon="solar:info-circle-bold" className="inline mr-1" />
                 {ratesError} - Using fallback rates
               </p>
             )}
-            {serviceOption !== 'Grab' && lastUpdated && !ratesError && (
+            {lastUpdated && !ratesError && (
               <p className="text-gray-500 text-xs mt-1">
                 <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
                 Exchange rates updated: {lastUpdated}
               </p>
             )}
           </div>
-          {serviceOption !== 'Grab' && (
+          {(
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -619,7 +578,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         </CardHeader>
 
         <CardBody className="px-0 pt-0 pb-0">
-          {rates.length === 0 && serviceOption !== 'Grab' ? (
+          {rates.length === 0 ? (
             <div className="text-center py-8">
               {rateCalculationError ? (
                 <div className="flex flex-col items-center gap-4">
@@ -663,8 +622,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 </div>
               )}
             </div>
-          ) : serviceOption !== 'Grab' ? (
-            <>
+          ) : <>
               {/* Carrier Filter Tabs */}
               <Tabs
                 aria-label="Carrier filter"
@@ -764,9 +722,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   </div>
                 </div>
               )}
-            </>
-          ) : null}
-          {serviceOption !== 'Grab' && (rates.length > 0) && (
+            </>}
+          {rates.length > 0 && (
             <>
               <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
                 <TableHeader>
