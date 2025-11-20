@@ -377,7 +377,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   return (
     <>
       {/* Shipping Options Radio */}
-      <div className="mb-4 p-4 rounded-none">
+      <div className="p-4 rounded-none">
         <Controller
           name="shipping_options"
           control={control}
@@ -526,99 +526,160 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
       {watch && watch('shipping_options') === 'calculate_rates' && (
         <Card shadow="none" className="rounded-none">
-
-        {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
-        <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
-          <div className="flex flex-col">
-            {ratesError && (
-              <p className="text-red-500 text-sm mt-1">
-                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
-                {ratesError} - Using fallback rates
-              </p>
-            )}
-            {lastUpdated && !ratesError && (
-              <p className="text-gray-500 text-xs mt-1">
-                <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
-                Exchange rates updated: {lastUpdated}
-              </p>
-            )}
-          </div>
-          {(
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="light"
-                size="sm"
-                startContent={<Icon icon="solar:refresh-bold" />}
-                onPress={() => fetchExchangeRates(true)}
-                isLoading={isLoadingRates}
-                disabled={isLoadingRates}
-                title="Force refresh exchange rates"
-                className='hidden'
-              >
-                {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
-              </Button>
-              <Button
-                type="button"
-                color="primary"
-                size="sm"
-                startContent={<Icon icon="solar:calculator-bold" />}
-                onPress={onCalculateRates}
-                isLoading={isCalculating}
-                disabled={isCalculating}
-              >
-                {isCalculating ? 'Calculating...' : 'Calculate Rates'}
-              </Button>
+          {/* Billing Section - Show only after rates are calculated and displayed */}
+          <div className="p-2 bg-gray-20 border-gray-200">
+            <div className="flex items-start gap-2 mb-3">
+              <Icon icon="solar:wallet-bold" className="text-blue-600 text-xl mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-blue-800 text-sm">
+                  Billing Information
+                </h3>
+                <p className="text-blue-700 text-xs">
+                  Specify who will be billed for this shipment
+                </p>
+              </div>
             </div>
-          )}
-        </CardHeader>
-
-        <CardBody className="px-0 pt-0 pb-0">
-          {rates.length === 0 ? (
-            <div className="text-center py-8">
-              {rateCalculationError ? (
-                <div className="flex flex-col items-center gap-4">
-                  <Icon icon="solar:danger-circle-bold" className="text-6xl text-red-500 mb-2" />
-                  <div className="max-w-2xl">
-                    <h3 className="text-xl font-bold text-red-600 mb-2">
-                      Rate Calculation Failed
-                    </h3>
-                    <p className="text-red-500 mb-4">
-                      {rateCalculationError.message}
-                    </p>
-                    {rateCalculationError.details && rateCalculationError.details.length > 0 && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
-                        <h4 className="font-semibold text-red-700 mb-2">Validation Errors:</h4>
-                        <ul className="list-disc list-inside space-y-1">
-                          {rateCalculationError.details.map((detail, index) => (
-                            <li key={index} className="text-red-600 text-sm">
-                              <span className="font-medium">{detail.path}:</span> {detail.info}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Controller
+                name="billing"
+                control={control}
+                defaultValue="shipper"
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    label="Billing Party"
+                    placeholder="Select billing party"
+                    selectedKeys={field.value ? [field.value] : ['shipper']}
+                    onSelectionChange={(keys) => {
+                      const selectedKey = Array.from(keys)[0] as string
+                      if (selectedKey) field.onChange(selectedKey)
+                    }}
+                    isRequired
+                  >
+                    <SelectItem key="shipper" value="shipper">
+                      Shipper
+                    </SelectItem>
+                    {/* <SelectItem key="third_party" value="third_party">
+                      Third Party
+                    </SelectItem> */}
+                    <SelectItem key="recipient" value="recipient">
+                      Recipient
+                    </SelectItem>
+                  </Select>
+                )}
+              />
+              {/* Show recipient fields only when billing is "recipient" */}
+              {watch && watch('billing') === 'recipient' && (
+                <>
+                  <Controller
+                    name="recipient_shipper_account_number"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        label="Recipient Account Number"
+                        placeholder="Enter account number"
+                        isRequired={watch('billing') === 'recipient'}
+                      />
                     )}
-                    <Button
-                      type="button"
-                      color="danger"
-                      variant="flat"
-                      size="sm"
-                      className="mt-4"
-                      startContent={<Icon icon="solar:refresh-bold" />}
-                      onPress={onCalculateRates}
-                    >
-                      Try Again
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-gray-500">
-                  <Icon icon="solar:calculator-bold" className="text-4xl mb-2 mx-auto" />
-                  <p>No rates calculated yet. Click "Calculate Rates" to get shipping quotes.</p>
-                </div>
+                  />
+                </>
               )}
             </div>
-          ) : <>
+          </div>
+
+          {/* <Card shadow="none" className="py-0 px-4 m-0"> */}
+          <CardHeader className="px-0 pt-0 pb-0 flex-row items-center justify-left gap-3 w-full">
+            <div className="flex flex-col">
+              {ratesError && (
+                <p className="text-red-500 text-sm mt-1">
+                  <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+                  {ratesError} - Using fallback rates
+                </p>
+              )}
+              {lastUpdated && !ratesError && (
+                <p className="text-gray-500 text-xs mt-1">
+                  <Icon icon="solar:clock-circle-bold" className="inline mr-1" />
+                  Exchange rates updated: {lastUpdated}
+                </p>
+              )}
+            </div>
+            {(
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="light"
+                  size="sm"
+                  startContent={<Icon icon="solar:refresh-bold" />}
+                  onPress={() => fetchExchangeRates(true)}
+                  isLoading={isLoadingRates}
+                  disabled={isLoadingRates}
+                  title="Force refresh exchange rates"
+                  className='hidden'
+                >
+                  {isLoadingRates ? 'Updating...' : 'Refresh Rates'}
+                </Button>
+                <Button
+                  type="button"
+                  color="primary"
+                  size="sm"
+                  startContent={<Icon icon="solar:calculator-bold" />}
+                  onPress={onCalculateRates}
+                  isLoading={isCalculating}
+                  disabled={isCalculating}
+                >
+                  {isCalculating ? 'Calculating...' : 'Calculate Rates'}
+                </Button>
+              </div>
+            )}
+          </CardHeader>
+
+          <CardBody className="px-0 pt-0 pb-0">
+            {rates.length === 0 ? (
+              <div className="text-center py-8">
+                {rateCalculationError ? (
+                  <div className="flex flex-col items-center gap-4">
+                    <Icon icon="solar:danger-circle-bold" className="text-6xl text-red-500 mb-2" />
+                    <div className="max-w-2xl">
+                      <h3 className="text-xl font-bold text-red-600 mb-2">
+                        Rate Calculation Failed
+                      </h3>
+                      <p className="text-red-500 mb-4">
+                        {rateCalculationError.message}
+                      </p>
+                      {rateCalculationError.details && rateCalculationError.details.length > 0 && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
+                          <h4 className="font-semibold text-red-700 mb-2">Validation Errors:</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            {rateCalculationError.details.map((detail, index) => (
+                              <li key={index} className="text-red-600 text-sm">
+                                <span className="font-medium">{detail.path}:</span> {detail.info}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      <Button
+                        type="button"
+                        color="danger"
+                        variant="flat"
+                        size="sm"
+                        className="mt-4"
+                        startContent={<Icon icon="solar:refresh-bold" />}
+                        onPress={onCalculateRates}
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-500">
+                    <Icon icon="solar:calculator-bold" className="text-4xl mb-2 mx-auto" />
+                    <p>No rates calculated yet. Click "Calculate Rates" to get shipping quotes.</p>
+                  </div>
+                )}
+              </div>
+            ) : <>
               {/* Carrier Filter Tabs */}
               <Tabs
                 aria-label="Carrier filter"
@@ -719,216 +780,139 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 </div>
               )}
             </>}
-          {rates.length > 0 && (
-            <>
-              <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
-                <TableHeader>
-                  <TableColumn>Select</TableColumn>
-                  <TableColumn>Carrier</TableColumn>
-                  <TableColumn>Service</TableColumn>
-                  <TableColumn className="text-right flex items-center gap-1">
-                    Total Charge(Estimated THB)
-                    {/* Estimated THB */}
-                    <Button
-                      className="h-5 w-5 min-w-0"
-                      variant="light"
-                      isIconOnly
-                      onPress={() => {
-                        if (sortBy === 'thb') setSortAsc(!sortAsc)
-                        else { setSortBy('thb'); setSortAsc(true) }
-                      }}
-                    >
-                      <Icon
-                        icon={sortBy === 'thb'
-                          ? sortAsc
-                            ? "solar:arrow-up-bold"   // lowest → highest
-                            : "solar:arrow-down-bold" // highest → lowest
-                          : "solar:arrow-up-bold" // default when not sorting by THB
-                        }
-                        className="w-3 h-3"
-                      />
-                    </Button>
-                  </TableColumn>
-                  {/* <TableColumn className="text-right">Total Charge</TableColumn> */}
-                  <TableColumn className="text-right">Charge Weight (kg)</TableColumn>
-                  {/* <TableColumn>Transit Time</TableColumn> */}
-                  <TableColumn className="flex items-center gap-1">
-                    Transit Time
-                    <Button
-                      className="h-5 w-5 min-w-0"
-                      variant="light"
-                      isIconOnly
-                      onPress={() => {
-                        if (sortBy === 'transit') setSortAsc(!sortAsc)
-                        else { setSortBy('transit'); setSortAsc(true) }
-                      }}
-                    >
-                      <Icon
-                        icon={sortBy === 'transit'
-                          ? sortAsc
-                            ? "solar:arrow-up-bold"
-                            : "solar:arrow-down-bold"
-                          : "solar:arrow-up-bold"
-                        }
-                        className="w-3 h-3"
-                      />
-                    </Button>
-                  </TableColumn>
-                  <TableColumn>Delivery Date</TableColumn>
-                  <TableColumn>Pickup Deadline</TableColumn>
-                  <TableColumn>Booking Cutoff</TableColumn>
-                </TableHeader>
-                <TableBody emptyContent={
-                  getErrorRates(rates).length > 0
-                    ? "No valid rates available. Please review the error messages above and correct the validation issues."
-                    : "No available rates found. Check or change your pick up date or expected delivery date or weight."
-                }>
-                  {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
-                  {sortedRates.map((rate, index) => {
-                    const rateUniqueId = getRateUniqueId(rate, index)
-                    const isSelected = selectedRateId === rateUniqueId
-                    return (
-                      <TableRow
-                        key={rateUniqueId}
-                        className={isSelected ? 'bg-green-50 border-green-200' : ''}
+            {rates.length > 0 && (
+              <>
+                <Table aria-label="Shipping Rates" removeWrapper className="min-w-full">
+                  <TableHeader>
+                    <TableColumn>Select</TableColumn>
+                    <TableColumn>Carrier</TableColumn>
+                    <TableColumn>Service</TableColumn>
+                    <TableColumn className="text-right flex items-center gap-1">
+                      Total Charge(Estimated THB)
+                      {/* Estimated THB */}
+                      <Button
+                        className="h-5 w-5 min-w-0"
+                        variant="light"
+                        isIconOnly
+                        onPress={() => {
+                          if (sortBy === 'thb') setSortAsc(!sortAsc)
+                          else { setSortBy('thb'); setSortAsc(true) }
+                        }}
                       >
-                        <TableCell>
-                          {isSelected ? (
-                            <Button
-                              size="sm"
-                              color="success"
-                              variant="solid"
-                              disabled
-                              startContent={<Icon icon="solar:check-circle-bold" />}
-                            >
-                              {serviceOption === 'Normal' ? 'Cheapest' : 'Selected'}
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              color="primary"
-                              variant="flat"
-                              onPress={() => {
-                                onSelectRate(rateUniqueId)
-                              }}
-                              disabled={!!rate.error_message || !rate.total_charge?.amount}
-                              startContent={<Icon icon="solar:check-circle-line-duotone" />}
-                            >
-                              Select
-                            </Button>
-                          )}
-                        </TableCell>
-                        <TableCell>{rate.shipper_account.description}</TableCell>
-                        <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
-                        <TableCell className="text-right">
-                          {convertToTHB(
-                            rate.total_charge?.amount ?? null,
-                            rate.total_charge?.currency ?? null
-                          )} THB
-                        </TableCell>
-                        {/* <TableCell className="text-right">
+                        <Icon
+                          icon={sortBy === 'thb'
+                            ? sortAsc
+                              ? "solar:arrow-up-bold"   // lowest → highest
+                              : "solar:arrow-down-bold" // highest → lowest
+                            : "solar:arrow-up-bold" // default when not sorting by THB
+                          }
+                          className="w-3 h-3"
+                        />
+                      </Button>
+                    </TableColumn>
+                    {/* <TableColumn className="text-right">Total Charge</TableColumn> */}
+                    <TableColumn className="text-right">Charge Weight (kg)</TableColumn>
+                    {/* <TableColumn>Transit Time</TableColumn> */}
+                    <TableColumn className="flex items-center gap-1">
+                      Transit Time
+                      <Button
+                        className="h-5 w-5 min-w-0"
+                        variant="light"
+                        isIconOnly
+                        onPress={() => {
+                          if (sortBy === 'transit') setSortAsc(!sortAsc)
+                          else { setSortBy('transit'); setSortAsc(true) }
+                        }}
+                      >
+                        <Icon
+                          icon={sortBy === 'transit'
+                            ? sortAsc
+                              ? "solar:arrow-up-bold"
+                              : "solar:arrow-down-bold"
+                            : "solar:arrow-up-bold"
+                          }
+                          className="w-3 h-3"
+                        />
+                      </Button>
+                    </TableColumn>
+                    <TableColumn>Delivery Date</TableColumn>
+                    <TableColumn>Pickup Deadline</TableColumn>
+                    <TableColumn>Booking Cutoff</TableColumn>
+                  </TableHeader>
+                  <TableBody emptyContent={
+                    getErrorRates(rates).length > 0
+                      ? "No valid rates available. Please review the error messages above and correct the validation issues."
+                      : "No available rates found. Check or change your pick up date or expected delivery date or weight."
+                  }>
+                    {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
+                    {sortedRates.map((rate, index) => {
+                      const rateUniqueId = getRateUniqueId(rate, index)
+                      const isSelected = selectedRateId === rateUniqueId
+                      return (
+                        <TableRow
+                          key={rateUniqueId}
+                          className={isSelected ? 'bg-green-50 border-green-200' : ''}
+                        >
+                          <TableCell>
+                            {isSelected ? (
+                              <Button
+                                size="sm"
+                                color="success"
+                                variant="solid"
+                                disabled
+                                startContent={<Icon icon="solar:check-circle-bold" />}
+                              >
+                                {serviceOption === 'Normal' ? 'Cheapest' : 'Selected'}
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                color="primary"
+                                variant="flat"
+                                onPress={() => {
+                                  onSelectRate(rateUniqueId)
+                                }}
+                                disabled={!!rate.error_message || !rate.total_charge?.amount}
+                                startContent={<Icon icon="solar:check-circle-line-duotone" />}
+                              >
+                                Select
+                              </Button>
+                            )}
+                          </TableCell>
+                          <TableCell>{rate.shipper_account.description}</TableCell>
+                          <TableCell>{rate.service_name || rate.service_type || '-'}</TableCell>
+                          <TableCell className="text-right">
+                            {convertToTHB(
+                              rate.total_charge?.amount ?? null,
+                              rate.total_charge?.currency ?? null
+                            )} THB
+                          </TableCell>
+                          {/* <TableCell className="text-right">
                           {formatCurrency(
                             rate.total_charge?.amount ?? null,
                             rate.total_charge?.currency ?? null
                           )}
                         </TableCell> */}
-                        <TableCell className="text-right">
-                          {convertWeightToKg(rate.charge_weight)}
-                        </TableCell>
-                        <TableCell>
-                          {rate.shipper_account.description === 'DHL eCommerce Asia' || rate.shipper_account.description === 'FedEx Domestic Thailand'
-                            ? '1-3(Working) day(s)'
-                            : rate.transit_time ? `${rate.transit_time} day(s)` : '-'}
-                        </TableCell>
-                        <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
-                        <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
-                        <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </>
-          )}
-        </CardBody>
-        {/* Billing Section - Show only after rates are calculated and displayed */}
-        {sortedRates.length > 0 && (
-          <div className="mt-2 p-4 bg-gray-20 border-t border-gray-200">
-            <div className="flex items-start gap-2 mb-3">
-              <Icon icon="solar:wallet-bold" className="text-blue-600 text-xl mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-blue-800 text-sm">
-                  Billing Information
-                </h3>
-                <p className="text-blue-700 text-xs">
-                  Specify who will be billed for this shipment
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Controller
-                name="billing"
-                control={control}
-                defaultValue="shipper"
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    label="Billing Party"
-                    placeholder="Select billing party"
-                    selectedKeys={field.value ? [field.value] : ['shipper']}
-                    onSelectionChange={(keys) => {
-                      const selectedKey = Array.from(keys)[0] as string
-                      if (selectedKey) field.onChange(selectedKey)
-                    }}
-                    isRequired
-                  >
-                    <SelectItem key="shipper" value="shipper">
-                      Shipper
-                    </SelectItem>
-                    {/* <SelectItem key="third_party" value="third_party">
-                      Third Party
-                    </SelectItem> */}
-                    <SelectItem key="recipient" value="recipient">
-                      Recipient
-                    </SelectItem>
-                  </Select>
-                )}
-              />
-              {/* Show recipient fields only when billing is "recipient" */}
-              {watch && watch('billing') === 'recipient' && (
-                <>
-                  <Controller
-                    name="recipient_shipper_account_number"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Recipient Account Number"
-                        placeholder="Enter account number"
-                        isRequired={watch('billing') === 'recipient'}
-                      />
-                    )}
-                  />
-                  {/* <Controller
-                    name="recipient_shipper_account_country_code"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Country Code"
-                        placeholder="e.g., US, TH"
-                        maxLength={10}
-                        isRequired={watch('billing') === 'recipient'}
-                      />
-                    )}
-                  /> */}
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-      </Card>
+                          <TableCell className="text-right">
+                            {convertWeightToKg(rate.charge_weight)}
+                          </TableCell>
+                          <TableCell>
+                            {rate.shipper_account.description === 'DHL eCommerce Asia' || rate.shipper_account.description === 'FedEx Domestic Thailand'
+                              ? '1-3(Working) day(s)'
+                              : rate.transit_time ? `${rate.transit_time} day(s)` : '-'}
+                          </TableCell>
+                          <TableCell>{formatDateTime(rate.delivery_date)}</TableCell>
+                          <TableCell>{formatDateTime(rate.pickup_deadline) || '-'}</TableCell>
+                          <TableCell>{formatDateTime(rate.booking_cut_off) || '-'}</TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </>
+            )}
+          </CardBody>
+        </Card>
       )}
     </>
   )
