@@ -59,4 +59,26 @@ When logged in as the warehouse test user, you'll see:
 - **Blue notification banner** (instead of the yellow warning shown to other users without database data)
 - **Message**: "This is testing purpose for Warehouse Dashboard"
 - **Icon**: Test tube icon indicating this is a test/demo account
-- **Access**: Restricted to Warehouse page only
+- **Access**: Restricted to Warehouse page and Packing Slip view only
+
+## Features Available
+
+### Warehouse Dashboard
+- View approved shipments with created labels
+- Filter by "All" or "Upcoming" shipments
+- Pagination controls
+- View shipment details
+
+### Actions
+- **View Label**: Opens shipping label in new tab
+- **View Packing Slip**: Navigate to frontend-generated packing slip page with print/download capability
+- **Shipment Details**: Click any row to view detailed shipment information
+
+## Allowed Routes for Warehouse Users
+
+Warehouse-only users can access:
+- `/warehouse` - Warehouse dashboard (main page)
+- `/warehouse/:id` - Shipment detail view
+- `/shipment/packing-slip/:id` - Packing slip view (can print/download as PDF)
+
+All other routes will redirect to `/warehouse`

@@ -29,9 +29,13 @@ export default function Component() {
     // Redirect warehouse-only users to warehouse page on initial load
     useEffect(() => {
         if (msLoginUser?.email && isWarehouseOnlyUser(msLoginUser.email)) {
-            // Check if we're at the root or a non-warehouse page
+            // Allowed paths for warehouse users
+            const allowedPaths = ['/warehouse', '/shipment/packing-slip'];
+            const isAllowedPath = allowedPaths.some(path => location.pathname.includes(path));
+
+            // Check if we're at the root or a non-allowed page
             if (location.pathname === '/' || location.pathname === '/xeno-shipment' ||
-                (!location.pathname.includes('/warehouse') && location.pathname !== '/login')) {
+                (!isAllowedPath && location.pathname !== '/login')) {
                 navigate('/warehouse', { replace: true });
             }
         }

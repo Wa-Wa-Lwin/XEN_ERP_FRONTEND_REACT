@@ -14,8 +14,12 @@ const WarehouseOnlyRoute: React.FC<WarehouseOnlyRouteProps> = ({ children }) => 
   // Check if the current user is a warehouse-only user
   const isWarehouseOnly = isWarehouseOnlyUser(msLoginUser?.email);
 
-  // If warehouse-only user tries to access non-warehouse routes, redirect to warehouse
-  if (isWarehouseOnly && !location.pathname.includes('/warehouse')) {
+  // Allow warehouse users to access warehouse routes and packing slip
+  const allowedPaths = ['/warehouse', '/shipment/packing-slip'];
+  const isAllowedPath = allowedPaths.some(path => location.pathname.includes(path));
+
+  // If warehouse-only user tries to access non-allowed routes, redirect to warehouse
+  if (isWarehouseOnly && !isAllowedPath) {
     return <Navigate to="/warehouse" replace />;
   }
 

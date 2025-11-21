@@ -78,7 +78,7 @@ export const routes = [
             handle: { breadcrumb: "Invoice" }
           },
           { path: "packing-slip/:shipmentId",
-            element: <WarehouseOnlyRoute><PackingSlipView /></WarehouseOnlyRoute>,
+            element: <PackingSlipView />,
             handle: { breadcrumb: "Packing Slip" }
           },
         ]
