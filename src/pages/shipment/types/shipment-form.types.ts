@@ -157,6 +157,7 @@ export interface ShipmentFormData {
 
   // Billing
   billing?: string
+  recipient_carrier?: string
   recipient_shipper_account_number?: string
   recipient_shipper_account_country_code?: string
 

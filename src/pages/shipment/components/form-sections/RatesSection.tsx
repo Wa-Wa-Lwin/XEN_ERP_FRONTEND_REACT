@@ -292,7 +292,39 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   const getErrorRates = (rates: RateResponse[]) => {
     // Only return rates with actual errors, not just info messages
-    return rates.filter(rate => rate.error_message)
+    let errorRates = rates.filter(rate => rate.error_message)
+
+    // Filter by recipient carrier if billing is recipient
+    const billingParty = watch ? watch('billing') : null
+    const recipientCarrier = watch ? watch('recipient_carrier') : null
+
+    if (billingParty === 'recipient' && recipientCarrier) {
+      // When billing is recipient, only show errors from the selected carrier
+      errorRates = errorRates.filter(rate => {
+        const slug = rate.shipper_account.slug.toLowerCase()
+
+        // If DHL is selected, include both 'dhl' and 'dhl-global-mail-asia'
+        if (recipientCarrier.toLowerCase() === 'dhl') {
+          return slug === 'dhl' || slug === 'dhl-global-mail-asia'
+        }
+
+        return slug === recipientCarrier.toLowerCase()
+      })
+    } else if (selectedCarrier !== 'all') {
+      // When billing is shipper, filter by the selected carrier tab (unless "All" is selected)
+      errorRates = errorRates.filter(rate => {
+        const slug = rate.shipper_account.slug.toLowerCase()
+
+        // If DHL is selected, include both 'dhl' and 'dhl-global-mail-asia'
+        if (selectedCarrier.toLowerCase() === 'dhl') {
+          return slug === 'dhl' || slug === 'dhl-global-mail-asia'
+        }
+
+        return slug === selectedCarrier.toLowerCase()
+      })
+    }
+
+    return errorRates
   }
 
   // Generate unique rate ID for selection using the shared function from rateCalculationService
@@ -347,8 +379,23 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
         : 0
     }))
 
-    // Filter by carrier
-    if (selectedCarrier !== 'all') {
+    // Filter by recipient carrier if billing is recipient
+    const billingParty = watch ? watch('billing') : null
+    const recipientCarrier = watch ? watch('recipient_carrier') : null
+
+    if (billingParty === 'recipient' && recipientCarrier) {
+      ratesToSort = ratesToSort.filter(rate => {
+        const slug = rate.shipper_account.slug.toLowerCase()
+
+        // If DHL is selected, include both 'dhl' and 'dhl-global-mail-asia'
+        if (recipientCarrier.toLowerCase() === 'dhl') {
+          return slug === 'dhl' || slug === 'dhl-global-mail-asia'
+        }
+
+        return slug === recipientCarrier.toLowerCase()
+      })
+    } else if (selectedCarrier !== 'all') {
+      // Filter by carrier tabs if not filtering by recipient carrier
       ratesToSort = ratesToSort.filter(rate => {
         const slug = rate.shipper_account.slug.toLowerCase()
 
@@ -372,7 +419,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       })
     }
     return ratesToSort
-  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier])
+  }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier, watch])
 
   return (
     <>
@@ -572,6 +619,33 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               {watch && watch('billing') === 'recipient' && (
                 <>
                   <Controller
+                    name="recipient_carrier"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        label="Select Carrier"
+                        placeholder="Choose carrier"
+                        selectedKeys={field.value ? [field.value] : []}
+                        onSelectionChange={(keys) => {
+                          const selectedKey = Array.from(keys)[0] as string
+                          field.onChange(selectedKey || '')
+                        }}
+                        isRequired={watch('billing') === 'recipient'}
+                      >
+                        <SelectItem key="dhl" value="dhl">
+                          DHL
+                        </SelectItem>
+                        <SelectItem key="fedex" value="fedex">
+                          FedEx
+                        </SelectItem>
+                        <SelectItem key="ups" value="ups">
+                          UPS
+                        </SelectItem>
+                      </Select>
+                    )}
+                  />
+                  <Controller
                     name="recipient_shipper_account_number"
                     control={control}
                     render={({ field }) => (
@@ -634,7 +708,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
             )}
           </CardHeader>
 
-          <CardBody className="px-0 pt-0 pb-0">
+          <CardBody className="px-0 pt-2 pb-0">
             {rates.length === 0 ? (
               <div className="text-center py-8">
                 {rateCalculationError ? (
@@ -680,71 +754,73 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                 )}
               </div>
             ) : <>
-              {/* Carrier Filter Tabs */}
-              <Tabs
-                aria-label="Carrier filter"
-                selectedKey={selectedCarrier}
-                onSelectionChange={(key) => setSelectedCarrier(key as string)}
-                className="mb-4"
-                color="primary"
-                variant="underlined"
-              >
-                <Tab
-                  key="all"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <span>All</span>
-                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                        {carrierCounts.all || 0}
-                      </span>
-                    </div>
-                  }
-                />
-                <Tab
-                  key="fedex"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <span>FedEx</span>
-                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                        {carrierCounts.fedex || 0}
-                      </span>
-                    </div>
-                  }
-                />
-                <Tab
-                  key="dhl"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <span>DHL</span>
-                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                        {carrierCounts.dhl || 0}
-                      </span>
-                    </div>
-                  }
-                />
-                <Tab
-                  key="ups"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <span>UPS</span>
-                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                        {carrierCounts.ups || 0}
-                      </span>
-                    </div>
-                  }
-                />
-                <Tab
-                  key="tnt"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <span>TNT</span>
-                      <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                        {carrierCounts.tnt || 0}
-                      </span>
-                    </div>
-                  }
-                />
-              </Tabs>
+              {/* Carrier Filter Tabs - Hide when billing is recipient with selected carrier */}
+              {!(watch && watch('billing') === 'recipient' && watch('recipient_carrier')) && (
+                <Tabs
+                  aria-label="Carrier filter"
+                  selectedKey={selectedCarrier}
+                  onSelectionChange={(key) => setSelectedCarrier(key as string)}
+                  className="mb-4"
+                  color="primary"
+                  variant="underlined"
+                >
+                  <Tab
+                    key="all"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <span>All</span>
+                        <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                          {carrierCounts.all || 0}
+                        </span>
+                      </div>
+                    }
+                  />
+                  <Tab
+                    key="fedex"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <span>FedEx</span>
+                        <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                          {carrierCounts.fedex || 0}
+                        </span>
+                      </div>
+                    }
+                  />
+                  <Tab
+                    key="dhl"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <span>DHL</span>
+                        <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                          {carrierCounts.dhl || 0}
+                        </span>
+                      </div>
+                    }
+                  />
+                  <Tab
+                    key="ups"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <span>UPS</span>
+                        <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                          {carrierCounts.ups || 0}
+                        </span>
+                      </div>
+                    }
+                  />
+                  <Tab
+                    key="tnt"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <span>TNT</span>
+                        <span className="text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
+                          {carrierCounts.tnt || 0}
+                        </span>
+                      </div>
+                    }
+                  />
+                </Tabs>
+              )}
 
               {/* Error Rates Section - Only show when no available rates */}
               {sortedRates.length === 0 && getErrorRates(rates).length > 0 && (
@@ -842,7 +918,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   <TableBody emptyContent={
                     getErrorRates(rates).length > 0
                       ? "No valid rates available. Please review the error messages above and correct the validation issues."
-                      : "No available rates found. Check or change your pick up date or expected delivery date or weight."
+                      : "No available rates found. Check or change the Carrier or your pick up date or expected delivery date or weight."
                   }>
                     {/* {getAvailableUniqueRates(rates).map((rate, index) => { */}
                     {sortedRates.map((rate, index) => {

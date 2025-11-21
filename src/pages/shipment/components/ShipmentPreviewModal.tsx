@@ -241,8 +241,8 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
                 <b>Billing Party - </b> {formData.billing === 'shipper' ? 'Shipper' : formData.billing === 'third_party' ? 'Third Party' : 'Recipient'} <br />
                 {formData.billing === 'recipient' && (
                   <>
+                    <b>Carrier - </b> {formData.recipient_carrier?.toUpperCase() || 'Not specified'} <br />
                     <b>Recipient Account Number - </b> {formData.recipient_shipper_account_number || 'Not specified'} <br />
-                    <b>Country Code - </b> {formData.recipient_shipper_account_country_code || 'Not specified'} <br />
                   </>
                 )}
               </p>
