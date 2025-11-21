@@ -28,6 +28,24 @@ export default function Component() {
     }
     setLoading(true);
     try {
+      // Check for hardcoded warehouse test user
+      if (email === "warehouse@xenoptics.com" && password === "warehouse12345") {
+        // Bypass API and login directly with test credentials
+        const userData = {
+          email: "warehouse@xenoptics.com",
+          name: "Warehouse User",
+          id: "warehouse-test-user",
+          accessToken: "test-token-warehouse"
+        };
+
+        login(userData);
+        navigate("/warehouse");
+
+        // Preload parcel items cache in the background
+        preloadParcelItemsCache();
+        return;
+      }
+
       const response = await axios.post(import.meta.env.VITE_APP_EMAIL_LOGIN_API_URL, {
         email,
         password,

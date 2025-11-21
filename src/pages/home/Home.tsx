@@ -1,10 +1,10 @@
 // import React from 'react'
 // import MainLayout from '@components/layout/MainLayout';
-import {Outlet, useNavigate} from 'react-router-dom';
+import {Outlet, useNavigate, useLocation} from 'react-router-dom';
 import Breadcrumb from "./components/Breadcrumb";
 import {useAuth} from '@context/AuthContext';
 import {BreadcrumbProvider} from '@context/BreadcrumbContext';
-import React, {useRef} from "react";
+import React, {useRef, useEffect} from "react";
 import {Avatar, Button, ScrollShadow, Spacer, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {useMediaQuery} from "usehooks-ts";
@@ -12,7 +12,7 @@ import {cn} from "@heroui/react";
 
 import Sidebar from "./components/Sidebar";
 
-import {sectionItemsWithTeams} from "./components/sidebar-items";
+import {sectionItemsWithTeams, getFilteredSidebarItems, isWarehouseOnlyUser} from "./components/sidebar-items";
 import {useParcelItemsCache} from '@hooks/useParcelItemsCache';
 
 export default function Component() {
@@ -20,10 +20,25 @@ export default function Component() {
     const isMobile = useMediaQuery("(max-width: 768px)");
     const {logout, user, hasDbData, msLoginUser} = useAuth();
     const {fetchParcelItems} = useParcelItemsCache();
+    const location = useLocation();
 
     const isCompact = isCollapsed || isMobile;
 
     const navigate = useNavigate();
+
+    // Redirect warehouse-only users to warehouse page on initial load
+    useEffect(() => {
+        if (msLoginUser?.email && isWarehouseOnlyUser(msLoginUser.email)) {
+            // Check if we're at the root or a non-warehouse page
+            if (location.pathname === '/' || location.pathname === '/xeno-shipment' ||
+                (!location.pathname.includes('/warehouse') && location.pathname !== '/login')) {
+                navigate('/warehouse', { replace: true });
+            }
+        }
+    }, [msLoginUser, location.pathname, navigate]);
+
+    // Get filtered sidebar items based on user
+    const filteredSidebarItems = getFilteredSidebarItems(sectionItemsWithTeams, msLoginUser?.email);
 
     const onToggle = React.useCallback(() => {
         setIsCollapsed((prev) => !prev);
@@ -117,7 +132,7 @@ export default function Component() {
                         <Sidebar
                             defaultSelectedKey="home"
                             isCompact={isCompact}
-                            items={sectionItemsWithTeams}
+                            items={filteredSidebarItems}
                             onSelect={handleSidebarSelect}
                         />
                     </ScrollShadow>
@@ -176,22 +191,37 @@ export default function Component() {
 
                     {/* Database Status Notification */}
                     {msLoginUser && !hasDbData && (
-                        <div className="mt-4 p-4 bg-warning-50 border border-warning-200 rounded-medium">
-                            <div className="flex items-center gap-2">
-                                <Icon
-                                    icon="solar:info-circle-bold"
-                                    className="text-warning-600"
-                                    width={20}
-                                />
-                                <p className="text-warning-800 text-sm font-medium">
-                                    Don't have your data in database
+                        isWarehouseOnlyUser(msLoginUser.email) ? (
+                            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-medium">
+                                <div className="flex items-center gap-2">
+                                    <Icon
+                                        icon="solar:test-tube-bold"
+                                        className="text-blue-600"
+                                        width={20}
+                                    />
+                                    <p className="text-blue-800 text-sm font-medium">
+                                        This is testing purpose for Warehouse Dashboard
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mt-4 p-4 bg-warning-50 border border-warning-200 rounded-medium">
+                                <div className="flex items-center gap-2">
+                                    <Icon
+                                        icon="solar:info-circle-bold"
+                                        className="text-warning-600"
+                                        width={20}
+                                    />
+                                    <p className="text-warning-800 text-sm font-medium">
+                                        Don't have your data in database
+                                    </p>
+                                </div>
+                                <p className="text-warning-700 text-xs mt-1 ml-6">
+                                    Your @xenoptics.com account is authenticated, but we couldn't find your profile data in
+                                    our database. Please contact your administrator.
                                 </p>
                             </div>
-                            <p className="text-warning-700 text-xs mt-1 ml-6">
-                                Your @xenoptics.com account is authenticated, but we couldn't find your profile data in
-                                our database. Please contact your administrator.
-                            </p>
-                        </div>
+                        )
                     )}
                     <main
                         className="mt-4 w-full flex-1 min-h-0 min-w-0 rounded-medium border-small border-divider overflow-auto">

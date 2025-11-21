@@ -13,6 +13,7 @@ import PackingSlipView from "@pages/shipment/components/PackingSlipView"
 import Overview from "@features/overview/Overview"
 import Logistics from "@features/logistics/Logistics"
 import ProtectedRoute from "@components/common/ProtectedRoute";
+import WarehouseOnlyRoute from "@components/common/WarehouseOnlyRoute";
 import Items from "@pages/items/Items";
 import Addresses from "@pages/addresses/Addresses";
 // import RateCalculator from "@pages/rate-calculator/RateCalculator";
@@ -43,52 +44,52 @@ export const routes = [
   {
     element: <ProtectedRoute><Home /></ProtectedRoute>,
     children: [
-      { path: "overview", element: <Overview />, handle: { breadcrumb: "Overview" } },
-      { path: "testing-data", element: <TestingData />, handle: { breadcrumb: "Testing Data" } },
-      { path: "logistics/:category?", element: <Logistics />, handle: { breadcrumb: "Logistics" } },
+      { path: "overview", element: <WarehouseOnlyRoute><Overview /></WarehouseOnlyRoute>, handle: { breadcrumb: "Overview" } },
+      { path: "testing-data", element: <WarehouseOnlyRoute><TestingData /></WarehouseOnlyRoute>, handle: { breadcrumb: "Testing Data" } },
+      { path: "logistics/:category?", element: <WarehouseOnlyRoute><Logistics /></WarehouseOnlyRoute>, handle: { breadcrumb: "Logistics" } },
       { path: "shipment",
         handle: { breadcrumb: "Shipment" },
         children:[
           {
             path: "",
-            element: <Shipment />,
+            element: <WarehouseOnlyRoute><Shipment /></WarehouseOnlyRoute>,
           },
           {
             path: "request-form",
-            element: <ShipmentForm />,
+            element: <WarehouseOnlyRoute><ShipmentForm /></WarehouseOnlyRoute>,
             handle: { breadcrumb: "New Request Form" },
           },
           {
             path: "duplicate/:shipmentId",
-            element: <ShipmentDuplicateForm />,
+            element: <WarehouseOnlyRoute><ShipmentDuplicateForm /></WarehouseOnlyRoute>,
             handle: { breadcrumb: "Duplicate Request" },
           },
           {
             path: "edit/:shipmentId",
-            element: <ShipmentEditForm />,
+            element: <WarehouseOnlyRoute><ShipmentEditForm /></WarehouseOnlyRoute>,
             handle: { breadcrumb: "Edit" },
           },
           { path: ":shipmentId",
-            element: <ShipmentDetails />,
+            element: <WarehouseOnlyRoute><ShipmentDetails /></WarehouseOnlyRoute>,
             handle: { breadcrumb: (match: any) => match.params.shipmentId }
           },
           { path: "invoice/:shipmentId",
-            element: <InvoiceView />,
+            element: <WarehouseOnlyRoute><InvoiceView /></WarehouseOnlyRoute>,
             handle: { breadcrumb: "Invoice" }
           },
           { path: "packing-slip/:shipmentId",
-            element: <PackingSlipView />,
+            element: <WarehouseOnlyRoute><PackingSlipView /></WarehouseOnlyRoute>,
             handle: { breadcrumb: "Packing Slip" }
           },
         ]
       },
-      { path: "items", 
+      { path: "items",
         handle: { breadcrumb: "Items" },
         children:[
           {
             path: "",
-            element: <Items />,
-          },          
+            element: <WarehouseOnlyRoute><Items /></WarehouseOnlyRoute>,
+          },
         ]
       },
       { path: "addresses",
@@ -96,7 +97,7 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <Addresses />,
+            element: <WarehouseOnlyRoute><Addresses /></WarehouseOnlyRoute>,
           },
         ]
       },
@@ -114,11 +115,11 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <AddressList />,
+            element: <WarehouseOnlyRoute><AddressList /></WarehouseOnlyRoute>,
           },
           {
             path: ":id",
-            element: <AddressListDetail />,
+            element: <WarehouseOnlyRoute><AddressListDetail /></WarehouseOnlyRoute>,
             handle: { breadcrumb: (match: any) => match.params.id }
           },
         ]
@@ -128,11 +129,11 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <Packaging />,
+            element: <WarehouseOnlyRoute><Packaging /></WarehouseOnlyRoute>,
           },
           {
             path: ":id",
-            element: <PackagingDetail />,
+            element: <WarehouseOnlyRoute><PackagingDetail /></WarehouseOnlyRoute>,
             handle: { breadcrumb: (match: any) => match.params.id }
           },
         ]
@@ -142,7 +143,7 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <Dashboard />,
+            element: <WarehouseOnlyRoute><Dashboard /></WarehouseOnlyRoute>,
           },
         ]
       },
@@ -151,11 +152,11 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <Aftership />,
+            element: <WarehouseOnlyRoute><Aftership /></WarehouseOnlyRoute>,
           },
           {
             path: ":id",
-            element: <AftershipDetail />,
+            element: <WarehouseOnlyRoute><AftershipDetail /></WarehouseOnlyRoute>,
             handle: { breadcrumb: (match: any) => match.params.id }
           },
         ]
@@ -165,21 +166,21 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <UserList />,
+            element: <WarehouseOnlyRoute><UserList /></WarehouseOnlyRoute>,
           },
           {
             path: "create",
-            element: <CreateUser />,
+            element: <WarehouseOnlyRoute><CreateUser /></WarehouseOnlyRoute>,
             handle: { breadcrumb: "Create User" }
           },
           {
             path: ":id",
-            element: <UserDetail />,
+            element: <WarehouseOnlyRoute><UserDetail /></WarehouseOnlyRoute>,
             handle: { breadcrumb: (match: any) => match.params.id }
           },
           {
             path: ":id/edit",
-            element: <EditUser />,
+            element: <WarehouseOnlyRoute><EditUser /></WarehouseOnlyRoute>,
             handle: { breadcrumb: "Edit" }
           },
         ]
@@ -189,7 +190,7 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <DHLDomesticRates />,
+            element: <WarehouseOnlyRoute><DHLDomesticRates /></WarehouseOnlyRoute>,
           },
         ]
       },
@@ -212,11 +213,11 @@ export const routes = [
         children:[
           {
             path: "",
-            element: <FedExDomestic />,
+            element: <WarehouseOnlyRoute><FedExDomestic /></WarehouseOnlyRoute>,
           },
           {
             path: ":id",
-            element: <FedExDomesticDetail />,
+            element: <WarehouseOnlyRoute><FedExDomesticDetail /></WarehouseOnlyRoute>,
             handle: { breadcrumb: (match: any) => `Shipment ${match.params.id}` }
           },
         ]

@@ -3,10 +3,23 @@ import {Icon} from "@iconify/react";
 
 import type { SidebarItem } from "./Sidebar";
 import TeamAvatar from "./team-avatar";
+import { isWarehouseOnlyUser } from "@config/userRoles";
 
 /**
  * Please check the https://heroui.com/docs/guide/routing to have a seamless router integration
  */
+
+// Re-export for convenience
+export { isWarehouseOnlyUser };
+
+export const getFilteredSidebarItems = (items: SidebarItem[], email?: string): SidebarItem[] => {
+  if (!isWarehouseOnlyUser(email)) {
+    return items;
+  }
+
+  // Filter to only show warehouse-related items
+  return items.filter(item => item.key === 'warehouse');
+};
 
 export const items: SidebarItem[] = [
   {
