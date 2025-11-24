@@ -117,6 +117,16 @@ const ShipmentDuplicateForm = () => {
           })
           return
         }
+
+      // 2. Customize Invoice validation
+      if (formData.use_customize_invoice && !formData.customize_invoice_file && !formData.customize_invoice_url) {
+        setErrorModal({
+          isOpen: true,
+          title: 'Invoice Validation Failed',
+          message: 'Please upload a PDF file before proceeding, since "Upload Customize Invoice" is enabled.'
+        })
+        return
+      }
       }
 
       setCompletedSteps(prev => new Set(prev).add(currentStep))
