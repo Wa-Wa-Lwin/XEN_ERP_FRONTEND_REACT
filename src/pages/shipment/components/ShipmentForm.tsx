@@ -280,12 +280,23 @@ const ShipmentForm = () => {
         const formData = getValues()
         const weightValidation = validateWeights(formData)
 
+        // 1. Weight validation 
         if (!weightValidation.isValid) {
           setErrorModal({
             isOpen: true,
             title: 'Weight Validation Failed',
             message: 'Please fix the weight issues below before proceeding to the next step.',
             details: weightValidation.errors
+          })
+          return
+        }
+
+        // 2. Customize Invoice validation
+        if (formData.use_customize_invoice && !formData.customize_invoice_file && !formData.customize_invoice_url) {
+          setErrorModal({
+            isOpen: true,
+            title: 'Invoice Validation Failed',
+            message: 'Please upload a PDF file before proceeding, since "Upload Customize Invoice" is enabled.'
           })
           return
         }

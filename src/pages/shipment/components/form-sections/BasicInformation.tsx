@@ -230,16 +230,6 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
               defaultValue="Normal"
               rules={{ required: "Service option is required" }}
               render={({ field }) => {
-                const shipmentScope = watch("shipment_scope_type");
-                const filteredServiceOptions =
-                  shipmentScope === "domestic"
-                    ? SERVICE_OPTIONS
-                    : SERVICE_OPTIONS.filter(
-                      (option) =>
-                        option.key.toLowerCase() === "normal" ||
-                        option.key.toLowerCase() === "urgent"
-                    );
-
                 return (
                   <Select
                     {...field}
@@ -289,7 +279,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                     }}
                     color={!watch("service_options") ? "warning" : "default"}
                   >
-                    {filteredServiceOptions.map((option) => (
+                    {SERVICE_OPTIONS.map((option) => (
                       <SelectItem key={option.key} value={option.value}>
                         {option.label}
                       </SelectItem>

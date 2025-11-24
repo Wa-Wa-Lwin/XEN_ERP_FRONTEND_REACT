@@ -691,9 +691,11 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                                 // Clear file when unchecked
                                                 setValue?.('customize_invoice_file', null);
                                                 setSelectedFile(null);
-                                                // Clear the file input
-                                                if (fileInputRef.current) {
-                                                    fileInputRef.current.value = '';
+                                                if (fileInputRef.current) fileInputRef.current.value = '';
+                                            } else {
+                                                // If enabling and there's no file (and no existing URL), open file dialog
+                                                if (!selectedFile && !customizeInvoiceUrl && fileInputRef.current) {
+                                                    fileInputRef.current.click();
                                                 }
                                             }
                                         }}
@@ -705,6 +707,13 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                     </Checkbox>
                                 )}
                             />
+
+                            {/* If user enabled upload but no file chosen (and no existing URL), show error */}
+                            {useCustomizeInvoice && !selectedFile && !customizeInvoiceUrl && (
+                                <p className="text-xs text-red-500">
+                                    Please upload a PDF file (required when "Upload Customize Invoice" is enabled).
+                                </p>
+                            )}
 
                             {useCustomizeInvoice && (
                                 <div className="flex flex-col gap-2">

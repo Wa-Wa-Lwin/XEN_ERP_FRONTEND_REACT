@@ -46,9 +46,10 @@ interface RatesSectionProps extends FormSectionProps {
     message: string
     details?: Array<{ path: string; info: string }>
   } | null
+  shipmentScopeType?: string
 }
 
-const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, control }: RatesSectionProps) => {
+const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, onSelectRate, serviceOption, rateCalculationError, watch, control, shipmentScopeType }: RatesSectionProps) => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
     THB: 1.0 // Default fallback
   })
@@ -423,40 +424,44 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   return (
     <>
-      {/* Shipping Options Radio */}
-      <div className="p-4 rounded-none">
-        <Controller
-          name="shipping_options"
-          control={control}
-          defaultValue="calculate_rates"
-          render={({ field }) => (
-            <RadioGroup
-              value={field.value || 'calculate_rates'}
-              onValueChange={field.onChange}
-              orientation="horizontal"
-              classNames={{
-                wrapper: "gap-4"
-              }}
-              isDisabled={serviceOption?.toLowerCase() !== 'urgent'}
-            >
-              <Radio value="calculate_rates"> Calculate Rates
-              </Radio>
-              <Radio value="grab_pickup">
-                Grab Pickup
-              </Radio>
-              <Radio value="supplier_pickup">
-                Supplier Pickup
-              </Radio>
-            </RadioGroup>
-          )}
-        />
-        {serviceOption?.toLowerCase() === 'normal' && (
-          <p className="text-xs text-gray-500 mt-2">
-            <Icon icon="solar:info-circle-bold" className="inline mr-1" />
-            Shipping options are only available for Urgent service. Normal service automatically uses Calculate Rates.
-          </p>
-        )}
-      </div>
+      {shipmentScopeType?.toLowerCase() === 'domestic' && (
+        <>
+          {/* Shipping Options Radio */}
+          <div className="p-4 rounded-none">
+            <Controller
+              name="shipping_options"
+              control={control}
+              defaultValue="calculate_rates"
+              render={({ field }) => (
+                <RadioGroup
+                  value={field.value || 'calculate_rates'}
+                  onValueChange={field.onChange}
+                  orientation="horizontal"
+                  classNames={{
+                    wrapper: "gap-4"
+                  }}
+                  isDisabled={serviceOption?.toLowerCase() !== 'urgent'}
+                >
+                  <Radio value="calculate_rates"> Calculate Rates
+                  </Radio>
+                  <Radio value="grab_pickup">
+                    Grab Pickup
+                  </Radio>
+                  <Radio value="supplier_pickup">
+                    Supplier Pickup
+                  </Radio>
+                </RadioGroup>
+              )}
+            />
+            {serviceOption?.toLowerCase() === 'normal' && (
+              <p className="text-xs text-gray-500 mt-2">
+                <Icon icon="solar:info-circle-bold" className="inline mr-1" />
+                Shipping options are only available for Urgent service. Normal service automatically uses Calculate Rates.
+              </p>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Supplier Pickup Message - Show when shipping_options is "supplier_pickup" */}
       {watch && watch('shipping_options') === 'supplier_pickup' && (
