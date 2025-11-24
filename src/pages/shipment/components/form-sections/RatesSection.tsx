@@ -6,6 +6,7 @@ import axios from 'axios'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { getRateUniqueId as generateRateId } from '@services/rateCalculationService'
 import { CURRENCIES } from '../../constants/currencies'
+import { validateShipmentScope } from '../../utils/shipment-validations'
 
 // Interface for exchange rate API response
 interface ExchangeRateResponse {
@@ -32,6 +33,8 @@ interface RateResponse {
   total_charge: { amount: number; currency: string } | null
   detailed_charges: Array<{ type: string; charge: { amount: number; currency: string } }>
 }
+
+type ScopeError = NonNullable<ReturnType<typeof validateShipmentScope>['error']>
 
 interface RatesSectionProps extends FormSectionProps {
   rates: RateResponse[]
@@ -63,6 +66,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
   const [sortBy, setSortBy] = useState<'thb' | 'transit' | null>('thb')
   const [sortAsc, setSortAsc] = useState(true)
   const [selectedCarrier, setSelectedCarrier] = useState<string>('all')
+  const [scopeError, setScopeError] = useState<ScopeError | null>(null)
 
   // Cache keys
   const CACHE_KEY = 'exchange_rates_thb'
@@ -422,9 +426,61 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
     return ratesToSort
   }, [rates, exchangeRates, sortBy, sortAsc, serviceOption, selectedCarrier, watch])
 
+  const shipFromCountry = watch ? watch('ship_from_country') : undefined
+  const shipToCountry = watch ? watch('ship_to_country') : undefined
+  const currentScopeSelection = shipmentScopeType ?? (watch ? watch('shipment_scope_type') : undefined)
+  const normalizedScope = currentScopeSelection?.toLowerCase()
+
+  useEffect(() => {
+    if (!scopeError) return
+    const validation = validateShipmentScope({
+      ship_from_country: shipFromCountry,
+      ship_to_country: shipToCountry,
+      shipment_scope_type: currentScopeSelection
+    } as any)
+    if (validation.isValid) {
+      setScopeError(null)
+    }
+  }, [shipFromCountry, shipToCountry, currentScopeSelection, scopeError])
+
+  const handleCalculateRatesClick = () => {
+    if (watch) {
+      const formData = watch()
+      const scopeValidation = validateShipmentScope(formData)
+      if (!scopeValidation.isValid) {
+        setScopeError(scopeValidation.error ?? null)
+        return
+      }
+    }
+
+    setScopeError(null)
+    onCalculateRates()
+  }
+
   return (
     <>
-      {shipmentScopeType?.toLowerCase() === 'domestic' && (
+      {scopeError && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start gap-2">
+            <Icon icon="solar:danger-triangle-bold" className="text-red-600 text-xl mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-red-700">{scopeError.title}</p>
+              <p className="text-xs text-red-600 mt-1">{scopeError.message}</p>
+              {scopeError.details?.length ? (
+                <ul className="list-disc list-inside text-xs text-red-600 mt-2 space-y-1">
+                  {scopeError.details.map((detail, index) => (
+                    <li key={index}>
+                      <span className="font-medium">{detail.path}:</span> {detail.info}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {normalizedScope === 'domestic' && (
         <>
           {/* Shipping Options Radio */}
           <div className="p-4 rounded-none">
@@ -703,7 +759,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                   color="primary"
                   size="sm"
                   startContent={<Icon icon="solar:calculator-bold" />}
-                  onPress={onCalculateRates}
+                  onPress={handleCalculateRatesClick}
                   isLoading={isCalculating}
                   disabled={isCalculating}
                 >
@@ -745,7 +801,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
                         size="sm"
                         className="mt-4"
                         startContent={<Icon icon="solar:refresh-bold" />}
-                        onPress={onCalculateRates}
+                        onPress={handleCalculateRatesClick}
                       >
                         Try Again
                       </Button>
