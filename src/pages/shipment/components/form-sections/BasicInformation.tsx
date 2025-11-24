@@ -107,7 +107,7 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                   International (Import)
                 </SelectItem>
                 <SelectItem key="international" value="international">
-                  International (Outside Thai)
+                  International (Outside Thailand)
                 </SelectItem>
               </Select>
             )}

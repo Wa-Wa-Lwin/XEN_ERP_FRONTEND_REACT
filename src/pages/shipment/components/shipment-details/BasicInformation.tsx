@@ -106,7 +106,7 @@ const BasicInformation = ({
         <InfoRow label="Scope" value={
           shipment.shipment_scope_type
             ? shipment.shipment_scope_type.toLowerCase() === 'international'
-              ? 'International (Outside Thai)'
+              ? 'International (Outside Thailand)'
               : shipment.shipment_scope_type.toLowerCase() === 'export'
                 ? 'International (Export)'
                 : shipment.shipment_scope_type.toLowerCase() === 'import'
