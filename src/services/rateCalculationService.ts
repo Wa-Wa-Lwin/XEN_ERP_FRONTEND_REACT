@@ -215,10 +215,23 @@ const fetchDHLEcommerceRateList = async (): Promise<DHLEcommerceRateSlab[]> => {
 }
 
 /**
- * Find the appropriate rate based on weight
- * Always uses upc_charge_thb (Upcountry rate) for all domestic shipments
+ * Checks if a shipment is within the Bangkok postal code region.
+ * A shipment is considered within Bangkok if at least one (origin or destination) postal code starts with "10".
+ * @param fromPostalCode - The ship_from postal code.
+ * @param toPostalCode - The ship_to postal code.
+ * @returns boolean - True if at least one address is in the BKK postal code region.
  */
-const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[]): number => {
+const isBKKPostalCodeShipment = (fromPostalCode: string, toPostalCode: string): boolean => {
+  const isFromBKK = fromPostalCode.startsWith('10');
+  const isToBKK = toPostalCode.startsWith('10');
+
+  return isFromBKK || isToBKK;
+};
+
+/**
+ * Find the appropriate rate based on weight
+ */
+const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[], isBKK: boolean): number => {
   // Normalize and sort slabs by min weight
   const sorted = rateSlabs.slice().sort((a, b) => parseFloat(a.min_weight_kg) - parseFloat(b.min_weight_kg))
 
@@ -254,7 +267,8 @@ const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[]): nu
   }
 
   if (matchedSlab) {
-    return parseFloat(matchedSlab.upc_charge_thb)
+    const chargeType = isBKK ? matchedSlab.bkk_charge_thb : matchedSlab.upc_charge_thb;
+    return parseFloat(chargeType);
   }
 
   // If no match found, find the closest slab
@@ -265,12 +279,14 @@ const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[]): nu
 
   if (weight < firstMin) {
     // below minimum - use first slab's upcountry rate
-    return parseFloat(first.upc_charge_thb)
+    const chargeType = isBKK ? first.bkk_charge_thb : first.upc_charge_thb;
+    return parseFloat(chargeType);
   }
 
   if (weight > lastMax) {
     // above maximum - use last slab's upcountry rate
-    return parseFloat(last.upc_charge_thb)
+    const chargeType = isBKK ? last.bkk_charge_thb : last.upc_charge_thb;
+    return parseFloat(chargeType);
   }
 
   // Find the nearest slab by min_weight
@@ -281,7 +297,8 @@ const findRateByWeight = (weight: number, rateSlabs: DHLEcommerceRateSlab[]): nu
   })
 
   console.warn(`Weight ${weight}kg did not match any slab exactly, using nearest slab (min: ${nearestSlab.min_weight_kg}kg)`)
-  return parseFloat(nearestSlab.upc_charge_thb)
+  const chargeType = isBKK ? nearestSlab.bkk_charge_thb : nearestSlab.upc_charge_thb;
+  return parseFloat(chargeType);
 }
 
 /**
@@ -473,9 +490,12 @@ export const calculateShippingRates = async (
           console.warn('Failed to fetch DHL eCommerce rate list, using default built-in slabs')
         }
 
-        // Calculate the rate based on weight (always uses Upcountry rate)
-        const totalAmount = findRateByWeight(chargeWeight, slabsToUse)
-        console.log(`DHL eCommerce Asia rate for ${chargeWeight}kg: ${totalAmount} THB (Upcountry rate)`)
+        // Determine if the shipment is within BKK region based on postal codes
+        const isBKK = isBKKPostalCodeShipment(formData.ship_from_postal_code, formData.ship_to_postal_code);
+
+        // Calculate the rate based on weight and location
+        const totalAmount = findRateByWeight(chargeWeight, slabsToUse, isBKK)
+        console.log(`DHL eCommerce Asia rate for ${chargeWeight}kg: ${totalAmount} THB (${isBKK ? 'BKK rate' : 'Upcountry rate'})`)
 
         const manualRate = createThailandDomesticRate(chargeWeight, totalAmount)
         apiRates = [manualRate, ...apiRates] // Add at the beginning

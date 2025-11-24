@@ -424,7 +424,7 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
 
   return (
     <>
-      {shipmentScopeType?.toLowerCase() === 'domestic' && (
+      {shipmentScopeType?.toLowerCase() !== 'domestic' && (
         <>
           {/* Shipping Options Radio */}
           <div className="p-4 rounded-none">
