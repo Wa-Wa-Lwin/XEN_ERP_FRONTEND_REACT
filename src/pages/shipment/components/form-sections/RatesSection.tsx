@@ -635,7 +635,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
       {watch && watch('shipping_options') === 'calculate_rates' && (
         <Card shadow="none" className="rounded-none">
           {/* Billing Section - Show only after rates are calculated and displayed */}
-          <div className="p-2 bg-gray-20 border-gray-200">
+          {/* HIDE BILLING INFORMATIN FOR NOW */}
+          <div className="p-2 bg-gray-20 border-gray-200 hidden">
             <div className="flex items-start gap-2 mb-3">
               <Icon icon="solar:wallet-bold" className="text-blue-600 text-xl mt-0.5" />
               <div>
