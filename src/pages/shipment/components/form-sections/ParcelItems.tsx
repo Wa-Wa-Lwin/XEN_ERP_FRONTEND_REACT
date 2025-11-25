@@ -259,7 +259,7 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
                                         render={({ field }) => (
                                             <Textarea
                                                 {...field}
-                                                maxLength={255}
+                                                maxLength={45}
                                                 placeholder="SKU"
                                                 variant="flat"
                                                 size="sm"
