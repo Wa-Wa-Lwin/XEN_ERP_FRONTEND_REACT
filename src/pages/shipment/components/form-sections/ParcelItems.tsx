@@ -25,7 +25,9 @@ interface ExtendedParcelItemsProps extends ParcelItemsProps {
 
 const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, onWeightChange, sendTo, shipFromCountry, shipToCountry, validationMode = 'shipment', onClearRates, shipmentScopeType }: ExtendedParcelItemsProps) => {
 
-    const isDomestic = shipmentScopeType.toLowerCase() === "domestic" ? true : false
+    const normalizedScope = shipmentScopeType?.toLowerCase?.() || ''
+    const isDomestic = normalizedScope === 'domestic'
+    const isImportScope = normalizedScope === 'import'
 
     // Helper function to determine if item fields should be required based on validation mode
     const isItemFieldRequired = (fieldName: string) => {
@@ -33,6 +35,11 @@ const ParcelItems = ({ parcelIndex, control, register, errors, setValue, watch, 
             // For rate calculator, only quantity and weight are required
             const rateCalculatorRequiredFields = ['quantity', 'weight_value'];
             return rateCalculatorRequiredFields.includes(fieldName);
+        }
+
+        if (isImportScope && (fieldName === 'material_code' || fieldName === 'sku')) {
+            // Material code and SKU can stay blank for import shipments
+            return false
         }
 
         if (sendTo === 'Logistic') {
