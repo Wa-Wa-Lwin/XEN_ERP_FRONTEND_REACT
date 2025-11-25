@@ -197,9 +197,6 @@ const WarehouseTable = () => {
             <TableColumn className="w-32">Requestor</TableColumn>
             <TableColumn className="w-36">Pickup Date</TableColumn>
             <TableColumn className="w-24">Scope</TableColumn>
-            {/* <TableColumn>Topic (PO)</TableColumn>
-            <TableColumn>From</TableColumn>
-            <TableColumn>To</TableColumn> */}
             <TableColumn className="w-48">Carrier</TableColumn>
             <TableColumn className="w-32">Label</TableColumn>
             <TableColumn className="w-40">Packing Slip</TableColumn>
@@ -254,46 +251,6 @@ const WarehouseTable = () => {
                       {request.shipment_scope_type?.toUpperCase()}
                     </span>
                   </TableCell>
-
-                  {/* Topic (PO) */}
-                  {/* <TableCell className="text-sm py-2">
-                    <div>
-                      <p className="font-medium">{request.topic}</p>
-                      {request.po_number && (
-                        <p className="text-xs text-gray-600">PO: {request.po_number}</p>
-                      )}
-                    </div>
-                  </TableCell> */}
-
-                  {/* From */}
-                  {/* <TableCell className="text-sm py-2">
-                    <div>
-                      <p className="font-medium">
-                        {request.ship_from?.company_name
-                          ?.split(' ')
-                          .slice(0, 3)
-                          .join(' ') || request.ship_from?.company_name}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        ({request.ship_from?.country ? getCountryName(request.ship_from.country) : ''})
-                      </p>
-                    </div>
-                  </TableCell> */}
-
-                  {/* To */}
-                  {/* <TableCell className="text-sm py-2">
-                    <div>
-                      <p className="font-medium">
-                        {request.ship_to?.company_name
-                          ?.split(' ')
-                          .slice(0, 3)
-                          .join(' ') || request.ship_to?.company_name}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        ({request.ship_to?.country ? getCountryName(request.ship_to.country) : ''})
-                      </p>
-                    </div>
-                  </TableCell> */}
 
                   {/* Carrier */}
                   <TableCell className="text-sm py-2">

@@ -47,5 +47,11 @@ export const DEFAULT_DHL_RATE_SLABS: DHLEcommerceRateSlab[] = [
   { dhlEcommerceDomesticRateListID: 31, min_weight_kg: '26.001', max_weight_kg: '27.00', bkk_charge_thb: '325', upc_charge_thb: '359' },
   { dhlEcommerceDomesticRateListID: 32, min_weight_kg: '27.001', max_weight_kg: '28.00', bkk_charge_thb: '325', upc_charge_thb: '359' },
   { dhlEcommerceDomesticRateListID: 33, min_weight_kg: '28.001', max_weight_kg: '29.00', bkk_charge_thb: '325', upc_charge_thb: '359' },
-  { dhlEcommerceDomesticRateListID: 34, min_weight_kg: '29.001', max_weight_kg: '30.00', bkk_charge_thb: '325', upc_charge_thb: '359' }
+  { dhlEcommerceDomesticRateListID: 34, min_weight_kg: '29.001', max_weight_kg: '30.00', bkk_charge_thb: '325', upc_charge_thb: '359' },
+
+  { dhlEcommerceDomesticRateListID: 35, min_weight_kg: '30.001', max_weight_kg: '31.00', bkk_charge_thb: '350', upc_charge_thb: '384' },
+  { dhlEcommerceDomesticRateListID: 36, min_weight_kg: '31.001', max_weight_kg: '32.00', bkk_charge_thb: '375', upc_charge_thb: '409' },
+  { dhlEcommerceDomesticRateListID: 37, min_weight_kg: '32.001', max_weight_kg: '33.00', bkk_charge_thb: '400', upc_charge_thb: '434' },
+  { dhlEcommerceDomesticRateListID: 38, min_weight_kg: '33.001', max_weight_kg: '34.00', bkk_charge_thb: '425', upc_charge_thb: '459' },
+  { dhlEcommerceDomesticRateListID: 39, min_weight_kg: '34.001', max_weight_kg: '35.00', bkk_charge_thb: '450', upc_charge_thb: '484' },
 ]
