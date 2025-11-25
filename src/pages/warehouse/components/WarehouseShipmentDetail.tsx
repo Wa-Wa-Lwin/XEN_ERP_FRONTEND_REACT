@@ -6,6 +6,7 @@ import axios from 'axios'
 import { countries } from '@utils/countries'
 import { useAuth } from '@context/AuthContext'
 import type { ShipmentGETData } from '@pages/shipment/components/shipment-details/types'
+import { ParcelsSection } from '@pages/shipment/components/shipment-details'
 
 const WarehouseShipmentDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -226,6 +227,8 @@ const WarehouseShipmentDetail = () => {
             </div>
           </CardBody>
         </Card>
+
+        <ParcelsSection shipment={shipment} />
 
         {/* Raw API Response Card - Only for wawa@xenoptics.com */}
         {msLoginUser?.email?.toLowerCase() === 'wawa@xenoptics.com' && (
