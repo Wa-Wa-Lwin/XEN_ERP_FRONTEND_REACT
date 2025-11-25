@@ -189,7 +189,19 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 minRows={1}
               />
             )}
-            {selectedTopic.has('For Sales') && (
+            {/* If shipment scope is IMPORT → show text input */}
+            {selectedTopic.has('For Sales') && shipmentScopeValue === 'import' && (
+              <Input
+                {...register('sales_person', { required: "Sales person is required for import scope" })}
+                label="Sales Person"
+                isRequired={selectedTopic.has('For Sales')}
+                placeholder="Enter sales person name"
+                errorMessage={errors.sales_person?.message}
+                isInvalid={!!errors.sales_person}
+                color={!watch('sales_person') ? "warning" : "default"}
+              />
+            )}
+            {selectedTopic.has('For Sales') && shipmentScopeValue !== 'import' && (
               <Controller
                 name="sales_person"
                 control={control}
