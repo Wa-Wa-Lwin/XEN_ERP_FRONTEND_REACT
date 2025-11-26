@@ -14,6 +14,7 @@ import {
   Button
 } from '@heroui/react'
 import { Icon } from "@iconify/react";
+import { isRateChosen } from '../../shipment/utils/rateUtils';
 import axios from 'axios'
 import type { ShipmentFormData, ShipmentRequestsResponse } from '@pages/shipment/types/shipment-form.types';
 // import { countries } from '@utils/countries';
@@ -203,7 +204,7 @@ const WarehouseTable = () => {
           </TableHeader>
           <TableBody>
             {paginatedData.map((request) => {
-              const chosenRate = request.rates?.find(rate => rate.chosen);
+              const chosenRate = request.rates?.find(rate => isRateChosen(rate.chosen));
 
               return (
                 <TableRow
@@ -284,7 +285,7 @@ const WarehouseTable = () => {
                         onPress={() => {
                           if (!request.files_label_url) return;
 
-                          const chosenRate = request.rates?.find(rate => rate.chosen);
+                          const chosenRate = request.rates?.find(rate => isRateChosen(rate.chosen));
                           // Check if it's base64 by seeing if it doesn't start with http/https
                           const isBase64Label = !request.files_label_url.startsWith('http') ||
                                                (chosenRate?.shipper_account_slug === 'fedex' &&

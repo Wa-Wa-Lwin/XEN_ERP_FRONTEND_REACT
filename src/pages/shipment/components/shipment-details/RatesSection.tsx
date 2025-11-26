@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import type { ShipmentGETData } from './types';
+import { isRateChosen, isRatePastChosen } from '../../utils/rateUtils';
 
 // Interface for exchange rate API response
 interface ExchangeRateResponse {
@@ -182,11 +183,11 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
               <TableColumn className="min-w-[200px]">Info Message</TableColumn> */}
             </TableHeader>
             <TableBody>
-              {(showAllRates ? shipment.rates : shipment.rates.filter((rate: any) => rate.chosen == 1))
+              {(showAllRates ? shipment.rates : shipment.rates.filter((rate: any) => isRateChosen(rate.chosen)))
                 .map((rate: any, idx: number) => (
-                  <TableRow key={idx} className={rate.chosen == 1 ? "bg-green-50/50 hover:bg-green-100/50" : rate.past_chosen == 1 ? "bg-orange-50/50 hover:bg-orange-100/50" : "hover:bg-gray-50"}>
+                  <TableRow key={idx} className={isRateChosen(rate.chosen) ? "bg-green-50/50 hover:bg-green-100/50" : isRatePastChosen(rate.past_chosen) ? "bg-orange-50/50 hover:bg-orange-100/50" : "hover:bg-gray-50"}>
                     <TableCell>
-                      {rate.chosen == 1 ? (
+                      {isRateChosen(rate.chosen) ? (
                         <Chip size="sm" color="success" variant="flat" startContent={<Icon icon="solar:check-circle-bold" width={14} />}>
                           Chosen
                         </Chip>
@@ -267,7 +268,7 @@ const RatesSection = ({ shipment, showAllRates, setShowAllRates }: RatesSectionP
                       </span>
                     </TableCell>
                     <TableCell>
-                      {rate.past_chosen == 1 ? (
+                      {isRatePastChosen(rate.past_chosen) ? (
                         <Chip size="sm" color="warning" variant="flat" startContent={<Icon icon="solar:history-bold" width={14} />}>
                           by {rate.created_user_name}
                         </Chip>

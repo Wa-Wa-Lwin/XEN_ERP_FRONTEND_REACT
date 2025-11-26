@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader, Button, Spinner } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import axios from 'axios'
 import { countries } from '@utils/countries'
+import { isRateChosen } from '../../shipment/utils/rateUtils'
 import { useAuth } from '@context/AuthContext'
 import type { ShipmentGETData } from '@pages/shipment/components/shipment-details/types'
 import { ParcelsSection } from '@pages/shipment/components/shipment-details'
@@ -96,7 +97,7 @@ const WarehouseShipmentDetail = () => {
     )
   }
 
-  const chosenRate = shipment.rates?.find(rate => rate.chosen) 
+  const chosenRate = shipment.rates?.find(rate => isRateChosen(rate.chosen))
 
   return (
     <>

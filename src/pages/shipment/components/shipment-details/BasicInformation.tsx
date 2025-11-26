@@ -2,6 +2,7 @@ import { Button, Card, Chip } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import type { ShipmentGETData } from './types';
 import { formatDateTime } from './utils';
+import { isRateChosen } from '../../utils/rateUtils';
 
 interface BasicInformationProps {
   shipment: ShipmentGETData;
@@ -11,7 +12,7 @@ interface BasicInformationProps {
 }
 
 const getPickupStatusConfig = (shipment: ShipmentGETData) => {
-  const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
+  const chosenRate = shipment.rates?.find(rate => isRateChosen(rate.chosen));
   const isDHLAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
   const isDHLExpress = chosenRate?.service_name === 'DHL Express Worldwide';
   const isFedEx = chosenRate?.shipper_account_description?.toLowerCase().includes('fedex') ||
@@ -43,7 +44,7 @@ const BasicInformation = ({
   const pickupStatusConfig = getPickupStatusConfig(shipment);
 
   // Pickup-related helpers
-  const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
+  const chosenRate = shipment.rates?.find(rate => isRateChosen(rate.chosen));
   const isDHLAsia = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
   const isDHLExpress = chosenRate?.service_name === 'DHL Express Worldwide';
   // const isGrabPickup = shipment.shipping_options?.toLowerCase() === 'grab_pickup';

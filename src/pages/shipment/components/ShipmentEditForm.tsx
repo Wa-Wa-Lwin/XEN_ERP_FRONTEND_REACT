@@ -24,6 +24,7 @@ import ShipmentPreviewModal from './ShipmentPreviewModal'
 import ErrorModal from './ErrorModal'
 import type { ShipmentFormData } from '../types/shipment-form.types'
 import { Icon } from '@iconify/react/dist/iconify.js'
+import { isRateChosen } from '../utils/rateUtils'
 
 const ShipmentEditForm = () => {
   const { shipmentId } = useParams<{ shipmentId: string }>()
@@ -275,7 +276,7 @@ const ShipmentEditForm = () => {
           unique_id: r.unique_id
         })))
 
-        const chosenRate = formData.rates?.find(rate => rate.chosen)
+        const chosenRate = formData.rates?.find(rate => isRateChosen(rate.chosen))
         console.log('Found chosen rate:', chosenRate)
 
         if (chosenRate) {

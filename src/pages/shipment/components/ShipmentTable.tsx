@@ -16,6 +16,7 @@ import {
 import { Icon } from "@iconify/react";
 import axios from 'axios'
 import { useAuth } from '../../../context/AuthContext'
+import { isRateChosen } from '../utils/rateUtils'
 import { useBreadcrumb } from '../../../context/BreadcrumbContext'
 import type { ShipmentFormData, ShipmentRequestsResponse } from '../types/shipment-form.types';
 
@@ -170,7 +171,7 @@ const ShipmentTable = () => {
       // Filter by carrier
       if (carrierFilter !== 'all') {
         filtered = filtered.filter(request => {
-          const chosenRate = request.rates?.find(rate => rate.chosen == true)
+          const chosenRate = request.rates?.find(rate => isRateChosen(rate.chosen))
           const slug = chosenRate?.shipper_account_slug?.toLowerCase()
 
           // If DHL is selected, include both 'dhl' and 'dhl-global-mail-asia'
@@ -658,7 +659,7 @@ const ShipmentTable = () => {
                   {(() => {
                     if (request?.shipping_options?.toLowerCase() === 'grab_pickup') return <p className="font-medium text-xs text-blue-500">Grab Pickup</p>;
                     if (request?.shipping_options?.toLowerCase() === 'supplier_pickup') return <p className="font-medium text-xs text-blue-500">Supplier Pickup</p>;
-                    const chosenRate = request.rates?.find(rate => rate.chosen == true);
+                    const chosenRate = request.rates?.find(rate => isRateChosen(rate.chosen));
                     if (chosenRate) {
                       return (
                         <div>
@@ -713,7 +714,7 @@ const ShipmentTable = () => {
                     if (request?.shipping_options?.toLowerCase() === 'grab_pickup') return <p className="font-medium text-xs text-blue-500">Grab Pickup</p>;
                     if (request?.shipping_options?.toLowerCase() === 'supplier_pickup') return <p className="font-medium text-xs text-blue-500">Supplier Pickup</p>;
                     if (request.request_status === 'approver_approved') {
-                      const chosenRate = request.rates?.find(rate => rate.chosen == true);
+                      const chosenRate = request.rates?.find(rate => isRateChosen(rate.chosen));
                       const isDHL = chosenRate?.shipper_account_description === 'DHL eCommerce Asia';
                       const labelStatusColor =
                         request.label_status === 'created'

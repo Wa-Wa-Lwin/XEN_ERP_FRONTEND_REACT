@@ -1,6 +1,7 @@
 import { Button, Card, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter, Spinner, useDisclosure, Textarea } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
+import { isRateChosen } from '../../utils/rateUtils';
 import { useAuth } from '@context/AuthContext';
 import type { ShipmentGETData } from './types';
 import { useState } from 'react';
@@ -106,7 +107,7 @@ const ActionSections = ({
   const trackingNumbers = shipment.tracking_numbers
     ? shipment.tracking_numbers.split(',').map(id => id.trim()).filter(id => id.length > 0)
     : [];
-  const chosenRate = shipment.rates?.find(rate => String(rate.chosen) === "1");
+  const chosenRate = shipment.rates?.find(rate => isRateChosen(rate.chosen));
   const masterTrackingNumber = trackingNumbers.length > 0 ? trackingNumbers[0] : null;
 
   return (
