@@ -123,9 +123,23 @@ const WarehouseShipmentDetail = () => {
             color="primary"
             startContent={<Icon icon="solar:eye-bold" />}
             onPress={() => {
-              if (shipment.files_label_url) {
-                window.open(shipment.files_label_url, '_blank')
+              if (!shipment.files_label_url) return
+
+              // Detect base64-encoded labels or special FedEx cases (label returned as base64 string)
+              const isBase64Label = !shipment.files_label_url.startsWith('http') ||
+                (chosenRate?.shipper_account_slug === 'fedex' && chosenRate?.shipper_account_description === 'FedEx Domestic Thailand')
+
+              if (isBase64Label) {
+                // Open a blank window and write an iframe with the base64 PDF
+                const pdfWindow = window.open('')
+                pdfWindow?.document.write(
+                  `<iframe width='100%' height='100%' src='data:application/pdf;base64,${shipment.files_label_url}'></iframe>`
+                )
+                return
               }
+
+              // Regular URL label - open in new tab
+              window.open(shipment.files_label_url, '_blank')
             }}
             isDisabled={!shipment.files_label_url}
           >
