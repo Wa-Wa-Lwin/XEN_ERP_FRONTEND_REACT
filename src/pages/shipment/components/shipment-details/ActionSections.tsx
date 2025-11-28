@@ -60,6 +60,7 @@ const ActionSections = ({
     "logistic_edited",
     "approver_edited"
   ].includes(shipment.request_status) &&
+    shipment?.approver_user_mail?.toLowerCase() === msLoginUser?.mail?.toLowerCase() &&
     shipment?.label_status !== "created" &&
     shipment?.label_status !== "failed";
 
