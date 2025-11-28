@@ -559,6 +559,8 @@ const RatesSection = ({ rates, onCalculateRates, isCalculating, selectedRateId, 
               </h2>
               <p className="text-gray-500 text-center">
                 Please wait while we fetch the best shipping rates for you...
+                <br />
+                This could take up to estimately 15 seconds.
               </p>
             </div>
           </ModalBody>

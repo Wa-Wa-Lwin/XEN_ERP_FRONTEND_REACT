@@ -145,7 +145,7 @@ const ActionSections = ({
             >
               Duplicate
             </Button>
-            {onViewInvoice && shipment.invoice_no && (
+            {onViewInvoice && shipment.invoice_no && shipment.use_customize_invoice === false && ( // {onViewInvoice && shipment.invoice_no && (
               <Button
                 color="primary"
                 size="md"

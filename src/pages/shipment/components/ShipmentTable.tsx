@@ -44,7 +44,7 @@ const ShipmentTable = () => {
     { value: 'all', label: 'All Status' },
     { value: 'waiting', label: 'In Progress(All)' },
     { value: 'requestor_requested', label: 'Waiting Approver' },
-    { value: 'logistic_edited', label: 'Waiting Approver' },
+    // { value: 'logistic_edited', label: 'Waiting Approver' },
     { value: 'send_to_logistic', label: 'Waiting Logistics' },
     { value: 'logistic_updated', label: 'Logistic Reviewed' },
     { value: 'approver_approved', label: 'Approved' },
