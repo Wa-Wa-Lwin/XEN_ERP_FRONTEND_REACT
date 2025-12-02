@@ -60,7 +60,7 @@ const ActionSections = ({
     "logistic_edited",
     "approver_edited"
   ].includes(shipment.request_status) &&
-    shipment?.approver_user_mail?.toLowerCase() === msLoginUser?.mail?.toLowerCase() &&
+    // shipment?.approver_user_mail?.toLowerCase() === msLoginUser?.mail?.toLowerCase() &&
     shipment?.label_status !== "created" &&
     shipment?.label_status !== "failed";
 
@@ -146,7 +146,8 @@ const ActionSections = ({
             >
               Duplicate
             </Button>
-            {onViewInvoice && shipment.invoice_no && shipment.use_customize_invoice === false && ( // {onViewInvoice && shipment.invoice_no && (
+            {onViewInvoice && shipment.invoice_no && Number(shipment.use_customize_invoice) === 0 && ( 
+            // {onViewInvoice && shipment.invoice_no && (
               <Button
                 color="primary"
                 size="md"
