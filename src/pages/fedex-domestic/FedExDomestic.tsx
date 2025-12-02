@@ -11,7 +11,7 @@ import {
   Chip,
   Button,
 } from "@heroui/react";
-import axios from "axios";
+import apiClient, { FEDEX_GET_ALL } from "../../api/config";
 
 interface FedExShipment {
   fedExApiShipmentID: number;
@@ -41,9 +41,7 @@ const FedExDomestic = () => {
   const fetchShipments = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "https://192.168.60.31/api/logistics/fedex_api/get_all"
-      );
+      const response = await apiClient.get(FEDEX_GET_ALL);
       setShipments(response.data.data || []);
     } catch (error) {
       console.error("Error fetching FedEx shipments:", error);

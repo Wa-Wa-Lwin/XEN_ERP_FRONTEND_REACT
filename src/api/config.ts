@@ -2,7 +2,12 @@ import axios from 'axios';
 
 // Create axios instance with default config
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
+  // Prefer the project's configured VITE_APP_BACKEND_BASE_URL, otherwise fall back
+  // to the older VITE_API_BASE_URL key or a reasonable default for local dev.
+  baseURL:
+    import.meta.env.VITE_APP_BACKEND_BASE_URL ||
+    import.meta.env.VITE_API_BASE_URL ||
+    'http://localhost:3001/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -41,3 +46,7 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
+// Common backend endpoints modernized from env variables.
+export const FEDEX_GET_ALL =
+  import.meta.env.VITE_APP_FEDEX_GET_ALL || '/api/logistics/fedex_api/get_all';
