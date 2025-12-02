@@ -78,9 +78,8 @@ const FedExDomesticDetail = () => {
   const fetchShipmentDetail = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `https://192.168.60.31/api/logistics/fedex_api/get_one/${id}`
-      );
+      const BASE = (import.meta as any).env.VITE_APP_BACKEND_BASE_URL;
+      const response = await axios.get(`${BASE}/api/logistics/fedex_api/get_one/${id}`);
       setShipment(response.data.data || null);
     } catch (error) {
       console.error("Error fetching FedEx shipment details:", error);

@@ -9,12 +9,9 @@ export const msalConfig: Configuration = {
     authority: `https://login.microsoftonline.com/${import.meta.env.VITE_APP_TENANT_ID}`,
 
     //  server
-    redirectUri: import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin,
-    postLogoutRedirectUri: import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin,
+    redirectUri: import.meta.env.VITE_APP_WEB_URL || window.location.origin,
+    postLogoutRedirectUri: import.meta.env.VITE_APP_WEB_URL || window.location.origin,
 
-    // local 
-    // redirectUri: import.meta.env.VITE_APP_LOCAL_WEB_URL || import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin, 
-    // postLogoutRedirectUri: import.meta.env.VITE_APP_LOCAL_WEB_URL || import.meta.env.VITE_APP_PROD_WEB_URL || window.location.origin,
   },
     cache: {
         cacheLocation: 'sessionStorage',
