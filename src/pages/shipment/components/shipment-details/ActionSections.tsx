@@ -8,7 +8,6 @@ import { useState } from 'react';
 
 interface ActionSectionsProps {
   shipment: ShipmentGETData;
-  msLoginUser?: any;
   onDuplicateShipment?: () => void;
   onOpenLogisticsModal?: () => void;
   isApproving?: boolean;
@@ -21,7 +20,6 @@ interface ActionSectionsProps {
 
 const ActionSections = ({
   shipment,
-  msLoginUser,
   onDuplicateShipment,
   onOpenLogisticsModal,
   isApproving,
@@ -32,7 +30,7 @@ const ActionSections = ({
   onViewPackingSlip,
 }: ActionSectionsProps) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, msLoginUser } = useAuth();
   const [rejectRemark, setRejectRemark] = useState("");
   const { isOpen: isRejectModalOpen, onOpen: onRejectModalOpen, onClose: onRejectModalClose } = useDisclosure();
   const { isOpen: isWarningOpen, onOpen: onWarningOpen, onClose: onWarningClose } = useDisclosure();
@@ -41,7 +39,7 @@ const ActionSections = ({
     (user?.logisticRole === "1" &&
       shipment.request_status !== "approver_approved" &&
       shipment.request_status !== "approver_rejected") ||
-    (shipment.approver_user_mail?.toLowerCase() === msLoginUser?.mail?.toLowerCase() &&
+    (shipment.approver_user_mail?.toLowerCase() === msLoginUser?.email?.toLowerCase() &&
       shipment.request_status !== "approver_approved" &&
       shipment.request_status !== "approver_rejected");
 
@@ -60,7 +58,7 @@ const ActionSections = ({
     "logistic_edited",
     "approver_edited"
   ].includes(shipment.request_status) &&
-    // shipment?.approver_user_mail?.toLowerCase() === msLoginUser?.mail?.toLowerCase() &&
+    shipment?.approver_user_mail?.toLowerCase() === msLoginUser?.email?.toLowerCase() &&
     shipment?.label_status !== "created" &&
     shipment?.label_status !== "failed";
 

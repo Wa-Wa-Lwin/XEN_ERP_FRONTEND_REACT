@@ -605,7 +605,6 @@ const ShipmentDetails = () => {
       </div>
       <ActionSections
         shipment={shipment}
-        msLoginUser={msLoginUser}
         onDuplicateShipment={handleDuplicateShipment}
         onOpenLogisticsModal={onLogisticsModalOpen}
         isApproving={isApproving}

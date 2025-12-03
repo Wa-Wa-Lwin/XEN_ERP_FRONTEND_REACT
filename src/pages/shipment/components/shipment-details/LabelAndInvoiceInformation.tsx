@@ -203,8 +203,22 @@ const LabelAndInvoiceInformation = ({
                 </div>
                 {
                     isApproved && <>
+                        {
+                            isGrabPickup || isSupplierPickup ? (
+                                <>
+                                    {label_created_data}
+                                </>
+                            ) : (
+                                <>
+                                    {(shipment.label_status === "created" || shipment.label_status === "cancelled") && label_created_data}
+                                    {shipment.label_status === "failed" && label_failed_data}
+                                </>
+                            )
+                        }
+                        {/* 
                         {(shipment.label_status === "created" || shipment.label_status === "cancelled") && label_created_data}
                         {shipment.label_status === "failed" && label_failed_data}
+                        */}
                     </>
                 }
             </Card>
