@@ -39,6 +39,7 @@ export const BreadcrumbProvider: React.FC<BreadcrumbProviderProps> = ({ children
   const approverEmails = [
     'sasipimol@xenoptics.com',
     'wawa@xenoptics.com',
+    'thinzar@xenoptics.com',
     'kotchakorn@xenoptics.com',
     'sira@xenoptics.com',
     'solomon@xenoptics.com',
