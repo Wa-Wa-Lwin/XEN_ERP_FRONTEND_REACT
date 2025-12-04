@@ -4,7 +4,9 @@
  */
 
 export const WAREHOUSE_ONLY_USERS = [
-  'warehouse@xenoptics.com'
+  'warehouse@xenoptics.com',
+  'orrawan@xenoptics.com',
+  'kitthanat@xenoptics.com',
 ];
 
 /**

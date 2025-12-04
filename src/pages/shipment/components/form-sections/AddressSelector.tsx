@@ -487,7 +487,7 @@ const AddressSelector = ({ register, errors, control, title, prefix, setValue, f
               isInvalid={!!errors[`${prefix}_state`]}
               key={`${formKey}_${prefix}_state`}
               color={!watch(`${prefix}_state`) ? "warning" : "default"}
-              maxLength={100}
+              maxLength={20}
               onChange={() => {
                 // Clear rates since state changed
                 if (onClearRates) {
