@@ -16,6 +16,7 @@ interface ActionSectionsProps {
   onViewInvoice?: () => void;
   onViewLabel?: () => void;
   onViewPackingSlip?: () => void;
+  onCancelShipment?: () => void;
 }
 
 const ActionSections = ({
@@ -28,6 +29,7 @@ const ActionSections = ({
   onViewInvoice,
   onViewLabel,
   onViewPackingSlip,
+  onCancelShipment,
 }: ActionSectionsProps) => {
   const navigate = useNavigate();
   const { user, msLoginUser } = useAuth();
@@ -109,6 +111,9 @@ const ActionSections = ({
   const chosenRate = shipment.rates?.find(rate => isRateChosen(rate.chosen));
   const masterTrackingNumber = trackingNumbers.length > 0 ? trackingNumbers[0] : null;
 
+  const cannotCancelStatuses = ['cancelled', 'approver_rejected', 'approver_approved'];
+  const canCancel = !cannotCancelStatuses.includes(shipment.request_status?.toLowerCase()) && msLoginUser?.email?.toLowerCase() === shipment.created_user_mail?.toLowerCase();
+
   return (
     <>
       <Card shadow="none" className="rounded-none">
@@ -144,8 +149,8 @@ const ActionSections = ({
             >
               Duplicate
             </Button>
-            {onViewInvoice && shipment.invoice_no && Number(shipment.use_customize_invoice) === 0 && ( 
-            // {onViewInvoice && shipment.invoice_no && (
+            {onViewInvoice && shipment.invoice_no && Number(shipment.use_customize_invoice) === 0 && (
+              // {onViewInvoice && shipment.invoice_no && (
               <Button
                 color="primary"
                 size="md"
@@ -209,6 +214,17 @@ const ActionSections = ({
               </Button>
             )}
           </div>
+          {onCancelShipment && canCancel && (
+            <Button
+              color="danger"
+              size="md"
+              variant="shadow"
+              startContent={<Icon icon="solar:forbidden-circle-bold" />}
+              onPress={onCancelShipment}
+            >
+              Cancel
+            </Button>
+          )}
 
           {/* Approval Actions - Top Right Corner */}
           {canApprove && onApprovalAction && (

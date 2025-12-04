@@ -273,6 +273,8 @@ const ShipmentTable = () => {
         return 'success'
       case 'approver_rejected':
         return 'danger'
+      case 'cancelled':
+        return 'danger'
       default:
         return 'default'
     }
@@ -292,6 +294,8 @@ const ShipmentTable = () => {
         return 'APPROVED';
       case 'approver_rejected':
         return 'REJECTED';
+      case 'cancelled':
+        return 'CANCELLED';
       default:
         return status.replace(/_/g, ' ').toUpperCase()
     }
@@ -711,6 +715,7 @@ const ShipmentTable = () => {
 
                 <TableCell>
                   {(() => {
+                    if (request?.request_status?.toLowerCase() === 'cancelled') return <p className="font-medium text-xs text-red-500">Request Cancelled</p>;
                     if (request?.shipping_options?.toLowerCase() === 'grab_pickup') return <p className="font-medium text-xs text-blue-500">Grab Pickup</p>;
                     if (request?.shipping_options?.toLowerCase() === 'supplier_pickup') return <p className="font-medium text-xs text-blue-500">Supplier Pickup</p>;
                     if (request.request_status === 'approver_approved') {

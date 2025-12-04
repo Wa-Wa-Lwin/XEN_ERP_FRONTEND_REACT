@@ -280,6 +280,72 @@ const ShipmentDetails = () => {
     }
   };
 
+  const cancelShipmentRequest = async () => {
+    if (!shipmentId || !msLoginUser) return;
+
+    try {
+      setLoading(true);
+
+      const cancelRequestUrl = import.meta.env.VITE_APP_CANCEL_REQUEST;
+      if (!cancelRequestUrl) {
+        throw new Error("Cancel Request API URL not configured");
+      }
+      const apiUrl = `${cancelRequestUrl}${shipmentId}`;
+
+      const payload = {
+        send_status: 'cancelled',
+        login_user_id: user?.userID || 0,
+        login_user_name: msLoginUser.name,
+        login_user_mail: msLoginUser.email,
+      };
+
+      const response = await axios.put(apiUrl, payload, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.status === 200) {
+        const responseData = response.data;
+
+        if (responseData.status === 'success') {
+          success('Cancelled successfully!', 'Success');
+          // stop loading 
+          window.location.reload();
+        } else {
+          showNotificationError('Failed to cancelled the shipment request. Please try again.', 'Cancel Failed');
+        }
+      }
+    } catch (error) {
+      console.error("Error cancelling shipment request:", error);
+
+      if (axios.isAxiosError(error)) {
+        const apiError = error.response?.data;
+
+        if (!apiError) {
+          showNotificationError(
+            "No response from server. Please try again.",
+            "Network Error"
+          );
+          return;
+        }
+
+        // Fallback
+        showNotificationError(
+          "Failed to cancel the shipment. Please try again.",
+          "Cancel Failed"
+        );
+      } else {
+        // Non-Axios error (JS error)
+        showNotificationError(
+          "Unexpected error occurred. Please try again.",
+          "Error"
+        );
+      }
+    }
+    finally {
+      setLoading(false);
+    }
+  };
+
   const handleParcelItemUpdate = (itemId: string, field: string, value: string) => {
     setEditedParcelItems(prev =>
       prev.map(item =>
@@ -610,6 +676,7 @@ const ShipmentDetails = () => {
         isApproving={isApproving}
         isRejecting={isRejecting}
         onApprovalAction={handleApprovalAction}
+        onCancelShipment={cancelShipmentRequest}
         onViewInvoice={handleViewInvoice}
         onViewLabel={handleViewLabel}
         onViewPackingSlip={handleViewPackingSlip}
@@ -631,14 +698,14 @@ const ShipmentDetails = () => {
       />
 
       <AddressInformation shipment={shipment} />
-      
+
 
       {
         shipment?.shipping_options === 'grab_pickup' ? (
           <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
             <div className="flex items-center gap-2 mb-3 border-gray-200">
               <Icon icon="solar:delivery-bold" width={22} className="text-purple-600" />
-              <h3 className="font-semibold text-blue-900 text-base">Grab Delivery Information</h3>              
+              <h3 className="font-semibold text-blue-900 text-base">Grab Delivery Information</h3>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-lg border border-purple-100">
@@ -656,7 +723,7 @@ const ShipmentDetails = () => {
           <Card className="p-4 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200">
             <div className="flex items-center gap-2 mb-3 border-gray-200">
               <Icon icon="solar:box-minimalistic-bold" width={22} className="text-green-600" />
-              <h3 className="font-semibold text-blue-900 text-base">Shipping Information</h3>              
+              <h3 className="font-semibold text-blue-900 text-base">Shipping Information</h3>
             </div>
             <div className="space-y-2">
               <div className="flex items-start gap-3 bg-green-50 p-4 rounded-lg border border-green-100">
@@ -679,15 +746,15 @@ const ShipmentDetails = () => {
         )
       }
 
-      
+
       <ParcelsSection shipment={shipment} />
-      
+
       <RequestHistory
         shipment={shipment}
         showHistory={showHistory}
         setShowHistory={setShowHistory}
       />
-      
+
       {/* Change Pickup DateTime Modal */}
       <Modal isOpen={isPickupModalOpen} onClose={onPickupModalClose} size="2xl">
         <ModalContent>
