@@ -119,6 +119,31 @@ export const validateWeights = (formData: ShipmentFormData): ValidationResult =>
       })
     }
 
+    // Check for invalid dimensions
+    const parcelDepth = parseFloat(String(parcel.depth)) || 0
+    if (parcelDepth <= 0) {
+      errors.push({
+        path: `Parcel ${parcelIndex + 1} – Length/Depth`,
+        info: `Parcel length/depth must be greater than 0cm`
+      })
+    }
+
+    const parcelWidth = parseFloat(String(parcel.width)) || 0
+    if (parcelWidth <= 0) {
+      errors.push({
+        path: `Parcel ${parcelIndex + 1} – Width`,
+        info: `Parcel width must be greater than 0cm`
+      })
+    }
+
+    const parceHeight = parseFloat(String(parcel.height)) || 0
+    if (parceHeight <= 0) {
+      errors.push({
+        path: `Parcel ${parcelIndex + 1} – Height`,
+        info: `Parcel height     must be greater than 0cm`
+      })
+    }
+
     // Check item weights
     parcel.parcel_items?.forEach((item, itemIndex) => {
       const itemWeight = parseFloat(String(item.weight_value)) || 0

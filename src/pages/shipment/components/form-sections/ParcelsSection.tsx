@@ -324,7 +324,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                             <Controller
                                                 name={`parcels.${parcelIndex}.depth`}
                                                 control={control}
-                                                rules={{ required: isFieldRequired('depth') ? 'Length/depth is required' : false, min: { value: 1, message: 'Length must be at least 1' } }}
+                                                rules={{ required: isFieldRequired('depth') ? 'Length/depth is required' : false, min: { value: 0, message: 'Length must be at least 1' } }}
                                                 render={({ field }) => (
                                                     <Input
                                                         {...field}
@@ -353,7 +353,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                             <Controller
                                                 name={`parcels.${parcelIndex}.width`}
                                                 control={control}
-                                                rules={{ required: isFieldRequired('width') ? 'Width is required' : false, min: { value: 1, message: 'Width must be at least 1' } }}
+                                                rules={{ required: isFieldRequired('width') ? 'Width is required' : false, min: { value: 0, message: 'Width must be at least 1' } }}
                                                 render={({ field }) => (
                                                     <Input
                                                         isRequired={isFieldRequired('width')}
@@ -382,7 +382,7 @@ const ParcelsSection = ({ register, errors, control, setValue, watch, validation
                                             <Controller
                                                 name={`parcels.${parcelIndex}.height`}
                                                 control={control}
-                                                rules={{ required: isFieldRequired('height') ? 'Height is required' : false, min: { value: 1, message: 'Height must be at least 1' } }}
+                                                rules={{ required: isFieldRequired('height') ? 'Height is required' : false, min: { value: 0, message: 'Height must be at least 1' } }}
                                                 render={({ field }) => (
                                                     <Input
                                                         isRequired={isFieldRequired('height')}
