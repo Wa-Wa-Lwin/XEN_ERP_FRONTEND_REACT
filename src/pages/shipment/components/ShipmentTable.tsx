@@ -391,7 +391,12 @@ const ShipmentTable = () => {
             {activeButton === 'Request' && (
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-medium text-gray-700">Filter by Status:</span>
+                  <span className="text-sm font-medium text-gray-700 block 2xl:hidden">
+                    Status:
+                  </span>
+                  <span className="text-sm font-medium text-gray-700 hidden 2xl:block">
+                    Filter by Status:
+                  </span>
                   <Select
                     size="sm"
                     className="w-48"
@@ -410,7 +415,12 @@ const ShipmentTable = () => {
                     ))}
                   </Select>
 
-                  <span className="text-sm font-medium text-gray-700">Filter by Carrier:</span>
+                  <span className="text-sm font-medium text-gray-700 block 2xl:hidden">
+                    Carrier:
+                  </span>
+                  <span className="text-sm font-medium text-gray-700 hidden 2xl:block">
+                    Filter by Carrier:
+                  </span>
                   <Select
                     size="sm"
                     className="w-48"
@@ -429,7 +439,14 @@ const ShipmentTable = () => {
                     ))}
                   </Select>
 
-                  <span className="text-sm font-medium text-gray-700">Filter by Scope:</span>
+                  <span className="text-sm font-medium text-gray-700 block 2xl:hidden">
+                    Scope:
+                  </span>
+
+                  {/* For large screens (desktop), show "Filter by Status:" */}
+                  <span className="text-sm font-medium text-gray-700 hidden 2xl:block">
+                    Filter by Scope:
+                  </span>
                   <Select
                     size="sm"
                     className="w-48"
