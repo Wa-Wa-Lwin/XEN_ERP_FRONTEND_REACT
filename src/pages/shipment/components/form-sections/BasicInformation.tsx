@@ -3,6 +3,7 @@ import { Controller } from 'react-hook-form'
 import { SALES_PERSON_OPTIONS, TOPIC_OPTIONS, SERVICE_OPTIONS } from '../../constants/form-defaults'
 import type { FormSectionProps } from '../../types/shipment-form.types'
 import { useState, useEffect } from 'react'
+import { SHIPMENT_SCOPE_OPTIONS } from '@pages/shipment/constants/shipment_scope_types'
 
 interface BasicInformationProps extends FormSectionProps {
   watch: <T = any>(name?: string) => T
@@ -97,18 +98,11 @@ const BasicInformation = ({ register, errors, control, watch, setValue, onClearR
                 }}
                 color={!watch('shipment_scope_type') ? "warning" : "default"}
               >
-                <SelectItem key="domestic" value="domestic">
-                  Domestic
-                </SelectItem>
-                <SelectItem key="export" value="export">
-                  International (Export)
-                </SelectItem>
-                <SelectItem key="import" value="import">
-                  International (Import)
-                </SelectItem>
-                <SelectItem key="international" value="international">
-                  International (Outside Thailand)
-                </SelectItem>
+                {SHIPMENT_SCOPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.key} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </Select>
             )}
           />

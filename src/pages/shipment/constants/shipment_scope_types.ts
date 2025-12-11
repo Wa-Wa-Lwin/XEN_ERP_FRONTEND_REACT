@@ -9,11 +9,11 @@ export const SHIPMENT_SCOPE_OPTIONS = [
     value: 'domestic_import',
     label: 'Domestic (Import To Xenoptics)',
   },
-  {
-    key: 'domestic_thailand',
-    value: 'domestic_thailand',
-    label: 'Domestic (Inside Thailand)',
-  },
+  // {
+  //   key: 'domestic_thailand',
+  //   value: 'domestic_thailand',
+  //   label: 'Domestic (Inside Thailand)',
+  // },
   {
     key: 'international_export',
     value: 'international_export',
