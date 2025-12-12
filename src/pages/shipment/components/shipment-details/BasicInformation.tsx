@@ -106,15 +106,9 @@ const BasicInformation = ({
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2.5 text-sm text-gray-700">
         <InfoRow label="Scope" value={
           shipment.shipment_scope_type
-            ? shipment.shipment_scope_type.toLowerCase() === 'international'
+            ? shipment.shipment_scope_type.toLowerCase() === 'international_global'
               ? 'International (Outside Thailand)'
-              : shipment.shipment_scope_type.toLowerCase() === 'export'
-                ? 'International (Export)'
-                : shipment.shipment_scope_type.toLowerCase() === 'import'
-                  ? 'International (Import)'
-                  : shipment.shipment_scope_type.toLowerCase() === 'domestic'
-                    ? 'Domestic'
-                    : shipment.shipment_scope_type
+              : shipment.shipment_scope_type.toUpperCase().replace(/_/g, ' ')  
             : '-'
         } />
 
