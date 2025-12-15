@@ -104,7 +104,7 @@ export const validateWeights = (formData: ShipmentFormData): ValidationResult =>
 
       if (parcelWeight < totalItemWeight) {
         errors.push({
-          path: `Parcel ${parcelIndex + 1} – Weight`,
+          path: `Parcel ${parcelIndex + 1} - Weight`,
           info: `Parcel weight (${parcelWeight}kg) must be greater than or equal to the sum of item weights (${totalItemWeight.toFixed(2)}kg). Please increase the parcel weight or reduce item weights.`
         })
       }
@@ -114,7 +114,7 @@ export const validateWeights = (formData: ShipmentFormData): ValidationResult =>
     const parcelWeight = parseFloat(String(parcel.weight_value)) || 0
     if (parcelWeight <= 0) {
       errors.push({
-        path: `Parcel ${parcelIndex + 1} – Weight`,
+        path: `Parcel ${parcelIndex + 1} - Weight`,
         info: `Parcel weight must be greater than 0kg`
       })
     }
@@ -123,7 +123,7 @@ export const validateWeights = (formData: ShipmentFormData): ValidationResult =>
     const parcelDepth = parseFloat(String(parcel.depth)) || 0
     if (parcelDepth <= 0) {
       errors.push({
-        path: `Parcel ${parcelIndex + 1} – Length/Depth`,
+        path: `Parcel ${parcelIndex + 1} - Length/Depth`,
         info: `Parcel length/depth must be greater than 0cm`
       })
     }
@@ -131,7 +131,7 @@ export const validateWeights = (formData: ShipmentFormData): ValidationResult =>
     const parcelWidth = parseFloat(String(parcel.width)) || 0
     if (parcelWidth <= 0) {
       errors.push({
-        path: `Parcel ${parcelIndex + 1} – Width`,
+        path: `Parcel ${parcelIndex + 1} - Width`,
         info: `Parcel width must be greater than 0cm`
       })
     }
@@ -139,7 +139,7 @@ export const validateWeights = (formData: ShipmentFormData): ValidationResult =>
     const parceHeight = parseFloat(String(parcel.height)) || 0
     if (parceHeight <= 0) {
       errors.push({
-        path: `Parcel ${parcelIndex + 1} – Height`,
+        path: `Parcel ${parcelIndex + 1} - Height`,
         info: `Parcel height     must be greater than 0cm`
       })
     }
@@ -149,7 +149,7 @@ export const validateWeights = (formData: ShipmentFormData): ValidationResult =>
       const itemWeight = parseFloat(String(item.weight_value)) || 0
       if (itemWeight <= 0) {
         errors.push({
-          path: `Parcel ${parcelIndex + 1} – Item ${itemIndex + 1} Weight`,
+          path: `Parcel ${parcelIndex + 1} - Item ${itemIndex + 1} Weight`,
           info: `Item weight must be greater than 0kg`
         })
       }
@@ -170,16 +170,18 @@ export const validateShipmentScope = (formData: ShipmentFormData): {
   const shipToCountry = formData.ship_to_country?.toUpperCase()
   const scopeType = formData.shipment_scope_type?.toLowerCase()
 
+  const shipFromXenoptics = formData.ship_from_company_name?.toLowerCase().startsWith('xenoptic') || formData.ship_from?.company_name?.toLowerCase().startsWith('xenoptic')
+  const shipToXenoptics = formData.ship_to_company_name?.toLowerCase().startsWith('xenoptic') || formData.ship_to?.company_name?.toLowerCase().startsWith('xenoptic')
+
   const bothThai = shipFromCountry === 'THA' && shipToCountry === 'THA'
   const bothNotThai = shipFromCountry !== 'THA' && shipToCountry !== 'THA'
   const fromThaiToOther = shipFromCountry === 'THA' && shipToCountry !== 'THA'
   const fromOtherToThai = shipFromCountry !== 'THA' && shipToCountry === 'THA'
 
   if (
-    (scopeType === 'domestic' && !bothThai) ||
-    (scopeType === 'export' && !fromThaiToOther) ||
-    (scopeType === 'import' && !fromOtherToThai) ||
-    (scopeType === 'international' && !bothNotThai)
+    (scopeType === 'domestic_export' && !shipFromXenoptics) ||
+    (scopeType === 'domestic_import' && !shipToXenoptics) ||
+    (scopeType.startsWith('domestic') && !bothThai)     
   ) {
     return {
       isValid: false,
@@ -188,7 +190,33 @@ export const validateShipmentScope = (formData: ShipmentFormData): {
         message: 'The selected addresses do not match the shipment scope type.',
         details: [{
           path: 'Shipment Scope',
-          info: 'Please change your Scope Type in Basic Information to "Domestic" since both Ship From and Ship To countries are Thailand (THA), to "Export" (if shipping from THA to another country), "Import" (if shipping from another country to THA), or "International" (if both countries are outside Thailand).'
+          info:
+            'Please change your Scope Type in Basic Information:\n' +
+            '• Domestic Export- Ship From has to be Xenoptics Company (Check Spelling and Address) and Ship To address has to be in Thailand (THA)\n' +
+            '• Domestic Import- Ship To has to be Xenoptics Company (Check Spelling and Address) and Ship From address has to be in Thailand (THA)\n'
+        }]
+
+      }
+    }
+  }
+
+  if (
+    (scopeType === 'international_export' && !fromThaiToOther) ||
+    (scopeType === 'international_import' && !fromOtherToThai) ||
+    (scopeType === 'international_global' && !bothNotThai)
+  ) {
+    return {
+      isValid: false,
+      error: {
+        title: 'Shipment Scope Mismatch',
+        message: 'The selected addresses do not match the shipment scope type.',
+        details: [{
+          path: 'Shipment Scope',
+          info:
+            'Please change your Scope Type in Basic Information:\n' +
+            '• International Export - shipping from THA to another country\n' +
+            '• International Import - shipping from another country to THA\n' +
+            '• International Global - both countries are outside Thailand'
         }]
       }
     }

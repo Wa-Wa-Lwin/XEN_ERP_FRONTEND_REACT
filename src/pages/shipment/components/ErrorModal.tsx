@@ -147,7 +147,9 @@ const ErrorModal = ({ isOpen, onClose, title, message, details }: ErrorModalProp
                           <h4 className="font-semibold text-red-800">{friendlyError.field}</h4>
                           <code className="bg-red-100 px-2 py-1 rounded text-xs text-red-600">{detail.path}</code>
                         </div>
-                        <p className="text-red-700 mb-2">{friendlyError.message}</p>
+                        <p className="text-red-700 mb-2 whitespace-pre-line">
+                          {friendlyError.message}
+                        </p>
                         <div className="flex items-start">
                           <Icon icon="solar:lightbulb-bold" className="text-amber-500 text-sm mt-0.5 mr-2 flex-shrink-0" />
                           <p className="text-amber-700 text-sm font-medium">{friendlyError.suggestion}</p>

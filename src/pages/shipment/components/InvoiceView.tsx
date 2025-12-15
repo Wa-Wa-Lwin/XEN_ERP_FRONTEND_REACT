@@ -62,12 +62,14 @@ const InvoiceView = () => {
     const isFOC = payment_terms?.toLowerCase() === 'free_of_charge' 
     const scope = shipment_scope_type?.toLowerCase()
 
-    if (scope === 'domestic' && isFOC) return `Domestic Foc ${shipmentRequestID}`
-    if (scope === 'domestic') return `Domestic ${shipmentRequestID}`
-    if (scope === 'export' && isFOC) return `Export Foc ${shipmentRequestID}`
-    if (scope === 'export') return `Export ${shipmentRequestID}`
-    if (scope === 'import' && isFOC) return `Import Foc ${shipmentRequestID}`
-    if (scope === 'import') return `Import ${shipmentRequestID}`
+    if (scope.startsWith('domestic') && isFOC) return `Domestic Foc ${shipmentRequestID}`
+    if (scope.startsWith('domestic')) return `Domestic ${shipmentRequestID}`
+    if (scope === 'international_export' && isFOC) return `Export Foc ${shipmentRequestID}`
+    if (scope === 'international_export') return `Export ${shipmentRequestID}`
+    if (scope === 'international_import' && isFOC) return `Import Foc ${shipmentRequestID}`
+    if (scope === 'international_import') return `Import ${shipmentRequestID}`
+    if (scope === 'international' && isFOC) return `International Foc ${shipmentRequestID}`
+    if (scope === 'international') return `International ${shipmentRequestID}`
     return `Invoice ${shipmentRequestID}`
   }
 
@@ -531,7 +533,7 @@ const InvoiceView = () => {
                         <strong>Customer PO No.</strong> {shipment.po_number}<br />
                         <strong>PO Date:</strong> {shipment.po_date}<br />
                         <strong>Incoterm:</strong> {shipment?.customs_terms_of_trade?.toUpperCase()}<br /><br />
-                        {shipment.shipment_scope_type !== 'import' && (
+                        {shipment.shipment_scope_type?.toLowerCase().includes('import') && (
                           <>
                             <strong>Bank Details</strong><br />
                             <strong>Please make all cheques and EFT payable To:</strong> Xenoptics Limited.<br />

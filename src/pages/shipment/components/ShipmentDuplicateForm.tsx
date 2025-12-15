@@ -484,7 +484,7 @@ const ShipmentDuplicateForm = () => {
                         </div>
                         <hr />
                         {/* Customs fields - only show for international shipments */}
-                        {watch('shipment_scope_type') && watch('shipment_scope_type')?.toLowerCase() !== 'domestic' && (
+                        {watch('shipment_scope_type') && watch('shipment_scope_type').toLowerCase().startsWith('international') && (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                             <Controller
                               name="customs_purpose"

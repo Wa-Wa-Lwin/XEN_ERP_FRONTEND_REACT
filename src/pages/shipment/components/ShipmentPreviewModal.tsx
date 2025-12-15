@@ -58,9 +58,9 @@ const ShipmentPreviewModal = ({ isOpen, onClose, onConfirm, formData, isSubmitti
             <b>Service Option - </b> {formData.service_options || 'Not specified'} <br />
             <b>PO Number - </b> {formData.po_number || 'Not specified'} <br />
             <b>PO Date - </b> {formData.po_date.slice(0, 10) || 'Not specified'} ({new Date(formData.po_date).toLocaleDateString('en-US', { weekday: 'short' })}) <br />
-            <b>Shipment Scope - </b> {formData.shipment_scope_type || 'Not specified'} <br />
+            <b>Shipment Scope - </b> {formData.shipment_scope_type?.toUpperCase().replace(/_/g,' ') || 'Not specified'} <br />
             {
-              formData?.shipment_scope_type.toLowerCase() !== "domestic" &&
+              formData?.shipment_scope_type.toLowerCase().startsWith('international') &&
               <>
                 <b>Custom Purpose - </b> {formData.customs_purpose?.toLocaleUpperCase() || 'Not specified'} <br />
                 <b>Incoterms - </b> {formData.customs_terms_of_trade?.toLocaleUpperCase() || 'Not specified'} <br />

@@ -22,15 +22,9 @@ export const BasicInfoSummary = ({ data, onEdit }: { data: ShipmentFormData } & 
                 <span className="text-gray-600">Scope: </span>
                 <span className="font-medium">
                   {data?.shipment_scope_type
-                    ? data?.shipment_scope_type.toLowerCase() === 'international'
+                    ? data?.shipment_scope_type.toLowerCase() === 'international_global'
                       ? 'International (Outside Thailand)'
-                      : data?.shipment_scope_type.toLowerCase() === 'export'
-                        ? 'International (Export)'
-                        : data?.shipment_scope_type.toLowerCase() === 'import'
-                          ? 'International (Import)'
-                          : data?.shipment_scope_type.toLowerCase() === 'domestic'
-                            ? 'Domestic'
-                            : data?.shipment_scope_type
+                      : data?.shipment_scope_type?.toUpperCase().replace(/_/g, ' ')                       
                     : '-'}
                 </span>
 

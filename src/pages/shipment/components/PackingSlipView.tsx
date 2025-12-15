@@ -205,7 +205,7 @@ const PackingSlipView = () => {
             <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
               Shipper / Exporter:
             </div>
-            {shipment.shipment_scope_type === 'export' || isXenoptics(shipment.ship_from?.company_name) ? (
+            {shipment.shipment_scope_type?.toLowerCase().includes('export') || isXenoptics(shipment.ship_from?.company_name) ? (
               <>
                 <strong>Xenoptics Limited.</strong><br />
                 195 Moo.3 Bypass Chiangmai-Hangdong<br />

@@ -828,8 +828,8 @@ const ShipmentDetails = () => {
                 </p>
               </div>
 
-              {/* Customs Purpose and Incoterms - Only for non-domestic shipments */}
-              {shipment?.shipment_scope_type?.toLowerCase() !== 'domestic' && (
+              {/* Customs Purpose and Incoterms - Only for international shipments */}
+              {shipment?.shipment_scope_type?.toLowerCase().startsWith('international') && (
                 <div className="grid md:grid-cols-2 gap-4">
                   <Select
                     label="Customs Purpose"
@@ -936,7 +936,7 @@ const ShipmentDetails = () => {
               color="primary"
               onPress={() => {
                 // Validation before calling update
-                const isDomestic = shipment?.shipment_scope_type?.toLowerCase() === 'domestic';
+                const isDomestic = shipment?.shipment_scope_type?.toLowerCase().startsWith('domestic');
 
                 // For non-domestic shipments, validate customs fields
                 if (!isDomestic && (!editCustomsPurpose || !editCustomsTermsOfTrade)) {
