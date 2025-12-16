@@ -108,17 +108,17 @@ const BasicInformation = ({
           shipment.shipment_scope_type
             ? shipment.shipment_scope_type.toLowerCase() === 'international_global'
               ? 'International (Outside Thailand)'
-              : shipment.shipment_scope_type.toUpperCase().replace(/_/g, ' ')  
+              : shipment.shipment_scope_type.toUpperCase().replace(/_/g, ' ')
             : '-'
         } />
 
         <InfoRow
           label="Topic"
           value={`${shipment.topic || '-'}${shipment.topic === 'Others'
-              ? ` (${shipment.other_topic})`
-              : shipment.topic === 'For Sales'
-                ? ` (${shipment.sales_person})`
-                : ''
+            ? ` (${shipment.other_topic})`
+            : shipment.topic === 'For Sales'
+              ? ` (${shipment.sales_person})`
+              : ''
             }`}
         />
 
@@ -188,15 +188,17 @@ const BasicInformation = ({
           <Icon icon="solar:calendar-bold" width={20} className="text-blue-600" />
           <h4 className="font-semibold text-blue-900 text-sm">Pickup</h4>
 
-          <Chip
-            color={pickupStatusConfig.color}
-            variant="flat"
-            size="sm"
-            startContent={<Icon icon={pickupStatusConfig.icon} width={14} />}
-            className="font-semibold"
-          >
-            {pickupStatusConfig.text}
-          </Chip>
+          {shipment?.request_status !== 'approver_rejected' && (
+            <Chip
+              color={pickupStatusConfig.color}
+              variant="flat"
+              size="sm"
+              startContent={<Icon icon={pickupStatusConfig.icon} width={14} />}
+              className="font-semibold"
+            >
+              {pickupStatusConfig.text}
+            </Chip>
+          )}
         </div>
 
         <InfoRow label="Pickup Date Time" value={pickupDateTime} />
