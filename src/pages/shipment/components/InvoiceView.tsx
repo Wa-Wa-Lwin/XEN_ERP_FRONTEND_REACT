@@ -1,16 +1,13 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import axios from 'axios'
 import { Spinner, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure } from '@heroui/react'
 import { useReactToPrint } from 'react-to-print'
 import { Icon } from '@iconify/react'
 import { useAuth } from '@context/AuthContext'
 import { useNotification } from '@context/NotificationContext'
+import UpdateLogisticsModal from './modals/UpdateLogisticsModal'
+import { getShipmentById, updateInvoiceData, updateLogisticsInfo } from '../services/shipmentService'
 import type { ShipmentGETData } from './shipment-details'
-
-interface InvoiceResponse {
-  shipment_request: ShipmentGETData
-}
 
 const InvoiceView = () => {
   const { shipmentId } = useParams<{ shipmentId: string }>()
@@ -24,36 +21,36 @@ const InvoiceView = () => {
 
   // Invoice data modal state
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen: isLogisticsOpen, onOpen: onLogisticsOpen, onClose: onLogisticsClose } = useDisclosure()
   const [invoiceFormData, setInvoiceFormData] = useState({
     invoice_no: '',
     invoice_date: '',
     invoice_due_date: ''
   })
+  const [logisticsFormData, setLogisticsFormData] = useState({
+    customs_purpose: '',
+    customs_terms_of_trade: ''
+  })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    const fetchShipmentData = async () => {
-      try {
-        setLoading(true)
-        const apiUrl = import.meta.env.VITE_APP_GET_SHIPMENT_REQUEST_BY_ID
-        if (!apiUrl) {
-          throw new Error('API URL not configured')
-        }
-
-        const response = await axios.get<InvoiceResponse>(`${apiUrl}${shipmentId}`)
-        setShipment(response.data.shipment_request)
-      } catch (err) {
-        console.error('Error fetching shipment:', err)
-        setError(err instanceof Error ? err.message : 'Failed to fetch shipment data')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (shipmentId) {
-      fetchShipmentData()
-    }
+    fetchShipmentData()
   }, [shipmentId])
+
+  const fetchShipmentData = async () => {
+    if (!shipmentId) return
+
+    try {
+      setLoading(true)
+      const data = await getShipmentById(shipmentId)
+      setShipment(data)
+    } catch (err) {
+      console.error('Error fetching shipment:', err)
+      setError(err instanceof Error ? err.message : 'Failed to fetch shipment data')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Get document title
   const getDocumentTitle = () => {
@@ -104,10 +101,6 @@ const InvoiceView = () => {
 
     try {
       setIsSubmitting(true)
-      const apiUrl = import.meta.env.VITE_APP_CHANGE_INVOICE_DATA
-      if (!apiUrl) {
-        throw new Error('API URL not configured')
-      }
 
       const payload = {
         invoice_no: invoiceFormData.invoice_no,
@@ -118,19 +111,70 @@ const InvoiceView = () => {
         login_user_mail: user.email
       }
 
-      await axios.put(`${apiUrl}${shipmentId}`, payload)
+      await updateInvoiceData(shipmentId, payload)
 
       showSuccess('Invoice data updated successfully')
       onClose()
 
       // Refetch shipment data to reflect changes
-      const response = await axios.get<InvoiceResponse>(
-        `${import.meta.env.VITE_APP_GET_SHIPMENT_REQUEST_BY_ID}${shipmentId}`
-      )
-      setShipment(response.data.shipment_request)
+      await fetchShipmentData()
     } catch (err) {
       console.error('Error updating invoice data:', err)
       showError(err instanceof Error ? err.message : 'Failed to update invoice data')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Open logistics modal and populate with current data
+  const handleOpenLogisticsModal = () => {
+    if (shipment) {
+      setLogisticsFormData({
+        customs_purpose: shipment.customs_purpose || '',
+        customs_terms_of_trade: shipment.customs_terms_of_trade || ''
+      })
+      onLogisticsOpen()
+    }
+  }
+
+  // Handle logistics update
+  const handleUpdateLogistics = async () => {
+    if (!shipmentId || !user || !msLoginUser) {
+      showError('Missing required information')
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+
+      const payload = {
+        send_status: 'logistic_updated',
+        login_user_id: user.userID,
+        login_user_name: msLoginUser.name,
+        login_user_mail: msLoginUser.email,
+        customs_purpose: logisticsFormData.customs_purpose || shipment?.customs_purpose || '',
+        customs_terms_of_trade: logisticsFormData.customs_terms_of_trade || shipment?.customs_terms_of_trade || '',
+        parcels: shipment?.parcels?.map((parcel: any) => ({
+          parcel_items: parcel.items?.map((item: any) => ({
+            parcelItemID: item.parcelItemID,
+            item_id: item.item_id || '',
+            origin_country: item.origin_country || '',
+            hs_code: item.hs_code || ''
+          })) || []
+        })) || [],
+        remark: 'Logistics information updated'
+      }
+
+      await updateLogisticsInfo(shipmentId, payload)
+
+      showSuccess('Logistics information updated successfully')
+      onLogisticsClose()
+
+      // Refetch shipment data to reflect changes
+      await fetchShipmentData()
+    } catch (err) {
+      console.error('Error updating logistics data:', err)
+      showError(err instanceof Error ? err.message : 'Failed to update logistics information')
     } finally {
       setIsSubmitting(false)
     }
@@ -335,6 +379,14 @@ const InvoiceView = () => {
         <Button
           color="secondary"
           size="md"
+          onPress={handleOpenLogisticsModal}
+          startContent={<Icon icon="solar:document-text-bold" />}
+        >
+          Update Logistics Info
+        </Button>
+        <Button
+          color="secondary"
+          size="md"
           onPress={handleOpenInvoiceModal}
           startContent={<Icon icon="solar:document-text-bold" />}
         >
@@ -397,6 +449,36 @@ const InvoiceView = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* Update Logistics Info Modal */}
+      <UpdateLogisticsModal
+        isOpen={isLogisticsOpen}
+        onClose={onLogisticsClose}
+        shipment={shipment}
+        editedParcelItems={shipment?.parcels?.flatMap((parcel: any, parcelIndex: number) =>
+          parcel.items?.map((item: any, itemIndex: number) => ({
+            ...item,
+            parcelIndex,
+            itemIndex,
+            id: `${parcelIndex}-${itemIndex}`,
+            parcelItemID: item.parcelItemID
+          })) || []
+        ) || []}
+        editCustomsPurpose={logisticsFormData.customs_purpose}
+        editCustomsTermsOfTrade={logisticsFormData.customs_terms_of_trade}
+        isUpdatingLogistics={isSubmitting}
+        onEditCustomsPurposeChange={(value) =>
+          setLogisticsFormData({ ...logisticsFormData, customs_purpose: value })
+        }
+        onEditCustomsTermsOfTradeChange={(value) =>
+          setLogisticsFormData({ ...logisticsFormData, customs_terms_of_trade: value })
+        }
+        onParcelItemUpdate={() => {
+          // Note: For InvoiceView, we're not persisting parcel item changes
+          // This is a read-only view for now. Implement as needed.
+        }}
+        onSubmit={handleUpdateLogistics}
+      />
 
       {/* Printable Content */}
       <div ref={printRef}>
