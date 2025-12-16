@@ -193,16 +193,16 @@ export const sectionItems: SidebarItem[] = [
   //   ],
   // },
   {
-    key: "testing-data",
-    to: "/testing-data",
+    key: "user-approver-data",
+    to: "/user-approver-data",
     icon: "solar:home-2-linear",
-    title: "Testing Only",
+    title: "User & Approver Data",
     items: [
       {
-        key: "testing-data",
-        to: "/testing-data",
+        key: "user-approver-data",
+        to: "/user-approver-data",
         icon: "solar:home-2-linear",
-        title: "Testing Data",
+        title: "User & Approver Data",
       },
     ]
   },
@@ -225,25 +225,25 @@ export const sectionItems: SidebarItem[] = [
       // },
     ]
   },
-  {
-    key: "rates",
-    to: "/rates",
-    title: "Rates",
-    items: [
-      {
-        key: "dhl-domestic",
-        to: "/rates/dhl-domestic",
-        icon: "mdi:truck-delivery",
-        title: "DHL Domestic Rates",
-      },
-      {
-        key: "fedex-domestic",
-        to: "/fedex-domestic",
-        icon: "mdi:truck-fast",
-        title: "FedEx Domestic",
-      },
-    ]
-  },
+  // {
+  //   key: "rates",
+  //   to: "/rates",
+  //   title: "Rates",
+  //   items: [
+  //     {
+  //       key: "dhl-domestic",
+  //       to: "/rates/dhl-domestic",
+  //       icon: "mdi:truck-delivery",
+  //       title: "DHL Domestic Rates",
+  //     },
+  //     {
+  //       key: "fedex-domestic",
+  //       to: "/fedex-domestic",
+  //       icon: "mdi:truck-fast",
+  //       title: "FedEx Domestic",
+  //     },
+  //   ]
+  // },
   // {
   //   key: "aftership",
   //   to: "/aftership",

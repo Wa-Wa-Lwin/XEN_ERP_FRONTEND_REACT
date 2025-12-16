@@ -45,7 +45,7 @@ export const routes = [
     element: <ProtectedRoute><Home /></ProtectedRoute>,
     children: [
       { path: "overview", element: <WarehouseOnlyRoute><Overview /></WarehouseOnlyRoute>, handle: { breadcrumb: "Overview" } },
-      { path: "testing-data", element: <WarehouseOnlyRoute><TestingData /></WarehouseOnlyRoute>, handle: { breadcrumb: "Testing Data" } },
+      { path: "user-approver-data", element: <WarehouseOnlyRoute><TestingData /></WarehouseOnlyRoute>, handle: { breadcrumb: "User & Approver Data" } },
       { path: "logistics/:category?", element: <WarehouseOnlyRoute><Logistics /></WarehouseOnlyRoute>, handle: { breadcrumb: "Logistics" } },
       { path: "shipment",
         handle: { breadcrumb: "Shipment" },
