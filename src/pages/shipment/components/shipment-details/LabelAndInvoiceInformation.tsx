@@ -27,6 +27,8 @@ const LabelAndInvoiceInformation = ({
                 return { color: 'danger' as const, icon: 'solar:close-circle-bold', text: 'Failed' };
             case "cancelled":
                 return { color: 'danger' as const, icon: 'solar:forbidden-circle-bold', text: 'Cancelled' };
+            case "scheduled":
+                return { color: 'warning' as const, icon: 'solar:forbidden-circle-bold', text: 'Scheduled' };
             default:
                 return { color: 'warning' as const, icon: 'solar:clock-circle-bold', text: 'Pending' };
         }
@@ -61,6 +63,13 @@ const LabelAndInvoiceInformation = ({
                         <div>
                             <span className="text-gray-600 font-medium">Tracking Number: </span>
                             <span className="font-semibold text-gray-900">{shipment.tracking_numbers}</span>
+                            {shipment.label_status === "scheduled" &&
+                                <>
+                                    <span className="text-blue-600 text-xs font-semibold bg-blue-50 p-2 rounded">
+                                        🤖 Automate schedule to create Label and tracking numbers.
+                                    </span>
+                                </>
+                            }
                         </div>
                     </>
                 }
@@ -122,6 +131,7 @@ const LabelAndInvoiceInformation = ({
                                 <>
                                     {(shipment.label_status === "created" || shipment.label_status === "cancelled") && label_created_data}
                                     {shipment.label_status === "failed" && label_failed_data}
+                                    {shipment.label_status === "scheduled" && label_created_data}
                                 </>
                             )
                         }
